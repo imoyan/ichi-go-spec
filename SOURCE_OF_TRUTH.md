@@ -39,3 +39,28 @@ updated unless the contract is changed first.
   vector exist here.
 - Release notes should describe changed feature profiles, not implementation
   internals.
+
+## Pre-1.0 Freeze Checklist
+
+Before freezing a pre-1.0 spec baseline:
+
+- Every covered behavior has a `contracts/SPEC-*.md` entry and at least one
+  matching `test-vectors/**/*.json` fixture.
+- `CONTRACT_MODULE_MAP.md`, `FEATURE_PROFILES.md`, and `MODULE_DEPENDENCIES.md`
+  match the frozen contract set.
+- `design/theme.schema.json` validates every committed `design/themes/*.json`
+  token file.
+- `dart tool/check_spec.dart` passes on the freeze candidate.
+- Release notes or PR text identify changed feature profiles, not client
+  implementation internals.
+
+Change handling before freeze:
+
+- Breaking changes must update the relevant `SPEC-*`, vectors, and profile map
+  in the same spec PR.
+- Additive changes must add a `SPEC-*` section or new contract plus matching
+  vectors before any SDK surface is added.
+- Corrections may clarify wording without a vector change only when expected
+  client behavior does not change.
+- Any contract, vector, or design token change that affects bundled assets or
+  expected client behavior requires a follow-up `okaka-flutter` PR.
