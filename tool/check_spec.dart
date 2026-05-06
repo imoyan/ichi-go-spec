@@ -12,6 +12,8 @@ const profiles = {
 };
 
 final hexColor = RegExp(r'^#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$');
+const themeTopLevelKeys = {r'$schema', 'name', 'version', 'defs', 'theme'};
+const themePairKeys = {'light', 'dark'};
 
 void main() {
   final failures = <String>[];
@@ -309,6 +311,11 @@ void checkThemes(List<String> failures) {
       'design/theme.schema.json must require name/version/defs/theme.',
     );
   }
+  if (schema['additionalProperties'] != false) {
+    failures.add(
+      'design/theme.schema.json must reject additional top-level properties.',
+    );
+  }
 
   final root = Directory('design/themes');
   if (!root.existsSync()) {
@@ -321,6 +328,8 @@ void checkThemes(List<String> failures) {
     if (json == null) {
       continue;
     }
+    checkAllowedKeys(file, json, themeTopLevelKeys, 'theme file', failures);
+
     final defs = json['defs'];
     final theme = json['theme'];
     if (json['name'] is! String || (json['name'] as String).isEmpty) {
@@ -351,6 +360,13 @@ void checkThemes(List<String> failures) {
         continue;
       }
       final colors = pair.cast<String, Object?>();
+      checkAllowedKeys(
+        file,
+        colors,
+        themePairKeys,
+        'theme.${entry.key}',
+        failures,
+      );
       for (final variant in ['light', 'dark']) {
         final value = colors[variant];
         if (value is! String ||
@@ -362,6 +378,20 @@ void checkThemes(List<String> failures) {
           );
         }
       }
+    }
+  }
+}
+
+void checkAllowedKeys(
+  File file,
+  Map<String, Object?> object,
+  Set<String> allowed,
+  String label,
+  List<String> failures,
+) {
+  for (final key in object.keys) {
+    if (!allowed.contains(key)) {
+      failures.add('${relative(file)} $label has unexpected key: $key');
     }
   }
 }
