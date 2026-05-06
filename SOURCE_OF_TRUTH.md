@@ -64,3 +64,20 @@ Change handling before freeze:
   client behavior does not change.
 - Any contract, vector, or design token change that affects bundled assets or
   expected client behavior requires a follow-up `okaka-flutter` PR.
+
+## Current Pre-1.0 Freeze Candidate
+
+The current freeze candidate is the committed `core`, `auth`, `rooms`,
+`events`, `messaging`, `sync`, and `media` profile set described by
+`CONTRACT_MODULE_MAP.md`.
+
+The candidate includes the existing `contracts/SPEC-*.md`,
+`test-vectors/**/*.json`, `design/theme.schema.json`, and
+`design/themes/smoke.json` files. No implementation behavior, SDK API shape,
+storage policy, UI behavior, or server behavior is part of this freeze
+candidate.
+
+Changing a frozen contract, vector, or design token after this candidate
+requires a focused spec PR first. If the change affects bundled design assets
+or expected SDK behavior, create the matching `okaka-flutter` follow-up issue
+or PR after the spec PR is merged.
