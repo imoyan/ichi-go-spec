@@ -1,0 +1,20 @@
+{
+  "name": "create-room-basic",
+  "contract": "SPEC-006",
+  "request": {
+    "method": "POST",
+    "path": "/_chawan/client/rooms",
+    "access_token": "token-1",
+    "body": {
+      "name": "General"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "room_id": "!room:example.test",
+      "name": "General",
+      "membership": "join"
+    }
+  }
+}

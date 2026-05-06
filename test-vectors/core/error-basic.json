@@ -1,0 +1,15 @@
+{
+  "name": "error-basic",
+  "contract": "SPEC-002",
+  "response": {
+    "status": 503,
+    "body": {
+      "code": "CHAWAN_UNAVAILABLE",
+      "message": "Service unavailable."
+    }
+  },
+  "expected": {
+    "code": "CHAWAN_UNAVAILABLE",
+    "message": "Service unavailable."
+  }
+}

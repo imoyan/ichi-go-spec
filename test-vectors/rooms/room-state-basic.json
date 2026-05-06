@@ -1,0 +1,26 @@
+{
+  "name": "room-state-basic",
+  "contract": "SPEC-006",
+  "request": {
+    "method": "GET",
+    "path": "/_chawan/client/rooms/!room:example.test/state",
+    "access_token": "token-1"
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "events": [
+        {
+          "event_id": "$state:example.test",
+          "room_id": "!room:example.test",
+          "sender": "@alice:example.test",
+          "origin_server_ts": 1710000000000,
+          "type": "chawan.room.name",
+          "content": {
+            "name": "General"
+          }
+        }
+      ]
+    }
+  }
+}

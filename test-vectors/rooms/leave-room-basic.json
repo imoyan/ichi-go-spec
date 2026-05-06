@@ -1,0 +1,16 @@
+{
+  "name": "leave-room-basic",
+  "contract": "SPEC-006",
+  "request": {
+    "method": "POST",
+    "path": "/_chawan/client/rooms/!room:example.test/leave",
+    "access_token": "token-1"
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "room_id": "!room:example.test",
+      "membership": "leave"
+    }
+  }
+}

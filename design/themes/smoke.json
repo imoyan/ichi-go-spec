@@ -1,0 +1,83 @@
+{
+  "$schema": "../theme.schema.json",
+  "name": "smoke",
+  "version": "0.1.0",
+  "defs": {
+    "ink": "#182026",
+    "slate": "#26313A",
+    "mist": "#EDF2F5",
+    "cloud": "#F7FAFC",
+    "lineDark": "#40515E",
+    "lineLight": "#D6E0E6",
+    "blue": "#3D7C9F",
+    "teal": "#2D8F83",
+    "green": "#4C8A3F",
+    "amber": "#B7791F",
+    "red": "#B84A4A",
+    "mutedDark": "#9BAAB4",
+    "mutedLight": "#53616B",
+    "shadow": "#241F1C"
+  },
+  "theme": {
+    "primary": {
+      "dark": "blue",
+      "light": "blue"
+    },
+    "secondary": {
+      "dark": "teal",
+      "light": "teal"
+    },
+    "accent": {
+      "dark": "amber",
+      "light": "amber"
+    },
+    "error": {
+      "dark": "red",
+      "light": "red"
+    },
+    "warning": {
+      "dark": "amber",
+      "light": "amber"
+    },
+    "success": {
+      "dark": "green",
+      "light": "green"
+    },
+    "info": {
+      "dark": "blue",
+      "light": "blue"
+    },
+    "text": {
+      "dark": "cloud",
+      "light": "ink"
+    },
+    "textMuted": {
+      "dark": "mutedDark",
+      "light": "mutedLight"
+    },
+    "background": {
+      "dark": "ink",
+      "light": "cloud"
+    },
+    "surface": {
+      "dark": "slate",
+      "light": "mist"
+    },
+    "surfaceRaised": {
+      "dark": "#2F3B45",
+      "light": "#FFFFFF"
+    },
+    "border": {
+      "dark": "lineDark",
+      "light": "lineLight"
+    },
+    "focus": {
+      "dark": "teal",
+      "light": "blue"
+    },
+    "shadow": {
+      "dark": "shadow",
+      "light": "#C8D2D9"
+    }
+  }
+}

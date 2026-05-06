@@ -1,0 +1,21 @@
+{
+  "name": "upload-basic",
+  "contract": "SPEC-020",
+  "request": {
+    "method": "POST",
+    "path": "/_chawan/client/media",
+    "access_token": "token-1",
+    "body": {
+      "filename": "avatar.png",
+      "content_type": "image/png",
+      "bytes_base64": "aGVsbG8="
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "media_id": "media1",
+      "content_uri": "chawan://media/media1"
+    }
+  }
+}

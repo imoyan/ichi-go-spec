@@ -1,0 +1,21 @@
+{
+  "name": "room-list-basic",
+  "contract": "SPEC-009",
+  "request": {
+    "method": "GET",
+    "path": "/_chawan/client/rooms",
+    "access_token": "token-1"
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "rooms": [
+        {
+          "room_id": "!room:example.test",
+          "name": "General",
+          "membership": "join"
+        }
+      ]
+    }
+  }
+}

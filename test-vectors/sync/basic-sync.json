@@ -1,0 +1,39 @@
+{
+  "name": "basic-sync",
+  "contract": "SPEC-011",
+  "request": {
+    "method": "GET",
+    "path": "/_chawan/client/sync",
+    "access_token": "token-1",
+    "query": {
+      "since": "s0",
+      "timeout": "30000"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "next_batch": "s1",
+      "rooms": [
+        {
+          "room_id": "!room:example.test",
+          "timeline": {
+            "events": [
+              {
+                "event_id": "$event:example.test",
+                "room_id": "!room:example.test",
+                "sender": "@alice:example.test",
+                "origin_server_ts": 1710000000000,
+                "type": "chawan.room.message",
+                "content": {
+                  "msgtype": "chawan.text",
+                  "body": "hello"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

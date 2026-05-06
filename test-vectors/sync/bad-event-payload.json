@@ -1,0 +1,15 @@
+{
+  "name": "bad-event-payload",
+  "contract": "SPEC-007",
+  "event": {
+    "event_id": "$bad:example.test",
+    "room_id": "!room:example.test",
+    "sender": "@alice:example.test",
+    "origin_server_ts": 1710000000000,
+    "type": "chawan.room.message",
+    "content": "not-an-object"
+  },
+  "expected": {
+    "error": "response_format"
+  }
+}

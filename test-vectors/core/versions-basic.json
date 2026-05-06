@@ -1,0 +1,17 @@
+{
+  "name": "versions-basic",
+  "contract": "SPEC-001",
+  "request": {
+    "method": "GET",
+    "path": "/_chawan/client/versions"
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "project": "okomedev-chawan",
+      "api_version": "0.1-draft",
+      "compatibility_level": "level-1-csapi-subset",
+      "features": ["core"]
+    }
+  }
+}

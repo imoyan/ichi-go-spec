@@ -1,0 +1,19 @@
+{
+  "name": "send-text-basic",
+  "contract": "SPEC-008",
+  "request": {
+    "method": "POST",
+    "path": "/_chawan/client/rooms/!room:example.test/messages",
+    "access_token": "token-1",
+    "body": {
+      "msgtype": "chawan.text",
+      "body": "hello"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "event_id": "$message:example.test"
+    }
+  }
+}

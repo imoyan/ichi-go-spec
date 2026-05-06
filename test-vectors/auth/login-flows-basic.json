@@ -1,0 +1,18 @@
+{
+  "name": "login-flows-basic",
+  "contract": "SPEC-003",
+  "request": {
+    "method": "GET",
+    "path": "/_chawan/client/login"
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "flows": [
+        {
+          "type": "chawan.login.password"
+        }
+      ]
+    }
+  }
+}

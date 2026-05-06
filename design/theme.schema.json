@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://okome.dev/schemas/okaka-theme.schema.json",
+  "title": "Okomedev shared theme",
+  "type": "object",
+  "required": ["name", "version", "defs", "theme"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "defs": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/colorValue"
+      }
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["light", "dark"],
+        "additionalProperties": false,
+        "properties": {
+          "light": {
+            "$ref": "#/$defs/colorValue"
+          },
+          "dark": {
+            "$ref": "#/$defs/colorValue"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "colorValue": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A #RRGGBB or #AARRGGBB color, or a key from defs."
+    }
+  }
+}
