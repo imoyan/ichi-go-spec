@@ -11,6 +11,7 @@
 ## Checks
 
 - [ ] `dart tool/check_spec.dart`
+- [ ] GitHub Actions `Spec Check`
 - [ ] `README.md` still describes the public spec root accurately.
 - [ ] `LICENSE` remains present and applicable to this root.
 
