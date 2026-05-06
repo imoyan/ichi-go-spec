@@ -56,6 +56,30 @@ Run the local consistency check before publishing or consuming changes:
 dart tool/check_spec.dart
 ```
 
+## Conformance Tooling v1
+
+Conformance tooling v1 is a client-side harness that consumes this repository as
+read-only input. It should load:
+
+- `contracts/SPEC-*.md` for normative behavior and profile ownership.
+- `CONTRACT_MODULE_MAP.md` for feature profile grouping.
+- `test-vectors/**/*.json` for request/response and parser fixtures.
+- `design/theme.schema.json` and `design/themes/*.json` for token validation.
+
+The harness output should be a pass/fail report per feature profile and vector,
+with enough detail for the implementation repository to identify the failed
+contract or fixture. The v1 target profiles are the existing `core`, `auth`,
+`rooms`, `events`, `messaging`, `sync`, and `media` slices.
+
+Conformance tooling v1 does not define SDK APIs, package layout, storage,
+network retry policy, UI behavior, or server behavior. Those remain
+implementation concerns unless a `SPEC-*` contract and vector are added here.
+
+`tool/check_spec.dart` validates this specification root itself: top-level
+boundary, contract references, profile map coverage, vector shape, and design
+token shape. It is not a substitute for a client implementation conformance
+harness.
+
 ## Long-Term Role
 
 This root should be published before any client implementation. It owns draft
