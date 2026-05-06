@@ -1,0 +1,24 @@
+name: Spec Check
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  spec-check:
+    name: dart tool/check_spec.dart
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Check spec root
+        run: dart tool/check_spec.dart
