@@ -24,6 +24,14 @@ updated unless the contract is changed first.
   implementation packages that need bundled assets.
 - Do not use a server implementation as the source for client behavior.
 
+## Conformance Boundary
+
+- Specification checks prove this repository is internally consistent.
+- Client conformance tooling must consume contracts, vectors, and design tokens
+  from this repository without copying implementation behavior back into it.
+- A conformance failure in a client should be fixed in the client unless the
+  contract or vector is intentionally changed here first.
+
 ## Versioning
 
 - Contracts are draft profiles until a pre-1.0 release decision is made.
