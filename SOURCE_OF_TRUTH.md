@@ -63,4 +63,5 @@ Change handling before freeze:
 - Corrections may clarify wording without a vector change only when expected
   client behavior does not change.
 - Any contract, vector, or design token change that affects bundled assets or
-  expected client behavior requires a follow-up `okaka-flutter` PR.
+  expected client behavior requires follow-up changes in affected implementation
+  repositories.
