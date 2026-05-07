@@ -11,6 +11,16 @@ const profiles = {
   'media',
 };
 
+const vectorDirectoryProfiles = {
+  'auth': 'auth',
+  'core': 'core',
+  'events': 'events',
+  'media': 'media',
+  'messaging': 'messaging',
+  'rooms': 'rooms',
+  'sync': 'sync',
+};
+
 final hexColor = RegExp(r'^#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$');
 const themeTopLevelKeys = {r'$schema', 'name', 'version', 'defs', 'theme'};
 const themePairKeys = {'light', 'dark'};
@@ -21,8 +31,8 @@ void main() {
   final contracts = readContracts(failures);
 
   checkDocs(contracts, failures);
-  checkProfileMap(contracts, failures);
-  checkVectors(contracts, failures);
+  final profileMap = checkProfileMap(contracts, failures);
+  checkVectors(contracts, profileMap, failures);
   checkThemes(failures);
 
   if (failures.isNotEmpty) {
@@ -175,14 +185,18 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
   }
 }
 
-void checkProfileMap(Map<String, String> contracts, List<String> failures) {
+Map<String, String> checkProfileMap(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
   final file = File('CONTRACT_MODULE_MAP.md');
   if (!file.existsSync()) {
     failures.add('Missing CONTRACT_MODULE_MAP.md.');
-    return;
+    return const {};
   }
 
   final seen = <String>{};
+  final profileMap = <String, String>{};
   for (final line in file.readAsLinesSync()) {
     if (!line.startsWith('| SPEC-')) {
       continue;
@@ -203,6 +217,7 @@ void checkProfileMap(Map<String, String> contracts, List<String> failures) {
         '${contracts[id]}',
       );
     }
+    profileMap[id] = parts[2];
     seen.add(id);
   }
 
@@ -211,9 +226,14 @@ void checkProfileMap(Map<String, String> contracts, List<String> failures) {
       failures.add('CONTRACT_MODULE_MAP.md does not list $id.');
     }
   }
+  return profileMap;
 }
 
-void checkVectors(Map<String, String> contracts, List<String> failures) {
+void checkVectors(
+  Map<String, String> contracts,
+  Map<String, String> profileMap,
+  List<String> failures,
+) {
   final root = Directory('test-vectors');
   if (!root.existsSync()) {
     failures.add('Missing test-vectors directory.');
@@ -226,6 +246,7 @@ void checkVectors(Map<String, String> contracts, List<String> failures) {
     return;
   }
 
+  final vectorContracts = <String, int>{};
   for (final file in vectors) {
     final json = readJsonObject(file, failures);
     if (json == null) {
@@ -241,6 +262,9 @@ void checkVectors(Map<String, String> contracts, List<String> failures) {
     final contract = json['contract'];
     if (contract is! String || !contracts.containsKey(contract)) {
       failures.add('${relative(file)} references missing contract: $contract');
+    } else {
+      vectorContracts.update(contract, (count) => count + 1, ifAbsent: () => 1);
+      checkVectorProfile(file, contract, profileMap, failures);
     }
 
     if (json.containsKey('request')) {
@@ -259,6 +283,47 @@ void checkVectors(Map<String, String> contracts, List<String> failures) {
         '${relative(file)} must include request, response, or event.',
       );
     }
+  }
+
+  for (final id in contracts.keys) {
+    if (!vectorContracts.containsKey(id)) {
+      failures.add('No test vector covers $id.');
+    }
+  }
+}
+
+void checkVectorProfile(
+  File file,
+  String contract,
+  Map<String, String> profileMap,
+  List<String> failures,
+) {
+  final path = relative(file);
+  final segments = Uri.file(path).pathSegments;
+  if (segments.length < 3 || segments.first != 'test-vectors') {
+    failures.add('$path must be under test-vectors/<profile>/');
+    return;
+  }
+
+  final directory = segments[1];
+  final directoryProfile = vectorDirectoryProfiles[directory];
+  if (directoryProfile == null) {
+    failures.add('$path uses unknown vector profile directory: $directory');
+    return;
+  }
+
+  final contractProfile = profileMap[contract];
+  if (contractProfile == null) {
+    failures.add(
+      '$path references contract missing from profile map: $contract',
+    );
+    return;
+  }
+  if (directoryProfile != contractProfile) {
+    failures.add(
+      '$path profile directory mismatch for $contract: '
+      '$directoryProfile != $contractProfile',
+    );
   }
 }
 
