@@ -4,7 +4,7 @@ Canonical behavior is defined by this repository only.
 
 After this root is published as a standalone repository, the contracts, test
 vectors, and shared design tokens here remain the only canonical source for
-the covered client behavior.
+the covered Okomedev public client-server behavior.
 
 Priority order:
 
@@ -22,21 +22,24 @@ updated unless the contract is changed first.
 - Add or update a test vector with every behavior change.
 - Keep shared theme token changes in `design/` first, then copy them into
   implementation packages that need bundled assets.
-- Do not use a server implementation as the source for client behavior.
+- Do not use any client or server implementation as the source for public
+  behavior.
 
 ## Conformance Boundary
 
 - Specification checks prove this repository is internally consistent.
-- Client conformance tooling must consume contracts, vectors, and design tokens
-  from this repository without copying implementation behavior back into it.
-- A conformance failure in a client should be fixed in the client unless the
-  contract or vector is intentionally changed here first.
+- Implementation conformance tooling must consume contracts, vectors, and
+  design tokens from this repository without copying implementation behavior
+  back into it.
+- A conformance failure in an implementation should be fixed in that
+  implementation unless the contract or vector is intentionally changed here
+  first.
 
 ## Versioning
 
 - Contracts are draft profiles until a pre-1.0 release decision is made.
-- Public client APIs may be added only after a matching `SPEC-*` contract and
-  vector exist here.
+- Public APIs may be added only after a matching `SPEC-*` contract and vector
+  exist here.
 - Release notes should describe changed feature profiles, not implementation
   internals.
 
@@ -61,17 +64,17 @@ Change handling before freeze:
 - Additive changes must add a `SPEC-*` section or new contract plus matching
   vectors before any SDK surface is added.
 - Corrections may clarify wording without a vector change only when expected
-  client behavior does not change.
+  public behavior does not change.
 - Any contract, vector, or design token change that affects bundled assets or
-  expected client behavior requires follow-up changes in affected implementation
-  repositories.
+  expected public behavior requires follow-up changes in affected
+  implementation repositories.
 
 ## Pre-1.0 Compatibility Policy
 
 Until a stable 1.0 release, contracts remain draft, but published pre-1.0 tags
 must still be changed deliberately:
 
-- Breaking changes alter expected client behavior for an existing contract,
+- Breaking changes alter expected public behavior for an existing contract,
   vector, or design token. They require a focused spec PR that updates the
   affected `SPEC-*`, vectors, and profile map together, plus implementation
   follow-up issues or PRs when bundled assets or SDK behavior are affected.
@@ -82,7 +85,7 @@ must still be changed deliberately:
   expectations. They require a new contract section or `SPEC-*` plus matching
   vectors before any implementation exposes the behavior.
 - Corrections clarify wording, examples, or metadata without changing expected
-  client behavior. They may skip vector changes only when the existing vectors
+  public behavior. They may skip vector changes only when the existing vectors
   already capture the intended behavior.
 
 Pre-1.0 release notes must identify:
@@ -111,10 +114,11 @@ PR after the spec PR is merged.
 
 ## MVP Readiness Boundary
 
-`full-client` readiness means the Ichi-Go MVP client subset is complete enough
-for implementation repositories to consume this repository as read-only
-conformance input. It does not mean Matrix Client-Server API, federation,
-identity service, appservice, E2EE, push, VoIP, or administrative API coverage.
+`full-client` readiness means the covered Okomedev MVP public contract is
+complete enough for implementation repositories to consume this repository as
+read-only conformance input. It does not mean Matrix Client-Server API,
+federation, identity service, appservice, E2EE, push, VoIP, or administrative
+API coverage.
 
 The structural parts of readiness are checked by `dart tool/check_spec.dart`.
 Workflow evidence such as implementation adoption reports and GitHub Releases

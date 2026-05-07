@@ -3,7 +3,7 @@
 ## Scope
 
 This repository is the canonical behavior and shared design source for
-Okomedev Ichi-Go clients and servers.
+Okomedev clients and servers.
 
 ## Source of Truth
 
@@ -19,5 +19,5 @@ Implementation repositories are not canonical.
 ## Clean-Room Rule
 
 Do not copy, translate, port, or derive implementation details from existing
-server implementations. If behavior is unclear, clarify the contract here
-before changing an implementation.
+client or server implementations. If behavior is unclear, clarify the contract
+here before changing an implementation.

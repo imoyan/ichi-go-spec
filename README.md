@@ -1,15 +1,21 @@
 # ichi-go-spec
 
-`ichi-go-spec` is the canonical source of truth for the Okomedev Ichi-Go
-client API subset.
+`ichi-go-spec` is the current repository for the Okomedev public specification.
+The intended canonical repository name is `okomedev-spec`; the current name is
+kept until the repository rename is performed.
+
+Okomedev is the product and shared specification boundary. Ichi-Go is the
+server implementation and server-provided API namespace. Houra is the client
+implementation. Client and server implementation repositories are peers; neither
+is canonical.
 
 Implementation repositories must follow this repository's contracts and test
-vectors. They must not derive behavior from a server implementation.
+vectors. They must not derive behavior from another implementation repository.
 
 This standalone public specification repository contains canonical contracts,
 test vectors, and shared design tokens only;
-implementation behavior, package adapters, and server-specific details belong
-in implementation repositories.
+implementation behavior, package adapters, client-specific details, and
+server-specific details belong in implementation repositories.
 
 ## Layout
 
@@ -58,8 +64,8 @@ layout, storage policy, UI behavior, or server behavior. Those remain
 implementation-owned unless this repository adds or changes a matching contract,
 vector, or design token first.
 
-Release note summary: this baseline publishes the canonical MVP client API
-subset, representative request/response vectors, and shared smoke theme tokens
+Release note summary: this baseline publishes the canonical Okomedev MVP public
+contract, representative request/response vectors, and shared smoke theme tokens
 for implementation repositories to consume as read-only conformance input.
 Compatibility rules for changes after this baseline are defined in
 `SOURCE_OF_TRUTH.md`.
@@ -68,6 +74,8 @@ Compatibility rules for changes after this baseline are defined in
 
 Client implementations should validate request paths, response parsing, and
 theme-token adapters against the contracts and test vectors in this repository.
+Server implementations should validate request handling and server-provided
+responses against the same contracts and vectors.
 
 Change contracts before implementation behavior when expected behavior changes.
 
@@ -79,8 +87,8 @@ dart tool/check_spec.dart
 
 ## Conformance Tooling v1
 
-Conformance tooling v1 is a client-side harness that consumes this repository as
-read-only input. It should load:
+Conformance tooling v1 consumes this repository as read-only input. It should
+load:
 
 - `contracts/SPEC-*.md` for normative behavior and profile ownership.
 - `CONTRACT_MODULE_MAP.md` for feature profile grouping.
@@ -107,7 +115,7 @@ failed vector should not prevent the runner from reporting the remaining vector
 results.
 
 Stateful vector metadata is allowed under a top-level `given` object when a
-vector depends on prior client-visible behavior. The supported MVP shape is:
+vector depends on prior covered public behavior. The supported MVP shape is:
 
 - `given.previous_request`: a request object using the same method/path/query/body
   conventions as top-level `request`.
@@ -116,9 +124,8 @@ vector depends on prior client-visible behavior. The supported MVP shape is:
 
 Conformance runners should execute or model the `given` setup before the vector
 request, but their result must still be reported against the vector file's
-`name` and `contract`. `given` records only canonical client-visible fixture
-state; it must not encode server storage, database rows, or implementation
-internals.
+`name` and `contract`. `given` records only canonical public fixture state; it
+must not encode server storage, database rows, or implementation internals.
 
 Conformance tooling v1 does not define SDK APIs, package layout, storage,
 network retry policy, UI behavior, or server behavior. Those remain
@@ -126,13 +133,12 @@ implementation concerns unless a `SPEC-*` contract and vector are added here.
 
 `tool/check_spec.dart` validates this specification root itself: top-level
 boundary, contract references, profile map coverage, vector shape, and design
-token shape. It is not a substitute for a client implementation conformance
-harness.
+token shape. It is not a substitute for implementation conformance harnesses.
 
-## Ichi-Go MVP 100% Readiness Criteria
+## Okomedev MVP 100% Readiness Criteria (formerly Ichi-Go MVP 100% Readiness Criteria)
 
-`full-client` readiness is scoped only to the Ichi-Go MVP client subset. It is
-not a Matrix full-spec coverage claim.
+`full-client` readiness is scoped only to the covered Okomedev MVP public
+contract. It is not a Matrix full-spec coverage claim.
 
 The MVP subset may be called 100% ready when all of these are true:
 
@@ -173,9 +179,10 @@ links there:
 
 ## Server Alignment Smoke Checklist
 
-Server alignment checks must treat this repository as the expected client-visible
-behavior. They may exercise server endpoints, but must not use server code,
-database schema, storage design, or migration files as specification sources.
+Server alignment checks must treat this repository as the expected public
+client-server behavior. They may exercise server endpoints, but must not use
+server code, database schema, storage design, or migration files as
+specification sources.
 
 Use this contract-to-endpoint smoke table:
 
@@ -200,18 +207,19 @@ work.
 
 ## Long-Term Role
 
-This repository is the first source to update before client implementation
+This repository is the first source to update before implementation behavior
 changes. It owns draft contract profiles, canonical vectors, and
-platform-neutral theme files. Client repositories should add native adapters and
-package metadata only after this repository passes its local checks.
+platform-neutral theme files. Client and server repositories should add native
+adapters, server behavior, and package metadata only after this repository
+passes its local checks.
 
 ## Implementation Adoption Reports
 
 ### houra-flutter initial adoption
 
 - Implementation repository: `imoyan/houra-flutter`
-- Repository role: Flutter SDK candidate for the Okomedev Ichi-Go client API
-  subset.
+- Repository role: Houra Flutter client candidate for the covered Okomedev
+  public contract.
 - Implementation commit inspected: `1e2609beacdb0ed171c721698a86342825f22c79`
 - Spec input inspected: current `main` after SPEC-008 idempotency, SPEC-010
   pagination, and SPEC-020 download metadata updates.
