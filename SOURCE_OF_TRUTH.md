@@ -75,6 +75,9 @@ must still be changed deliberately:
   vector, or design token. They require a focused spec PR that updates the
   affected `SPEC-*`, vectors, and profile map together, plus implementation
   follow-up issues or PRs when bundled assets or SDK behavior are affected.
+  During pre-1.0, they are allowed only when the release notes label the change
+  as breaking and the affected implementation repositories have an explicit
+  follow-up path.
 - Additive changes introduce new behavior without changing existing vector
   expectations. They require a new contract section or `SPEC-*` plus matching
   vectors before any implementation exposes the behavior.
