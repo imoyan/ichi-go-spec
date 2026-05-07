@@ -106,6 +106,20 @@ the reported result must remain traceable to the canonical vector file. A single
 failed vector should not prevent the runner from reporting the remaining vector
 results.
 
+Stateful vector metadata is allowed under a top-level `given` object when a
+vector depends on prior client-visible behavior. The supported MVP shape is:
+
+- `given.previous_request`: a request object using the same method/path/query/body
+  conventions as top-level `request`.
+- `given.previous_event_id`: a non-empty event id string for message-send retry
+  and conflict scenarios.
+
+Conformance runners should execute or model the `given` setup before the vector
+request, but their result must still be reported against the vector file's
+`name` and `contract`. `given` records only canonical client-visible fixture
+state; it must not encode server storage, database rows, or implementation
+internals.
+
 Conformance tooling v1 does not define SDK APIs, package layout, storage,
 network retry policy, UI behavior, or server behavior. Those remain
 implementation concerns unless a `SPEC-*` contract and vector are added here.
@@ -114,6 +128,30 @@ implementation concerns unless a `SPEC-*` contract and vector are added here.
 boundary, contract references, profile map coverage, vector shape, and design
 token shape. It is not a substitute for a client implementation conformance
 harness.
+
+## Chawan MVP 100% Readiness Criteria
+
+`full-client` readiness is scoped only to the Chawan MVP client subset. It is
+not a Matrix full-spec coverage claim.
+
+The MVP subset may be called 100% ready when all of these are true:
+
+- Every contract is listed in `CONTRACT_MODULE_MAP.md` with one of the MVP
+  profiles: `core`, `auth`, `rooms`, `events`, `messaging`, `sync`, or `media`.
+- Every MVP profile has at least one representative vector, and profiles with
+  parser or request failure behavior have at least one negative vector.
+- Stateful vectors use the documented `given` metadata shape and remain
+  implementation-neutral.
+- At least one implementation adoption report is recorded from a repository
+  consuming this spec as read-only input.
+- Conformance and server-alignment guidance names the current vector scope.
+- A pre-1.0 release tag and GitHub Release record the changed profiles,
+  contracts, vectors, compatibility classification, and implementation
+  follow-up.
+
+`tool/check_spec.dart` enforces the local structural parts of this readiness
+criteria. Adoption reports, implementation conformance runs, and release
+publication remain workflow evidence.
 
 ## Implementation Follow-Up Checklist
 
@@ -151,7 +189,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-007 | event parser inputs | `test-vectors/events/*.json` |
 | SPEC-008 | send text message | `test-vectors/messaging/*.json` |
 | SPEC-009 | room list | `test-vectors/sync/room-list-basic.json` and related room-list vectors |
-| SPEC-010 | room timeline | `test-vectors/sync/timeline-basic.json` |
+| SPEC-010 | room timeline | `test-vectors/sync/timeline-*.json` |
 | SPEC-011 | incremental sync | `test-vectors/sync/basic-sync.json` and sync error-shape vectors |
 | SPEC-020 | media metadata upload/download | `test-vectors/media/*.json` |
 
@@ -166,6 +204,41 @@ This repository is the first source to update before client implementation
 changes. It owns draft contract profiles, canonical vectors, and
 platform-neutral theme files. Client repositories should add native adapters and
 package metadata only after this repository passes its local checks.
+
+## Implementation Adoption Reports
+
+### okaka-flutter initial adoption
+
+- Implementation repository: `imoyan/okaka-flutter`
+- Repository role: Flutter SDK candidate for the Okomedev Chawan client API
+  subset.
+- Implementation commit inspected: `deb653dfb86d97b1a9e4ba0c1e47ab884a3eba04`
+- Spec input inspected: current `main` after SPEC-008 idempotency, SPEC-010
+  pagination, and SPEC-020 download metadata updates.
+
+Observed checks:
+
+| Check | Result | Notes |
+|---|---|---|
+| `dart run tool/check_spec_sync.dart` | pass | Reads this spec checkout and validates bundled theme/vector references |
+| `flutter analyze` | pass | No analyzer issues |
+| `flutter test` | fail | SPEC-008 vector now requires `client_transaction_id`; follow-up is tracked in `imoyan/okaka-flutter#14` |
+
+Profile status:
+
+| Profile | Status | Notes |
+|---|---|---|
+| core | pass | Existing contract tests passed |
+| auth | pass | Existing contract tests passed |
+| rooms | pass | Existing contract tests passed |
+| events | pass | Existing contract tests passed |
+| messaging | follow-up required | SPEC-008 idempotency vector is not implemented yet |
+| sync | pass | Existing contract tests passed |
+| media | pass | Existing contract tests passed |
+
+No server implementation detail was used as a specification source. The
+implementation gap is tracked outside this repository; this repository remains
+the canonical behavior source.
 
 ## Local Checks
 

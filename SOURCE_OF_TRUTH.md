@@ -108,3 +108,14 @@ Changing a frozen contract, vector, or design token after this candidate
 requires a focused spec PR first. If the change affects bundled design assets
 or expected SDK behavior, create the matching implementation follow-up issue or
 PR after the spec PR is merged.
+
+## MVP Readiness Boundary
+
+`full-client` readiness means the Chawan MVP client subset is complete enough
+for implementation repositories to consume this repository as read-only
+conformance input. It does not mean Matrix Client-Server API, federation,
+identity service, appservice, E2EE, push, VoIP, or administrative API coverage.
+
+The structural parts of readiness are checked by `dart tool/check_spec.dart`.
+Workflow evidence such as implementation adoption reports and GitHub Releases
+must be recorded in repository issues, pull requests, or releases.
