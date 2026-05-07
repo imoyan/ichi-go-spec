@@ -1,0 +1,21 @@
+{
+  "name": "invalid-upload-base64",
+  "contract": "SPEC-020",
+  "request": {
+    "method": "POST",
+    "path": "/_chawan/client/media",
+    "access_token": "token-1",
+    "body": {
+      "filename": "avatar.png",
+      "content_type": "image/png",
+      "bytes_base64": "not base64"
+    }
+  },
+  "expected": {
+    "status": 400,
+    "body_contains": {
+      "code": "CHAWAN_BAD_REQUEST",
+      "message": "Invalid media upload."
+    }
+  }
+}
