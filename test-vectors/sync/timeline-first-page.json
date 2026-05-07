@@ -1,0 +1,43 @@
+{
+  "name": "timeline-first-page",
+  "contract": "SPEC-010",
+  "request": {
+    "method": "GET",
+    "path": "/_chawan/client/rooms/!room:example.test/timeline",
+    "access_token": "token-1",
+    "query": {
+      "limit": "2"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "events": [
+        {
+          "event_id": "$event2:example.test",
+          "room_id": "!room:example.test",
+          "sender": "@bob:example.test",
+          "origin_server_ts": 1710000001000,
+          "type": "chawan.room.message",
+          "content": {
+            "msgtype": "chawan.text",
+            "body": "newer"
+          }
+        },
+        {
+          "event_id": "$event1:example.test",
+          "room_id": "!room:example.test",
+          "sender": "@alice:example.test",
+          "origin_server_ts": 1710000000000,
+          "type": "chawan.room.message",
+          "content": {
+            "msgtype": "chawan.text",
+            "body": "older"
+          }
+        }
+      ],
+      "start": "t2",
+      "end": "t1"
+    }
+  }
+}

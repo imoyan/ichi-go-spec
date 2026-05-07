@@ -1,0 +1,20 @@
+{
+  "name": "timeline-invalid-token",
+  "contract": "SPEC-010",
+  "request": {
+    "method": "GET",
+    "path": "/_chawan/client/rooms/!room:example.test/timeline",
+    "access_token": "token-1",
+    "query": {
+      "from": "not-a-server-token",
+      "limit": "2"
+    }
+  },
+  "expected": {
+    "status": 400,
+    "body_contains": {
+      "code": "CHAWAN_BAD_REQUEST",
+      "message": "Invalid timeline pagination token."
+    }
+  }
+}
