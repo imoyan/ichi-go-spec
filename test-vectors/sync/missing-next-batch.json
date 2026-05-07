@@ -1,0 +1,13 @@
+{
+  "name": "missing-next-batch",
+  "contract": "SPEC-011",
+  "response": {
+    "status": 200,
+    "body": {
+      "rooms": []
+    }
+  },
+  "expected": {
+    "error": "response_format"
+  }
+}

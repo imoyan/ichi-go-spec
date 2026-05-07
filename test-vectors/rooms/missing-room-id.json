@@ -1,0 +1,14 @@
+{
+  "name": "missing-room-id",
+  "contract": "SPEC-006",
+  "response": {
+    "status": 200,
+    "body": {
+      "name": "General",
+      "membership": "join"
+    }
+  },
+  "expected": {
+    "error": "response_format"
+  }
+}

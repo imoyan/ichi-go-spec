@@ -1,0 +1,30 @@
+{
+  "name": "malformed-sync-event",
+  "contract": "SPEC-011",
+  "response": {
+    "status": 200,
+    "body": {
+      "next_batch": "s1",
+      "rooms": [
+        {
+          "room_id": "!room:example.test",
+          "timeline": {
+            "events": [
+              {
+                "event_id": "$bad:example.test",
+                "room_id": "!room:example.test",
+                "sender": "@alice:example.test",
+                "origin_server_ts": 1710000000000,
+                "type": "chawan.room.message",
+                "content": "not-an-object"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "error": "response_format"
+  }
+}

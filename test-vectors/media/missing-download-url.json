@@ -1,0 +1,15 @@
+{
+  "name": "missing-download-url",
+  "contract": "SPEC-020",
+  "response": {
+    "status": 200,
+    "body": {
+      "media_id": "media1",
+      "filename": "avatar.png",
+      "content_type": "image/png"
+    }
+  },
+  "expected": {
+    "error": "response_format"
+  }
+}

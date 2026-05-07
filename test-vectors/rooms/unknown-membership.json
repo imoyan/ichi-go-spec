@@ -1,0 +1,15 @@
+{
+  "name": "unknown-membership",
+  "contract": "SPEC-006",
+  "response": {
+    "status": 200,
+    "body": {
+      "room_id": "!room:example.test",
+      "name": "General",
+      "membership": "knock"
+    }
+  },
+  "expected": {
+    "error": "response_format"
+  }
+}

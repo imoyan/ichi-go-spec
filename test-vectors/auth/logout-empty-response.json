@@ -1,0 +1,13 @@
+{
+  "name": "logout-empty-response",
+  "contract": "SPEC-004",
+  "request": {
+    "method": "POST",
+    "path": "/_chawan/client/logout",
+    "access_token": "token-1"
+  },
+  "expected": {
+    "status": 200,
+    "body_optional": true
+  }
+}
