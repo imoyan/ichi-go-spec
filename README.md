@@ -61,6 +61,8 @@ vector, or design token first.
 Release note summary: this baseline publishes the canonical MVP client API
 subset, representative request/response vectors, and shared smoke theme tokens
 for implementation repositories to consume as read-only conformance input.
+Compatibility rules for changes after this baseline are defined in
+`SOURCE_OF_TRUTH.md`.
 
 ## Validation
 

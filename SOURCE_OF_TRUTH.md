@@ -66,6 +66,32 @@ Change handling before freeze:
   expected client behavior requires follow-up changes in affected implementation
   repositories.
 
+## Pre-1.0 Compatibility Policy
+
+Until a stable 1.0 release, contracts remain draft, but published pre-1.0 tags
+must still be changed deliberately:
+
+- Breaking changes alter expected client behavior for an existing contract,
+  vector, or design token. They require a focused spec PR that updates the
+  affected `SPEC-*`, vectors, and profile map together, plus implementation
+  follow-up issues or PRs when bundled assets or SDK behavior are affected.
+  During pre-1.0, they are allowed only when the release notes label the change
+  as breaking and the affected implementation repositories have an explicit
+  follow-up path.
+- Additive changes introduce new behavior without changing existing vector
+  expectations. They require a new contract section or `SPEC-*` plus matching
+  vectors before any implementation exposes the behavior.
+- Corrections clarify wording, examples, or metadata without changing expected
+  client behavior. They may skip vector changes only when the existing vectors
+  already capture the intended behavior.
+
+Pre-1.0 release notes must identify:
+
+- Changed feature profiles.
+- Changed contracts, vectors, or design tokens.
+- Whether the change is breaking, additive, or corrective.
+- Required implementation follow-up, or that none is required.
+
 ## Current Pre-1.0 Freeze Candidate
 
 The current freeze candidate is the committed `core`, `auth`, `rooms`,
