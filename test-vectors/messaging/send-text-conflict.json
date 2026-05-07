@@ -1,0 +1,34 @@
+{
+  "name": "send-text-conflict",
+  "contract": "SPEC-008",
+  "given": {
+    "previous_request": {
+      "method": "POST",
+      "path": "/_chawan/client/rooms/!room:example.test/messages",
+      "access_token": "token-1",
+      "body": {
+        "client_transaction_id": "txn-1",
+        "msgtype": "chawan.text",
+        "body": "hello"
+      }
+    },
+    "previous_event_id": "$message:example.test"
+  },
+  "request": {
+    "method": "POST",
+    "path": "/_chawan/client/rooms/!room:example.test/messages",
+    "access_token": "token-1",
+    "body": {
+      "client_transaction_id": "txn-1",
+      "msgtype": "chawan.text",
+      "body": "changed"
+    }
+  },
+  "expected": {
+    "status": 409,
+    "body_contains": {
+      "code": "CHAWAN_CONFLICT",
+      "message": "Conflicting message idempotency key."
+    }
+  }
+}
