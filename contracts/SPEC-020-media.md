@@ -52,6 +52,9 @@ Authorization: Bearer token-1
 }
 ```
 
+Required response fields are `media_id`, `filename`, `content_type`,
+`download_url`, and `download_requires_auth`.
+
 `download_expires_at` is optional.
 
 ## Missing media response
@@ -69,8 +72,10 @@ Authorization: Bearer token-1
 - `download_url` is an opaque URL. Clients must not parse it, rewrite it, or
   infer server storage layout from it.
 - `content_type` is the expected Content-Type for the downloaded media bytes.
-- `download_requires_auth` tells clients whether the download URL expects the
-  same bearer token authorization model as the metadata request.
+- `download_requires_auth` tells clients whether the download URL expects
+  bearer token authorization. Clients must attach `Authorization: Bearer` only
+  when this value is `true`; clients must not attach bearer tokens when this
+  value is `false`.
 - `download_expires_at`, when present, is an RFC 3339 timestamp after which
   clients should refresh metadata before attempting a new download.
 - Missing media should use HTTP 404 with `CHAWAN_NOT_FOUND` when a structured
