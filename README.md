@@ -133,6 +133,33 @@ links there:
 - If behavior is unclear, open a spec issue or PR here before deriving behavior
   from server code, storage design, or implementation internals.
 
+## Server Alignment Smoke Checklist
+
+Server alignment checks must treat this repository as the expected client-visible
+behavior. They may exercise server endpoints, but must not use server code,
+database schema, storage design, or migration files as specification sources.
+
+Use this contract-to-endpoint smoke table:
+
+| Contract | Endpoint smoke | Vector scope |
+|---|---|---|
+| SPEC-001 | `GET /_chawan/client/versions` | `test-vectors/core/versions-basic.json` |
+| SPEC-002 | Any non-success response | `test-vectors/core/error-basic.json` |
+| SPEC-003 | `GET /_chawan/client/login` | `test-vectors/auth/login-flows-basic.json` |
+| SPEC-004 | login, whoami, logout | `test-vectors/auth/*.json` |
+| SPEC-006 | room create, join, leave, state | `test-vectors/rooms/*.json` |
+| SPEC-007 | event parser inputs | `test-vectors/events/*.json` |
+| SPEC-008 | send text message | `test-vectors/messaging/*.json` |
+| SPEC-009 | room list | `test-vectors/sync/room-list-basic.json` and related room-list vectors |
+| SPEC-010 | room timeline | `test-vectors/sync/timeline-basic.json` |
+| SPEC-011 | incremental sync | `test-vectors/sync/basic-sync.json` and sync error-shape vectors |
+| SPEC-020 | media metadata upload/download | `test-vectors/media/*.json` |
+
+If a server response differs from this repository, fix the server by default. If
+the vectors are insufficient or the contract is ambiguous, update this
+specification repository first and then create affected implementation follow-up
+work.
+
 ## Long-Term Role
 
 This repository is the first source to update before client implementation
