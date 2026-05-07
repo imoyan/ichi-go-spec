@@ -6,8 +6,8 @@ client API subset.
 Implementation repositories must follow this repository's contracts and test
 vectors. They must not derive behavior from a server implementation.
 
-This root is intended to become a standalone public specification repository.
-It contains canonical contracts, test vectors, and shared design tokens only;
+This standalone public specification repository contains canonical contracts,
+test vectors, and shared design tokens only;
 implementation behavior, package adapters, and server-specific details belong
 in implementation repositories.
 
@@ -82,10 +82,10 @@ harness.
 
 ## Long-Term Role
 
-This root should be published before any client implementation. It owns draft
-contract profiles, canonical vectors, and platform-neutral theme files. Client
-repositories should add native adapters and package metadata only after this
-root passes its local checks.
+This repository is the first source to update before client implementation
+changes. It owns draft contract profiles, canonical vectors, and
+platform-neutral theme files. Client repositories should add native adapters and
+package metadata only after this repository passes its local checks.
 
 ## Local Checks
 
