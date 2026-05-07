@@ -11,6 +11,25 @@ const profiles = {
   'media',
 };
 
+const fullClientProfiles = {
+  'core',
+  'auth',
+  'rooms',
+  'events',
+  'messaging',
+  'sync',
+  'media',
+};
+
+const negativeVectorProfiles = {
+  'auth',
+  'rooms',
+  'events',
+  'messaging',
+  'sync',
+  'media',
+};
+
 const vectorDirectoryProfiles = {
   'auth': 'auth',
   'core': 'core',
@@ -33,6 +52,7 @@ void main() {
   checkDocs(contracts, failures);
   final profileMap = checkProfileMap(contracts, failures);
   checkVectors(contracts, profileMap, failures);
+  checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
 
   if (failures.isNotEmpty) {
@@ -183,6 +203,25 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
       failures.add('FEATURE_PROFILES.md does not list profile: $profile');
     }
   }
+  if (!featureProfiles.contains('full-client')) {
+    failures.add('FEATURE_PROFILES.md does not list profile: full-client');
+  }
+
+  final readme = File('README.md').readAsStringSync();
+  for (final phrase in [
+    'Stateful vector metadata',
+    'Chawan MVP 100% Readiness Criteria',
+    'Implementation Adoption Reports',
+  ]) {
+    if (!readme.contains(phrase)) {
+      failures.add('README.md must document $phrase.');
+    }
+  }
+
+  final sourceOfTruth = File('SOURCE_OF_TRUTH.md').readAsStringSync();
+  if (!sourceOfTruth.contains('MVP Readiness Boundary')) {
+    failures.add('SOURCE_OF_TRUTH.md must document MVP Readiness Boundary.');
+  }
 }
 
 Map<String, String> checkProfileMap(
@@ -247,6 +286,8 @@ void checkVectors(
   }
 
   final vectorContracts = <String, int>{};
+  final vectorProfiles = <String, int>{};
+  final negativeProfiles = <String>{};
   for (final file in vectors) {
     final json = readJsonObject(file, failures);
     if (json == null) {
@@ -264,7 +305,18 @@ void checkVectors(
       failures.add('${relative(file)} references missing contract: $contract');
     } else {
       vectorContracts.update(contract, (count) => count + 1, ifAbsent: () => 1);
+      final profile = profileMap[contract];
+      if (profile != null) {
+        vectorProfiles.update(profile, (count) => count + 1, ifAbsent: () => 1);
+        if (isNegativeVector(json)) {
+          negativeProfiles.add(profile);
+        }
+      }
       checkVectorProfile(file, contract, profileMap, failures);
+    }
+
+    if (json.containsKey('given')) {
+      checkGiven(file, json['given'], failures);
     }
 
     if (json.containsKey('request')) {
@@ -288,6 +340,76 @@ void checkVectors(
   for (final id in contracts.keys) {
     if (!vectorContracts.containsKey(id)) {
       failures.add('No test vector covers $id.');
+    }
+  }
+  for (final profile in fullClientProfiles) {
+    if (!vectorProfiles.containsKey(profile)) {
+      failures.add('No test vector covers MVP profile: $profile.');
+    }
+  }
+  for (final profile in negativeVectorProfiles) {
+    if (!negativeProfiles.contains(profile)) {
+      failures.add('No negative test vector covers MVP profile: $profile.');
+    }
+  }
+}
+
+bool isNegativeVector(Map<String, Object?> json) {
+  final expected = json['expected'];
+  if (expected is Map) {
+    final status = expected['status'];
+    if (status is int && status >= 400) {
+      return true;
+    }
+    if (expected.containsKey('error')) {
+      return true;
+    }
+  }
+  return json['response'] is Map &&
+      expected is Map &&
+      expected.containsKey('error');
+}
+
+void checkGiven(File file, Object? value, List<String> failures) {
+  if (value is! Map) {
+    failures.add('${relative(file)} given must be an object.');
+    return;
+  }
+  final given = value.cast<String, Object?>();
+  const allowedKeys = {'previous_request', 'previous_event_id'};
+  for (final key in given.keys) {
+    if (!allowedKeys.contains(key)) {
+      failures.add('${relative(file)} given has unexpected key: $key');
+    }
+  }
+  if (given.containsKey('previous_request')) {
+    checkRequest(file, given['previous_request'], failures);
+  }
+  final previousEventId = given['previous_event_id'];
+  if (previousEventId != null &&
+      (previousEventId is! String || previousEventId.isEmpty)) {
+    failures.add('${relative(file)} given.previous_event_id must be a string.');
+  }
+}
+
+void checkMvpReadiness(
+  Map<String, String> contracts,
+  Map<String, String> profileMap,
+  List<String> failures,
+) {
+  final contractProfiles = contracts.values.toSet();
+  for (final profile in fullClientProfiles) {
+    if (!profiles.contains(profile)) {
+      failures.add('full-client references unknown profile: $profile');
+    }
+    if (!contractProfiles.contains(profile)) {
+      failures.add('full-client profile has no contract: $profile');
+    }
+  }
+
+  for (final entry in profileMap.entries) {
+    if (!fullClientProfiles.contains(entry.value)) {
+      failures.add('${entry.key} uses non-MVP profile: ${entry.value}');
     }
   }
 }
