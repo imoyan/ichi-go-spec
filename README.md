@@ -207,12 +207,12 @@ package metadata only after this repository passes its local checks.
 
 ## Implementation Adoption Reports
 
-### okaka-flutter initial adoption
+### houra-flutter initial adoption
 
-- Implementation repository: `imoyan/okaka-flutter`
+- Implementation repository: `imoyan/houra-flutter`
 - Repository role: Flutter SDK candidate for the Okomedev Ichi-Go client API
   subset.
-- Implementation commit inspected: `deb653dfb86d97b1a9e4ba0c1e47ab884a3eba04`
+- Implementation commit inspected: `1e2609beacdb0ed171c721698a86342825f22c79`
 - Spec input inspected: current `main` after SPEC-008 idempotency, SPEC-010
   pagination, and SPEC-020 download metadata updates.
 
@@ -222,7 +222,7 @@ Observed checks:
 |---|---|---|
 | `dart run tool/check_spec_sync.dart` | pass | Reads this spec checkout and validates bundled theme/vector references |
 | `flutter analyze` | pass | No analyzer issues |
-| `flutter test` | fail | SPEC-008 vector now requires `client_transaction_id`; follow-up is tracked in `imoyan/okaka-flutter#14` |
+| `flutter test` | pass | SPEC-008 `client_transaction_id` coverage is implemented |
 
 Profile status:
 
@@ -232,13 +232,12 @@ Profile status:
 | auth | pass | Existing contract tests passed |
 | rooms | pass | Existing contract tests passed |
 | events | pass | Existing contract tests passed |
-| messaging | follow-up required | SPEC-008 idempotency vector is not implemented yet |
+| messaging | pass | SPEC-008 idempotency vector is implemented |
 | sync | pass | Existing contract tests passed |
 | media | pass | Existing contract tests passed |
 
 No server implementation detail was used as a specification source. The
-implementation gap is tracked outside this repository; this repository remains
-the canonical behavior source.
+implementation follows this repository as the canonical behavior source.
 
 ## Local Checks
 
