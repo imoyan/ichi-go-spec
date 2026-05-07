@@ -15,7 +15,7 @@
                 "room_id": "!room:example.test",
                 "sender": "@alice:example.test",
                 "origin_server_ts": 1710000000000,
-                "type": "chawan.room.message",
+                "type": "ichigo.room.message",
                 "content": "not-an-object"
               }
             ]

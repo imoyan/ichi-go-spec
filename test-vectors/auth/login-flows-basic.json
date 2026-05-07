@@ -3,14 +3,14 @@
   "contract": "SPEC-003",
   "request": {
     "method": "GET",
-    "path": "/_chawan/client/login"
+    "path": "/_ichi-go/client/login"
   },
   "expected": {
     "status": 200,
     "body_contains": {
       "flows": [
         {
-          "type": "chawan.login.password"
+          "type": "ichigo.login.password"
         }
       ]
     }

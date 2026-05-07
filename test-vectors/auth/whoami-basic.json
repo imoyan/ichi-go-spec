@@ -3,7 +3,7 @@
   "contract": "SPEC-004",
   "request": {
     "method": "GET",
-    "path": "/_chawan/client/account/whoami",
+    "path": "/_ichi-go/client/account/whoami",
     "access_token": "token-1"
   },
   "expected": {

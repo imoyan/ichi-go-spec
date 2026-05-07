@@ -3,7 +3,7 @@
   "contract": "SPEC-020",
   "request": {
     "method": "POST",
-    "path": "/_chawan/client/media",
+    "path": "/_ichi-go/client/media",
     "access_token": "token-1",
     "body": {
       "filename": "avatar.png",
@@ -15,7 +15,7 @@
     "status": 200,
     "body_contains": {
       "media_id": "media1",
-      "content_uri": "chawan://media/media1"
+      "content_uri": "ichigo://media/media1"
     }
   }
 }

@@ -3,7 +3,7 @@
   "contract": "SPEC-010",
   "request": {
     "method": "GET",
-    "path": "/_chawan/client/rooms/!room:example.test/timeline",
+    "path": "/_ichi-go/client/rooms/!room:example.test/timeline",
     "access_token": "token-1",
     "query": {
       "from": "not-a-server-token",

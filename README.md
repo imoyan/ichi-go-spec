@@ -1,6 +1,6 @@
-# chawan-product-spec
+# ichi-go-spec
 
-`chawan-product-spec` is the canonical source of truth for the Okomedev Chawan
+`ichi-go-spec` is the canonical source of truth for the Okomedev Ichi-Go
 client API subset.
 
 Implementation repositories must follow this repository's contracts and test
@@ -129,9 +129,9 @@ boundary, contract references, profile map coverage, vector shape, and design
 token shape. It is not a substitute for a client implementation conformance
 harness.
 
-## Chawan MVP 100% Readiness Criteria
+## Ichi-Go MVP 100% Readiness Criteria
 
-`full-client` readiness is scoped only to the Chawan MVP client subset. It is
+`full-client` readiness is scoped only to the Ichi-Go MVP client subset. It is
 not a Matrix full-spec coverage claim.
 
 The MVP subset may be called 100% ready when all of these are true:
@@ -181,9 +181,9 @@ Use this contract-to-endpoint smoke table:
 
 | Contract | Endpoint smoke | Vector scope |
 |---|---|---|
-| SPEC-001 | `GET /_chawan/client/versions` | `test-vectors/core/versions-basic.json` |
+| SPEC-001 | `GET /_ichi-go/client/versions` | `test-vectors/core/versions-basic.json` |
 | SPEC-002 | Any non-success response | `test-vectors/core/error-basic.json` |
-| SPEC-003 | `GET /_chawan/client/login` | `test-vectors/auth/login-flows-basic.json` |
+| SPEC-003 | `GET /_ichi-go/client/login` | `test-vectors/auth/login-flows-basic.json` |
 | SPEC-004 | login, whoami, logout | `test-vectors/auth/*.json` |
 | SPEC-006 | room create, join, leave, state | `test-vectors/rooms/*.json` |
 | SPEC-007 | event parser inputs | `test-vectors/events/*.json` |
@@ -210,7 +210,7 @@ package metadata only after this repository passes its local checks.
 ### okaka-flutter initial adoption
 
 - Implementation repository: `imoyan/okaka-flutter`
-- Repository role: Flutter SDK candidate for the Okomedev Chawan client API
+- Repository role: Flutter SDK candidate for the Okomedev Ichi-Go client API
   subset.
 - Implementation commit inspected: `deb653dfb86d97b1a9e4ba0c1e47ab884a3eba04`
 - Spec input inspected: current `main` after SPEC-008 idempotency, SPEC-010

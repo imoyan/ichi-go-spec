@@ -11,14 +11,14 @@ Define the MVP password login and bearer-token session model.
 ## Password login request
 
 ```text
-POST /_chawan/client/login
+POST /_ichi-go/client/login
 ```
 
 ```json
 {
-  "type": "chawan.login.password",
+  "type": "ichigo.login.password",
   "identifier": {
-    "type": "chawan.id.user",
+    "type": "ichigo.id.user",
     "user": "alice"
   },
   "password": "correct horse battery staple",
@@ -44,7 +44,7 @@ POST /_chawan/client/login
 ## Whoami request
 
 ```text
-GET /_chawan/client/account/whoami
+GET /_ichi-go/client/account/whoami
 Authorization: Bearer token-1
 ```
 
@@ -62,7 +62,7 @@ Authorization: Bearer token-1
 ## Logout request
 
 ```text
-POST /_chawan/client/logout
+POST /_ichi-go/client/logout
 Authorization: Bearer token-1
 ```
 
