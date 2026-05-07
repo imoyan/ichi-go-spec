@@ -71,6 +71,20 @@ with enough detail for the implementation repository to identify the failed
 contract or fixture. The v1 target profiles are the existing `core`, `auth`,
 `rooms`, `events`, `messaging`, `sync`, and `media` slices.
 
+At minimum, a v1 runner should expose one result per vector with:
+
+- Feature profile from `CONTRACT_MODULE_MAP.md`.
+- Vector name from the vector file's `name` field.
+- Contract id from the vector file's `contract` field.
+- `pass` or `fail` status.
+- Failure detail that identifies the failed contract expectation, fixture field,
+  or parser category without requiring server implementation context.
+
+The runner may adapt each vector to an implementation-specific test harness, but
+the reported result must remain traceable to the canonical vector file. A single
+failed vector should not prevent the runner from reporting the remaining vector
+results.
+
 Conformance tooling v1 does not define SDK APIs, package layout, storage,
 network retry policy, UI behavior, or server behavior. Those remain
 implementation concerns unless a `SPEC-*` contract and vector are added here.
