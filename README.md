@@ -43,6 +43,25 @@ in implementation repositories.
 - `design/theme.schema.json`
 - `design/themes/smoke.json`
 
+## Pre-1.0 Baseline
+
+The current pre-1.0 baseline is the committed `core`, `auth`, `rooms`,
+`events`, `messaging`, `sync`, and `media` profile set. It includes:
+
+- `contracts/SPEC-*.md`
+- `test-vectors/**/*.json`
+- `design/theme.schema.json`
+- `design/themes/smoke.json`
+
+This baseline does not freeze implementation behavior, SDK API shape, package
+layout, storage policy, UI behavior, or server behavior. Those remain
+implementation-owned unless this repository adds or changes a matching contract,
+vector, or design token first.
+
+Release note summary: this baseline publishes the canonical MVP client API
+subset, representative request/response vectors, and shared smoke theme tokens
+for implementation repositories to consume as read-only conformance input.
+
 ## Validation
 
 Client implementations should validate request paths, response parsing, and
