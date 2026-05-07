@@ -113,6 +113,24 @@ boundary, contract references, profile map coverage, vector shape, and design
 token shape. It is not a substitute for a client implementation conformance
 harness.
 
+## Implementation Follow-Up Checklist
+
+When an implementation repository adopts this baseline, copy this checklist into
+the implementation issue or pull request and fill in implementation-specific
+links there:
+
+- Record the consumed spec version, tag, or commit.
+- Run the implementation conformance runner against `contracts/SPEC-*.md`,
+  `CONTRACT_MODULE_MAP.md`, and `test-vectors/**/*.json`.
+- Report pass/fail by feature profile: `core`, `auth`, `rooms`, `events`,
+  `messaging`, `sync`, and `media`.
+- Confirm whether bundled `design/themes/*.json` assets changed and whether the
+  implementation needs to refresh copied design tokens.
+- If SDK behavior must change, link the spec PR that changed the matching
+  contract, vector, or design token first.
+- If behavior is unclear, open a spec issue or PR here before deriving behavior
+  from server code, storage design, or implementation internals.
+
 ## Long-Term Role
 
 This repository is the first source to update before client implementation
