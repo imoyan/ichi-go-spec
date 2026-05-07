@@ -1,5 +1,5 @@
 {
-  "name": "download-metadata-basic",
+  "name": "auth-required-download",
   "contract": "SPEC-020",
   "request": {
     "method": "GET",
@@ -13,7 +13,7 @@
       "filename": "avatar.png",
       "content_type": "image/png",
       "download_url": "https://example.test/_chawan/client/media/media1/content",
-      "download_requires_auth": false,
+      "download_requires_auth": true,
       "download_expires_at": "2030-01-01T00:00:00Z"
     }
   }

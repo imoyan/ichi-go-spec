@@ -1,0 +1,16 @@
+{
+  "name": "missing-media",
+  "contract": "SPEC-020",
+  "request": {
+    "method": "GET",
+    "path": "/_chawan/client/media/missing-media",
+    "access_token": "token-1"
+  },
+  "expected": {
+    "status": 404,
+    "body_contains": {
+      "code": "CHAWAN_NOT_FOUND",
+      "message": "Media not found."
+    }
+  }
+}

@@ -46,11 +46,38 @@ Authorization: Bearer token-1
   "media_id": "media1",
   "filename": "avatar.png",
   "content_type": "image/png",
-  "download_url": "https://example.test/_chawan/client/media/media1/content"
+  "download_url": "https://example.test/_chawan/client/media/media1/content",
+  "download_requires_auth": false,
+  "download_expires_at": "2030-01-01T00:00:00Z"
+}
+```
+
+Required response fields are `media_id`, `filename`, `content_type`,
+`download_url`, and `download_requires_auth`.
+
+`download_expires_at` is optional.
+
+## Missing media response
+
+```json
+{
+  "code": "CHAWAN_NOT_FOUND",
+  "message": "Media not found."
 }
 ```
 
 ## Client expectations
 
 - This contract covers metadata and base64 upload only.
+- `download_url` is an opaque URL. Clients must not parse it, rewrite it, or
+  infer server storage layout from it.
+- `content_type` is the expected Content-Type for the downloaded media bytes.
+- `download_requires_auth` tells clients whether the download URL expects
+  bearer token authorization. Clients must attach `Authorization: Bearer` only
+  when this value is `true`; clients must not attach bearer tokens when this
+  value is `false`.
+- `download_expires_at`, when present, is an RFC 3339 timestamp after which
+  clients should refresh metadata before attempting a new download.
+- Missing media should use HTTP 404 with `CHAWAN_NOT_FOUND` when a structured
+  error body is available.
 - Binary streaming, encryption, thumbnails, and federation are out of scope.
