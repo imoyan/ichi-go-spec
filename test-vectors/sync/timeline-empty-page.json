@@ -1,0 +1,20 @@
+{
+  "name": "timeline-empty-page",
+  "contract": "SPEC-010",
+  "request": {
+    "method": "GET",
+    "path": "/_chawan/client/rooms/!room:example.test/timeline",
+    "access_token": "token-1",
+    "query": {
+      "from": "t0",
+      "limit": "2"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "events": [],
+      "start": "t0"
+    }
+  }
+}

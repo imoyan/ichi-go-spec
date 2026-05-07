@@ -15,7 +15,12 @@ GET /_chawan/client/rooms/{room_id}/timeline?from=t1&limit=20
 Authorization: Bearer token-1
 ```
 
-`from` is optional. `limit` is optional.
+`from` is optional. When present, it is a server-issued opaque token for
+backward pagination. Clients must not parse, compare, or derive values from it.
+
+`limit` is optional and is a requested maximum event count. Servers may return
+fewer events than requested. When `limit` is omitted, the server chooses the
+page size.
 
 ## Response
 
@@ -30,5 +35,14 @@ Authorization: Bearer token-1
 ## Client expectations
 
 - `events` must be an array of SPEC-007 event objects.
-- `start` must be a non-empty string.
-- `end` is optional.
+- `start` must be a non-empty opaque token for this response page.
+- `end` is an optional opaque token for the next older page.
+- To request the next older page, clients should pass the previous response's
+  `end` value as the next request's `from`.
+- If `end` is absent, clients should treat the room as having no older page.
+- Empty pages are valid `200` responses with `events: []`. They may include
+  `end` only when an older page may still be available.
+- Invalid, malformed, or expired `from` tokens should return HTTP 400 with
+  `CHAWAN_BAD_REQUEST` when a structured error body is available.
+- Forward pagination, database pagination strategy, and sync protocol redesign
+  are out of scope.
