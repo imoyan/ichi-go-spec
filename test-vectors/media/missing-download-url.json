@@ -6,7 +6,9 @@
     "body": {
       "media_id": "media1",
       "filename": "avatar.png",
-      "content_type": "image/png"
+      "content_type": "image/png",
+      "download_requires_auth": false,
+      "download_expires_at": "2030-01-01T00:00:00Z"
     }
   },
   "expected": {
