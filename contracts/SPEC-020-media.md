@@ -11,7 +11,7 @@ Define minimal media metadata upload and download descriptors.
 ## Upload request
 
 ```text
-POST /_chawan/client/media
+POST /_ichi-go/client/media
 Authorization: Bearer token-1
 ```
 
@@ -28,14 +28,14 @@ Authorization: Bearer token-1
 ```json
 {
   "media_id": "media1",
-  "content_uri": "chawan://media/media1"
+  "content_uri": "ichigo://media/media1"
 }
 ```
 
 ## Download metadata request
 
 ```text
-GET /_chawan/client/media/{media_id}
+GET /_ichi-go/client/media/{media_id}
 Authorization: Bearer token-1
 ```
 
@@ -46,7 +46,7 @@ Authorization: Bearer token-1
   "media_id": "media1",
   "filename": "avatar.png",
   "content_type": "image/png",
-  "download_url": "https://example.test/_chawan/client/media/media1/content",
+  "download_url": "https://example.test/_ichi-go/client/media/media1/content",
   "download_requires_auth": false,
   "download_expires_at": "2030-01-01T00:00:00Z"
 }

@@ -111,7 +111,7 @@ PR after the spec PR is merged.
 
 ## MVP Readiness Boundary
 
-`full-client` readiness means the Chawan MVP client subset is complete enough
+`full-client` readiness means the Ichi-Go MVP client subset is complete enough
 for implementation repositories to consume this repository as read-only
 conformance input. It does not mean Matrix Client-Server API, federation,
 identity service, appservice, E2EE, push, VoIP, or administrative API coverage.

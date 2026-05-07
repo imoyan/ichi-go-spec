@@ -11,10 +11,10 @@ Define the MVP room operations used by first-party clients.
 ## Endpoints
 
 ```text
-POST /_chawan/client/rooms
-POST /_chawan/client/rooms/{room_id}/join
-POST /_chawan/client/rooms/{room_id}/leave
-GET /_chawan/client/rooms/{room_id}/state
+POST /_ichi-go/client/rooms
+POST /_ichi-go/client/rooms/{room_id}/join
+POST /_ichi-go/client/rooms/{room_id}/leave
+GET /_ichi-go/client/rooms/{room_id}/state
 ```
 
 Authenticated endpoints require `Authorization: Bearer`.

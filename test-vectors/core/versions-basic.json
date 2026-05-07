@@ -3,12 +3,12 @@
   "contract": "SPEC-001",
   "request": {
     "method": "GET",
-    "path": "/_chawan/client/versions"
+    "path": "/_ichi-go/client/versions"
   },
   "expected": {
     "status": 200,
     "body_contains": {
-      "project": "okomedev-chawan",
+      "project": "okomedev-ichi-go",
       "api_version": "0.1-draft",
       "compatibility_level": "level-1-csapi-subset",
       "features": ["core"]

@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Propose a new or changed Chawan client API contract.
+about: Propose a new or changed Ichi-Go client API contract.
 title: ""
 labels: enhancement
 assignees: ""

@@ -3,7 +3,7 @@
   "contract": "SPEC-006",
   "request": {
     "method": "POST",
-    "path": "/_chawan/client/rooms/!room:example.test/leave",
+    "path": "/_ichi-go/client/rooms/!room:example.test/leave",
     "access_token": "token-1"
   },
   "expected": {

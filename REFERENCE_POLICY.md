@@ -2,8 +2,8 @@
 
 Allowed sources:
 
-- Okomedev Chawan contracts
-- Okomedev Chawan test vectors
+- Okomedev Ichi-Go contracts
+- Okomedev Ichi-Go test vectors
 - Stable public protocol specifications when a contract explicitly points to them
 - Official Dart, Flutter, Swift, Kotlin, TypeScript, and platform documentation
 

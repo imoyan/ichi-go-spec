@@ -3,7 +3,7 @@
   "contract": "SPEC-010",
   "request": {
     "method": "GET",
-    "path": "/_chawan/client/rooms/!room:example.test/timeline",
+    "path": "/_ichi-go/client/rooms/!room:example.test/timeline",
     "access_token": "token-1",
     "query": {
       "from": "t1",
@@ -19,9 +19,9 @@
           "room_id": "!room:example.test",
           "sender": "@alice:example.test",
           "origin_server_ts": 1710000000000,
-          "type": "chawan.room.message",
+          "type": "ichigo.room.message",
           "content": {
-            "msgtype": "chawan.text",
+            "msgtype": "ichigo.text",
             "body": "hello"
           }
         }

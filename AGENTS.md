@@ -3,7 +3,7 @@
 ## Scope
 
 This repository is the canonical behavior and shared design source for
-Okomedev Chawan clients and servers.
+Okomedev Ichi-Go clients and servers.
 
 ## Source of Truth
 
