@@ -135,11 +135,7 @@ implementation concerns unless a `SPEC-*` contract and vector are added here.
 boundary, contract references, profile map coverage, vector shape, and design
 token shape. It is not a substitute for implementation conformance harnesses.
 
-## Okomedev MVP 100% Readiness Criteria
-
-For current tooling and release history, this section is still the
-`Ichi-Go MVP 100% Readiness Criteria`; semantically, it describes the covered
-Okomedev MVP public contract.
+## Okomedev MVP 100% Readiness Criteria (formerly Ichi-Go MVP 100% Readiness Criteria)
 
 `full-client` readiness is scoped only to the covered Okomedev MVP public
 contract. It is not a Matrix full-spec coverage claim.
