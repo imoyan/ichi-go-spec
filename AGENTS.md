@@ -21,3 +21,10 @@ Implementation repositories are not canonical.
 Do not copy, translate, port, or derive implementation details from existing
 client or server implementations. If behavior is unclear, clarify the contract
 here before changing an implementation.
+
+## Dependency Selection
+
+When implementation work needs libraries, prefer mainstream, widely maintained
+choices for the target ecosystem. Avoid minor or obscure dependencies for core
+behavior. If the reasonable choices are niche, implement the needed behavior
+locally against the contracts instead of adding a dependency.
