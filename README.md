@@ -325,6 +325,104 @@ Profile status:
 No server implementation detail was used as a specification source. The
 implementation follows this repository as the canonical behavior source.
 
+### TypeScript server MVP adoption
+
+- Implementation repository: `imoyan/houra-server`
+- Repository role: production TypeScript server baseline for the covered Houra
+  public contract.
+- Implementation issue: `imoyan/houra-server#1`
+- Implementation pull request: `imoyan/houra-server#2`
+- Implementation commit inspected: `4c64718ff1608b99017de1166cd1c74aeebce053`
+- Spec behavior input inspected: `5e882e909aaf9a5c7d6af557b0b1d8addb1b50ae`
+- Matrix reference: Matrix Specification 1.18, checked on 2026-05-08 JST.
+
+Observed checks:
+
+| Check | Result | Notes |
+|---|---|---|
+| `npm run typecheck` | pass | TypeScript strict check |
+| `npm run build` | pass | Production server build |
+| `npm test` | pass | 31 tests, including 27 request vectors |
+| GitHub Actions `CI / test` | pass | Ran on PR #2 head |
+
+Profile status:
+
+| Profile | Status | Notes |
+|---|---|---|
+| core | pass | Versions and structured error behavior covered |
+| auth | pass | Login, whoami, logout, and token invalidation covered |
+| rooms | pass | Create, join, leave, and state endpoints covered |
+| events | pass | Event-shaped state, sync, and timeline responses covered |
+| messaging | pass | Text send idempotency and conflict behavior covered |
+| sync | pass | Room list, timeline, and incremental sync covered |
+| media | pass | Base64 upload and metadata download descriptors covered |
+
+No client implementation or lab prototype was used as a specification source.
+The server consumes this repository's contracts and request vectors as the
+behavior source.
+
+### TypeScript client core MVP adoption
+
+- Implementation repository: `imoyan/houra-client`
+- Repository role: UI-free TypeScript client core for the covered Houra public
+  contract.
+- Implementation issue: `imoyan/houra-client#1`
+- Implementation pull request: `imoyan/houra-client#2`
+- Implementation commit inspected: `44c23c5868a8a2c62e41b3829ae83dcd1d7a680c`
+- Spec behavior input inspected: `5e882e909aaf9a5c7d6af557b0b1d8addb1b50ae`
+- Matrix reference: Matrix Specification 1.18, checked on 2026-05-08 JST.
+
+Observed checks:
+
+| Check | Result | Notes |
+|---|---|---|
+| `npm run typecheck` | pass | TypeScript strict check |
+| `npm run build` | pass | Client core declaration build |
+| `npm test` | pass | 36 tests covering request vectors and parser vectors |
+| GitHub Actions `CI / test` | pass | Ran on PR #2 head |
+
+Profile status:
+
+| Profile | Status | Notes |
+|---|---|---|
+| core | pass | Versions and structured error parsing covered |
+| auth | pass | Login, whoami, logout request formation and parsing covered |
+| rooms | pass | Room request formation and room parser behavior covered |
+| events | pass | Event parser and malformed event rejection covered |
+| messaging | pass | Text send request formation and conflict error parsing covered |
+| sync | pass | Room list, timeline, and sync parsing covered |
+| media | pass | Upload request formation and metadata parser behavior covered |
+
+No server implementation or lab prototype was used as a specification source.
+The client consumes this repository's contracts and request/response vectors as
+the behavior source.
+
+### Server/client live e2e smoke
+
+- Implementation repository: `imoyan/houra-client`
+- Smoke issue: `imoyan/houra-client#3`
+- Smoke pull request: `imoyan/houra-client#4`
+- Client commit inspected: `e3be2330411ac4952195b5fe17308840bc74ee5b`
+- Server target commit: `4c64718ff1608b99017de1166cd1c74aeebce053`
+- Spec input inspected: `88053e35195c0b30f77d856f83ad8dd59eebf9ad`
+- Matrix reference: Matrix Specification 1.18, checked on 2026-05-08 JST.
+
+Observed checks:
+
+| Check | Result | Notes |
+|---|---|---|
+| local live `npm run test:e2e` | pass | Client connected to local `houra-server` over HTTP |
+| GitHub Actions `CI / test` | pass | Vector and parser tests |
+| GitHub Actions `CI / e2e` | pass | Checked out pinned `houra-server` and ran live HTTP smoke |
+
+E2E smoke covered discovery, login, whoami, room create/join/list/state,
+message send and idempotent retry/conflict, sync, timeline pagination, media
+upload/metadata, leave, logout, and post-logout unauthorized behavior.
+
+The server is used only as the live HTTP target for connection smoke coverage;
+the expected public behavior remains defined by this repository's contracts and
+vectors.
+
 ## Local Checks
 
 ```bash
