@@ -47,6 +47,7 @@ const themePairKeys = {'light', 'dark'};
 void main() {
   final failures = <String>[];
   checkBoundary(failures);
+  checkNamespaceConsistency(failures);
   final contracts = readContracts(failures);
 
   checkDocs(contracts, failures);
@@ -61,6 +62,56 @@ void main() {
       stderr.writeln('- $failure');
     }
     exitCode = 1;
+  }
+}
+
+void checkNamespaceConsistency(List<String> failures) {
+  const docs = [
+    'README.md',
+    'SOURCE_OF_TRUTH.md',
+    'REFERENCE_POLICY.md',
+    'FEATURE_PROFILES.md',
+    'MODULE_DEPENDENCIES.md',
+    'CONTRACT_MODULE_MAP.md',
+    'AGENTS.md',
+    'LICENSE',
+    '.github/PULL_REQUEST_TEMPLATE.md',
+    '.github/ISSUE_TEMPLATE/bug_report.md',
+    '.github/ISSUE_TEMPLATE/feature_request.md',
+    '.github/ISSUE_TEMPLATE/maintenance.md',
+  ];
+  const legacyTokens = {
+    '/_ichi-go/client',
+    'ichigo.',
+    'ichigo://',
+    'Ichi-Go',
+    'ichi-go',
+    'Okomedev',
+    'okomedev',
+    'CHAWAN_',
+    'okome.dev',
+  };
+
+  final files = <File>[
+    for (final path in docs)
+      if (File(path).existsSync()) File(path),
+    if (Directory('contracts').existsSync())
+      ...filesUnder(Directory('contracts'), '.md'),
+    if (Directory('test-vectors').existsSync())
+      ...filesUnder(Directory('test-vectors'), '.json'),
+    if (Directory('design').existsSync())
+      ...filesUnder(Directory('design'), '.json'),
+  ];
+
+  for (final file in files) {
+    final source = file.readAsStringSync();
+    for (final token in legacyTokens) {
+      if (source.contains(token)) {
+        failures.add(
+          '${relative(file)} contains legacy namespace token: $token',
+        );
+      }
+    }
   }
 }
 
@@ -490,6 +541,9 @@ void checkThemes(List<String> failures) {
   final schema = readJsonObject(File('design/theme.schema.json'), failures);
   if (schema == null) {
     return;
+  }
+  if (schema[r'$id'] != 'https://houra.dev/schemas/houra-theme.schema.json') {
+    failures.add('design/theme.schema.json must use the Houra schema id.');
   }
   final required = schema['required'];
   if (required is! List ||

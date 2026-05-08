@@ -27,7 +27,7 @@
   "expected": {
     "status": 409,
     "body_contains": {
-      "code": "CHAWAN_CONFLICT",
+      "code": "HOURA_CONFLICT",
       "message": "Conflicting message idempotency key."
     }
   }

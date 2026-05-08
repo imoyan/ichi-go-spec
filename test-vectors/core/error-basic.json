@@ -4,12 +4,12 @@
   "response": {
     "status": 503,
     "body": {
-      "code": "CHAWAN_UNAVAILABLE",
+      "code": "HOURA_UNAVAILABLE",
       "message": "Service unavailable."
     }
   },
   "expected": {
-    "code": "CHAWAN_UNAVAILABLE",
+    "code": "HOURA_UNAVAILABLE",
     "message": "Service unavailable."
   }
 }

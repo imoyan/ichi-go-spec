@@ -13,7 +13,7 @@
   "expected": {
     "status": 400,
     "body_contains": {
-      "code": "CHAWAN_BAD_REQUEST",
+      "code": "HOURA_BAD_REQUEST",
       "message": "Invalid timeline pagination token."
     }
   }

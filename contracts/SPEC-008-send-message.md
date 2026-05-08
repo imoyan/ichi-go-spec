@@ -42,7 +42,7 @@ Authorization: Bearer token-1
   the same `event_id` and must not create a second event.
 - If the same sender reuses a `client_transaction_id` in the same room with a
   different `msgtype` or `body`, servers should return HTTP 409 with
-  `CHAWAN_CONFLICT` when a structured error body is available.
+  `HOURA_CONFLICT` when a structured error body is available.
 - `event_id` must be a non-empty string.
 - Server storage algorithms, encrypted media, rich messages, edits, and
   reactions are out of scope.

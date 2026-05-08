@@ -9,7 +9,7 @@
   "expected": {
     "status": 404,
     "body_contains": {
-      "code": "CHAWAN_NOT_FOUND",
+      "code": "HOURA_NOT_FOUND",
       "message": "Media not found."
     }
   }

@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Propose a new or changed Okomedev public contract.
+about: Propose a new or changed Houra public contract.
 title: ""
 labels: enhancement
 assignees: ""
