@@ -19,11 +19,10 @@ server-specific details belong in implementation repositories.
 The maintained repository names are:
 
 - `houra-spec`: canonical contracts, test vectors, and shared design tokens.
-- `houra-server`: the production server implementation.
+- `houra-server`: the production TypeScript server implementation.
 - `houra-client`: the production React Native client implementation.
 - `houra-labs`: experiments, including Flutter client prototypes and alternate
-  Go, Dart, or TypeScript server prototypes before one is promoted to a
-  production repository.
+  Go or Dart server prototypes.
 
 ## Layout
 
