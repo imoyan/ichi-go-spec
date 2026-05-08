@@ -77,7 +77,8 @@ must still be changed deliberately:
 - Breaking changes alter expected public behavior for an existing contract,
   vector, or design token. They require a focused spec PR that updates the
   affected `SPEC-*`, vectors, and profile map together, plus implementation
-  follow-up issues or PRs when bundled assets or SDK behavior are affected.
+  follow-up issues or PRs when bundled assets or implementation behavior are
+  affected.
   During pre-1.0, they are allowed only when the release notes label the change
   as breaking and the affected implementation repositories have an explicit
   follow-up path.
@@ -109,8 +110,8 @@ candidate.
 
 Changing a frozen contract, vector, or design token after this candidate
 requires a focused spec PR first. If the change affects bundled design assets
-or expected SDK behavior, create the matching implementation follow-up issue or
-PR after the spec PR is merged.
+or expected implementation behavior, create the matching implementation
+follow-up issue or PR after the spec PR is merged.
 
 ## MVP Readiness Boundary
 
