@@ -16,7 +16,7 @@ these fields when present:
 
 ```json
 {
-  "code": "CHAWAN_UNAVAILABLE",
+  "code": "HOURA_UNAVAILABLE",
   "message": "Service unavailable."
 }
 ```

@@ -43,6 +43,6 @@ page size.
 - Empty pages are valid `200` responses with `events: []`. They may include
   `end` only when an older page may still be available.
 - Invalid, malformed, or expired `from` tokens should return HTTP 400 with
-  `CHAWAN_BAD_REQUEST` when a structured error body is available.
+  `HOURA_BAD_REQUEST` when a structured error body is available.
 - Forward pagination, database pagination strategy, and sync protocol redesign
   are out of scope.

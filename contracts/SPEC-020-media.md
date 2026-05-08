@@ -61,7 +61,7 @@ Required response fields are `media_id`, `filename`, `content_type`,
 
 ```json
 {
-  "code": "CHAWAN_NOT_FOUND",
+  "code": "HOURA_NOT_FOUND",
   "message": "Media not found."
 }
 ```
@@ -78,6 +78,6 @@ Required response fields are `media_id`, `filename`, `content_type`,
   value is `false`.
 - `download_expires_at`, when present, is an RFC 3339 timestamp after which
   clients should refresh metadata before attempting a new download.
-- Missing media should use HTTP 404 with `CHAWAN_NOT_FOUND` when a structured
+- Missing media should use HTTP 404 with `HOURA_NOT_FOUND` when a structured
   error body is available.
 - Binary streaming, encryption, thumbnails, and federation are out of scope.

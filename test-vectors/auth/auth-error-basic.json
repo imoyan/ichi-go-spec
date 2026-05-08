@@ -4,12 +4,12 @@
   "response": {
     "status": 401,
     "body": {
-      "code": "CHAWAN_UNAUTHORIZED",
+      "code": "HOURA_UNAUTHORIZED",
       "message": "Invalid access token."
     }
   },
   "expected": {
-    "code": "CHAWAN_UNAUTHORIZED",
+    "code": "HOURA_UNAUTHORIZED",
     "message": "Invalid access token."
   }
 }
