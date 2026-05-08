@@ -210,7 +210,7 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
   final readme = File('README.md').readAsStringSync();
   for (final phrase in [
     'Stateful vector metadata',
-    'Ichi-Go MVP 100% Readiness Criteria',
+    'Houra MVP 100% Readiness Criteria',
     'Implementation Adoption Reports',
   ]) {
     if (!readme.contains(phrase)) {
@@ -460,8 +460,8 @@ void checkRequest(File file, Object? value, List<String> failures) {
     failures.add('${relative(file)} request.method must be uppercase.');
   }
   final path = request['path'];
-  if (path is! String || !path.startsWith('/_ichi-go/client')) {
-    failures.add('${relative(file)} request.path must use /_ichi-go/client.');
+  if (path is! String || !path.startsWith('/_houra/client')) {
+    failures.add('${relative(file)} request.path must use /_houra/client.');
   }
   final query = request['query'];
   if (query is Map && query.containsKey('access_token')) {

@@ -3,11 +3,11 @@
   "contract": "SPEC-008",
   "request": {
     "method": "POST",
-    "path": "/_ichi-go/client/rooms/!room:example.test/messages",
+    "path": "/_houra/client/rooms/!room:example.test/messages",
     "access_token": "token-1",
     "body": {
       "client_transaction_id": "txn-1",
-      "msgtype": "ichigo.text",
+      "msgtype": "houra.text",
       "body": "hello"
     }
   },

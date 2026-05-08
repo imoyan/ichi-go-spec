@@ -3,7 +3,7 @@
   "contract": "SPEC-009",
   "request": {
     "method": "GET",
-    "path": "/_ichi-go/client/rooms",
+    "path": "/_houra/client/rooms",
     "access_token": "token-1"
   },
   "expected": {

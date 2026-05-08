@@ -3,14 +3,14 @@
   "contract": "SPEC-003",
   "request": {
     "method": "GET",
-    "path": "/_ichi-go/client/login"
+    "path": "/_houra/client/login"
   },
   "expected": {
     "status": 200,
     "body_contains": {
       "flows": [
         {
-          "type": "ichigo.login.password"
+          "type": "houra.login.password"
         }
       ]
     }

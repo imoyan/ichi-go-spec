@@ -3,7 +3,7 @@
   "contract": "SPEC-010",
   "request": {
     "method": "GET",
-    "path": "/_ichi-go/client/rooms/!room:example.test/timeline",
+    "path": "/_houra/client/rooms/!room:example.test/timeline",
     "access_token": "token-1",
     "query": {
       "limit": "2"
@@ -18,9 +18,9 @@
           "room_id": "!room:example.test",
           "sender": "@bob:example.test",
           "origin_server_ts": 1710000001000,
-          "type": "ichigo.room.message",
+          "type": "houra.room.message",
           "content": {
-            "msgtype": "ichigo.text",
+            "msgtype": "houra.text",
             "body": "newer"
           }
         },
@@ -29,9 +29,9 @@
           "room_id": "!room:example.test",
           "sender": "@alice:example.test",
           "origin_server_ts": 1710000000000,
-          "type": "ichigo.room.message",
+          "type": "houra.room.message",
           "content": {
-            "msgtype": "ichigo.text",
+            "msgtype": "houra.text",
             "body": "older"
           }
         }

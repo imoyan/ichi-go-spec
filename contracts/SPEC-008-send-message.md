@@ -11,14 +11,14 @@ Define the MVP text-message send operation.
 ## Request
 
 ```text
-POST /_ichi-go/client/rooms/{room_id}/messages
+POST /_houra/client/rooms/{room_id}/messages
 Authorization: Bearer token-1
 ```
 
 ```json
 {
   "client_transaction_id": "txn-1",
-  "msgtype": "ichigo.text",
+  "msgtype": "houra.text",
   "body": "hello"
 }
 ```

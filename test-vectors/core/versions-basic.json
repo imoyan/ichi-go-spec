@@ -3,12 +3,12 @@
   "contract": "SPEC-001",
   "request": {
     "method": "GET",
-    "path": "/_ichi-go/client/versions"
+    "path": "/_houra/client/versions"
   },
   "expected": {
     "status": 200,
     "body_contains": {
-      "project": "okomedev-ichi-go",
+      "project": "houra",
       "api_version": "0.1-draft",
       "compatibility_level": "level-1-csapi-subset",
       "features": ["core"]

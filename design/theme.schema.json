@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://okome.dev/schemas/okomedev-theme.schema.json",
-  "title": "Okomedev shared theme",
+  "$id": "https://okome.dev/schemas/houra-theme.schema.json",
+  "title": "Houra shared theme",
   "type": "object",
   "required": ["name", "version", "defs", "theme"],
   "additionalProperties": false,

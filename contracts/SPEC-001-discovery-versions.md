@@ -16,14 +16,14 @@ compatibility.
 ## Request
 
 ```text
-GET /_ichi-go/client/versions
+GET /_houra/client/versions
 ```
 
 ## MVP response fields
 
 ```json
 {
-  "project": "okomedev-ichi-go",
+  "project": "houra",
   "api_version": "0.1-draft",
   "compatibility_level": "level-1-csapi-subset",
   "features": ["core"]

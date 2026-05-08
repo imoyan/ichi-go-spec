@@ -4,7 +4,7 @@ Canonical behavior is defined by this repository only.
 
 After this root is published as a standalone repository, the contracts, test
 vectors, and shared design tokens here remain the only canonical source for
-the covered Okomedev public client-server behavior.
+the covered Houra public client-server behavior.
 
 Priority order:
 
@@ -115,7 +115,7 @@ follow-up issue or PR after the spec PR is merged.
 
 ## MVP Readiness Boundary
 
-`full-client` readiness means the covered Okomedev MVP public contract is
+`full-client` readiness means the covered Houra MVP public contract is
 complete enough for implementation repositories to consume this repository as
 read-only conformance input. It does not mean Matrix Client-Server API,
 federation, identity service, appservice, E2EE, push, VoIP, or administrative

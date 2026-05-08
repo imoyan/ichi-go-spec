@@ -3,7 +3,7 @@
 ## Scope
 
 This repository is the canonical behavior and shared design source for
-Okomedev clients and servers.
+Houra clients and servers.
 
 ## Source of Truth
 
