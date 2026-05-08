@@ -199,6 +199,8 @@ Required fields:
   commit.
 - Scope: feature profiles, contracts, vectors, and design token files consumed
   or changed.
+- Matrix reference: Matrix specification version, source URL, and check time
+  used as external protocol context for the implementation work.
 - Timing: `started_at`, `ended_at`, `elapsed_seconds`, and timezone.
 - Verification: commands run, pass/fail result, and the head commit verified.
 - Outcome: shipped, blocked, deferred, or superseded, with the concrete blocker
@@ -232,10 +234,22 @@ Recommended additional records:
 - Clean-room note: confirmation that no implementation repository was used as a
   behavior source.
 
+Current Matrix reference snapshot:
+
+- Checked at: 2026-05-08 JST.
+- Current stable Matrix specification: Matrix 1.18.
+- Release date: 2026-03-26.
+- Source: `https://spec.matrix.org/v1.18/` and
+  `https://matrix.org/blog/2026/03/26/matrix-v1.18-release/`.
+
+This snapshot is a dated planning reference, not a future-current value. Before
+starting a later implementation batch, refresh the Matrix specification version
+and record the refreshed value in that implementation record.
+
 Example JSONL record:
 
 ```json
-{"repo":"houra-client","branch":"codex/adopt-media-vectors","pr":null,"spec_commit":"<houra-spec-sha>","implementation_commit":"<implementation-sha>","profiles":["media"],"contracts":["SPEC-020"],"vectors":["test-vectors/media/upload-basic.json"],"started_at":"2026-05-08T10:00:00+09:00","ended_at":"2026-05-08T10:42:00+09:00","elapsed_seconds":2520,"model":"gpt-5.3-codex","execution_mode":"local_task","input_tokens":null,"cached_input_tokens":null,"output_tokens":null,"total_tokens":null,"usage_source":"unavailable","accuracy":"unavailable","verification":[{"command":"npm test","result":"pass"}],"outcome":"shipped","clean_room_confirmed":true}
+{"repo":"houra-client","branch":"codex/adopt-media-vectors","pr":null,"spec_commit":"<houra-spec-sha>","implementation_commit":"<implementation-sha>","profiles":["media"],"contracts":["SPEC-020"],"vectors":["test-vectors/media/upload-basic.json"],"matrix_spec_version":"1.18","matrix_spec_source":"https://spec.matrix.org/v1.18/","matrix_spec_checked_at":"2026-05-08T10:00:00+09:00","started_at":"2026-05-08T10:00:00+09:00","ended_at":"2026-05-08T10:42:00+09:00","elapsed_seconds":2520,"model":"gpt-5.3-codex","execution_mode":"local_task","input_tokens":null,"cached_input_tokens":null,"output_tokens":null,"total_tokens":null,"usage_source":"unavailable","accuracy":"unavailable","verification":[{"command":"npm test","result":"pass"}],"outcome":"shipped","clean_room_confirmed":true}
 ```
 
 ## Server Alignment Smoke Checklist
