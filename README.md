@@ -201,7 +201,9 @@ Required fields:
   or changed.
 - Matrix reference: Matrix specification version, source URL, and check time
   used as external protocol context for the implementation work.
-- Timing: `started_at`, `ended_at`, `elapsed_seconds`, and timezone.
+- Timing: `started_at`, `ended_at`, `elapsed_seconds`, and `timezone`. Use
+  ISO 8601 timestamps with an explicit offset and an IANA timezone name such as
+  `Asia/Tokyo`.
 - Verification: commands run, pass/fail result, and the head commit verified.
 - Outcome: shipped, blocked, deferred, or superseded, with the concrete blocker
   when not shipped.
@@ -217,10 +219,11 @@ Codex usage fields:
   `manual_estimate`, or `unavailable`.
 - Accuracy: `exact`, `estimated`, or `unavailable`.
 
-If exact token counts are unavailable, record `unavailable` rather than
-backfilling a guessed value. If an estimate is intentionally useful, mark it as
-`estimated`, record the estimation method, and do not compare it directly with
-exact token counts.
+If exact token counts are unavailable, set token count fields to `null`, set
+`usage_source` and `accuracy` to `unavailable`, and do not backfill a guessed
+numeric value. If an estimate is intentionally useful, mark it as `estimated`,
+record the estimation method, and do not compare it directly with exact token
+counts.
 
 Recommended additional records:
 
@@ -248,8 +251,8 @@ and record the refreshed value in that implementation record.
 
 Example JSONL record:
 
-```json
-{"repo":"houra-client","branch":"codex/adopt-media-vectors","pr":null,"spec_commit":"<houra-spec-sha>","implementation_commit":"<implementation-sha>","profiles":["media"],"contracts":["SPEC-020"],"vectors":["test-vectors/media/upload-basic.json"],"matrix_spec_version":"1.18","matrix_spec_source":"https://spec.matrix.org/v1.18/","matrix_spec_checked_at":"2026-05-08T10:00:00+09:00","started_at":"2026-05-08T10:00:00+09:00","ended_at":"2026-05-08T10:42:00+09:00","elapsed_seconds":2520,"model":"gpt-5.3-codex","execution_mode":"local_task","input_tokens":null,"cached_input_tokens":null,"output_tokens":null,"total_tokens":null,"usage_source":"unavailable","accuracy":"unavailable","verification":[{"command":"npm test","result":"pass"}],"outcome":"shipped","clean_room_confirmed":true}
+```jsonl
+{"repo":"houra-client","branch":"codex/adopt-media-vectors","pr":null,"spec_commit":"<houra-spec-sha>","implementation_commit":"<implementation-sha>","profiles":["media"],"contracts":["SPEC-020"],"vectors":["test-vectors/media/upload-basic.json"],"matrix_spec_version":"1.18","matrix_spec_source":"https://spec.matrix.org/v1.18/","matrix_spec_checked_at":"2026-05-08T10:00:00+09:00","started_at":"2026-05-08T10:00:00+09:00","ended_at":"2026-05-08T10:42:00+09:00","elapsed_seconds":2520,"timezone":"Asia/Tokyo","model":"gpt-5.3-codex","execution_mode":"local_task","input_tokens":null,"cached_input_tokens":null,"output_tokens":null,"total_tokens":null,"usage_source":"unavailable","accuracy":"unavailable","verification":[{"command":"npm test","result":"pass"}],"outcome":"shipped","clean_room_confirmed":true}
 ```
 
 ## Server Alignment Smoke Checklist
