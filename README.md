@@ -171,8 +171,8 @@ links there:
   `messaging`, `sync`, and `media`.
 - Confirm whether bundled `design/themes/*.json` assets changed and whether the
   implementation needs to refresh copied design tokens.
-- If SDK behavior must change, link the spec PR that changed the matching
-  contract, vector, or design token first.
+- If implementation behavior must change, link the spec PR that changed the
+  matching contract, vector, or design token first.
 - If behavior is unclear, open a spec issue or PR here before deriving behavior
   from server code, storage design, or implementation internals.
 
