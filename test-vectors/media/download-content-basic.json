@@ -1,0 +1,15 @@
+{
+  "name": "download-content-basic",
+  "contract": "SPEC-020",
+  "request": {
+    "method": "GET",
+    "path": "/_houra/client/media/media1/content"
+  },
+  "expected": {
+    "status": 200,
+    "headers": {
+      "content-type": "image/png"
+    },
+    "body_base64": "aGVsbG8="
+  }
+}

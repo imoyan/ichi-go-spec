@@ -1,0 +1,15 @@
+{
+  "name": "missing-media-content",
+  "contract": "SPEC-020",
+  "request": {
+    "method": "GET",
+    "path": "/_houra/client/media/missing-media/content"
+  },
+  "expected": {
+    "status": 404,
+    "body_contains": {
+      "code": "HOURA_NOT_FOUND",
+      "message": "Media not found."
+    }
+  }
+}

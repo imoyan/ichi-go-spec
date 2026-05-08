@@ -57,6 +57,34 @@ Required response fields are `media_id`, `filename`, `content_type`,
 
 `download_expires_at` is optional.
 
+## Download content request
+
+```text
+GET /_houra/client/media/{media_id}/content
+```
+
+Clients must use the exact `download_url` returned by metadata. The path above
+is the project-defined form of the URL for same-origin Houra servers.
+
+If the latest metadata for the media object says `download_requires_auth` is
+`true`, clients must send:
+
+```text
+Authorization: Bearer token-1
+```
+
+If `download_requires_auth` is `false`, clients must not send bearer-token
+authorization for the content request.
+
+## Download content response
+
+The successful response body is the raw binary media payload. The
+`Content-Type` header must match the metadata `content_type` value for the same
+`media_id`.
+
+For the MVP vectors, `media1` contains the bytes represented by base64
+`aGVsbG8=`.
+
 ## Missing media response
 
 ```json
@@ -68,7 +96,7 @@ Required response fields are `media_id`, `filename`, `content_type`,
 
 ## Client expectations
 
-- This contract covers metadata and base64 upload only.
+- This contract covers metadata, base64 upload, and same-origin binary download.
 - `download_url` is an opaque URL. Clients must not parse it, rewrite it, or
   infer server storage layout from it.
 - `content_type` is the expected Content-Type for the downloaded media bytes.
@@ -80,4 +108,5 @@ Required response fields are `media_id`, `filename`, `content_type`,
   clients should refresh metadata before attempting a new download.
 - Missing media should use HTTP 404 with `HOURA_NOT_FOUND` when a structured
   error body is available.
-- Binary streaming, encryption, thumbnails, and federation are out of scope.
+- Range requests, resumable download, encryption, thumbnails, and federation
+  are out of scope.

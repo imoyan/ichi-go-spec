@@ -1,0 +1,16 @@
+{
+  "name": "auth-required-content",
+  "contract": "SPEC-020",
+  "request": {
+    "method": "GET",
+    "path": "/_houra/client/media/media1/content",
+    "access_token": "token-1"
+  },
+  "expected": {
+    "status": 200,
+    "headers": {
+      "content-type": "image/png"
+    },
+    "body_base64": "aGVsbG8="
+  }
+}
