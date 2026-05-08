@@ -3,7 +3,7 @@
   "contract": "SPEC-020",
   "request": {
     "method": "GET",
-    "path": "/_ichi-go/client/media/missing-media",
+    "path": "/_houra/client/media/missing-media",
     "access_token": "token-1"
   },
   "expected": {

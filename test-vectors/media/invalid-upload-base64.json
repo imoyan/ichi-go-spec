@@ -3,7 +3,7 @@
   "contract": "SPEC-020",
   "request": {
     "method": "POST",
-    "path": "/_ichi-go/client/media",
+    "path": "/_houra/client/media",
     "access_token": "token-1",
     "body": {
       "filename": "avatar.png",

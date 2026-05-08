@@ -11,7 +11,7 @@ Define an incremental sync response for first-party clients.
 ## Request
 
 ```text
-GET /_ichi-go/client/sync?since=s0&timeout=30000
+GET /_houra/client/sync?since=s0&timeout=30000
 Authorization: Bearer token-1
 ```
 

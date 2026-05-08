@@ -16,9 +16,9 @@ Define the minimal event object clients may parse.
   "room_id": "!room:example.test",
   "sender": "@alice:example.test",
   "origin_server_ts": 1710000000000,
-  "type": "ichigo.room.message",
+  "type": "houra.room.message",
   "content": {
-    "msgtype": "ichigo.text",
+    "msgtype": "houra.text",
     "body": "hello"
   }
 }
@@ -29,4 +29,4 @@ Define the minimal event object clients may parse.
 - `event_id`, `room_id`, `sender`, and `type` must be non-empty strings.
 - `origin_server_ts` must be an integer.
 - `content` must be a JSON object and must be treated as untrusted data.
-- Text message event parsing requires `msgtype: ichigo.text` and non-empty `body`.
+- Text message event parsing requires `msgtype: houra.text` and non-empty `body`.

@@ -1,12 +1,10 @@
-# okomedev-spec
+# houra-spec
 
-`okomedev-spec` is the canonical repository for the Okomedev public
-specification.
+`houra-spec` is the canonical repository for the Houra public specification.
 
-Okomedev is the product and shared specification boundary. Ichi-Go is the
-server implementation and server-provided API namespace. Houra is the client
-implementation. Client and server implementation repositories are peers; neither
-is canonical.
+Houra is the product and shared specification boundary. The public API namespace
+is Houra-owned, and client and server implementation repositories are peers;
+neither is canonical.
 
 Implementation repositories must follow this repository's contracts and test
 vectors. They must not derive behavior from another implementation repository.
@@ -15,6 +13,16 @@ This standalone public specification repository contains canonical contracts,
 test vectors, and shared design tokens only;
 implementation behavior, package adapters, client-specific details, and
 server-specific details belong in implementation repositories.
+
+## Repository Topology
+
+The maintained repository names are:
+
+- `houra-spec`: canonical contracts, test vectors, and shared design tokens.
+- `houra-server`: the production TypeScript server implementation.
+- `houra-client`: the production React Native client implementation.
+- `houra-labs`: experiments, including Flutter client prototypes and alternate
+  Go or Dart server prototypes.
 
 ## Layout
 
@@ -63,7 +71,7 @@ layout, storage policy, UI behavior, or server behavior. Those remain
 implementation-owned unless this repository adds or changes a matching contract,
 vector, or design token first.
 
-Release note summary: this baseline publishes the canonical Okomedev MVP public
+Release note summary: this baseline publishes the canonical Houra MVP public
 contract, representative request/response vectors, and shared smoke theme tokens
 for implementation repositories to consume as read-only conformance input.
 Compatibility rules for changes after this baseline are defined in
@@ -134,9 +142,9 @@ implementation concerns unless a `SPEC-*` contract and vector are added here.
 boundary, contract references, profile map coverage, vector shape, and design
 token shape. It is not a substitute for implementation conformance harnesses.
 
-## Okomedev MVP 100% Readiness Criteria (formerly Ichi-Go MVP 100% Readiness Criteria)
+## Houra MVP 100% Readiness Criteria
 
-`full-client` readiness is scoped only to the covered Okomedev MVP public
+`full-client` readiness is scoped only to the covered Houra MVP public
 contract. It is not a Matrix full-spec coverage claim.
 
 The MVP subset may be called 100% ready when all of these are true:
@@ -187,9 +195,9 @@ Use this contract-to-endpoint smoke table:
 
 | Contract | Endpoint smoke | Vector scope |
 |---|---|---|
-| SPEC-001 | `GET /_ichi-go/client/versions` | `test-vectors/core/versions-basic.json` |
+| SPEC-001 | `GET /_houra/client/versions` | `test-vectors/core/versions-basic.json` |
 | SPEC-002 | Any non-success response | `test-vectors/core/error-basic.json` |
-| SPEC-003 | `GET /_ichi-go/client/login` | `test-vectors/auth/login-flows-basic.json` |
+| SPEC-003 | `GET /_houra/client/login` | `test-vectors/auth/login-flows-basic.json` |
 | SPEC-004 | login, whoami, logout | `test-vectors/auth/*.json` |
 | SPEC-006 | room create, join, leave, state | `test-vectors/rooms/*.json` |
 | SPEC-007 | event parser inputs | `test-vectors/events/*.json` |
@@ -214,11 +222,11 @@ passes its local checks.
 
 ## Implementation Adoption Reports
 
-### houra-flutter initial adoption
+### Flutter lab client initial adoption
 
-- Implementation repository: `imoyan/houra-flutter`
-- Repository role: Houra Flutter client candidate for the covered Okomedev
-  public contract.
+- Implementation repository: `imoyan/houra-labs`
+- Repository role: Flutter lab client candidate for the covered Houra public
+  contract.
 - Implementation commit inspected: `1e2609beacdb0ed171c721698a86342825f22c79`
 - Spec input inspected: current `main` after SPEC-008 idempotency, SPEC-010
   pagination, and SPEC-020 download metadata updates.

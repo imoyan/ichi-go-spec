@@ -11,7 +11,7 @@ Define a minimal room timeline page.
 ## Request
 
 ```text
-GET /_ichi-go/client/rooms/{room_id}/timeline?from=t1&limit=20
+GET /_houra/client/rooms/{room_id}/timeline?from=t1&limit=20
 Authorization: Bearer token-1
 ```
 

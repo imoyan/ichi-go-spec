@@ -2,8 +2,8 @@
 
 Allowed sources:
 
-- Okomedev contracts
-- Okomedev test vectors
+- Houra contracts
+- Houra test vectors
 - Stable public protocol specifications when a contract explicitly points to them
 - Official Dart, Flutter, Swift, Kotlin, TypeScript, and platform documentation
 

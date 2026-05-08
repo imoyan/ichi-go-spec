@@ -11,7 +11,7 @@ Define a minimal authenticated room list query.
 ## Request
 
 ```text
-GET /_ichi-go/client/rooms
+GET /_houra/client/rooms
 Authorization: Bearer token-1
 ```
 
