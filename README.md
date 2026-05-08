@@ -173,6 +173,8 @@ the implementation issue or pull request and fill in implementation-specific
 links there:
 
 - Record the consumed spec version, tag, or commit.
+- Record implementation metrics using the fields below, including elapsed time
+  and Codex usage when available.
 - Run the implementation conformance runner against `contracts/SPEC-*.md`,
   `CONTRACT_MODULE_MAP.md`, and `test-vectors/**/*.json`.
 - Report pass/fail by feature profile: `core`, `auth`, `rooms`, `events`,
@@ -183,6 +185,58 @@ links there:
   matching contract, vector, or design token first.
 - If behavior is unclear, open a spec issue or PR here before deriving behavior
   from server code, storage design, or implementation internals.
+
+## Implementation Metrics
+
+Implementation repositories should record lightweight delivery metrics in the
+implementation issue, pull request, or adoption report. These metrics are
+workflow evidence only; they are not part of the public Houra contract.
+
+Required fields:
+
+- Spec input: `houra-spec` commit or tag consumed.
+- Implementation target: repository, branch, pull request or issue, and head
+  commit.
+- Scope: feature profiles, contracts, vectors, and design token files consumed
+  or changed.
+- Timing: `started_at`, `ended_at`, `elapsed_seconds`, and timezone.
+- Verification: commands run, pass/fail result, and the head commit verified.
+- Outcome: shipped, blocked, deferred, or superseded, with the concrete blocker
+  when not shipped.
+
+Codex usage fields:
+
+- Model and execution mode: local task, cloud task, code review, or other.
+- Token counts when available: `input_tokens`, `cached_input_tokens`,
+  `output_tokens`, and `total_tokens`.
+- Credit or message usage when token counts are not exposed but billing or
+  usage metadata is available.
+- Usage source: `codex_app`, `codex_cli`, `openai_api`, `dashboard`,
+  `manual_estimate`, or `unavailable`.
+- Accuracy: `exact`, `estimated`, or `unavailable`.
+
+If exact token counts are unavailable, record `unavailable` rather than
+backfilling a guessed value. If an estimate is intentionally useful, mark it as
+`estimated`, record the estimation method, and do not compare it directly with
+exact token counts.
+
+Recommended additional records:
+
+- Prompt category: spec clarification, implementation, review response,
+  conformance fix, release, or monitoring.
+- Agent/client context: Codex App, Codex CLI, API script, or GitHub review.
+- Decision log: contract ambiguity found, spec-first change made, or
+  implementation-only fix made.
+- Rework signals: failed verification count, review comments addressed, and
+  follow-up issues created.
+- Clean-room note: confirmation that no implementation repository was used as a
+  behavior source.
+
+Example JSONL record:
+
+```json
+{"repo":"houra-client","branch":"codex/adopt-media-vectors","pr":null,"spec_commit":"<houra-spec-sha>","implementation_commit":"<implementation-sha>","profiles":["media"],"contracts":["SPEC-020"],"vectors":["test-vectors/media/upload-basic.json"],"started_at":"2026-05-08T10:00:00+09:00","ended_at":"2026-05-08T10:42:00+09:00","elapsed_seconds":2520,"model":"gpt-5.3-codex","execution_mode":"local_task","input_tokens":null,"cached_input_tokens":null,"output_tokens":null,"total_tokens":null,"usage_source":"unavailable","accuracy":"unavailable","verification":[{"command":"npm test","result":"pass"}],"outcome":"shipped","clean_room_confirmed":true}
+```
 
 ## Server Alignment Smoke Checklist
 

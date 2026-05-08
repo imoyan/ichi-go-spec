@@ -262,6 +262,7 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
   for (final phrase in [
     'Stateful vector metadata',
     'Houra MVP 100% Readiness Criteria',
+    'Implementation Metrics',
     'Implementation Adoption Reports',
   ]) {
     if (!readme.contains(phrase)) {
