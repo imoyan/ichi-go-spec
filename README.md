@@ -423,6 +423,121 @@ The server is used only as the live HTTP target for connection smoke coverage;
 the expected public behavior remains defined by this repository's contracts and
 vectors.
 
+### TypeScript server PostgreSQL Product MVP adoption
+
+- Implementation repository: `imoyan/houra-server`
+- Repository role: production TypeScript server with PostgreSQL persistence and
+  Docker Compose deploy baseline for the covered Houra public contract.
+- Implementation issue: `imoyan/houra-server#3`
+- Implementation pull request: `imoyan/houra-server#4`
+- Implementation commit inspected: `99b614a34b13faba7c84fdd54ee2f31d7960848f`
+- Spec behavior input inspected: `v0.2.0-pre.2`
+- Matrix reference: Matrix Specification 1.18, checked on 2026-05-08 JST.
+- Started at: 2026-05-09T07:17:11+09:00
+- Ended at: 2026-05-09T07:33:10+09:00
+- Elapsed seconds: 959
+- Codex usage: unavailable in the local Codex App session.
+
+Observed checks:
+
+| Check | Result | Notes |
+|---|---|---|
+| `npm run typecheck` | pass | TypeScript strict check |
+| `npm run build` | pass | Production server build |
+| `npm test` | pass | 31 passed, 1 PostgreSQL test skipped by default |
+| `DATABASE_URL=... npm run db:migrate` | pass | Applied SQL migration to test PostgreSQL |
+| `HOURA_TEST_DATABASE_URL=... npm run test:postgres` | pass | Restart persistence for sessions, rooms, messages, and media metadata |
+| `docker compose build` | pass | Server image built with compiled migration runner |
+| `docker compose up -d` + live HTTP smoke | pass | login, room create, send text, and sync against PostgreSQL-backed server |
+| GitHub Actions `CI / test` | pass | Ran on PR #4 head |
+
+Profile status:
+
+| Profile | Status | Notes |
+|---|---|---|
+| core | pass | Existing discovery/vector behavior retained |
+| auth | pass | DB-backed login, whoami, logout, and hashed access-token session lifecycle |
+| rooms | pass | DB-backed create, join, leave, list, and state |
+| events | pass | Event rows persist across store restarts |
+| messaging | pass | DB-backed send and idempotency key behavior |
+| sync | pass | DB-backed room sync and timeline smoke |
+| media | pass | Local filesystem storage path with DB-backed media metadata |
+
+Binary media download remains outside this adoption report. Any new binary
+download endpoint must be specified here first with contract and vector changes.
+
+No client implementation or lab prototype was used as a specification source.
+Server database tables and migrations are implementation evidence only; they do
+not define public behavior.
+
+### Expo React Native Product MVP adoption
+
+- Implementation repository: `imoyan/houra-client`
+- Repository role: production React Native client with UI-free TypeScript core
+  and Expo MVP app layer for the covered Houra public contract.
+- Implementation issue: `imoyan/houra-client#6`
+- Implementation pull request: `imoyan/houra-client#7`
+- Implementation commit inspected: `3a61d505e4ec98e5f8d8d1c10d2279c277f05954`
+- Spec behavior input inspected: `v0.2.0-pre.2`
+- Server target for live smoke: `houra-server`
+  `99b614a34b13faba7c84fdd54ee2f31d7960848f`
+- Matrix reference: Matrix Specification 1.18, checked on 2026-05-08 JST.
+- Started at: 2026-05-09T07:37:41+09:00
+- Ended at: 2026-05-09T08:04:17+09:00
+- Elapsed seconds: 1596
+- Codex usage: unavailable in the local Codex App session.
+
+Observed checks:
+
+| Check | Result | Notes |
+|---|---|---|
+| `npm run typecheck` | pass | Core and Expo app TypeScript checks |
+| `npm run build` | pass | UI-free client core declaration build |
+| `npm test` | pass | 38 passed, 1 live e2e skipped by default |
+| `npx expo config --type public` | pass | Expo SDK 55 public config resolved |
+| `npx expo export --platform ios --output-dir /tmp/houra-client-expo-export --clear` | pass | Metro bundle smoke for app entry and Expo UI imports |
+| `HOURA_E2E_BASE_URL=http://localhost:3000 npm run test:e2e` | pass | Live happy path against PostgreSQL-backed Docker Compose server |
+| GitHub Actions `CI / test` | pass | Ran on PR #7 head |
+| GitHub Actions `CI / e2e` | pass | Live HTTP smoke ran on PR #7 head |
+
+Profile status:
+
+| Profile | Status | Notes |
+|---|---|---|
+| core | pass | Existing core request/parsing behavior retained |
+| auth | pass | Login and logout exposed through Expo UI; session stored by host app adapter |
+| rooms | pass | Room list and create flow exposed through Expo UI |
+| events | pass | Timeline event parsing reused from UI-free core |
+| messaging | pass | Message composer uses core text-send API |
+| sync | pass | Live e2e covers sync against PostgreSQL-backed server |
+| media | pass | Media upload metadata flow exposed through Expo UI |
+
+Dependency audit note: the client reported a moderate PostCSS advisory through
+Expo CLI / Metro config. The available `npm audit fix --force` path would
+downgrade Expo to 49, so the implementation recorded it as follow-up evidence
+rather than weakening the Expo SDK 55 baseline.
+
+No server implementation or lab prototype was used as a specification source.
+The server was used only as the live HTTP target for connection smoke coverage;
+the expected public behavior remains defined by this repository's contracts and
+vectors.
+
+### Product MVP pre-release readiness
+
+- Release target: `v0.2.0-pre.3`
+- Compatibility classification: workflow/adoption evidence update only.
+- Changed public behavior profiles: none.
+- Changed contracts: none.
+- Changed vectors: none.
+- Implementation evidence added: PostgreSQL-backed `houra-server` Product MVP
+  adoption and Expo React Native `houra-client` Product MVP adoption.
+- Completion claim: Houra Product MVP subset is implementation-ready for the
+  covered contract/vector scope. This is not a Matrix full-spec compliance
+  claim.
+- Remaining known gaps: binary media download endpoint, production account
+  registration, federation, encrypted media, simulator/manual UI QA, and the
+  recorded Expo CLI / PostCSS audit follow-up.
+
 ## Local Checks
 
 ```bash
