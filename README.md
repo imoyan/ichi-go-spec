@@ -1,8 +1,7 @@
-# ichi-go-spec
+# okomedev-spec
 
-`ichi-go-spec` is the current repository for the Okomedev public specification.
-The intended canonical repository name is `okomedev-spec`; the current name is
-kept until the repository rename is performed.
+`okomedev-spec` is the canonical repository for the Okomedev public
+specification.
 
 Okomedev is the product and shared specification boundary. Ichi-Go is the
 server implementation and server-provided API namespace. Houra is the client
