@@ -1125,6 +1125,71 @@ server and covered by the client live e2e smoke target.
   this release updates adoption evidence only and is not a Matrix full-spec
   compliance claim.
 
+### Product MVP client UI robustness adoption
+
+- Spec release consumed: `v0.2.0-pre.13`
+- Compatibility classification: workflow/adoption evidence update for the
+  Houra Product MVP subset.
+- Public behavior impact: none.
+- Changed contracts: none.
+- Changed vectors: none.
+- Changed design inputs: none.
+- Matrix reference: Matrix Specification 1.18 remains a reference snapshot
+  only; this UI robustness record is not Matrix full compliance.
+- Started at: 2026-05-09T15:05:16+09:00
+- Ended at: 2026-05-09T15:06:12+09:00
+- Elapsed seconds: 56
+- Timezone: Asia/Tokyo
+- Codex usage: unavailable in the local Codex App session.
+
+Client UI robustness evidence:
+
+- Implementation repository: `imoyan/houra-client`
+- Implementation issue: `imoyan/houra-client#31`
+- Implementation pull request: `imoyan/houra-client#32`
+- Implementation merge commit inspected:
+  `86921a358b74e9de31d80d5a95b7030e0a0f6fc8`
+- Implementation release: `v0.2.0-pre.15`
+- Release URL:
+  `https://github.com/imoyan/houra-client/releases/tag/v0.2.0-pre.15`
+- Server target for live e2e smoke: `houra-server` v0.2.0-pre.13
+- Scope: Expo MVP single-flight action guard, stored session restore
+  validation, pending input disabling, stale media result clearing, README
+  implementation record.
+
+Observed checks:
+
+| Check | Result | Notes |
+|---|---|---|
+| `houra-client` local `npm audit --omit=dev` | pass | 0 vulnerabilities |
+| `houra-client` local `npm run typecheck` | pass | Core and Expo app typecheck |
+| `houra-client` local `npm run build` | pass | TypeScript build |
+| `houra-client` local `npm test` | pass | 51 passed, 1 live e2e skipped by default |
+| `houra-client` local `HOURA_SPEC_ROOT=../houra-spec npm test` | pass | 51 passed, 1 live e2e skipped by default against sibling `houra-spec` v0.2.0-pre.13 |
+| `houra-client` local Expo config/export | pass | `npx expo config --type public` and iOS export to `/tmp/houra-client-expo-export` |
+| `houra-client` local live e2e | pass | Docker Compose `houra-server` v0.2.0-pre.13 at `http://127.0.0.1:3000` |
+| `houra-client` GitHub Actions `CI / test` | pass | PR #32, UI robustness update |
+| `houra-client` GitHub Actions `CI / e2e` | pass | PR #32, pinned `houra-server` v0.2.0-pre.13 |
+
+No implementation repository was used as a behavior source. This record only
+confirms that the Product MVP UI implementation is more robust while preserving
+the existing public contract, vectors, and platform-neutral UI surface.
+
+### Product MVP pre-release readiness after client UI robustness
+
+- Release target: `v0.2.0-pre.14`
+- Compatibility classification: workflow/adoption evidence update for the
+  Product MVP client UI robustness maintenance release.
+- Changed public behavior profiles: none.
+- Changed contracts: none.
+- Changed vectors: none.
+- Changed design inputs: none.
+- Implementation evidence added: `houra-client` v0.2.0-pre.15 Expo MVP UI
+  robustness adoption.
+- Completion claim: Houra Product MVP remains complete for the defined subset;
+  this release updates adoption evidence only and is not a Matrix full-spec
+  compliance claim.
+
 ## Local Checks
 
 ```bash
