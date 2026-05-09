@@ -196,6 +196,60 @@ The MVP subset may be called 100% ready when all of these are true:
 criteria. Adoption reports, implementation conformance runs, and release
 publication remain workflow evidence.
 
+## Shared Implementation Strategy
+
+This section is non-normative implementation guidance. It does not define a
+public Houra contract, Matrix compliance claim, test vector, design token, or
+UI surface.
+
+Rust is the preferred first candidate for a shared protocol core because it can
+serve multiple client and server ecosystems through thin language adapters.
+Rust is not a required implementation language. Each protocol area may stay
+implementation-owned, move into a shared Rust core, or split by language when a
+platform-specific implementation is more practical.
+
+The specification boundary remains this repository's contracts, vectors, design
+tokens, and UI surfaces. A shared implementation artifact must consume those
+inputs as read-only conformance data; it must not become the source of public
+behavior for this repository.
+
+Shared protocol code should focus on pure logic such as response parsing,
+validation, canonicalization, identifier grammar, URI grammar, signing helpers,
+room-version algorithms, and reusable vector assertions. Transport, storage,
+auth token persistence, UI state, framework lifecycle, packaging, and platform
+integration remain adapter-owned unless a later contract explicitly defines
+public behavior.
+
+Implementation sharing statuses:
+
+- `spec-only`: only the specification inputs are shared; implementation stays
+  per repository or per language.
+- `rust-candidate`: suitable for a Rust shared core, but not a required
+  dependency until parity evidence exists.
+- `rust-adopted`: a Rust shared core has passed parity tests for the area and
+  may be used by adapters.
+- `adapter-owned`: framework, runtime, or host-application behavior should stay
+  in the adapter or application layer.
+- `split-by-language`: many languages can share one implementation, but one or
+  more languages may reasonably keep a separate implementation.
+
+### Implementation Sharing Matrix
+
+This matrix tracks sharing intent and evidence. It is a planning and adoption
+record, not a conformance checklist.
+
+| Area | Current sharing status | Shared candidate | Adapter-owned responsibilities | Split trigger | Evidence gate |
+|---|---|---|---|---|---|
+| Matrix versions response parsing | `rust-candidate` | Rust protocol parser and validator for `SPEC-030` response shape | Fetching `/_matrix/client/versions`, cache policy, and feature gating | A runtime cannot consume the shared artifact without larger packaging cost than local parsing | Parity tests pass against `test-vectors/core/matrix-client-versions-basic.json` |
+| Matrix / Houra error parsing | `rust-candidate` | Shared error envelope and Matrix `M_*` vocabulary parser | HTTP status handling, retry policy, telemetry, and user-facing messages | Platform error models require native exception or result types outside the shared ABI | Vectors cover Houra and Matrix error shapes without adapter-specific fields |
+| Identifier and URI validation | `rust-candidate` | Matrix and Houra identifier, room ID, event ID, user ID, content URI, and namespace validators | Input timing, UI validation display, and normalization before storage | A platform requires native text or URL APIs for correctness or accessibility | Positive and negative grammar vectors exist for each advertised identifier family |
+| Canonical JSON / signing helpers | `rust-candidate` | Canonical JSON, hash, and signing helper primitives | Key storage, key rotation policy, secure enclave integration, and request transport | Native crypto policy or platform keychain constraints require separate bindings | Cross-language canonicalization fixtures produce byte-identical output |
+| Room version auth/state resolution | `rust-candidate` | Room-version-aware auth events, state resolution, and event validation helpers | Persistent event store layout, indexing, sync pagination, and conflict recovery UI | Performance, database coupling, or federation deployment needs a server-native path | Room-version fixtures and restart-safe server integration tests pass |
+| E2EE bridge | `split-by-language` | Wrapper around a maintained Matrix crypto implementation, not hand-rolled Olm or Megolm | Secure storage, device trust UI, backup UX, native keychain access, and background task policy | A target ecosystem already has a maintained native Matrix crypto binding with better support | Encrypted-room send, receive, backup, restore, and verification flows pass in each adopted language |
+| HTTP transport / retry / cancellation | `adapter-owned` | None by default; shared code may expose request descriptors only | Fetch/client selection, retry, timeout, cancellation, proxy, cookies, and platform network policy | A language family shares a transport runtime and can add it without constraining others | Adapter tests prove host-owned cancellation and retry behavior |
+| Token storage / secure storage | `adapter-owned` | None | Secure storage, token refresh timing, logout cleanup, and process lifecycle | A platform has a common secure-storage abstraction that still keeps host ownership explicit | Logout and restore tests prove tokens are not persisted by the UI-free core |
+| UI surface rendering | `adapter-owned` | Platform-neutral UI surface JSON only | Component hierarchy, accessibility affordances, navigation, layout, gestures, and framework state | A design-system adapter can be shared within one ecosystem without leaking into protocol behavior | UI surface conformance maps required operation and acceptance-flow IDs |
+
 ## Matrix v1.18 Compliance Matrix
 
 This section is the planning boundary for moving from the Houra Product MVP
