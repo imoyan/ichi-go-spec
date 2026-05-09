@@ -1,0 +1,22 @@
+{
+  "name": "register-basic",
+  "contract": "SPEC-004",
+  "request": {
+    "method": "POST",
+    "path": "/_houra/client/register",
+    "body": {
+      "username": "charlie",
+      "password": "correct horse battery staple",
+      "device_id": "DEVICE2",
+      "initial_device_display_name": "Charlie phone"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "user_id": "@charlie:example.test",
+      "access_token": "token-register",
+      "device_id": "DEVICE2"
+    }
+  }
+}

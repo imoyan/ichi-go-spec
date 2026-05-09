@@ -41,6 +41,45 @@ POST /_houra/client/login
 
 `device_id` is optional.
 
+## Account registration request
+
+```text
+POST /_houra/client/register
+```
+
+```json
+{
+  "username": "charlie",
+  "password": "correct horse battery staple",
+  "device_id": "DEVICE2",
+  "initial_device_display_name": "Charlie phone"
+}
+```
+
+`device_id` and `initial_device_display_name` are optional.
+
+`username` is the unqualified localpart for the new user. The MVP localpart
+shape is 1 to 64 characters from `a-z`, `0-9`, `.`, `_`, `=`, and `-`.
+`password` must be a non-empty string.
+
+If registration succeeds, the server creates the user, creates or records the
+device, and returns a login session response with the same shape as password
+login.
+
+## Account registration response
+
+```json
+{
+  "user_id": "@charlie:example.test",
+  "access_token": "token-register",
+  "device_id": "DEVICE2"
+}
+```
+
+If the localpart is already registered, servers must return `409` with
+`HOURA_CONFLICT`. If the localpart or password is invalid, servers must return
+`400` with `HOURA_BAD_REQUEST`.
+
 ## Whoami request
 
 ```text
@@ -74,3 +113,5 @@ The response body is not significant for clients.
 - Clients must not use `access_token` query parameters.
 - Clients must return login/session data to the host.
 - Clients must not persist tokens in SDK core.
+- Clients may call registration before login when the host wants to create a
+  new local account.

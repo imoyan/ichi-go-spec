@@ -1,0 +1,19 @@
+{
+  "name": "register-invalid",
+  "contract": "SPEC-004",
+  "request": {
+    "method": "POST",
+    "path": "/_houra/client/register",
+    "body": {
+      "username": "Bad User!",
+      "password": "correct horse battery staple"
+    }
+  },
+  "expected": {
+    "status": 400,
+    "body_contains": {
+      "code": "HOURA_BAD_REQUEST",
+      "message": "Invalid registration."
+    }
+  }
+}
