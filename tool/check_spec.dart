@@ -21,6 +21,12 @@ const fullClientProfiles = {
   'media',
 };
 
+const matrixDomains = {
+  'Appendices/common rules',
+  'Client-Server API',
+  'Client-Server API; Room Versions',
+};
+
 const negativeVectorProfiles = {
   'auth',
   'rooms',
@@ -343,7 +349,7 @@ Map<String, String> checkProfileMap(
       continue;
     }
     final parts = line.split('|').map((part) => part.trim()).toList();
-    if (parts.length < 4) {
+    if (parts.length < 6) {
       failures.add('Malformed contract map row: $line');
       continue;
     }
@@ -357,6 +363,15 @@ Map<String, String> checkProfileMap(
         'Contract map profile mismatch for $id: ${parts[2]} != '
         '${contracts[id]}',
       );
+    }
+    if (!matrixDomains.contains(parts[3])) {
+      failures.add('Contract map Matrix domain mismatch for $id: ${parts[3]}');
+    }
+    if (parts[4].isEmpty) {
+      failures.add('Contract map current Matrix alignment is empty for $id.');
+    }
+    if (parts.length < 7 || parts[5].isEmpty) {
+      failures.add('Contract map next compliance action is empty for $id.');
     }
     profileMap[id] = parts[2];
     seen.add(id);
