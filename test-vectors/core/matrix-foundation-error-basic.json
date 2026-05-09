@@ -1,0 +1,15 @@
+{
+  "name": "matrix-foundation-error-basic",
+  "contract": "SPEC-031",
+  "response": {
+    "status": 400,
+    "body": {
+      "errcode": "M_BAD_JSON",
+      "error": "Malformed JSON payload."
+    }
+  },
+  "expected": {
+    "errcode": "M_BAD_JSON",
+    "error": "Malformed JSON payload."
+  }
+}

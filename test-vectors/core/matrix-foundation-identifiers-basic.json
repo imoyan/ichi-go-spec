@@ -1,0 +1,17 @@
+{
+  "name": "matrix-foundation-identifiers-basic",
+  "contract": "SPEC-031",
+  "event": {
+    "user_id": "@alice:example.org",
+    "room_id": "!roomid:example.org",
+    "room_alias": "#general:example.org",
+    "event_id": "$eventid:example.org",
+    "server_name": "example.org",
+    "content_uri": "mxc://example.org/mediaid",
+    "event_type": "m.room.message",
+    "origin_server_ts": 1710000000000
+  },
+  "expected": {
+    "valid": true
+  }
+}
