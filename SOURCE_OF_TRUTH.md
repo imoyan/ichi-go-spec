@@ -3,14 +3,16 @@
 Canonical behavior is defined by this repository only.
 
 After this root is published as a standalone repository, the contracts, test
-vectors, and shared design tokens here remain the only canonical source for
-the covered Houra public client-server behavior.
+vectors, shared design tokens, and platform-neutral UI surface definitions here
+remain the only canonical source for the covered Houra public client-server
+behavior and Product MVP operation surface.
 
 Priority order:
 
 1. `contracts/SPEC-*.md`
 2. `test-vectors/`
-3. `design/theme.schema.json` and `design/themes/*.json`
+3. `design/theme.schema.json`, `design/themes/*.json`,
+   `design/ui.surface.schema.json`, and `design/ui-surfaces/*.json`
 4. Supporting docs
 
 If an implementation differs from this repository, the implementation should be
@@ -20,17 +22,17 @@ updated unless the contract is changed first.
 
 - Change or add a contract before changing implementation behavior.
 - Add or update a test vector with every behavior change.
-- Keep shared theme token changes in `design/` first, then copy them into
-  implementation packages that need bundled assets.
+- Keep shared theme token and UI surface changes in `design/` first, then copy
+  or adapt them into implementation packages that need bundled assets.
 - Do not use any client or server implementation as the source for public
   behavior.
 
 ## Conformance Boundary
 
 - Specification checks prove this repository is internally consistent.
-- Implementation conformance tooling must consume contracts, vectors, and
-  design tokens from this repository without copying implementation behavior
-  back into it.
+- Implementation conformance tooling must consume contracts, vectors, design
+  tokens, and UI surfaces from this repository without copying implementation
+  behavior back into it.
 - A conformance failure in an implementation should be fixed in that
   implementation unless the contract or vector is intentionally changed here
   first.
@@ -52,7 +54,8 @@ Before freezing a pre-1.0 spec baseline:
 - `CONTRACT_MODULE_MAP.md`, `FEATURE_PROFILES.md`, and `MODULE_DEPENDENCIES.md`
   match the frozen contract set.
 - `design/theme.schema.json` validates every committed `design/themes/*.json`
-  token file.
+  token file, and `design/ui.surface.schema.json` validates every committed
+  `design/ui-surfaces/*.json` surface file.
 - `dart tool/check_spec.dart` passes on the freeze candidate.
 - Release notes or PR text identify changed feature profiles, not client
   implementation internals.
@@ -84,7 +87,9 @@ must still be changed deliberately:
   follow-up path.
 - Additive changes introduce new behavior without changing existing vector
   expectations. They require a new contract section or `SPEC-*` plus matching
-  vectors before any implementation exposes the behavior.
+  vectors before any implementation exposes client-server behavior, or a
+  `design/ui-surfaces/*.json` change before any implementation exposes a new
+  shared Product MVP UI surface.
 - Corrections clarify wording, examples, or metadata without changing expected
   public behavior. They may skip vector changes only when the existing vectors
   already capture the intended behavior.
@@ -92,7 +97,7 @@ must still be changed deliberately:
 Pre-1.0 release notes must identify:
 
 - Changed feature profiles.
-- Changed contracts, vectors, or design tokens.
+- Changed contracts, vectors, design tokens, or UI surfaces.
 - Whether the change is breaking, additive, or corrective.
 - Required implementation follow-up, or that none is required.
 
@@ -103,15 +108,16 @@ The current freeze candidate is the committed `core`, `auth`, `rooms`,
 `CONTRACT_MODULE_MAP.md`.
 
 The candidate includes the existing `contracts/SPEC-*.md`,
-`test-vectors/**/*.json`, `design/theme.schema.json`, and
-`design/themes/smoke.json` files. No implementation behavior, SDK API shape,
-storage policy, UI behavior, or server behavior is part of this freeze
-candidate.
+`test-vectors/**/*.json`, `design/theme.schema.json`,
+`design/themes/smoke.json`, `design/ui.surface.schema.json`, and
+`design/ui-surfaces/product-mvp.json` files. No implementation behavior, SDK API
+shape, storage policy, framework-specific UI behavior, or server behavior is
+part of this freeze candidate.
 
-Changing a frozen contract, vector, or design token after this candidate
-requires a focused spec PR first. If the change affects bundled design assets
-or expected implementation behavior, create the matching implementation
-follow-up issue or PR after the spec PR is merged.
+Changing a frozen contract, vector, design token, or UI surface after this
+candidate requires a focused spec PR first. If the change affects bundled design
+assets, UI surface conformance, or expected implementation behavior, create the
+matching implementation follow-up issue or PR after the spec PR is merged.
 
 ## MVP Readiness Boundary
 

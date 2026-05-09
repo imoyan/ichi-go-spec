@@ -10,7 +10,8 @@ Implementation repositories must follow this repository's contracts and test
 vectors. They must not derive behavior from another implementation repository.
 
 This standalone public specification repository contains canonical contracts,
-test vectors, and shared design tokens only;
+test vectors, shared design tokens, and platform-neutral UI surface definitions
+only;
 implementation behavior, package adapters, client-specific details, and
 server-specific details belong in implementation repositories.
 
@@ -18,7 +19,8 @@ server-specific details belong in implementation repositories.
 
 The maintained repository names are:
 
-- `houra-spec`: canonical contracts, test vectors, and shared design tokens.
+- `houra-spec`: canonical contracts, test vectors, shared design tokens, and
+  platform-neutral UI surfaces.
 - `houra-server`: the production TypeScript server implementation.
 - `houra-client`: the production React Native client implementation.
 - `houra-labs`: experiments, including Flutter client prototypes and alternate
@@ -28,14 +30,14 @@ The maintained repository names are:
 
 - `contracts/`: normative API behavior.
 - `test-vectors/`: request and response fixtures implementations must pass.
-- `design/`: shared platform-neutral theme tokens.
+- `design/`: shared platform-neutral theme tokens and UI surface definitions.
 - `SOURCE_OF_TRUTH.md`: precedence and change rules.
 - `REFERENCE_POLICY.md`: clean-room source policy.
 - `FEATURE_PROFILES.md`: feature slices.
 - `MODULE_DEPENDENCIES.md`: allowed dependency direction.
 - `CONTRACT_MODULE_MAP.md`: contract-to-profile table.
-- `tool/check_spec.dart`: local consistency check for contracts, vectors, and
-  design tokens.
+- `tool/check_spec.dart`: local consistency check for contracts, vectors,
+  design tokens, and UI surfaces.
 
 ## Contracts
 
@@ -51,10 +53,12 @@ The maintained repository names are:
 - `contracts/SPEC-011-basic-sync.md`
 - `contracts/SPEC-020-media.md`
 
-## Shared Design Tokens
+## Shared Design Inputs
 
 - `design/theme.schema.json`
 - `design/themes/smoke.json`
+- `design/ui.surface.schema.json`
+- `design/ui-surfaces/product-mvp.json`
 
 ## Pre-1.0 Baseline
 
@@ -65,22 +69,26 @@ The current pre-1.0 baseline is the committed `core`, `auth`, `rooms`,
 - `test-vectors/**/*.json`
 - `design/theme.schema.json`
 - `design/themes/smoke.json`
+- `design/ui.surface.schema.json`
+- `design/ui-surfaces/product-mvp.json`
 
 This baseline does not freeze implementation behavior, SDK API shape, package
-layout, storage policy, UI behavior, or server behavior. Those remain
-implementation-owned unless this repository adds or changes a matching contract,
-vector, or design token first.
+layout, storage policy, framework-specific UI behavior, or server behavior.
+Those remain implementation-owned unless this repository adds or changes a
+matching contract, vector, design token, or UI surface first.
 
 Release note summary: this baseline publishes the canonical Houra MVP public
-contract, representative request/response vectors, and shared smoke theme tokens
-for implementation repositories to consume as read-only conformance input.
+contract, representative request/response vectors, shared smoke theme tokens,
+and Product MVP UI surface definitions for implementation repositories to
+consume as read-only conformance input.
 Compatibility rules for changes after this baseline are defined in
 `SOURCE_OF_TRUTH.md`.
 
 ## Validation
 
-Client implementations should validate request paths, response parsing, and
-theme-token adapters against the contracts and test vectors in this repository.
+Client implementations should validate request paths, response parsing,
+theme-token adapters, and UI surface coverage against the contracts, test
+vectors, and design inputs in this repository.
 Server implementations should validate request handling and server-provided
 responses against the same contracts and vectors.
 
@@ -101,6 +109,8 @@ load:
 - `CONTRACT_MODULE_MAP.md` for feature profile grouping.
 - `test-vectors/**/*.json` for request/response and parser fixtures.
 - `design/theme.schema.json` and `design/themes/*.json` for token validation.
+- `design/ui.surface.schema.json` and `design/ui-surfaces/*.json` for
+  platform-neutral UI surface validation.
 
 The harness output should be a pass/fail report per feature profile and vector,
 with enough detail for the implementation repository to identify the failed
@@ -135,12 +145,30 @@ request, but their result must still be reported against the vector file's
 must not encode server storage, database rows, or implementation internals.
 
 Conformance tooling v1 does not define SDK APIs, package layout, storage,
-network retry policy, UI behavior, or server behavior. Those remain
-implementation concerns unless a `SPEC-*` contract and vector are added here.
+network retry policy, framework-specific UI behavior, or server behavior. Those
+remain implementation concerns unless a `SPEC-*` contract, vector, design
+token, or UI surface is added here.
 
 `tool/check_spec.dart` validates this specification root itself: top-level
-boundary, contract references, profile map coverage, vector shape, and design
-token shape. It is not a substitute for implementation conformance harnesses.
+boundary, contract references, profile map coverage, vector shape, design token
+shape, and UI surface shape. It is not a substitute for implementation
+conformance harnesses.
+
+## UI Surface Contract
+
+`design/ui-surfaces/product-mvp.json` defines the platform-neutral Product MVP
+operation surface. It records screens, action ids, state ids, text keys,
+acceptance flow steps, and current limitations without choosing React Native,
+Flutter, Web, native navigation, component hierarchy, animations, or local
+session persistence APIs.
+
+Implementation repositories should treat this file as read-only conformance
+input. A client may arrange native layouts differently, but it should preserve
+the screen semantics, action availability, duplicate-submit prevention,
+recoverable error visibility, and `product-mvp-happy-path` acceptance coverage.
+
+Server repositories do not consume UI surfaces directly. Server behavior remains
+defined by `contracts/SPEC-*.md` and `test-vectors/**/*.json`.
 
 ## Houra MVP 100% Readiness Criteria
 
@@ -158,6 +186,7 @@ The MVP subset may be called 100% ready when all of these are true:
 - At least one implementation adoption report is recorded from a repository
   consuming this spec as read-only input.
 - Conformance and server-alignment guidance names the current vector scope.
+- Product MVP UI readiness names the current UI surface scope.
 - A pre-1.0 release tag and GitHub Release record the changed profiles,
   contracts, vectors, compatibility classification, and implementation
   follow-up.
@@ -179,8 +208,9 @@ links there:
   `CONTRACT_MODULE_MAP.md`, and `test-vectors/**/*.json`.
 - Report pass/fail by feature profile: `core`, `auth`, `rooms`, `events`,
   `messaging`, `sync`, and `media`.
-- Confirm whether bundled `design/themes/*.json` assets changed and whether the
-  implementation needs to refresh copied design tokens.
+- Confirm whether bundled `design/themes/*.json` or `design/ui-surfaces/*.json`
+  assets changed and whether the implementation needs to refresh copied design
+  tokens or UI surface metadata.
 - If implementation behavior must change, link the spec PR that changed the
   matching contract, vector, or design token first.
 - If behavior is unclear, open a spec issue or PR here before deriving behavior
@@ -197,8 +227,8 @@ Required fields:
 - Spec input: `houra-spec` commit or tag consumed.
 - Implementation target: repository, branch, pull request or issue, and head
   commit.
-- Scope: feature profiles, contracts, vectors, and design token files consumed
-  or changed.
+- Scope: feature profiles, contracts, vectors, design token files, and UI
+  surface files consumed or changed.
 - Matrix reference: Matrix specification version, source URL, and check time
   used as external protocol context for the implementation work.
 - Timing: `started_at`, `ended_at`, `elapsed_seconds`, and `timezone`. Use
@@ -287,9 +317,9 @@ work.
 
 This repository is the first source to update before implementation behavior
 changes. It owns draft contract profiles, canonical vectors, and
-platform-neutral theme files. Client and server repositories should add native
-adapters, server behavior, and package metadata only after this repository
-passes its local checks.
+platform-neutral theme and UI surface files. Client and server repositories
+should add native adapters, server behavior, and package metadata only after
+this repository passes its local checks.
 
 ## Implementation Adoption Reports
 
@@ -723,6 +753,42 @@ behavior remains defined by this repository's contracts and vectors.
   range/resumable media download, thumbnails, email verification, password
   reset, IdP integration, simulator/manual UI QA, and the recorded Expo CLI /
   PostCSS audit follow-up.
+
+### Product MVP UI surface contract
+
+- Spec issue: `imoyan/houra-spec#65`
+- Changed design inputs: `design/ui.surface.schema.json` and
+  `design/ui-surfaces/product-mvp.json`
+- Compatibility classification: additive pre-1.0 Product MVP UI surface
+  definition.
+- Changed public API contracts: none.
+- Changed vectors: none.
+- Server behavior impact: none.
+- Implementation follow-up: client implementations should map their native UI
+  affordances to the `product-mvp` screen, action, state, text key, and
+  acceptance-flow ids without deriving behavior from another implementation.
+
+The UI surface contract is platform-neutral. It is intentionally not a React,
+Expo, Flutter, SwiftUI, Android, or Web component contract. It exists so each
+client implementation can prove that it exposes the same Product MVP operation
+surface while keeping framework-specific layout, navigation, local session
+storage, accessibility affordances, and component structure implementation-owned.
+
+### Product MVP pre-release readiness after UI surface contract
+
+- Release target: `v0.2.0-pre.8`
+- Compatibility classification: additive UI surface contract.
+- Changed public behavior profiles: none; this release adds platform-neutral UI
+  surface conformance input.
+- Changed contracts: none.
+- Changed vectors: none.
+- Changed design inputs: `design/ui.surface.schema.json` and
+  `design/ui-surfaces/product-mvp.json`.
+- Required implementation follow-up: `houra-client` should record Expo MVP UI
+  coverage against `product-mvp` and keep Expo-specific acceptance steps
+  separate from the generic UI surface.
+- Completion claim: Houra Product MVP now has a reusable UI surface definition
+  for client implementations. This is not a Matrix full-spec compliance claim.
 
 ## Local Checks
 
