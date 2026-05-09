@@ -31,8 +31,8 @@ remapping them.
 | `code` | HTTP status | Meaning | Example contracts |
 |---|---|---|---|
 | `HOURA_BAD_REQUEST` | `400` | Request body or query is malformed for a public contract. | `SPEC-004`, `SPEC-010`, `SPEC-020` |
-| `HOURA_UNAUTHORIZED` | `401` | Bearer token is missing, invalid, or rejected by the server. | `SPEC-004`, `SPEC-020` |
-| `HOURA_NOT_FOUND` | `404` | Targeted resource does not exist for the authenticated session. | `SPEC-020` |
+| `HOURA_UNAUTHORIZED` | `401` | Request authentication failed, including missing or rejected bearer tokens and invalid credential attempts. | `SPEC-004`, `SPEC-020` |
+| `HOURA_NOT_FOUND` | `404` | Targeted resource does not exist or is not available through the requested public contract. | `SPEC-020` |
 | `HOURA_CONFLICT` | `409` | Request conflicts with existing public state, including reused idempotency keys with different content and duplicate localpart registration. | `SPEC-004`, `SPEC-008` |
 | `HOURA_UNAVAILABLE` | `503` | Server cannot fulfil the request right now and clients should retry later. | `SPEC-002` baseline diagnostic |
 
