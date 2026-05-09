@@ -13,3 +13,4 @@
 | SPEC-010 Timeline | sync | Client-Server API | Houra timeline is a simple forward query, not Matrix `/messages` pagination semantics | Add Matrix `/rooms/{roomId}/messages` direction, filter, visibility, and pagination token vectors |
 | SPEC-011 Basic sync | sync | Client-Server API | Houra sync is a small incremental update model | Add Matrix `/sync` rooms, account data, presence, to-device, device lists, e2ee hooks, and filter semantics |
 | SPEC-020 Media | media | Client-Server API | Houra media covers upload, metadata, and binary download subset | Add Matrix media upload/download/thumbnail endpoint contracts, content URI grammar, and encrypted attachment metadata vectors |
+| SPEC-030 Matrix Client Versions | core | Client-Server API | First Matrix compatibility contract; implementation must not advertise unsupported Matrix versions | Implement `GET /_matrix/client/versions` only with matching endpoint evidence and CI coverage |

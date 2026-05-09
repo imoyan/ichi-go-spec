@@ -1,0 +1,15 @@
+{
+  "name": "matrix-client-versions-basic",
+  "contract": "SPEC-030",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/versions"
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "versions": ["v1.18"],
+      "unstable_features": {}
+    }
+  }
+}
