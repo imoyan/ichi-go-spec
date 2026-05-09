@@ -82,8 +82,17 @@ The successful response body is the raw binary media payload. The
 `Content-Type` header must match the metadata `content_type` value for the same
 `media_id`.
 
-For the MVP vectors, `media1` contains the bytes represented by base64
-`aGVsbG8=`.
+For the MVP vectors, the canonical media objects are:
+
+- `media1` is `download_requires_auth: false` and contains the bytes
+  represented by base64 `aGVsbG8=`.
+- `media2` is `download_requires_auth: true` and contains the same bytes; it
+  exists only to exercise the auth-required download path without changing
+  `media1`'s public state.
+
+How a media object becomes auth-required is implementation-defined and outside
+this contract; the MVP vectors only assert the per-`media_id` public response
+shape.
 
 ## Missing media response
 
