@@ -195,6 +195,79 @@ The MVP subset may be called 100% ready when all of these are true:
 criteria. Adoption reports, implementation conformance runs, and release
 publication remain workflow evidence.
 
+## Matrix v1.18 Compliance Matrix
+
+This section is the planning boundary for moving from the Houra Product MVP
+subset toward Matrix compliance. It does not by itself change any public
+Houra contract, vector, design token, or UI surface.
+
+Matrix reference snapshot:
+
+- Matrix specification version: `v1.18`
+- Source: <https://spec.matrix.org/v1.18/>
+- Release note: <https://matrix.org/blog/2026/03/26/matrix-v1.18-release/>
+- Checked at: 2026-05-09T15:29:22+09:00
+- Timezone: Asia/Tokyo
+
+Matrix compliance must be tracked by API domain, not as a single vague label:
+
+| Matrix domain | v1.18 scope source | Current Houra state | Target gate |
+|---|---|---|---|
+| Client-Server API | `/_matrix/client/*`, media, auth, sync, rooms, user data, devices, reporting, admin capabilities | Product MVP covers a small `/_houra/client/*` subset for discovery, auth, rooms, events, messaging, sync, and media | Matrix-compatible endpoint namespace, response shapes, error codes, and representative conformance vectors pass |
+| Server-Server API | federation discovery, signed transactions, PDUs/EDUs, event auth, joins/leaves, invites, backfill, key APIs, policy servers | Not implemented | A second homeserver can federate, exchange signed room events, validate auth, and recover state across restart |
+| Application Service API | appservice registration, namespace ownership, transactions, sender localpart, bridge-style event delivery | Not implemented | A registered appservice receives transactions and can puppet/send events within its declared namespaces |
+| Identity Service API | third-party identifier validation and lookup | Not implemented | Either explicitly out of supported deployment scope or implemented as a separate identity component with conformance evidence |
+| Push Gateway API | push notification gateway contracts | Not implemented | Either explicitly out of supported deployment scope or implemented with privacy-aware notification payload tests |
+| Room Versions | room version algorithms, event authorization rules, state resolution, room upgrade behavior | MVP rooms do not implement Matrix room versions or event DAG auth | Supported room versions are listed, default room version is declared, and auth/state-resolution tests pass |
+| Olm & Megolm | E2EE primitives, one-time keys, device keys, encrypted room messaging, key backup, verification, cross-signing | Not implemented | Use a mainstream Matrix crypto stack; encrypted rooms, device trust, key backup, and restore flows pass |
+| Appendices/common rules | identifiers, timestamps, namespacing, error vocabulary, deprecation behavior | Partially aligned only where MVP contracts copied the concept | Shared parser and validation tests enforce Matrix grammar and compatibility claims |
+
+Matrix compliance phases:
+
+1. **Audit and contract map**: add Matrix-domain coverage metadata to this
+   repository, map current `SPEC-*` files to Matrix v1.18 domains, and create
+   issues for each missing domain before implementation.
+2. **Client-Server compatibility baseline**: add Matrix v3 endpoint contracts
+   and vectors for the MVP-equivalent flow first: `/versions`, login, logout,
+   whoami, registration, room create/join/leave, state, send event, timeline,
+   sync, and media upload/download.
+3. **Matrix data model migration**: introduce Matrix-compatible identifiers,
+   event IDs, event DAG storage, state snapshots, auth events, room versions,
+   and sync token semantics in `houra-server`.
+4. **Client-Server breadth**: add profile, account data, tags, receipts,
+   typing, read markers, filters, presence, capabilities, devices, room
+   directory, aliases, invites, kicks, bans, power levels, redactions, and
+   reporting.
+5. **E2EE**: adopt a maintained Matrix crypto implementation instead of
+   hand-rolling Olm/Megolm behavior, then implement device keys, one-time keys,
+   fallback keys, encrypted room send/receive, key backup, verification, and
+   cross-signing.
+6. **Federation**: implement server signing keys, well-known discovery,
+   federation auth, transactions, make/send join, invites, backfill, event
+   validation, state resolution, and policy-server interactions.
+7. **Ecosystem APIs**: decide whether Identity Service and Push Gateway are
+   in-process, separate services, or explicitly unsupported for the first
+   compliance release; Application Service support should be tracked as its own
+   implementation lane.
+8. **Conformance harness**: wire official Matrix specification inputs and a
+   Matrix compatibility test runner into CI, while keeping Houra vectors as
+   regression coverage for the compatibility layer.
+
+Matrix compliance advertisement gate:
+
+- Do not claim `Matrix v1.18 compliant` for Houra until each included Matrix
+  domain has an explicit pass/fail report and any excluded optional deployment
+  domain is named as out of scope.
+- Do not return Matrix spec versions from `/versions` as supported until the
+  matching endpoint set, deprecated endpoint behavior, and advertised unstable
+  features are verified for that release.
+- Public behavior changes must land in `houra-spec` first, then be adopted by
+  `houra-server` and `houra-client` with implementation metrics and clean-room
+  notes.
+- Issue and PR scopes should stay domain-sized: for example, Client-Server auth,
+  Client-Server room state, Room Version 12 auth rules, Federation join, or
+  Megolm key backup. Do not mix federation, E2EE, and client UI in one PR.
+
 ## Implementation Follow-Up Checklist
 
 When an implementation repository adopts this baseline, copy this checklist into

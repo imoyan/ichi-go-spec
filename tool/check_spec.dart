@@ -308,6 +308,8 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     'Houra MVP 100% Readiness Criteria',
     'Implementation Metrics',
     'Matrix reference',
+    'Matrix v1.18 Compliance Matrix',
+    'Matrix compliance advertisement gate',
     'Implementation Adoption Reports',
   ]) {
     if (!readme.contains(phrase)) {
