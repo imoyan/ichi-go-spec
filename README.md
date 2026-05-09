@@ -919,6 +919,73 @@ MVP UI surface against the live Docker Compose server baseline.
   provider login, cloud deployment, and Matrix full-spec coverage remain outside
   this Product MVP subset.
 
+### Product MVP maintenance adoption after operations readiness
+
+- Spec release consumed: `v0.2.0-pre.10`
+- Compatibility classification: workflow/adoption evidence update for the
+  Houra Product MVP subset.
+- Public behavior impact: none.
+- Changed contracts: none.
+- Changed vectors: none.
+- Changed design inputs: none.
+- Matrix reference: Matrix Specification 1.18 remains a reference snapshot
+  only; this maintenance adoption is not Matrix full compliance.
+- Started at: 2026-05-09T14:00:06+09:00
+- Ended at: 2026-05-09T14:00:50+09:00
+- Elapsed seconds: 44
+- Timezone: Asia/Tokyo
+- Codex usage: unavailable in the local Codex App session.
+
+Server maintenance evidence:
+
+- Implementation repository: `imoyan/houra-server`
+- Implementation issue: `imoyan/houra-server#15`
+- Implementation pull request: `imoyan/houra-server#16`
+- Implementation merge commit inspected:
+  `bfef401e262aac0ccb99f7af5c945adf7ecd3b64`
+- Implementation release: `v0.2.0-pre.11`
+- Release URL:
+  `https://github.com/imoyan/houra-server/releases/tag/v0.2.0-pre.11`
+
+Client maintenance evidence:
+
+- Implementation repository: `imoyan/houra-client`
+- Implementation issue: `imoyan/houra-client#25`
+- Implementation pull request: `imoyan/houra-client#26`
+- Implementation merge commit inspected:
+  `55b116d0506f14069a6277c17e1fad1b31d6dee5`
+- Implementation release: `v0.2.0-pre.12`
+- Release URL:
+  `https://github.com/imoyan/houra-client/releases/tag/v0.2.0-pre.12`
+- Server target for live e2e smoke: `houra-server` v0.2.0-pre.11
+
+Observed checks:
+
+| Check | Result | Notes |
+|---|---|---|
+| `houra-server` GitHub Actions `CI / test` | pass | PR #16, operations-readiness release |
+| `houra-client` GitHub Actions `CI / test` | pass | PR #26, e2e target update |
+| `houra-client` GitHub Actions `CI / e2e` | pass | PR #26, pinned `houra-server` v0.2.0-pre.11 |
+
+No implementation repository was used as a behavior source. This record only
+confirms that the Product MVP implementation releases are aligned after the
+server operations-readiness update and client live e2e target update.
+
+### Product MVP pre-release readiness after maintenance adoption
+
+- Release target: `v0.2.0-pre.11`
+- Compatibility classification: workflow/adoption evidence update for the
+  Product MVP maintenance release.
+- Changed public behavior profiles: none.
+- Changed contracts: none.
+- Changed vectors: none.
+- Changed design inputs: none.
+- Implementation evidence added: `houra-server` v0.2.0-pre.11 operations
+  readiness and `houra-client` v0.2.0-pre.12 live e2e target adoption.
+- Completion claim: Houra Product MVP remains complete for the defined subset;
+  this release updates adoption evidence only and is not a Matrix full-spec
+  compliance claim.
+
 ## Local Checks
 
 ```bash
