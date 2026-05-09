@@ -233,22 +233,39 @@ Implementation sharing statuses:
 - `split-by-language`: many languages can share one implementation, but one or
   more languages may reasonably keep a separate implementation.
 
+Implementation reach values:
+
+- `client+server`: the same pure protocol logic can be consumed by client and
+  server implementations.
+- `client-only`: the logic is reusable across clients but not expected to run
+  in servers.
+- `server-only`: the logic is reusable across servers but not expected to run
+  in clients.
+- `adapter-only`: the behavior belongs to framework, runtime, or host
+  application adapters.
+- `language-family`: the behavior may be shared inside one language ecosystem
+  while other languages keep separate implementations.
+
 ### Implementation Sharing Matrix
 
 This matrix tracks sharing intent and evidence. It is a planning and adoption
-record, not a conformance checklist.
+record, not a conformance checklist. Rows should explicitly identify whether an
+area is shared across clients, servers, both sides, or only inside adapters so
+client/server commonality is not lost during planning.
 
-| Area | Current sharing status | Shared candidate | Adapter-owned responsibilities | Split trigger | Evidence gate |
-|---|---|---|---|---|---|
-| Matrix versions response parsing | `rust-candidate` | Rust protocol parser and validator for `SPEC-030` response shape | Fetching `/_matrix/client/versions`, cache policy, and feature gating | A runtime cannot consume the shared artifact without larger packaging cost than local parsing | Parity tests pass against `test-vectors/core/matrix-client-versions-basic.json` |
-| Matrix / Houra error parsing | `rust-candidate` | Shared error envelope and Matrix `M_*` vocabulary parser | HTTP status handling, retry policy, telemetry, and user-facing messages | Platform error models require native exception or result types outside the shared ABI | Vectors cover Houra and Matrix error shapes without adapter-specific fields |
-| Identifier and URI validation | `rust-candidate` | Matrix and Houra identifier, room ID, event ID, user ID, content URI, and namespace validators | Input timing, UI validation display, and normalization before storage | A platform requires native text or URL APIs for correctness or accessibility | Positive and negative grammar vectors exist for each advertised identifier family |
-| Canonical JSON / signing helpers | `rust-candidate` | Canonical JSON, hash, and signing helper primitives | Key storage, key rotation policy, secure enclave integration, and request transport | Native crypto policy or platform keychain constraints require separate bindings | Cross-language canonicalization fixtures produce byte-identical output |
-| Room version auth/state resolution | `rust-candidate` | Room-version-aware auth events, state resolution, and event validation helpers | Persistent event store layout, indexing, sync pagination, and conflict recovery UI | Performance, database coupling, or federation deployment needs a server-native path | Room-version fixtures and restart-safe server integration tests pass |
-| E2EE bridge | `split-by-language` | Wrapper around a maintained Matrix crypto implementation, not hand-rolled Olm or Megolm | Secure storage, device trust UI, backup UX, native keychain access, and background task policy | A target ecosystem already has a maintained native Matrix crypto binding with better support | Encrypted-room send, receive, backup, restore, and verification flows pass in each adopted language |
-| HTTP transport / retry / cancellation | `adapter-owned` | None by default; shared code may expose request descriptors only | Fetch/client selection, retry, timeout, cancellation, proxy, cookies, and platform network policy | A language family shares a transport runtime and can add it without constraining others | Adapter tests prove host-owned cancellation and retry behavior |
-| Token storage / secure storage | `adapter-owned` | None | Secure storage, token refresh timing, logout cleanup, and process lifecycle | A platform has a common secure-storage abstraction that still keeps host ownership explicit | Logout and restore tests prove tokens are not persisted by the UI-free core |
-| UI surface rendering | `adapter-owned` | Platform-neutral UI surface JSON only | Component hierarchy, accessibility affordances, navigation, layout, gestures, and framework state | A design-system adapter can be shared within one ecosystem without leaking into protocol behavior | UI surface conformance maps required operation and acceptance-flow IDs |
+| Area | Current sharing status | Implementation reach | Shared candidate | Adapter-owned responsibilities | Split trigger | Evidence gate |
+|---|---|---|---|---|---|---|
+| Matrix versions request/response handling | `rust-candidate` | `client+server` | Rust protocol parser and validator for `SPEC-030` request and response shape | Fetching `/_matrix/client/versions`, cache policy, and feature gating | A runtime cannot consume the shared artifact without larger packaging cost than local parsing | Server emission and client parsing pass against `test-vectors/core/matrix-client-versions-basic.json` |
+| Matrix / Houra error parsing and emission | `rust-candidate` | `client+server` | Shared error envelope and Matrix `M_*` vocabulary parser / builder | HTTP status handling, retry policy, telemetry, and user-facing messages | Platform error models require native exception or result types outside the shared ABI | Vectors cover client parsing and server emission without adapter-specific fields |
+| Identifier and URI validation | `rust-candidate` | `client+server` | Matrix and Houra identifier, room ID, event ID, user ID, content URI, and namespace validators | Input timing, UI validation display, and normalization before storage | A platform requires native text or URL APIs for correctness or accessibility | Positive and negative grammar vectors pass in client and server harnesses |
+| Event content and message schema validation | `rust-candidate` | `client+server` | Shared event type, message content, state key, and redaction shape validators | Rich composer UX, server persistence, timeline indexing, and moderation policy | A client needs permissive draft validation while servers require stricter acceptance rules | Client compose fixtures and server acceptance/rejection vectors agree on canonical shapes |
+| Transaction id and idempotency semantics | `rust-candidate` | `client+server` | Transaction id grammar, idempotency-key comparison, and replay classification helpers | Retry scheduling, persistence of sent-message state, and conflict UI | Offline clients need language-native queue behavior that cannot share the same runtime | Retry and conflict vectors pass with identical transaction classification |
+| Canonical JSON / signing helpers | `rust-candidate` | `client+server` | Canonical JSON, hash, and signing helper primitives | Key storage, key rotation policy, secure enclave integration, and request transport | Native crypto policy or platform keychain constraints require separate bindings | Cross-language canonicalization fixtures produce byte-identical output |
+| Room version auth/state resolution | `rust-candidate` | `server-only` | Room-version-aware auth events, state resolution, and event validation helpers | Persistent event store layout, indexing, sync pagination, and conflict recovery UI | Performance, database coupling, or federation deployment needs a server-native path | Room-version fixtures and restart-safe server integration tests pass |
+| E2EE bridge | `split-by-language` | `language-family` | Wrapper around a maintained Matrix crypto implementation, not hand-rolled Olm or Megolm | Secure storage, device trust UI, backup UX, native keychain access, and background task policy | A target ecosystem already has a maintained native Matrix crypto binding with better support | Encrypted-room send, receive, backup, restore, and verification flows pass in each adopted language |
+| HTTP transport / retry / cancellation | `adapter-owned` | `adapter-only` | None by default; shared code may expose request descriptors only | Fetch/client selection, retry, timeout, cancellation, proxy, cookies, and platform network policy | A language family shares a transport runtime and can add it without constraining others | Adapter tests prove host-owned cancellation and retry behavior |
+| Token storage / secure storage | `adapter-owned` | `adapter-only` | None | Secure storage, token refresh timing, logout cleanup, and process lifecycle | A platform has a common secure-storage abstraction that still keeps host ownership explicit | Logout and restore tests prove tokens are not persisted by the UI-free core |
+| UI surface rendering | `adapter-owned` | `adapter-only` | Platform-neutral UI surface JSON only | Component hierarchy, accessibility affordances, navigation, layout, gestures, and framework state | A design-system adapter can be shared within one ecosystem without leaking into protocol behavior | UI surface conformance maps required operation and acceptance-flow IDs |
 
 ## Matrix v1.18 Compliance Matrix
 
