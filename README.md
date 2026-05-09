@@ -269,7 +269,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-001 | `GET /_houra/client/versions` | `test-vectors/core/versions-basic.json` |
 | SPEC-002 | Any non-success response | `test-vectors/core/error-basic.json` |
 | SPEC-003 | `GET /_houra/client/login` | `test-vectors/auth/login-flows-basic.json` |
-| SPEC-004 | login, whoami, logout | `test-vectors/auth/*.json` |
+| SPEC-004 | login, register, whoami, logout | `test-vectors/auth/*.json` |
 | SPEC-006 | room create, join, leave, state | `test-vectors/rooms/*.json` |
 | SPEC-007 | event parser inputs | `test-vectors/events/*.json` |
 | SPEC-008 | send text message | `test-vectors/messaging/*.json` |
@@ -626,6 +626,103 @@ behavior remains defined by this repository's contracts and vectors.
 - Remaining known gaps: production account registration, federation, encrypted
   media, range/resumable media download, thumbnails, simulator/manual UI QA, and
   the recorded Expo CLI / PostCSS audit follow-up.
+
+### Account registration adoption
+
+- Spec release consumed: `v0.2.0-pre.6`
+- Changed profile: `auth`
+- Changed contract: `SPEC-004`
+- Changed vectors: `register-basic`, `register-duplicate-user`, and
+  `register-invalid`
+- Compatibility classification: additive pre-1.0 MVP auth behavior.
+
+Server adoption:
+
+- Implementation repository: `imoyan/houra-server`
+- Implementation issue: `imoyan/houra-server#9`
+- Implementation pull request: `imoyan/houra-server#10`
+- Implementation commit inspected: `d3711878ca35758e9510463b9da6afcd42ada304`
+- Matrix reference: Matrix Specification 1.18 remains a reference snapshot
+  only; this adoption is not Matrix full compliance.
+- Matrix source checked: 2026-05-09T11:00:00+09:00 from
+  `https://spec.matrix.org/` and
+  `https://matrix.org/blog/2026/03/26/matrix-v1.18-release/`.
+- Started at: 2026-05-09T10:39:20+09:00
+- Ended at: 2026-05-09T10:44:02+09:00
+- Elapsed seconds: 282
+- Codex usage: unavailable in the local Codex App session.
+
+Server observed checks:
+
+| Check | Result | Notes |
+|---|---|---|
+| `npm run typecheck` | pass | TypeScript strict check |
+| `npm run build` | pass | Production server build |
+| `npm test` | pass | 41 passed, 1 PostgreSQL test skipped by default |
+| `npm run db:migrate` | pass | PostgreSQL schema applied before restart persistence tests |
+| `HOURA_TEST_DATABASE_URL=... npm run test:postgres` | pass | Restart persistence covers registered user sessions and login |
+| Docker Compose live registration smoke | pass | Registered a user and verified `whoami` with the returned bearer token |
+| GitHub Actions `CI / test` | pass | Ran on PR #10 head |
+
+Client adoption:
+
+- Implementation repository: `imoyan/houra-client`
+- Implementation issue: `imoyan/houra-client#12`
+- Implementation pull request: `imoyan/houra-client#13`
+- Implementation commit inspected: `0be1a22cf770c6fb8a192f391d25eee06966c54c`
+- Server target for live smoke: `houra-server`
+  `d3711878ca35758e9510463b9da6afcd42ada304`
+- Matrix reference: Matrix Specification 1.18 remains a reference snapshot
+  only; this adoption is not Matrix full compliance.
+- Matrix source checked: 2026-05-09T11:00:00+09:00 from
+  `https://spec.matrix.org/` and
+  `https://matrix.org/blog/2026/03/26/matrix-v1.18-release/`.
+- Started at: 2026-05-09T10:47:45+09:00
+- Ended at: 2026-05-09T10:50:35+09:00
+- Elapsed seconds: 170
+- Codex usage: unavailable in the local Codex App session.
+
+Client observed checks:
+
+| Check | Result | Notes |
+|---|---|---|
+| `npm run typecheck` | pass | Core and Expo app TypeScript checks |
+| `npm run build` | pass | UI-free client core declaration build |
+| `npm test` | pass | 45 passed, 1 live e2e skipped by default |
+| `npx expo config --type public` | pass | Expo SDK 55 public config resolved |
+| `npx expo export --platform ios --output-dir /tmp/houra-client-expo-export --clear` | pass | Metro bundle smoke for app entry and Expo UI imports |
+| `HOURA_E2E_BASE_URL=http://localhost:3000 npm run test:e2e` | pass | Live happy path includes register, whoami, logout, login, room, message, sync, media, and logout |
+| GitHub Actions `CI / test` | pass | Pinned `houra-spec` v0.2.0-pre.6 |
+| GitHub Actions `CI / e2e` | pass | Pinned `houra-spec` v0.2.0-pre.6 and `houra-server` PR #10 merge commit |
+
+Profile status:
+
+| Profile | Status | Notes |
+|---|---|---|
+| auth | pass | Server and client both adopted password account registration |
+
+No implementation repository was used as a behavior source. The server remains
+only the live HTTP target for connection smoke coverage; the expected public
+behavior remains defined by this repository's contracts and vectors.
+
+### Product MVP pre-release readiness after account registration
+
+- Release target: `v0.2.0-pre.7`
+- Compatibility classification: workflow/adoption evidence update for
+  `v0.2.0-pre.6` public behavior.
+- Changed public behavior profiles: none in this release; `auth` behavior
+  changed in `v0.2.0-pre.6`.
+- Changed contracts: none.
+- Changed vectors: none.
+- Implementation evidence added: account registration adoption for
+  `houra-server` and `houra-client`.
+- Completion claim: Houra Product MVP subset includes password account
+  registration for the covered contract/vector scope. This is not a Matrix
+  full-spec compliance claim.
+- Remaining known gaps outside current MVP: federation, encrypted media,
+  range/resumable media download, thumbnails, email verification, password
+  reset, IdP integration, simulator/manual UI QA, and the recorded Expo CLI /
+  PostCSS audit follow-up.
 
 ## Local Checks
 
