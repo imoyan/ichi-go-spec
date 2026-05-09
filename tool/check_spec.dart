@@ -102,6 +102,7 @@ void main() {
   checkDocs(contracts, failures);
   final profileMap = checkProfileMap(contracts, failures);
   checkVectors(contracts, profileMap, failures);
+  checkMatrixFoundation(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -470,6 +471,23 @@ void checkVectors(
   for (final profile in negativeVectorProfiles) {
     if (!negativeProfiles.contains(profile)) {
       failures.add('No negative test vector covers MVP profile: $profile.');
+    }
+  }
+}
+
+void checkMatrixFoundation(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-031')) {
+    failures.add('Matrix foundation contract SPEC-031 is required.');
+  }
+  for (final path in [
+    'test-vectors/core/matrix-foundation-error-basic.json',
+    'test-vectors/core/matrix-foundation-identifiers-basic.json',
+  ]) {
+    if (!File(path).existsSync()) {
+      failures.add('Missing Matrix foundation vector: $path');
     }
   }
 }
