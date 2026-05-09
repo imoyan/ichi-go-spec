@@ -327,6 +327,25 @@ Reference documents for the current binding direction:
 - Rust Node.js bindings:
   <https://napi.rs/>
 
+External reference snapshot:
+
+- Checked at: 2026-05-09T23:37:23+09:00
+- Timezone: Asia/Tokyo
+- Documentation lookup: Context7
+- Dart reference: official Dart docs describe `dart:js_interop` and
+  `package:web` as the current web interop direction, including Wasm-compatible
+  browser API access, while `dart:ffi` remains the native C interop path.
+- Rust/WebAssembly reference: `wasm-bindgen` is the current Rust-focused bridge
+  for rich interaction between WebAssembly modules and JavaScript, including
+  generated JavaScript and TypeScript binding support.
+- Rust/Node reference: NAPI-RS targets Rust-built Node.js native add-ons and
+  supports cross-platform prebuilt package distribution to avoid making every
+  Node consumer compile Rust locally.
+
+This snapshot is planning evidence for the non-normative shared implementation
+strategy. It does not create a public Houra contract, require Rust adoption, or
+replace per-implementation verification.
+
 Implementation sharing statuses:
 
 - `spec-only`: only the specification inputs are shared; implementation stays
