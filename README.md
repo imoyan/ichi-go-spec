@@ -849,6 +849,76 @@ surface semantics remain defined by `design/ui-surfaces/product-mvp.json`.
   one React Native Expo adapter adoption record. This is not a Matrix full-spec
   compliance claim.
 
+### Product MVP manual UI acceptance
+
+- Spec release consumed: `v0.2.0-pre.9`
+- Compatibility classification: workflow/adoption evidence update for the
+  Houra Product MVP subset.
+- Server behavior impact: none.
+- Client behavior impact: none.
+
+Client manual acceptance:
+
+- Implementation repository: `imoyan/houra-client`
+- Implementation issue: `imoyan/houra-client#18`
+- Implementation pull request: `imoyan/houra-client#19`
+- Implementation merge commit inspected:
+  `b00d3ec8222bf0e877a496cc73190f34b27f9399`
+- Server target: `imoyan/houra-server`
+  `f12e1758b952a8d4a251448cfd1fb4b97b2bf874`
+- Matrix reference: Matrix Specification 1.18 remains a reference snapshot
+  only; this acceptance is not Matrix full compliance.
+- Started at: 2026-05-09T11:51:34+09:00
+- Ended at: 2026-05-09T12:08:17+09:00
+- Elapsed seconds: 1003
+- Codex usage: unavailable in the local Codex App session.
+
+Manual UI acceptance covered the `product-mvp-happy-path` flow against a
+PostgreSQL-backed Docker Compose server using Expo Go on an iPhone 17 Pro iOS
+26.4 simulator. The operator created `@manual18:example.test`, created and
+listed the `General` room, selected the room timeline, sent `manual message`,
+uploaded and downloaded `note.txt` as `text/plain / 5 bytes`, logged out,
+logged back in with the same account, and confirmed the room timeline still
+showed `manual message`.
+
+Client observed checks:
+
+| Check | Result | Notes |
+|---|---|---|
+| `curl -fsS http://127.0.0.1:3000/_houra/client/versions` | pass | Docker Compose server discovery response included `media` |
+| local live `npm run test:e2e` | pass | `HOURA_E2E_BASE_URL=http://127.0.0.1:3000` against the Docker Compose server |
+| XcodeBuildMCP simulator UI inspection/screenshots | pass | Manual Product MVP UI flow completed on iPhone 17 Pro iOS 26.4 |
+| `npm run typecheck` | pass | Core and Expo app TypeScript checks |
+| `npm run build` | pass | UI-free client core declaration build |
+| `npm test` | pass | 49 passed, 1 live e2e skipped by default |
+| `git diff --check` | pass | README adoption evidence patch |
+| GitHub Actions `CI / test` | pass | `houra-client` PR #19 |
+| GitHub Actions `CI / e2e` | pass | `houra-client` PR #19 |
+
+No implementation repository was used as a behavior source. This record only
+confirms that one Expo React Native adapter can operate the canonical Product
+MVP UI surface against the live Docker Compose server baseline.
+
+### Product MVP pre-release readiness after manual UI acceptance
+
+- Release target: `v0.2.0-pre.10`
+- Compatibility classification: workflow/adoption evidence update for the
+  Product MVP acceptance flow.
+- Changed public behavior profiles: none.
+- Changed contracts: none.
+- Changed vectors: none.
+- Changed design inputs: none.
+- Implementation evidence added: manual Product MVP UI acceptance for
+  `houra-client` against the Docker Compose `houra-server` baseline.
+- Completion claim: Houra Product MVP is complete for the defined subset when
+  reproduced from fresh sibling checkouts with Docker Compose server startup,
+  Expo client startup, live HTTP smoke, and the documented manual UI
+  happy-path. This is not a Matrix full-spec compliance claim.
+- Remaining explicit limitations: federation, encrypted media, range/resumable
+  media download, thumbnails, email verification, password reset, identity
+  provider login, cloud deployment, and Matrix full-spec coverage remain outside
+  this Product MVP subset.
+
 ## Local Checks
 
 ```bash
