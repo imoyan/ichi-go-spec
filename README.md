@@ -198,27 +198,134 @@ publication remain workflow evidence.
 
 ## Shared Implementation Strategy
 
-This section is non-normative implementation guidance. It does not define a
-public Houra contract, Matrix compliance claim, test vector, design token, or
-UI surface.
+This section is non-normative implementation guidance for readers evaluating
+Houra's long-term multi-language direction. It does not define a public Houra
+contract, Matrix compliance claim, test vector, design token, or UI surface.
+
+Houra is expected to support multiple implementation ecosystems over time:
+TypeScript clients and servers, Dart and Flutter clients, and later native
+Swift, Kotlin, or other adapters. The project should avoid making any one
+implementation repository canonical. Public behavior remains fixed here, in
+`contracts/SPEC-*.md`, `test-vectors/`, and shared design inputs. Shared
+implementation artifacts are allowed only as consumers of those inputs.
 
 Rust is the preferred first candidate for a shared protocol core because it can
-serve multiple client and server ecosystems through thin language adapters.
-Rust is not a required implementation language. Each protocol area may stay
-implementation-owned, move into a shared Rust core, or split by language when a
-platform-specific implementation is more practical.
+serve browser, Node.js, Dart native, Flutter native, and other ecosystems
+through thin bindings. Rust is not a required implementation language, and it is
+not the specification source. Each protocol area may stay implementation-owned,
+move into a shared Rust core, or split by language when that is more practical
+for performance, packaging, or ecosystem fit.
 
-The specification boundary remains this repository's contracts, vectors, design
-tokens, and UI surfaces. A shared implementation artifact must consume those
-inputs as read-only conformance data; it must not become the source of public
-behavior for this repository.
+The goal is to share the protocol logic that most often drifts between client
+and server implementations: request and response parsing, validation,
+identifier grammar, URI grammar, event content shape, transaction and
+idempotency semantics, canonical JSON, signing inputs, and reusable vector
+assertions. Sharing those areas can reduce mismatches between a TypeScript
+client, a TypeScript server, a Dart client, and later native clients.
 
-Shared protocol code should focus on pure logic such as response parsing,
-validation, canonicalization, identifier grammar, URI grammar, signing helpers,
-room-version algorithms, and reusable vector assertions. Transport, storage,
-auth token persistence, UI state, framework lifecycle, packaging, and platform
-integration remain adapter-owned unless a later contract explicitly defines
-public behavior.
+The goal is not to centralize application policy. Transport, database storage,
+secure storage, auth token persistence, retry scheduling, logging, UI state,
+framework lifecycle, packaging, and deployment policy remain adapter-owned
+unless a later `SPEC-*` contract defines public behavior. Those parts differ
+too much across Vue, Next, Node.js, Expo, Flutter native, Flutter web, and
+server runtimes to force into a single core without harming flexibility.
+
+### Coupling and dependency policy
+
+Shared code should be deliberately small, but it should not avoid mainstream
+dependencies just to look dependency-free. Well-established libraries that are
+central to protocol correctness may be direct dependencies of the pure core.
+Dependencies that are heavy, platform-shaped, frequently replaced, or close to
+host-application policy should live outside the core.
+
+Dependency policy values:
+
+- `core-hard-dep`: a mainstream, low-risk dependency that is directly useful for
+  protocol correctness and acceptable in the pure Rust core.
+- `extension-dep`: a heavy or optional dependency, such as crypto, that may be
+  shared but should live in an extension crate or optional package.
+- `binding-dep`: a dependency needed only to expose Rust to an ecosystem, such
+  as `wasm-bindgen`, N-API, or Dart FFI glue.
+- `adapter-owned`: an implementation or host-application dependency, such as
+  HTTP clients, secure storage, UI frameworks, retry schedulers, or logging.
+- `avoid-shared`: a dependency or behavior that should not be shared because it
+  would make the common path slower, brittle, or unnatural for one ecosystem.
+
+The shared core should expose coarse-grained APIs so bindings do not pay a large
+FFI, WASM, or N-API call cost for every small field. A parser or validator
+should accept one protocol payload and return one structured result, rather
+than requiring many cross-boundary calls. Public TypeScript and Dart facades
+should remain stable even if the Rust implementation changes internally. Rust
+ABI compatibility should be tracked with an `abi_version` and artifact manifest
+before any implementation repository treats a shared artifact as adopted.
+
+### TypeScript and Dart backend strategy
+
+The TypeScript and Dart ecosystems need different bindings for different
+runtimes:
+
+- TypeScript browser, Vue, and Next client code should prefer WebAssembly built
+  from the Rust core, using the Rust/WebAssembly ecosystem around
+  `wasm-bindgen`.
+- TypeScript Node.js and Next server code should prefer N-API bindings for
+  native performance and package ergonomics.
+- TypeScript edge or restricted serverless runtimes should keep a WebAssembly
+  fallback when native add-ons are unavailable.
+- Dart CLI, Dart server, and Flutter native code should use a C ABI exposed to
+  `dart:ffi`.
+- Dart web and Flutter web should call a WebAssembly JavaScript wrapper through
+  `dart:js_interop`; they should not depend on `dart:ffi`.
+
+This split follows the current Dart direction where `dart:js_interop` is the
+web interop layer and `package:web` is the long-term web API package designed
+with Wasm compatibility in mind. The Dart native path and Dart web path should
+therefore share the same Dart facade API while using different backends through
+conditional imports.
+
+### Build and distribution policy
+
+Rust compile time should not become a tax on every application developer.
+Implementation packages should publish prebuilt artifacts for supported
+platforms wherever practical:
+
+- npm packages can include WebAssembly artifacts for browsers and N-API
+  binaries for Node.js platforms.
+- Dart packages can include or download native libraries for supported Flutter
+  and Dart Native platforms, while using the WebAssembly JavaScript wrapper on
+  web.
+- CI should rebuild Rust artifacts when the shared core, extension crates, or
+  binding crates change, not when an application changes only adapter policy,
+  UI, transport, or storage.
+
+Feature flags are useful for stable build variants, but frequently changed
+policy should not become a Cargo feature. Changing Cargo features usually means
+rebuilding the Rust artifact. Runtime policy and ecosystem-specific behavior
+should stay in the TypeScript or Dart facade when that keeps application
+iteration faster.
+
+### Performance rule
+
+Sharing is optional. An area should not be moved into shared code if the
+cross-language boundary, binary size, startup cost, or packaging cost makes the
+result meaningfully worse than a local implementation. The default performance
+gate is that shared protocol logic should stay within roughly a p95 `+10%` cost
+of the adapter-native implementation for representative vector batches, or be
+clearly hidden by network, disk, or UI latency. If that gate fails, record the
+area as `adapter-owned`, `language-family`, or `avoid-shared` instead of forcing
+common code.
+
+Reference documents for the current binding direction:
+
+- Dart JavaScript interop:
+  <https://dart.dev/interop/js-interop>
+- Dart `package:web` migration and Wasm-compatible web interop direction:
+  <https://dart.dev/interop/js-interop/package-web>
+- Dart C interop with `dart:ffi`:
+  <https://dart.dev/interop/c-interop>
+- Rust/WebAssembly bindings:
+  <https://rustwasm.github.io/docs/wasm-bindgen/>
+- Rust Node.js bindings:
+  <https://napi.rs/>
 
 Implementation sharing statuses:
 
@@ -253,19 +360,19 @@ record, not a conformance checklist. Rows should explicitly identify whether an
 area is shared across clients, servers, both sides, or only inside adapters so
 client/server commonality is not lost during planning.
 
-| Area | Current sharing status | Implementation reach | Shared candidate | Adapter-owned responsibilities | Split trigger | Evidence gate |
-|---|---|---|---|---|---|---|
-| Matrix versions request/response handling | `rust-candidate` | `client+server` | Rust protocol parser and validator for `SPEC-030` request and response shape | Fetching `/_matrix/client/versions`, cache policy, and feature gating | A runtime cannot consume the shared artifact without larger packaging cost than local parsing | Server emission and client parsing pass against `test-vectors/core/matrix-client-versions-basic.json` |
-| Matrix / Houra error parsing and emission | `rust-candidate` | `client+server` | Shared error envelope and Matrix `M_*` vocabulary parser / builder | HTTP status handling, retry policy, telemetry, and user-facing messages | Platform error models require native exception or result types outside the shared ABI | Vectors cover client parsing and server emission without adapter-specific fields |
-| Identifier and URI validation | `rust-candidate` | `client+server` | Matrix and Houra identifier, room ID, event ID, user ID, content URI, and namespace validators | Input timing, UI validation display, and normalization before storage | A platform requires native text or URL APIs for correctness or accessibility | Positive and negative grammar vectors pass in client and server harnesses |
-| Event content and message schema validation | `rust-candidate` | `client+server` | Shared event type, message content, state key, and redaction shape validators | Rich composer UX, server persistence, timeline indexing, and moderation policy | A client needs permissive draft validation while servers require stricter acceptance rules | Client compose fixtures and server acceptance/rejection vectors agree on canonical shapes |
-| Transaction id and idempotency semantics | `rust-candidate` | `client+server` | Transaction id grammar, idempotency-key comparison, and replay classification helpers | Retry scheduling, persistence of sent-message state, and conflict UI | Offline clients need language-native queue behavior that cannot share the same runtime | Retry and conflict vectors pass with identical transaction classification |
-| Canonical JSON / signing helpers | `rust-candidate` | `client+server` | Canonical JSON, hash, and signing helper primitives | Key storage, key rotation policy, secure enclave integration, and request transport | Native crypto policy or platform keychain constraints require separate bindings | Cross-language canonicalization fixtures produce byte-identical output |
-| Room version auth/state resolution | `rust-candidate` | `server-only` | Room-version-aware auth events, state resolution, and event validation helpers | Persistent event store layout, indexing, sync pagination, and conflict recovery UI | Performance, database coupling, or federation deployment needs a server-native path | Room-version fixtures and restart-safe server integration tests pass |
-| E2EE bridge | `split-by-language` | `language-family` | Wrapper around a maintained Matrix crypto implementation, not hand-rolled Olm or Megolm | Secure storage, device trust UI, backup UX, native keychain access, and background task policy | A target ecosystem already has a maintained native Matrix crypto binding with better support | Encrypted-room send, receive, backup, restore, and verification flows pass in each adopted language |
-| HTTP transport / retry / cancellation | `adapter-owned` | `adapter-only` | None by default; shared code may expose request descriptors only | Fetch/client selection, retry, timeout, cancellation, proxy, cookies, and platform network policy | A language family shares a transport runtime and can add it without constraining others | Adapter tests prove host-owned cancellation and retry behavior |
-| Token storage / secure storage | `adapter-owned` | `adapter-only` | None | Secure storage, token refresh timing, logout cleanup, and process lifecycle | A platform has a common secure-storage abstraction that still keeps host ownership explicit | Logout and restore tests prove tokens are not persisted by the UI-free core |
-| UI surface rendering | `adapter-owned` | `adapter-only` | Platform-neutral UI surface JSON only | Component hierarchy, accessibility affordances, navigation, layout, gestures, and framework state | A design-system adapter can be shared within one ecosystem without leaking into protocol behavior | UI surface conformance maps required operation and acceptance-flow IDs |
+| Area | Current sharing status | Implementation reach | Dependency policy | TS backend | Dart backend | Shared candidate | Adapter-owned responsibilities | Split trigger | Rebuild impact | Prebuilt artifact | Performance gate |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Matrix versions request/response handling | `rust-candidate` | `client+server` | `core-hard-dep` allowed for JSON parsing | WASM for browser and Next client; N-API for Node and Next server; WASM fallback for edge runtimes | `dart:ffi` for native; `dart:js_interop` to call the WASM JS wrapper on web | Rust protocol parser and validator for `SPEC-030` request and response shape | Fetching `/_matrix/client/versions`, cache policy, and feature gating | A runtime cannot consume the shared artifact without larger packaging cost than local parsing | Low after prebuilt artifacts; changing facade policy should not rebuild core | npm WASM, npm N-API, Dart native library, Dart web WASM wrapper | Server emission and client parsing pass against `test-vectors/core/matrix-client-versions-basic.json`; p95 within `+10%` of local parsing |
+| Matrix / Houra error parsing and emission | `rust-candidate` | `client+server` | `core-hard-dep` allowed for stable JSON and enum helpers | WASM / N-API through the TypeScript facade | Dart facade dispatches to FFI or JS interop backend | Shared error envelope and Matrix `M_*` vocabulary parser / builder | HTTP status handling, retry policy, telemetry, and user-facing messages | Platform error models require native exception or result types outside the shared ABI | Low; adding host-specific error text stays outside Rust | Same as protocol core artifacts | Vectors cover client parsing and server emission without adapter-specific fields; no measurable UI-path regression |
+| Identifier and URI validation | `rust-candidate` | `client+server` | `core-hard-dep` allowed for regex or parser utilities if they are mainstream and portable | WASM / N-API through the TypeScript facade | FFI on native and JS interop on web | Matrix and Houra identifier, room ID, event ID, user ID, content URI, and namespace validators | Input timing, UI validation display, and normalization before storage | A platform requires native text or URL APIs for correctness, accessibility, or locale behavior | Medium if parser dependencies change; stable grammar updates should be batched | Prebuilt parser artifacts per supported runtime | Positive and negative grammar vectors pass in client and server harnesses; boundary overhead is hidden by validation batch size |
+| Event content and message schema validation | `rust-candidate` | `client+server` | `core-hard-dep` allowed for JSON schema-like validation only when it stays protocol-focused | WASM / N-API for canonical validation; TS may keep permissive draft typing | FFI / JS interop for canonical validation; Dart may keep permissive draft models | Shared event type, message content, state key, and redaction shape validators | Rich composer UX, server persistence, timeline indexing, moderation policy, and draft states | A client needs permissive draft validation while servers require stricter acceptance rules | Medium; schema changes rebuild shared validators but not UI composer policy | Protocol validator artifacts plus native/web facade packages | Client compose fixtures and server acceptance/rejection vectors agree on canonical shapes; validation batch p95 stays within `+10%` |
+| Transaction id and idempotency semantics | `rust-candidate` | `client+server` | `core-hard-dep` only for small deterministic helpers | WASM / N-API helper through TS facade | FFI / JS interop helper through Dart facade | Transaction id grammar, idempotency-key comparison, and replay classification helpers | Retry scheduling, persistence of sent-message state, offline queueing, and conflict UI | Offline clients need language-native queue behavior that cannot share the same runtime | Low; queue policy changes should not rebuild Rust | Small helper artifact bundled with protocol core | Retry and conflict vectors pass with identical transaction classification; local queue performance is not gated on Rust |
+| Canonical JSON / signing helpers | `rust-candidate` | `client+server` | `core-hard-dep` for canonicalization and hash primitives; `extension-dep` for heavier signing stacks | WASM for browser-safe canonicalization; N-API for Node signing helpers when native crypto is useful | FFI for native signing helpers; JS interop/WASM for web canonicalization | Canonical JSON, hash, and signing input helper primitives | Key storage, key rotation policy, secure enclave integration, and request transport | Native crypto policy or platform keychain constraints require separate bindings | Medium to high when crypto dependencies change; isolate heavy crypto outside the pure core | Separate core and crypto extension artifacts | Cross-language canonicalization fixtures produce byte-identical output; crypto extension has its own p95 and binary-size gate |
+| Room version auth/state resolution | `rust-candidate` | `server-only` | `extension-dep` unless the algorithm is small enough for pure core | N-API for Node servers; WASM only for tooling or tests | Usually not used by Dart clients; Dart server may use FFI if adopted | Room-version-aware auth events, state resolution, and event validation helpers | Persistent event store layout, indexing, sync pagination, conflict recovery UI, and federation policy | Performance, database coupling, or federation deployment needs a server-native path | High; keep database and storage policy outside the Rust algorithm crate | Server-side native artifact only until a client/tooling use case exists | Room-version fixtures and restart-safe server integration tests pass; algorithm cost improves or matches local implementation |
+| E2EE bridge | `split-by-language` | `language-family` | `extension-dep`; never hand-roll Olm or Megolm in this repository | Use maintained Matrix crypto bindings where available; TS facade should not own secure storage | Use maintained native or Dart-compatible crypto binding when it fits the target | Wrapper around a maintained Matrix crypto implementation, not hand-rolled Olm or Megolm | Secure storage, device trust UI, backup UX, native keychain access, and background task policy | A target ecosystem already has a maintained native Matrix crypto binding with better support | High; isolate from pure core and publish separately | Separate crypto artifacts per ecosystem and platform | Encrypted-room send, receive, backup, restore, and verification flows pass in each adopted language |
+| HTTP transport / retry / cancellation | `adapter-owned` | `adapter-only` | `adapter-owned` or `avoid-shared` | Native `fetch`, framework client, or Node HTTP stack chosen by the host | Dart `http`, platform channel, or framework-owned client chosen by the host | None by default; shared code may expose request descriptors only | Fetch/client selection, retry, timeout, cancellation, proxy, cookies, and platform network policy | A language family shares a transport runtime and can add it without constraining others | None for Rust when policy changes stay in adapters | No Rust artifact required | Adapter tests prove host-owned cancellation and retry behavior; shared descriptors do not add request latency |
+| Token storage / secure storage | `adapter-owned` | `adapter-only` | `adapter-owned` | Browser storage, server secret store, or Expo secure storage selected by the host | Flutter secure storage, platform keychain, or server secret store selected by the host | None | Secure storage, token refresh timing, logout cleanup, and process lifecycle | A platform has a common secure-storage abstraction that still keeps host ownership explicit | None for Rust | No Rust artifact required | Logout and restore tests prove tokens are not persisted by the UI-free core |
+| UI surface rendering | `adapter-owned` | `adapter-only` | `adapter-owned` | Vue, Next, React Native, or other UI layer renders platform-neutral surfaces | Flutter, native Dart UI, or other UI layer renders platform-neutral surfaces | Platform-neutral UI surface JSON only | Component hierarchy, accessibility affordances, navigation, layout, gestures, and framework state | A design-system adapter can be shared within one ecosystem without leaking into protocol behavior | None for Rust | No Rust artifact required | UI surface conformance maps required operation and acceptance-flow IDs without forcing component structure |
 
 ## Matrix v1.18 Compliance Matrix
 
