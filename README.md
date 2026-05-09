@@ -790,6 +790,65 @@ storage, accessibility affordances, and component structure implementation-owned
 - Completion claim: Houra Product MVP now has a reusable UI surface definition
   for client implementations. This is not a Matrix full-spec compliance claim.
 
+### Product MVP UI surface adoption
+
+- Spec release consumed: `v0.2.0-pre.8`
+- Changed design input consumed: `design/ui-surfaces/product-mvp.json`
+- Compatibility classification: workflow/adoption evidence update for the
+  `v0.2.0-pre.8` UI surface contract.
+- Server behavior impact: none.
+
+Client adoption:
+
+- Implementation repository: `imoyan/houra-client`
+- Implementation issue: `imoyan/houra-client#16`
+- Implementation pull request: `imoyan/houra-client#17`
+- Implementation commit inspected: `1d7d0e0c74223d9b9fd6b87e80c40428f79c7307`
+- Matrix reference: Matrix Specification 1.18 remains a reference snapshot
+  only; this adoption is not Matrix full compliance.
+- Started at: 2026-05-09T11:26:08+09:00
+- Ended at: 2026-05-09T11:30:59+09:00
+- Elapsed seconds: 291
+- Codex usage: unavailable in the local Codex App session.
+
+Client observed checks:
+
+| Check | Result | Notes |
+|---|---|---|
+| `npm run typecheck` | pass | Core and Expo app TypeScript checks |
+| `npm run build` | pass | UI-free client core declaration build |
+| `npm test` | pass | 49 passed, 1 live e2e skipped by default; includes Product MVP UI surface conformance |
+| `npx expo config --type public` | pass | Expo SDK 55 public config resolved |
+| `npx expo export --platform ios --output-dir /tmp/houra-client-expo-export --clear` | pass | Metro bundle smoke for app entry and Expo UI imports |
+| GitHub Actions `CI / test` | pass | Pinned `houra-spec` v0.2.0-pre.8 |
+| GitHub Actions `CI / e2e` | pass | Pinned `houra-spec` v0.2.0-pre.8 and `houra-server` PR #10 merge commit |
+
+UI surface status:
+
+| Surface | Status | Notes |
+|---|---|---|
+| `product-mvp` | pass | Expo UI metadata covers canonical screen, action, text key, and acceptance-flow ids |
+
+No implementation repository was used as a behavior source. The Expo app is the
+React Native adapter for the platform-neutral `product-mvp` surface; expected UI
+surface semantics remain defined by `design/ui-surfaces/product-mvp.json`.
+
+### Product MVP pre-release readiness after UI surface adoption
+
+- Release target: `v0.2.0-pre.9`
+- Compatibility classification: workflow/adoption evidence update for
+  `v0.2.0-pre.8` UI surface behavior.
+- Changed public behavior profiles: none.
+- Changed contracts: none.
+- Changed vectors: none.
+- Changed design inputs: none in this release; `product-mvp` UI surface changed
+  in `v0.2.0-pre.8`.
+- Implementation evidence added: Product MVP UI surface adoption for
+  `houra-client`.
+- Completion claim: Houra Product MVP has a reusable UI surface definition and
+  one React Native Expo adapter adoption record. This is not a Matrix full-spec
+  compliance claim.
+
 ## Local Checks
 
 ```bash
