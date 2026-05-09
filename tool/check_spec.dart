@@ -316,6 +316,9 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     'Matrix reference',
     'Matrix v1.18 Compliance Matrix',
     'Matrix compliance advertisement gate',
+    'Shared Implementation Strategy',
+    'External reference snapshot',
+    'Implementation Sharing Matrix',
     'Implementation Adoption Reports',
   ]) {
     if (!readme.contains(phrase)) {
