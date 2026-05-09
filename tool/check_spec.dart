@@ -103,6 +103,7 @@ void main() {
   final profileMap = checkProfileMap(contracts, failures);
   checkVectors(contracts, profileMap, failures);
   checkMatrixFoundation(contracts, failures);
+  checkMatrixAuthSession(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -488,6 +489,26 @@ void checkMatrixFoundation(
   ]) {
     if (!File(path).existsSync()) {
       failures.add('Missing Matrix foundation vector: $path');
+    }
+  }
+}
+
+void checkMatrixAuthSession(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-032')) {
+    failures.add('Matrix auth session contract SPEC-032 is required.');
+  }
+  for (final path in [
+    'test-vectors/auth/matrix-login-flows-basic.json',
+    'test-vectors/auth/matrix-password-login-basic.json',
+    'test-vectors/auth/matrix-password-login-failure.json',
+    'test-vectors/auth/matrix-whoami-basic.json',
+    'test-vectors/auth/matrix-logout-basic.json',
+  ]) {
+    if (!File(path).existsSync()) {
+      failures.add('Missing Matrix auth session vector: $path');
     }
   }
 }
