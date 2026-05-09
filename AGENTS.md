@@ -11,7 +11,8 @@ Priority order:
 
 1. `contracts/SPEC-*.md`
 2. `test-vectors/`
-3. `design/theme.schema.json` and `design/themes/*.json`
+3. `design/theme.schema.json`, `design/themes/*.json`,
+   `design/ui.surface.schema.json`, and `design/ui-surfaces/*.json`
 4. Supporting docs
 
 Implementation repositories are not canonical.

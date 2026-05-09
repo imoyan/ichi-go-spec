@@ -1,0 +1,358 @@
+{
+  "$schema": "../ui.surface.schema.json",
+  "name": "product-mvp",
+  "version": "0.1.0",
+  "description": "Platform-neutral UI surface for the Houra Product MVP client.",
+  "implementation_boundary": {
+    "platform_neutral": true,
+    "server_impact": "none",
+    "canonical_behavior_source": "contracts, test-vectors, and this UI surface definition",
+    "implementation_notes": [
+      "Adapters may choose native layout, navigation, and component libraries.",
+      "Adapters must preserve screen semantics, action availability, pending states, and acceptance flow coverage.",
+      "This file does not define server behavior, SDK API shape, storage layout, or framework-specific component structure."
+    ]
+  },
+  "theme_refs": ["design/themes/smoke.json"],
+  "screens": [
+    {
+      "id": "auth",
+      "session": "unauthenticated",
+      "purpose": "Create or resume a user session against a selected Houra server.",
+      "regions": ["server-config", "credentials", "auth-actions", "status"],
+      "fields": [
+        {
+          "id": "server.base-url",
+          "label_key": "field.server",
+          "input": "url",
+          "required": true
+        },
+        {
+          "id": "auth.localpart",
+          "label_key": "field.user",
+          "input": "localpart",
+          "required": true
+        },
+        {
+          "id": "auth.password",
+          "label_key": "field.password",
+          "input": "password",
+          "required": true
+        }
+      ],
+      "actions": ["auth.login", "auth.create-account"]
+    },
+    {
+      "id": "rooms",
+      "session": "authenticated",
+      "purpose": "Show joined rooms and create a room for the active session.",
+      "regions": ["room-create", "room-list", "status"],
+      "fields": [
+        {
+          "id": "room.name",
+          "label_key": "field.room-name",
+          "input": "text",
+          "required": false
+        }
+      ],
+      "actions": ["room.create", "room.open", "session.refresh"]
+    },
+    {
+      "id": "timeline",
+      "session": "authenticated",
+      "purpose": "Show the selected room timeline and send a text message.",
+      "regions": ["timeline-events", "message-composer", "status"],
+      "fields": [
+        {
+          "id": "message.body",
+          "label_key": "field.message",
+          "input": "text",
+          "required": true
+        }
+      ],
+      "actions": ["message.send", "session.refresh"]
+    },
+    {
+      "id": "media",
+      "session": "authenticated",
+      "purpose": "Upload media metadata and verify same-origin content download.",
+      "regions": ["media-inputs", "media-result", "status"],
+      "fields": [
+        {
+          "id": "media.filename",
+          "label_key": "field.filename",
+          "input": "text",
+          "required": true
+        },
+        {
+          "id": "media.content-type",
+          "label_key": "field.content-type",
+          "input": "media-type",
+          "required": true
+        },
+        {
+          "id": "media.text-payload",
+          "label_key": "field.text-payload",
+          "input": "text",
+          "required": true
+        }
+      ],
+      "actions": ["media.upload-and-download"]
+    },
+    {
+      "id": "settings",
+      "session": "authenticated",
+      "purpose": "Show session-owned server configuration and end the session.",
+      "regions": ["server-config", "session-actions", "status"],
+      "fields": [
+        {
+          "id": "server.base-url",
+          "label_key": "field.server",
+          "input": "url",
+          "required": true
+        }
+      ],
+      "actions": ["session.refresh", "session.logout"]
+    }
+  ],
+  "actions": [
+    {
+      "id": "auth.login",
+      "label_key": "action.login",
+      "requires_auth": false,
+      "api_contracts": ["SPEC-004"],
+      "busy_state": "pending.auth",
+      "disabled_when": ["pending.any"],
+      "success_expectation": "Session is stored by the host adapter and room data is loaded.",
+      "error_expectation": "Authentication errors are visible without losing user input."
+    },
+    {
+      "id": "auth.create-account",
+      "label_key": "action.create-account",
+      "requires_auth": false,
+      "api_contracts": ["SPEC-004"],
+      "busy_state": "pending.auth",
+      "disabled_when": ["pending.any"],
+      "success_expectation": "Registered session is stored by the host adapter and room data is loaded.",
+      "error_expectation": "Registration errors are visible without losing user input."
+    },
+    {
+      "id": "room.create",
+      "label_key": "action.create-room",
+      "requires_auth": true,
+      "api_contracts": ["SPEC-006", "SPEC-009", "SPEC-010"],
+      "busy_state": "pending.room",
+      "disabled_when": ["pending.any"],
+      "success_expectation": "Created room becomes selectable and its timeline can load.",
+      "error_expectation": "Room creation errors are visible and the prior room selection is preserved."
+    },
+    {
+      "id": "room.open",
+      "label_key": "action.open-room",
+      "requires_auth": true,
+      "api_contracts": ["SPEC-010"],
+      "busy_state": "pending.timeline",
+      "disabled_when": ["pending.any"],
+      "success_expectation": "Selected room timeline is loaded.",
+      "error_expectation": "Timeline loading errors are visible and room list remains available."
+    },
+    {
+      "id": "message.send",
+      "label_key": "action.send-message",
+      "requires_auth": true,
+      "api_contracts": ["SPEC-008", "SPEC-010"],
+      "busy_state": "pending.message",
+      "disabled_when": ["pending.any", "no-room-selected", "empty-message"],
+      "success_expectation": "Message composer clears and the new message appears in the timeline.",
+      "error_expectation": "Send errors are visible and the unsent message remains editable."
+    },
+    {
+      "id": "media.upload-and-download",
+      "label_key": "action.upload-and-download",
+      "requires_auth": true,
+      "api_contracts": ["SPEC-020"],
+      "busy_state": "pending.media",
+      "disabled_when": ["pending.any"],
+      "success_expectation": "Media metadata and downloaded content summary are visible.",
+      "error_expectation": "Media errors are visible and input fields remain editable."
+    },
+    {
+      "id": "session.refresh",
+      "label_key": "action.refresh",
+      "requires_auth": true,
+      "api_contracts": ["SPEC-009", "SPEC-010"],
+      "busy_state": "pending.refresh",
+      "disabled_when": ["pending.any"],
+      "success_expectation": "Room list and selected timeline reflect server state.",
+      "error_expectation": "Refresh errors are visible without clearing the session."
+    },
+    {
+      "id": "session.logout",
+      "label_key": "action.logout",
+      "requires_auth": true,
+      "api_contracts": ["SPEC-004"],
+      "busy_state": "pending.logout",
+      "disabled_when": ["pending.any"],
+      "success_expectation": "Host adapter clears the session and returns to the unauthenticated surface.",
+      "error_expectation": "Logout errors are visible; host adapter may still clear local session only after explicit implementation policy."
+    }
+  ],
+  "states": [
+    {
+      "id": "session.unauthenticated",
+      "kind": "session",
+      "description": "No stored host-owned session is active."
+    },
+    {
+      "id": "session.authenticated",
+      "kind": "session",
+      "description": "A host-owned access token and user id are available."
+    },
+    {
+      "id": "pending.any",
+      "kind": "async",
+      "description": "An async action is in flight; duplicate action submission is disabled."
+    },
+    {
+      "id": "pending.auth",
+      "kind": "async",
+      "description": "A login or account registration request is in flight."
+    },
+    {
+      "id": "pending.room",
+      "kind": "async",
+      "description": "A room creation request is in flight."
+    },
+    {
+      "id": "pending.timeline",
+      "kind": "async",
+      "description": "A timeline loading request is in flight."
+    },
+    {
+      "id": "pending.message",
+      "kind": "async",
+      "description": "A message send request is in flight."
+    },
+    {
+      "id": "pending.media",
+      "kind": "async",
+      "description": "A media roundtrip request is in flight."
+    },
+    {
+      "id": "pending.refresh",
+      "kind": "async",
+      "description": "A refresh request is in flight."
+    },
+    {
+      "id": "pending.logout",
+      "kind": "async",
+      "description": "A logout request is in flight."
+    },
+    {
+      "id": "no-room-selected",
+      "kind": "selection",
+      "description": "No room is selected for timeline or message actions."
+    },
+    {
+      "id": "empty-message",
+      "kind": "data",
+      "description": "The message composer has no sendable text."
+    },
+    {
+      "id": "selection.room",
+      "kind": "selection",
+      "description": "A room id is selected for timeline and message actions."
+    },
+    {
+      "id": "data.media-result",
+      "kind": "data",
+      "description": "Latest media metadata and content download summary are available."
+    },
+    {
+      "id": "error.visible",
+      "kind": "error",
+      "description": "The most recent recoverable error is visible to the user."
+    }
+  ],
+  "text_keys": {
+    "action.create-account": "Create account",
+    "action.create-room": "Create",
+    "action.login": "Login",
+    "action.logout": "Logout",
+    "action.open-room": "Open room",
+    "action.refresh": "Refresh",
+    "action.send-message": "Send",
+    "action.upload-and-download": "Upload and download",
+    "app.title": "Houra MVP",
+    "empty.timeline": "No events",
+    "field.content-type": "Content type",
+    "field.filename": "Filename",
+    "field.message": "Message",
+    "field.password": "Password",
+    "field.room-name": "Room name",
+    "field.server": "Server",
+    "field.text-payload": "Text payload",
+    "field.user": "User",
+    "section.media": "Media",
+    "section.rooms": "Rooms",
+    "section.settings": "Settings",
+    "section.timeline": "Timeline",
+    "status.error": "Error",
+    "status.ready": "Ready"
+  },
+  "acceptance_flows": [
+    {
+      "id": "product-mvp-happy-path",
+      "description": "Manual UI flow that proves the Product MVP surface can operate against a Docker Compose Houra server.",
+      "steps": [
+        {
+          "id": "register",
+          "screen": "auth",
+          "action": "auth.create-account",
+          "expectation": "A new localpart and password create an authenticated session."
+        },
+        {
+          "id": "create-room",
+          "screen": "rooms",
+          "action": "room.create",
+          "expectation": "A room is created and appears in the room list."
+        },
+        {
+          "id": "send-message",
+          "screen": "timeline",
+          "action": "message.send",
+          "expectation": "A text message appears in the selected room timeline."
+        },
+        {
+          "id": "media-roundtrip",
+          "screen": "media",
+          "action": "media.upload-and-download",
+          "expectation": "Media metadata and content download summary are visible."
+        },
+        {
+          "id": "refresh",
+          "screen": "settings",
+          "action": "session.refresh",
+          "expectation": "Room and timeline state reload from the server."
+        },
+        {
+          "id": "logout",
+          "screen": "settings",
+          "action": "session.logout",
+          "expectation": "The session is cleared and the unauthenticated surface is shown."
+        },
+        {
+          "id": "login-again",
+          "screen": "auth",
+          "action": "auth.login",
+          "expectation": "The same localpart and password resume an authenticated session."
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "This surface does not define marketing pages or onboarding copy outside the Product MVP operation flow.",
+    "This surface does not define framework-specific navigation, component hierarchy, animations, or persistence APIs.",
+    "Federation, encrypted media, range/resumable media download, thumbnails, email verification, password reset, identity provider login, and Matrix full-spec coverage are outside this Product MVP surface."
+  ]
+}
