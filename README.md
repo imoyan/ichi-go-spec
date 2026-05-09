@@ -276,7 +276,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-009 | room list | `test-vectors/sync/room-list-basic.json` and related room-list vectors |
 | SPEC-010 | room timeline | `test-vectors/sync/timeline-*.json` |
 | SPEC-011 | incremental sync | `test-vectors/sync/basic-sync.json` and sync error-shape vectors |
-| SPEC-020 | media metadata upload/download | `test-vectors/media/*.json` |
+| SPEC-020 | media metadata upload/download and content download | `test-vectors/media/*.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
@@ -537,6 +537,95 @@ vectors.
 - Remaining known gaps: binary media download endpoint, production account
   registration, federation, encrypted media, simulator/manual UI QA, and the
   recorded Expo CLI / PostCSS audit follow-up.
+
+### Binary media download adoption
+
+- Spec release consumed: `v0.2.0-pre.4`
+- Changed profile: `media`
+- Changed contract: `SPEC-020`
+- Changed vectors: `download-content-basic`, `auth-required-content`,
+  `auth-required-content-missing-token`, and `missing-media-content`
+- Compatibility classification: additive pre-1.0 MVP media behavior.
+
+Server adoption:
+
+- Implementation repository: `imoyan/houra-server`
+- Implementation issue: `imoyan/houra-server#7`
+- Implementation pull request: `imoyan/houra-server#8`
+- Implementation commit inspected: `37e6562f77cf1c6a8886a9838f0fe141c83c9486`
+- Matrix reference: Matrix Specification 1.18 remains a reference snapshot
+  only; this adoption is not Matrix full compliance.
+- Started at: 2026-05-09T08:29:56+09:00
+- Ended at: 2026-05-09T08:36:33+09:00
+- Elapsed seconds: 397
+- Codex usage: unavailable in the local Codex App session.
+
+Server observed checks:
+
+| Check | Result | Notes |
+|---|---|---|
+| `npm run typecheck` | pass | TypeScript strict check |
+| `npm run build` | pass | Production server build |
+| `npm test` | pass | 36 passed, 1 PostgreSQL test skipped by default |
+| `HOURA_TEST_DATABASE_URL=... npm run test:postgres` | pass | Restart persistence includes media content download |
+| Docker Compose live content smoke | pass | `media1/content` returned `aGVsbG8=` |
+| GitHub Actions `CI / test` | pass | Ran on PR #8 head |
+
+Client adoption:
+
+- Implementation repository: `imoyan/houra-client`
+- Implementation issue: `imoyan/houra-client#10`
+- Implementation pull request: `imoyan/houra-client#11`
+- Implementation commit inspected: `588965c239e4efb6c005ec326031255aca8ecb8e`
+- Server target for live smoke: `houra-server`
+  `37e6562f77cf1c6a8886a9838f0fe141c83c9486`
+- Matrix reference: Matrix Specification 1.18 remains a reference snapshot
+  only; this adoption is not Matrix full compliance.
+- Started at: 2026-05-09T08:39:36+09:00
+- Ended at: 2026-05-09T09:03:19+09:00
+- Elapsed seconds: 1423
+- Codex usage: unavailable in the local Codex App session.
+
+Client observed checks:
+
+| Check | Result | Notes |
+|---|---|---|
+| `npm run typecheck` | pass | Core and Expo app TypeScript checks |
+| `npm run build` | pass | UI-free client core declaration build |
+| `npm test` | pass | 42 passed, 1 live e2e skipped by default |
+| `npx expo config --type public` | pass | Expo SDK 55 public config resolved |
+| `npx expo export --platform ios --output-dir /tmp/houra-client-expo-export --clear` | pass | Metro bundle smoke for app entry and Expo UI imports |
+| `HOURA_E2E_BASE_URL=http://localhost:3000 npm run test:e2e` | pass | Live happy path includes media content download |
+| GitHub Actions `CI / test` | pass | Ran on PR #11 head |
+| GitHub Actions `CI / e2e` | pass | Pinned `houra-spec` v0.2.0-pre.4 and `houra-server` PR #8 merge commit |
+
+Profile status:
+
+| Profile | Status | Notes |
+|---|---|---|
+| media | pass | Server and client both adopted same-origin binary media content download |
+
+No implementation repository was used as a behavior source. The server remains
+only the live HTTP target for connection smoke coverage; the expected public
+behavior remains defined by this repository's contracts and vectors.
+
+### Product MVP pre-release readiness after binary media download
+
+- Release target: `v0.2.0-pre.5`
+- Compatibility classification: workflow/adoption evidence update for
+  `v0.2.0-pre.4` public behavior.
+- Changed public behavior profiles: none in this release; `media` behavior
+  changed in `v0.2.0-pre.4`.
+- Changed contracts: none.
+- Changed vectors: none.
+- Implementation evidence added: binary media download adoption for
+  `houra-server` and `houra-client`.
+- Completion claim: Houra Product MVP subset includes binary media content
+  download for the covered contract/vector scope. This is not a Matrix
+  full-spec compliance claim.
+- Remaining known gaps: production account registration, federation, encrypted
+  media, range/resumable media download, thumbnails, simulator/manual UI QA, and
+  the recorded Expo CLI / PostCSS audit follow-up.
 
 ## Local Checks
 
