@@ -52,6 +52,7 @@ The maintained repository names are:
 - `contracts/SPEC-010-timeline.md`
 - `contracts/SPEC-011-basic-sync.md`
 - `contracts/SPEC-020-media.md`
+- `contracts/SPEC-030-matrix-client-versions.md`
 
 ## Shared Design Inputs
 

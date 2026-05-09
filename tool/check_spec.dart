@@ -577,8 +577,13 @@ void checkRequest(File file, Object? value, List<String> failures) {
     failures.add('${relative(file)} request.method must be uppercase.');
   }
   final path = request['path'];
-  if (path is! String || !path.startsWith('/_houra/client')) {
-    failures.add('${relative(file)} request.path must use /_houra/client.');
+  if (path is! String ||
+      !(path.startsWith('/_houra/client') ||
+          path.startsWith('/_matrix/client'))) {
+    failures.add(
+      '${relative(file)} request.path must use /_houra/client or '
+      '/_matrix/client.',
+    );
   }
   final query = request['query'];
   if (query is Map && query.containsKey('access_token')) {
