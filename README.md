@@ -1056,6 +1056,75 @@ current spec maintenance release and server live e2e release.
   this release updates adoption evidence only and is not a Matrix full-spec
   compliance claim.
 
+### Product MVP deployment hardening adoption
+
+- Spec release consumed: `v0.2.0-pre.12`
+- Compatibility classification: workflow/adoption evidence update for the
+  Houra Product MVP subset.
+- Public behavior impact: none.
+- Changed contracts: none.
+- Changed vectors: none.
+- Changed design inputs: none.
+- Matrix reference: Matrix Specification 1.18 remains a reference snapshot
+  only; this deployment hardening record is not Matrix full compliance.
+- Started at: 2026-05-09T14:40:11+09:00
+- Ended at: 2026-05-09T14:41:10+09:00
+- Elapsed seconds: 59
+- Timezone: Asia/Tokyo
+- Codex usage: unavailable in the local Codex App session.
+
+Server deployment hardening evidence:
+
+- Implementation repository: `imoyan/houra-server`
+- Implementation issue: `imoyan/houra-server#19`
+- Implementation pull request: `imoyan/houra-server#20`
+- Implementation merge commit inspected:
+  `0b7fd3c0a9776c718b36a84d1621ea2b2cf02252`
+- Implementation release: `v0.2.0-pre.13`
+- Release URL:
+  `https://github.com/imoyan/houra-server/releases/tag/v0.2.0-pre.13`
+- Scope: automated Docker Compose operations smoke, backup/restore validation,
+  restart persistence validation, and production runtime configuration guard.
+
+Client live e2e adoption evidence:
+
+- Implementation repository: `imoyan/houra-client`
+- Implementation issue: `imoyan/houra-client#29`
+- Implementation pull request: `imoyan/houra-client#30`
+- Implementation merge commit inspected:
+  `32c0bea8339b2a92bfd9e7f24ed3afc7cb3e892e`
+- Implementation release: `v0.2.0-pre.14`
+- Release URL:
+  `https://github.com/imoyan/houra-client/releases/tag/v0.2.0-pre.14`
+- Server target for live e2e smoke: `houra-server` v0.2.0-pre.13
+
+Observed checks:
+
+| Check | Result | Notes |
+|---|---|---|
+| `houra-server` GitHub Actions `CI / test` | pass | PR #20, includes `npm run test:ops` |
+| `houra-client` GitHub Actions `CI / test` | pass | PR #30, e2e target update |
+| `houra-client` GitHub Actions `CI / e2e` | pass | PR #30, pinned `houra-server` v0.2.0-pre.13 |
+
+No implementation repository was used as a behavior source. This record only
+confirms that the Product MVP deployment hardening release is adopted by the
+server and covered by the client live e2e smoke target.
+
+### Product MVP pre-release readiness after deployment hardening
+
+- Release target: `v0.2.0-pre.13`
+- Compatibility classification: workflow/adoption evidence update for the
+  Product MVP deployment-hardening maintenance release.
+- Changed public behavior profiles: none.
+- Changed contracts: none.
+- Changed vectors: none.
+- Changed design inputs: none.
+- Implementation evidence added: `houra-server` v0.2.0-pre.13 deployment
+  hardening and `houra-client` v0.2.0-pre.14 live e2e target adoption.
+- Completion claim: Houra Product MVP remains complete for the defined subset;
+  this release updates adoption evidence only and is not a Matrix full-spec
+  compliance claim.
+
 ## Local Checks
 
 ```bash
