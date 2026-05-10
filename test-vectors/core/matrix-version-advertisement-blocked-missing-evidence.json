@@ -1,0 +1,45 @@
+{
+  "name": "matrix-version-advertisement-blocked-missing-evidence",
+  "contract": "SPEC-064",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientversions",
+    "checked_at": "2026-05-10T23:08:00+09:00",
+    "candidate": {
+      "requested_versions": [
+        "v1.18"
+      ],
+      "advertised_domains": [
+        "Client-Server API",
+        "Server-Server API"
+      ],
+      "coverage_report_contract": "SPEC-062",
+      "complement_lane_contract": "SPEC-063",
+      "domain_evidence": [
+        {
+          "domain": "Client-Server API",
+          "contract_gate": "pass",
+          "implementation_gate": "pass"
+        },
+        {
+          "domain": "Server-Server API",
+          "contract_gate": "pass",
+          "implementation_gate": "not-run"
+        }
+      ]
+    },
+    "gate_result": {
+      "status": "blocked",
+      "blocking_reasons": [
+        "Server-Server API implementation evidence is not-run"
+      ],
+      "versions_response_must_change": true,
+      "release_tag_allowed": false
+    }
+  },
+  "expected": {
+    "missing_evidence_blocks_advertisement": true,
+    "release_tag_blocked": true,
+    "versions_advertisement_widened": false
+  }
+}
