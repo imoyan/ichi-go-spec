@@ -1,0 +1,82 @@
+{
+  "name": "matrix-federation-state-resolution-interop-gate",
+  "contract": "SPEC-057",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/server-server-api/#room-state-resolution",
+    "checked_at": "2026-05-10T20:55:14+09:00",
+    "required_contracts": [
+      "SPEC-040",
+      "SPEC-041",
+      "SPEC-043",
+      "SPEC-055",
+      "SPEC-056",
+      "SPEC-057"
+    ],
+    "local_server": "local.example.test",
+    "remote_server": "remote.example.test",
+    "room_id": "!room:example.test",
+    "room_version": "12",
+    "target_event_id": "$event3:example.test",
+    "steps": [
+      {
+        "id": "receive-event-with-missing-prev-or-auth",
+        "contract": "SPEC-056",
+        "required": true
+      },
+      {
+        "id": "backfill-missing-history",
+        "contract": "SPEC-057",
+        "required": true,
+        "endpoint": "/_matrix/federation/v1/backfill/!room:example.test"
+      },
+      {
+        "id": "fetch-event-auth-chain",
+        "contract": "SPEC-057",
+        "required": true,
+        "endpoint": "/_matrix/federation/v1/event_auth/!room:example.test/$event3:example.test"
+      },
+      {
+        "id": "fetch-state-ids-at-event",
+        "contract": "SPEC-057",
+        "required": true,
+        "endpoint": "/_matrix/federation/v1/state_ids/!room:example.test"
+      },
+      {
+        "id": "run-representative-state-resolution",
+        "contract": "SPEC-041",
+        "required": true
+      },
+      {
+        "id": "run-representative-auth-check",
+        "contract": "SPEC-043",
+        "required": true
+      },
+      {
+        "id": "record-event-decision",
+        "contract": "SPEC-057",
+        "required": true,
+        "allowed_results": [
+          "accepted",
+          "soft_failed",
+          "rejected"
+        ]
+      }
+    ],
+    "required_evidence": [
+      "houra_spec_ref",
+      "houra_server_ref",
+      "local_server",
+      "remote_server",
+      "room_version",
+      "commands",
+      "per_step_pass_fail",
+      "event_decision"
+    ]
+  },
+  "expected": {
+    "interop_gate_defined": true,
+    "full_state_resolution_completeness_claimed": false,
+    "versions_advertisement_widened": false
+  }
+}

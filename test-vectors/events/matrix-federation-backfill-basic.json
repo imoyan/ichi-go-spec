@@ -1,0 +1,63 @@
+{
+  "name": "matrix-federation-backfill-basic",
+  "contract": "SPEC-057",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/federation/v1/backfill/!room:example.test",
+    "query": {
+      "v": [
+        "$event3:example.test"
+      ],
+      "limit": 2
+    },
+    "authorization": {
+      "scheme": "X-Matrix",
+      "origin": "remote.example.test",
+      "destination": "example.test",
+      "key": "ed25519:auto1",
+      "signed_json": true
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "origin": "example.test",
+      "origin_server_ts": 1778409314000,
+      "pdus": [
+        {
+          "event_id": "$event2:example.test",
+          "type": "m.room.message",
+          "room_id": "!room:example.test",
+          "sender": "@alice:example.test",
+          "origin_server_ts": 1778409300000,
+          "depth": 2,
+          "prev_events": [
+            "$event1:example.test"
+          ],
+          "auth_events": [
+            "$auth:example.test"
+          ],
+          "content": {
+            "msgtype": "m.text",
+            "body": "older message"
+          },
+          "hashes": {
+            "sha256": "base64-event-content-hash"
+          },
+          "signatures": {
+            "example.test": {
+              "ed25519:auto1": "base64-event-signature"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "status": 200,
+    "backfilled_from": "$event3:example.test",
+    "pdu_count": 1,
+    "historical_prev_auth_count_relaxed": true,
+    "versions_advertisement_widened": false
+  }
+}
