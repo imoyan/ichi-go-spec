@@ -1,0 +1,19 @@
+{
+  "name": "matrix-typing-missing-token",
+  "contract": "SPEC-046",
+  "request": {
+    "method": "PUT",
+    "path": "/_matrix/client/v3/rooms/!room:example.test/typing/@alice:example.test",
+    "body": {
+      "typing": true,
+      "timeout": 30000
+    }
+  },
+  "expected": {
+    "status": 401,
+    "error": {
+      "errcode": "M_MISSING_TOKEN",
+      "error": "Missing access token."
+    }
+  }
+}

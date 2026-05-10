@@ -1,0 +1,52 @@
+{
+  "name": "matrix-typing-basic",
+  "contract": "SPEC-046",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#typing-notifications",
+    "checked_at": "2026-05-10T17:58:32+09:00",
+    "room_id": "!room:example.test",
+    "user_id": "@alice:example.test",
+    "steps": [
+      {
+        "id": "typing-start",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/typing/@alice:example.test",
+        "access_token": "token-alice",
+        "body": {
+          "typing": true,
+          "timeout": 30000
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "sync-typing-start",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-bob",
+        "room_id": "!room:example.test",
+        "expected_ephemeral_event": {
+          "type": "m.typing",
+          "content": {
+            "user_ids": [
+              "@alice:example.test"
+            ]
+          }
+        }
+      },
+      {
+        "id": "typing-stop",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/typing/@alice:example.test",
+        "access_token": "token-alice",
+        "body": {
+          "typing": false
+        },
+        "expected_status": 200
+      }
+    ]
+  },
+  "expected": {
+    "step_count": 3
+  }
+}
