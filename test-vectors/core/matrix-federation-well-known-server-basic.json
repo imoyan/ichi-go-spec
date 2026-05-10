@@ -1,0 +1,24 @@
+{
+  "name": "matrix-federation-well-known-server-basic",
+  "contract": "SPEC-055",
+  "request": {
+    "method": "GET",
+    "path": "/.well-known/matrix/server",
+    "host": "example.test"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "cache-control": "max-age=86400"
+    },
+    "body": {
+      "m.server": "delegated.example.test:8448"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "delegated_server_name": "delegated.example.test:8448",
+    "cacheable": true,
+    "versions_advertisement_widened": false
+  }
+}

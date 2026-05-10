@@ -17,6 +17,7 @@ const matrixDomains = {
   'Appendices/common rules',
   'Client-Server API',
   'Client-Server API; Room Versions',
+  'Server-Server API',
 };
 
 const negativeVectorProfiles = {
@@ -110,6 +111,7 @@ void main() {
   checkMatrixToDeviceEncryptedRoomGate(contracts, failures);
   checkMatrixKeyBackupRestoreGate(contracts, failures);
   checkMatrixVerificationCrossSigningGate(contracts, failures);
+  checkMatrixFederationDiscoverySigningKeys(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -5021,6 +5023,280 @@ void validateMatrixIdentitySnapshot(
   }
 }
 
+void checkMatrixFederationDiscoverySigningKeys(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-055')) {
+    failures.add(
+      'Matrix federation discovery/signing keys contract SPEC-055 is required.',
+    );
+  }
+  const paths = [
+    'test-vectors/core/matrix-federation-well-known-server-basic.json',
+    'test-vectors/core/matrix-federation-signing-key-basic.json',
+    'test-vectors/core/matrix-federation-key-query-basic.json',
+    'test-vectors/core/matrix-federation-destination-resolution-failure.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add(
+        'Missing Matrix federation discovery/signing key vector: $path',
+      );
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('well-known')) {
+      validateMatrixFederationWellKnown(file, json, failures);
+    } else if (path.contains('signing-key-basic')) {
+      validateMatrixFederationSigningKey(file, json, failures);
+    } else if (path.contains('key-query')) {
+      validateMatrixFederationKeyQuery(file, json, failures);
+    } else {
+      validateMatrixFederationDestinationFailure(file, json, failures);
+    }
+  }
+}
+
+void validateMatrixFederationWellKnown(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  final response = vector['response'];
+  if (request is! Map ||
+      request['method'] != 'GET' ||
+      request['path'] != '/.well-known/matrix/server' ||
+      request['host'] != 'example.test') {
+    failures.add('${relative(file)} well-known request invalid.');
+  }
+  if (response is! Map || response['status'] != 200) {
+    failures.add('${relative(file)} well-known response status invalid.');
+    return;
+  }
+  final body = response['body'];
+  final delegated = body is Map ? body['m.server'] : null;
+  if (delegated is! String || !isMatrixServerNameForVector(delegated)) {
+    failures.add('${relative(file)} well-known m.server invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['status'] != 200 ||
+      expectedResult['delegated_server_name'] != delegated ||
+      expectedResult['cacheable'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} well-known expectation invalid.');
+  }
+}
+
+void validateMatrixFederationSigningKey(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  if (request is! Map ||
+      request['method'] != 'GET' ||
+      request['path'] != '/_matrix/key/v2/server') {
+    failures.add('${relative(file)} signing key request invalid.');
+  }
+  final response = vector['response'];
+  final body = response is Map ? response['body'] : null;
+  if (response is! Map || response['status'] != 200 || body is! Map) {
+    failures.add('${relative(file)} signing key response invalid.');
+    return;
+  }
+  validateMatrixServerKeyObject(file, body, failures);
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['status'] != 200 ||
+      expectedResult['contains_private_key'] != false ||
+      expectedResult['effective_validity_days_max'] != 7 ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} signing key expectation invalid.');
+  }
+}
+
+void validateMatrixFederationKeyQuery(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  if (request is! Map ||
+      request['method'] != 'POST' ||
+      request['path'] != '/_matrix/key/v2/query') {
+    failures.add('${relative(file)} key query request invalid.');
+    return;
+  }
+  final body = request['body'];
+  final serverKeys = body is Map ? body['server_keys'] : null;
+  if (serverKeys is! Map || serverKeys['example.test'] is! Map) {
+    failures.add('${relative(file)} key query body invalid.');
+  }
+  final response = vector['response'];
+  final responseBody = response is Map ? response['body'] : null;
+  final keys = responseBody is Map ? responseBody['server_keys'] : null;
+  if (response is! Map ||
+      response['status'] != 200 ||
+      keys is! List ||
+      keys.length != 1 ||
+      keys.first is! Map) {
+    failures.add('${relative(file)} key query response invalid.');
+    return;
+  }
+  final keyObject = (keys.first as Map).cast<String, Object?>();
+  validateMatrixServerKeyObject(file, keyObject, failures);
+  final signatures = keyObject['signatures'];
+  if (signatures is! Map || signatures['notary.example.test'] is! Map) {
+    failures.add('${relative(file)} key query notary signature missing.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['status'] != 200 ||
+      expectedResult['notary_signature_required'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} key query expectation invalid.');
+  }
+}
+
+void validateMatrixFederationDestinationFailure(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixFederationReference(file, eventMap, failures);
+  if (eventMap['server_name'] != 'broken.example.test') {
+    failures.add('${relative(file)} destination failure server_name invalid.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = [
+    'well-known-invalid',
+    'matrix-fed-srv-missing',
+    'deprecated-matrix-srv-missing',
+    'address-resolution-failed',
+    'record-failure-backoff',
+  ];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map || item['required'] != true) {
+      failures.add('${relative(file)} all destination failure steps required.');
+      continue;
+    }
+    if (item['stage'] is! String || item['result'] is! Map) {
+      failures.add('${relative(file)} destination failure step invalid.');
+    }
+  }
+  final last = steps.last;
+  if (last is Map) {
+    final result = last['result'];
+    if (result is! Map ||
+        result['destination_resolved'] != false ||
+        result['federation_request_sent'] != false ||
+        result['backoff_recorded'] != true) {
+      failures.add(
+        '${relative(file)} destination failure final result invalid.',
+      );
+    }
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['destination_resolved'] != false ||
+      expectedResult['federation_request_sent'] != false ||
+      expectedResult['backoff_recorded'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} destination failure expectation invalid.');
+  }
+}
+
+void validateMatrixFederationReference(
+  File file,
+  Map<String, Object?> eventMap,
+  List<String> failures,
+) {
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final source = eventMap['matrix_spec_source'];
+  if (source is! String ||
+      !source.startsWith('https://spec.matrix.org/v1.18/server-server-api/#')) {
+    failures.add('${relative(file)} matrix_spec_source is invalid.');
+  }
+}
+
+void validateMatrixServerKeyObject(
+  File file,
+  Map<dynamic, dynamic> value,
+  List<String> failures,
+) {
+  final serverName = value['server_name'];
+  if (serverName is! String || !isMatrixServerNameForVector(serverName)) {
+    failures.add('${relative(file)} server key server_name invalid.');
+  }
+  if (value.containsKey('private_key') || value.containsKey('signing_key')) {
+    failures.add('${relative(file)} server key leaks private key material.');
+  }
+  if (value['valid_until_ts'] is! int) {
+    failures.add('${relative(file)} server key valid_until_ts invalid.');
+  }
+  validateMatrixVerifyKeys(file, value['verify_keys'], failures);
+  final oldKeys = value['old_verify_keys'];
+  if (oldKeys is! Map) {
+    failures.add('${relative(file)} old_verify_keys must be an object.');
+  } else {
+    for (final entry in oldKeys.entries) {
+      if (entry.key is! String ||
+          !isMatrixServerKeyId(entry.key as String) ||
+          entry.value is! Map ||
+          (entry.value as Map)['expired_ts'] is! int ||
+          (entry.value as Map)['key'] is! String) {
+        failures.add('${relative(file)} old_verify_keys entry invalid.');
+      }
+    }
+  }
+  final signatures = value['signatures'];
+  if (signatures is! Map || signatures[serverName] is! Map) {
+    failures.add('${relative(file)} server key signatures invalid.');
+  }
+}
+
+void validateMatrixVerifyKeys(File file, Object? value, List<String> failures) {
+  if (value is! Map || value.isEmpty) {
+    failures.add('${relative(file)} verify_keys must be a non-empty object.');
+    return;
+  }
+  for (final entry in value.entries) {
+    if (entry.key is! String ||
+        !isMatrixServerKeyId(entry.key as String) ||
+        entry.value is! Map ||
+        (entry.value as Map)['key'] is! String) {
+      failures.add('${relative(file)} verify_keys entry invalid.');
+    }
+  }
+}
+
+bool isMatrixServerNameForVector(String value) {
+  if (value.isEmpty || value.length > 255) {
+    return false;
+  }
+  return RegExp(r'^[A-Za-z0-9.-]+(:[0-9]{1,5})?$').hasMatch(value);
+}
+
+bool isMatrixServerKeyId(String value) =>
+    RegExp(r'^ed25519:[A-Za-z0-9_]+$').hasMatch(value);
+
 bool isNegativeVector(Map<String, Object?> json) {
   final expected = json['expected'];
   if (expected is Map) {
@@ -5139,10 +5415,13 @@ void checkRequest(
   if (path is! String ||
       !(isApiPath(path, '/_houra/client') ||
           isApiPath(path, '/_matrix/client') ||
-          isApiPath(path, '/_matrix/media'))) {
+          isApiPath(path, '/_matrix/media') ||
+          isApiPath(path, '/_matrix/key') ||
+          isApiPath(path, '/.well-known/matrix'))) {
     failures.add(
       '${relative(file)} $pathPrefix.path must use /_houra/client or '
-      '/_matrix/client or /_matrix/media.',
+      '/_matrix/client or /_matrix/media or /_matrix/key or '
+      '/.well-known/matrix.',
     );
   }
   final query = request['query'];

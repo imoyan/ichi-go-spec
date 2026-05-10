@@ -1,0 +1,47 @@
+{
+  "name": "matrix-federation-key-query-basic",
+  "contract": "SPEC-055",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/key/v2/query",
+    "body": {
+      "server_keys": {
+        "example.test": {
+          "ed25519:auto1": {
+            "minimum_valid_until_ts": 1779011408000
+          }
+        }
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "server_keys": [
+        {
+          "server_name": "example.test",
+          "verify_keys": {
+            "ed25519:auto1": {
+              "key": "VGhpcyBpcyBhIHRlc3QgcHVibGljIHZlcmlmeSBrZXk"
+            }
+          },
+          "old_verify_keys": {},
+          "valid_until_ts": 1779011408000,
+          "signatures": {
+            "example.test": {
+              "ed25519:auto1": "VGhpcyBpcyBhIHRlc3Qgc2lnbmF0dXJl"
+            },
+            "notary.example.test": {
+              "ed25519:notary1": "VGhpcyBpcyBhIHRlc3Qgbm90YXJ5IHNpZ25hdHVyZQ"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "status": 200,
+    "notary_signature_required": true,
+    "versions_advertisement_widened": false
+  }
+}
