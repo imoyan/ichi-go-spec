@@ -1,0 +1,23 @@
+{
+  "name": "matrix-messages-forbidden",
+  "contract": "SPEC-036",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/rooms/!private:example.test/messages",
+    "query": {
+      "from": "t1",
+      "dir": "b",
+      "limit": 10
+    },
+    "headers": {
+      "Authorization": "Bearer token-1"
+    }
+  },
+  "expected": {
+    "status": 403,
+    "body_contains": {
+      "errcode": "M_FORBIDDEN",
+      "error": "You are not allowed to read this room."
+    }
+  }
+}

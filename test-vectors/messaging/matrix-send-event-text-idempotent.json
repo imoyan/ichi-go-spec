@@ -1,0 +1,35 @@
+{
+  "name": "matrix-send-event-text-idempotent",
+  "contract": "SPEC-036",
+  "given": {
+    "previous_request": {
+      "method": "PUT",
+      "path": "/_matrix/client/v3/rooms/!room:example.test/send/m.room.message/txn-1",
+      "headers": {
+        "Authorization": "Bearer token-1"
+      },
+      "body": {
+        "msgtype": "m.text",
+        "body": "Hello Matrix"
+      }
+    },
+    "previous_event_id": "$event1:example.test"
+  },
+  "request": {
+    "method": "PUT",
+    "path": "/_matrix/client/v3/rooms/!room:example.test/send/m.room.message/txn-1",
+    "headers": {
+      "Authorization": "Bearer token-1"
+    },
+    "body": {
+      "msgtype": "m.text",
+      "body": "Hello Matrix"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "event_id": "$event1:example.test"
+    }
+  }
+}

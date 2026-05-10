@@ -107,6 +107,7 @@ void main() {
   checkMatrixRegistration(contracts, failures);
   checkMatrixDevices(contracts, failures);
   checkMatrixRoomsMvp(contracts, failures);
+  checkMatrixSendEventMessagesMvp(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -579,6 +580,29 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
   ]) {
     if (!File(path).existsSync()) {
       failures.add('Missing Matrix room membership/state vector: $path');
+    }
+  }
+}
+
+void checkMatrixSendEventMessagesMvp(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-036')) {
+    failures.add('Matrix send event/messages contract SPEC-036 is required.');
+  }
+  for (final path in [
+    'test-vectors/messaging/matrix-send-event-text-basic.json',
+    'test-vectors/messaging/matrix-send-event-text-idempotent.json',
+    'test-vectors/messaging/matrix-send-event-malformed-payload.json',
+    'test-vectors/messaging/matrix-send-event-missing-token.json',
+    'test-vectors/messaging/matrix-messages-basic.json',
+    'test-vectors/messaging/matrix-messages-next-page.json',
+    'test-vectors/messaging/matrix-messages-forbidden.json',
+    'test-vectors/messaging/matrix-messages-invalid-dir.json',
+  ]) {
+    if (!File(path).existsSync()) {
+      failures.add('Missing Matrix send event/messages vector: $path');
     }
   }
 }
