@@ -1,0 +1,32 @@
+{
+  "name": "matrix-v1-18-release-tag-ordering",
+  "contract": "SPEC-066",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/",
+    "matrix_release_source": "https://matrix.org/blog/2026/03/26/matrix-v1.18-release/",
+    "checked_at": "2026-05-10T23:38:00+09:00",
+    "ordering": [
+      "freeze-candidate-refs",
+      "run-domain-coverage",
+      "run-implementation-evidence",
+      "run-complement-lane",
+      "run-advertisement-gate",
+      "generate-release-notes",
+      "tag-implementation-repos",
+      "tag-houra-spec",
+      "publish-release-notes"
+    ],
+    "tag_requirements": {
+      "same_checked_refs": true,
+      "evidence_bundle_ref_required": true,
+      "publish_after_tags": true
+    }
+  },
+  "expected": {
+    "tag_ordering_defined": true,
+    "spec_tag_after_implementation_tags": true,
+    "publish_after_tags": true,
+    "versions_advertisement_widened": false
+  }
+}

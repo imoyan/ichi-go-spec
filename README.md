@@ -90,6 +90,7 @@ The maintained repository names are:
 - `contracts/SPEC-063-matrix-complement-ci-lane.md`
 - `contracts/SPEC-064-matrix-version-advertisement-release-gate.md`
 - `contracts/SPEC-065-matrix-release-notes-evidence-template.md`
+- `contracts/SPEC-066-matrix-v1-18-release-readiness-gate.md`
 
 ## Shared Design Inputs
 
@@ -504,6 +505,18 @@ Matrix release notes evidence template:
 - After `SPEC-065` merges, create adoption issues for `houra-server` and
   `houra-client`. Create an `houra-labs` issue only if shared-core release
   artifacts begin publishing Matrix support claims.
+
+Matrix v1.18 release readiness gate:
+
+- `SPEC-066` defines the final readiness checklist, tag/release ordering,
+  rollback criteria, and non-advertisement decision rules for a release that
+  claims Matrix v1.18 stable-domain support.
+- Passing this gate does not itself implement or advertise Matrix support; it
+  requires `SPEC-062`, `SPEC-063`, `SPEC-064`, and `SPEC-065` evidence for the
+  same checked release refs.
+- After `SPEC-066` merges, create adoption issues for `houra-server` and
+  `houra-client`. Create an `houra-labs` issue only if shared-core artifacts
+  become part of the release candidate.
 
 Matrix compliance phases:
 
@@ -1018,6 +1031,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-063 | Matrix Complement-compatible homeserver CI lane gate | `test-vectors/core/matrix-complement-ci-*.json` |
 | SPEC-064 | Matrix version advertisement release gate | `test-vectors/core/matrix-version-advertisement-*.json` |
 | SPEC-065 | Matrix release notes evidence template gate | `test-vectors/core/matrix-release-notes-*.json` |
+| SPEC-066 | Matrix v1.18 release readiness and tag procedure gate | `test-vectors/core/matrix-v1-18-release-*.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
