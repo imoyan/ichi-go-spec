@@ -97,6 +97,7 @@ void main() {
   checkMatrixClientServerMvpLiveE2eGate(contracts, failures);
   checkMatrixEventDagAuthEvents(contracts, failures);
   checkMatrixStateSnapshotResolution(contracts, failures);
+  checkMatrixRoomVersionsGate(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -1432,6 +1433,215 @@ class MatrixStateClassification {
   final Map<String, String> unconflicted;
   final Set<String> conflictedEventIds;
   final Map<String, Set<String>> conflictedByTuple;
+}
+
+void checkMatrixRoomVersionsGate(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-042')) {
+    failures.add('Matrix room versions gate contract SPEC-042 is required.');
+  }
+  const supportedPath =
+      'test-vectors/rooms/matrix-room-versions-supported.json';
+  const defaultCreatePath =
+      'test-vectors/rooms/matrix-room-version-default-create-room.json';
+  const unsupportedCreatePath =
+      'test-vectors/rooms/matrix-room-version-unsupported-create-room.json';
+  for (final path in [
+    supportedPath,
+    defaultCreatePath,
+    unsupportedCreatePath,
+  ]) {
+    if (!File(path).existsSync()) {
+      failures.add('Missing Matrix room versions gate vector: $path');
+    }
+  }
+
+  final supportedFile = File(supportedPath);
+  final supported = readJsonObject(supportedFile, failures);
+  if (supported != null) {
+    final event = supported['event'];
+    if (event is! Map) {
+      failures.add('${relative(supportedFile)} event must be an object.');
+    } else {
+      validateMatrixRoomVersionsSupported(
+        supportedFile,
+        event.cast<String, Object?>(),
+        failures,
+      );
+    }
+  }
+
+  final defaultFile = File(defaultCreatePath);
+  final defaultCreate = readJsonObject(defaultFile, failures);
+  if (defaultCreate != null) {
+    validateMatrixRoomVersionDefaultCreateRoom(
+      defaultFile,
+      defaultCreate,
+      failures,
+    );
+  }
+
+  final unsupportedFile = File(unsupportedCreatePath);
+  final unsupportedCreate = readJsonObject(unsupportedFile, failures);
+  if (unsupportedCreate != null) {
+    validateMatrixRoomVersionUnsupportedCreateRoom(
+      unsupportedFile,
+      unsupportedCreate,
+      failures,
+    );
+  }
+}
+
+void validateMatrixRoomVersionsSupported(
+  File file,
+  Map<String, Object?> event,
+  List<String> failures,
+) {
+  if (event['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final stableRoomVersions = readStringList(event['stable_room_versions']);
+  const expected = [
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '10',
+    '11',
+    '12',
+  ];
+  if (stableRoomVersions == null ||
+      stableRoomVersions.length != expected.length ||
+      !stableRoomVersions.asMap().entries.every(
+        (entry) => entry.value == expected[entry.key],
+      )) {
+    failures.add(
+      '${relative(file)} stable_room_versions must be 1 through 12.',
+    );
+  }
+  if (event['default_room_version'] != '12') {
+    failures.add('${relative(file)} default_room_version must be 12.');
+  }
+  final deprecated = readStringList(event['deprecated_room_versions']);
+  if (deprecated == null || deprecated.isNotEmpty) {
+    failures.add('${relative(file)} deprecated_room_versions must be empty.');
+  }
+  if (event['unstable_room_versions_included'] != false) {
+    failures.add(
+      '${relative(file)} unstable_room_versions_included must be false.',
+    );
+  }
+  final validExamples = readStringList(event['grammar_valid_examples']);
+  if (validExamples == null ||
+      validExamples.any((version) => !isMatrixRoomVersionGrammar(version))) {
+    failures.add('${relative(file)} grammar_valid_examples are invalid.');
+  }
+  final invalidExamples = readStringList(event['grammar_invalid_examples']);
+  if (invalidExamples == null ||
+      invalidExamples.any(isMatrixRoomVersionGrammar)) {
+    failures.add(
+      '${relative(file)} grammar_invalid_examples include valid values.',
+    );
+  }
+}
+
+void validateMatrixRoomVersionDefaultCreateRoom(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  final event = vector['event'];
+  if (request is! Map || event is! Map) {
+    failures.add('${relative(file)} must include request and event objects.');
+    return;
+  }
+  final requestMap = request.cast<String, Object?>();
+  final body = requestMap['body'];
+  if (body is! Map) {
+    failures.add('${relative(file)} request.body must be an object.');
+    return;
+  }
+  if (body.containsKey('room_version')) {
+    failures.add(
+      '${relative(file)} default create-room request must omit room_version.',
+    );
+  }
+  final eventMap = event.cast<String, Object?>();
+  if (eventMap['selected_room_version'] != '12') {
+    failures.add('${relative(file)} selected_room_version must be 12.');
+  }
+  if (eventMap['selection_reason'] != 'server_default') {
+    failures.add('${relative(file)} selection_reason must be server_default.');
+  }
+  if (eventMap['server_overwrites_creation_content_room_version'] != true) {
+    failures.add(
+      '${relative(file)} must require creation_content.room_version overwrite.',
+    );
+  }
+  final createContent = eventMap['expected_create_event_content'];
+  if (createContent is! Map || createContent['room_version'] != '12') {
+    failures.add(
+      '${relative(file)} expected_create_event_content.room_version must be 12.',
+    );
+  }
+}
+
+void validateMatrixRoomVersionUnsupportedCreateRoom(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  final expected = vector['expected'];
+  if (request is! Map || expected is! Map) {
+    failures.add(
+      '${relative(file)} must include request and expected objects.',
+    );
+    return;
+  }
+  final body = request['body'];
+  if (body is! Map || body['room_version'] != '13') {
+    failures.add(
+      '${relative(file)} unsupported vector must request version 13.',
+    );
+  }
+  final bodyContains = expected['body_contains'];
+  if (expected['status'] != 400 ||
+      bodyContains is! Map ||
+      bodyContains['errcode'] != 'M_UNSUPPORTED_ROOM_VERSION') {
+    failures.add(
+      '${relative(file)} unsupported vector must expect M_UNSUPPORTED_ROOM_VERSION.',
+    );
+  }
+}
+
+List<String>? readStringList(Object? value) {
+  if (value is! List) {
+    return null;
+  }
+  final result = <String>[];
+  for (final item in value) {
+    if (item is! String) {
+      return null;
+    }
+    result.add(item);
+  }
+  return result;
+}
+
+bool isMatrixRoomVersionGrammar(String version) {
+  if (version.isEmpty || version.runes.length > 32) {
+    return false;
+  }
+  return RegExp(r'^[a-z0-9.-]+$').hasMatch(version);
 }
 
 bool isNegativeVector(Map<String, Object?> json) {
