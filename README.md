@@ -84,6 +84,7 @@ The maintained repository names are:
 - `contracts/SPEC-057-matrix-federation-backfill-auth-state.md`
 - `contracts/SPEC-058-matrix-application-service-registration-transaction.md`
 - `contracts/SPEC-059-matrix-identity-service-boundary.md`
+- `contracts/SPEC-060-matrix-push-gateway-boundary.md`
 
 ## Shared Design Inputs
 
@@ -446,7 +447,7 @@ Matrix compliance must be tracked by API domain, not as a single vague label:
 | Server-Server API | federation discovery, signed transactions, PDUs/EDUs, event auth, joins/leaves, invites, backfill, key APIs, policy servers | Not implemented; `SPEC-055` adds server discovery, delegated well-known, signing-key publication/query, and destination resolution failure contracts; `SPEC-056` adds transaction send/receive, make/send join, and v2 invite contracts; `SPEC-057` adds backfill, event_auth, state_ids, and representative state-resolution interop gates | A second homeserver can federate, exchange signed room events, validate auth, and recover state across restart |
 | Application Service API | appservice registration, namespace ownership, transactions, sender localpart, bridge-style event delivery | Not implemented; `SPEC-058` adds registration shape, namespace ownership, homeserver-to-appservice transactions, user queries, and room-alias queries | A registered appservice receives transactions and can puppet/send events within its declared namespaces |
 | Identity Service API | third-party identifier validation and lookup | Not implemented; `SPEC-059` adds the separate service boundary, identity token scope, hash lookup, validation session, bind, unbind, and privacy/auth failure gate | Either explicitly out of supported deployment scope or implemented as a separate identity component with conformance evidence |
-| Push Gateway API | push notification gateway contracts | Not implemented | Either explicitly out of supported deployment scope or implemented with privacy-aware notification payload tests |
+| Push Gateway API | push notification gateway contracts | Not implemented; `SPEC-060` adds the separate push gateway boundary, notify payload, `event_id_only` privacy shape, pusher/push-rule setup, rejected pushkey, and delivery failure gate | Either explicitly out of supported deployment scope or implemented with privacy-aware notification payload tests |
 | Room Versions | room version algorithms, event authorization rules, state resolution, room upgrade behavior | MVP rooms do not implement Matrix room versions or event DAG auth; `SPEC-040` adds the first Matrix event DAG and auth-event reference contract, `SPEC-041` adds state snapshot / representative state-resolution vectors, `SPEC-042` defines the stable room versions 1-12 / default 12 gate, `SPEC-043` adds representative membership, power-level, and redaction auth vectors, and `SPEC-044` adds alias / upgrade / restart persistence gates without full room-version auth completeness | Supported room versions are listed, default room version is declared, and auth/state-resolution tests pass |
 | Olm & Megolm | E2EE primitives, one-time keys, device keys, encrypted room messaging, key backup, verification, cross-signing | Not implemented; `SPEC-050` defines the adapter ownership boundary and forbids local Olm/Megolm implementation; `SPEC-051` adds device key, one-time key, and fallback key publication/query contracts; `SPEC-052` adds to-device and encrypted-room send/receive gates; `SPEC-053` adds server-side key backup and logout/relogin restore gates; `SPEC-054` adds SAS verification, cross-signing, and wrong-device failure gates | Use a mainstream Matrix crypto stack; encrypted rooms, device trust, key backup, restore, verification, and wrong-device failure flows pass |
 | Appendices/common rules | identifiers, timestamps, namespacing, error vocabulary, deprecation behavior | Partially aligned only where MVP contracts copied the concept | Shared parser and validation tests enforce Matrix grammar and compatibility claims |
@@ -759,6 +760,20 @@ Matrix Identity Service boundary gate:
   3PID, token redaction, or signed association validation are intentionally
   adopted.
 
+Matrix Push Gateway boundary gate:
+
+- `SPEC-060` defines the Matrix v1.18 Push Gateway boundary for
+  `POST /_matrix/push/v1/notify`, unsupported endpoint errors, rejected
+  pushkeys, duplicate suppression, `event_id_only`, pusher setup, push rule
+  setup, `m.push_rules` sync visibility, delivery retry, and privacy handling.
+- Passing this gate does not claim APNS, FCM/GCM, Web Push, vendor credential
+  handling, device permission UI, notification rendering, background tasks, or
+  Matrix v1.18 full ecosystem compliance.
+- After `SPEC-060` merges, create adoption issues for `houra-server` and
+  `houra-client`. Create an `houra-labs` issue only if parser-only helpers for
+  push notification payloads or pusher data validation are intentionally
+  adopted.
+
 Matrix room versions gate:
 
 - `SPEC-042` defines the Matrix v1.18 stable room-version allowlist as `1`
@@ -929,6 +944,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-057 | Matrix federation backfill, event auth, and state interop gate | `test-vectors/events/matrix-federation-backfill-*.json`, `test-vectors/events/matrix-federation-event-auth-*.json`, and `test-vectors/events/matrix-federation-state-*.json` |
 | SPEC-058 | Matrix Application Service registration and transaction gate | `test-vectors/core/matrix-appservice-*.json` |
 | SPEC-059 | Matrix Identity Service boundary and lookup/bind/unbind gate | `test-vectors/core/matrix-identity-*.json` |
+| SPEC-060 | Matrix Push Gateway boundary and delivery failure gate | `test-vectors/core/matrix-push-*.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this

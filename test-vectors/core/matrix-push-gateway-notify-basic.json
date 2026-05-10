@@ -1,0 +1,60 @@
+{
+  "name": "matrix-push-gateway-notify-basic",
+  "contract": "SPEC-060",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/push-gateway-api/#post_matrixpushv1notify",
+    "checked_at": "2026-05-10T21:53:00+09:00",
+    "request": {
+      "method": "POST",
+      "path": "/_matrix/push/v1/notify",
+      "body": {
+        "notification": {
+          "content": {
+            "body": "redacted preview",
+            "msgtype": "m.text"
+          },
+          "counts": {
+            "unread": 2
+          },
+          "devices": [
+            {
+              "app_id": "dev.houra.ios",
+              "data": {},
+              "pushkey": "pushkey-redacted",
+              "pushkey_ts": 1778411580,
+              "tweaks": {
+                "sound": "default"
+              }
+            }
+          ],
+          "event_id": "$event1:example.test",
+          "prio": "high",
+          "room_id": "!room:example.test",
+          "room_name": "Mission Control",
+          "sender": "@alice:example.test",
+          "sender_display_name": "Alice",
+          "type": "m.room.message"
+        }
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "rejected": []
+      }
+    },
+    "delivery": {
+      "duplicate_suppression_key": "$event1:example.test",
+      "counts_idempotent": true,
+      "pushkeys_redacted": true
+    }
+  },
+  "expected": {
+    "status": 200,
+    "notify_payload_valid": true,
+    "duplicate_suppression_by_event_id": true,
+    "rejected_pushkeys_handled": true,
+    "versions_advertisement_widened": false
+  }
+}
