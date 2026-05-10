@@ -1,0 +1,19 @@
+{
+  "name": "matrix-join-room-not-found",
+  "contract": "SPEC-035",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/join/!missing:example.test",
+    "headers": {
+      "Authorization": "Bearer token-1"
+    },
+    "body": {}
+  },
+  "expected": {
+    "status": 404,
+    "body_contains": {
+      "errcode": "M_NOT_FOUND",
+      "error": "Room not found."
+    }
+  }
+}
