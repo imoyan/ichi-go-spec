@@ -65,6 +65,7 @@ The maintained repository names are:
 - `contracts/SPEC-038-matrix-media-mvp.md`
 - `contracts/SPEC-039-matrix-client-server-mvp-live-e2e-gate.md`
 - `contracts/SPEC-040-matrix-event-dag-auth-events.md`
+- `contracts/SPEC-041-matrix-state-snapshot-resolution.md`
 
 ## Shared Design Inputs
 
@@ -428,7 +429,7 @@ Matrix compliance must be tracked by API domain, not as a single vague label:
 | Application Service API | appservice registration, namespace ownership, transactions, sender localpart, bridge-style event delivery | Not implemented | A registered appservice receives transactions and can puppet/send events within its declared namespaces |
 | Identity Service API | third-party identifier validation and lookup | Not implemented | Either explicitly out of supported deployment scope or implemented as a separate identity component with conformance evidence |
 | Push Gateway API | push notification gateway contracts | Not implemented | Either explicitly out of supported deployment scope or implemented with privacy-aware notification payload tests |
-| Room Versions | room version algorithms, event authorization rules, state resolution, room upgrade behavior | MVP rooms do not implement Matrix room versions or event DAG auth; `SPEC-040` adds the first Matrix event DAG and auth-event reference contract without full room-version auth/state-resolution support | Supported room versions are listed, default room version is declared, and auth/state-resolution tests pass |
+| Room Versions | room version algorithms, event authorization rules, state resolution, room upgrade behavior | MVP rooms do not implement Matrix room versions or event DAG auth; `SPEC-040` adds the first Matrix event DAG and auth-event reference contract and `SPEC-041` adds state snapshot / representative state-resolution vectors without full room-version auth completeness | Supported room versions are listed, default room version is declared, and auth/state-resolution tests pass |
 | Olm & Megolm | E2EE primitives, one-time keys, device keys, encrypted room messaging, key backup, verification, cross-signing | Not implemented | Use a mainstream Matrix crypto stack; encrypted rooms, device trust, key backup, and restore flows pass |
 | Appendices/common rules | identifiers, timestamps, namespacing, error vocabulary, deprecation behavior | Partially aligned only where MVP contracts copied the concept | Shared parser and validation tests enforce Matrix grammar and compatibility claims |
 
@@ -509,6 +510,21 @@ Matrix event DAG and auth-event reference gate:
   event validation helper is intentionally adopted, and do not create an
   `houra-client` issue unless the UI-free client core starts consuming these
   server/storage-facing envelopes.
+
+Matrix state snapshot and state-resolution vector gate:
+
+- `SPEC-041` defines state snapshot entries keyed by `(event_type, state_key)`,
+  state event application, message event no-op behavior, unconflicted state
+  classification, conflicted state event classification, and representative
+  state resolution vectors.
+- Passing this gate does not claim complete Matrix room version 12 state
+  resolution, room versions 1 through 12 support, federation support, redaction
+  correctness, or Matrix v1.18 full compliance.
+- After `SPEC-041` merges, create an `houra-server` adoption issue for
+  restart-safe state snapshots and state-set resolution vector coverage. Create
+  an `houra-labs` issue only if a shared state map or room-version helper is
+  intentionally adopted, and do not create an `houra-client` issue unless the
+  UI-free client core starts consuming these storage-facing snapshots.
 
 ## Implementation Follow-Up Checklist
 
@@ -632,6 +648,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-038 | Matrix media upload and authenticated download MVP endpoints | `test-vectors/media/matrix-media-*.json` |
 | SPEC-039 | Integrated Matrix Client-Server MVP live e2e gate | `test-vectors/core/matrix-client-server-mvp-live-e2e-gate.json` |
 | SPEC-040 | Matrix event DAG and auth-event reference integrity | `test-vectors/events/matrix-event-dag-auth-events-*.json` |
+| SPEC-041 | Matrix state snapshot and representative state-resolution vectors | `test-vectors/events/matrix-state-*.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this

@@ -1,0 +1,263 @@
+{
+  "name": "matrix-state-resolution-representative",
+  "contract": "SPEC-041",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/rooms/v12/#algorithm",
+    "checked_at": "2026-05-10T14:58:00+09:00",
+    "room_version": "12",
+    "room_id": "!resolutionRoom00000000000000000000000000001",
+    "event_catalog": [
+      {
+        "event_id": "$resolutionCreate000000000000000000000001",
+        "type": "m.room.create",
+        "state_key": "",
+        "sender": "@alice:example.test",
+        "origin_server_ts": 1710000200000,
+        "content": {
+          "room_version": "12"
+        }
+      },
+      {
+        "event_id": "$resolutionPower000000000000000000000001",
+        "type": "m.room.power_levels",
+        "state_key": "",
+        "sender": "@alice:example.test",
+        "origin_server_ts": 1710000200100,
+        "content": {
+          "users": {
+            "@alice:example.test": 100
+          },
+          "users_default": 0,
+          "events_default": 0,
+          "state_default": 50
+        }
+      },
+      {
+        "event_id": "$resolutionMemberAlice0000000000000000001",
+        "type": "m.room.member",
+        "state_key": "@alice:example.test",
+        "sender": "@alice:example.test",
+        "origin_server_ts": 1710000200200,
+        "content": {
+          "membership": "join"
+        }
+      },
+      {
+        "event_id": "$resolutionTopicA00000000000000000000001",
+        "type": "m.room.topic",
+        "state_key": "",
+        "sender": "@alice:example.test",
+        "origin_server_ts": 1710000200300,
+        "auth_events": [
+          "$resolutionPower000000000000000000000001",
+          "$resolutionMemberAlice0000000000000000001"
+        ],
+        "content": {
+          "topic": "topic A"
+        }
+      },
+      {
+        "event_id": "$resolutionTopicB00000000000000000000001",
+        "type": "m.room.topic",
+        "state_key": "",
+        "sender": "@alice:example.test",
+        "origin_server_ts": 1710000200400,
+        "auth_events": [
+          "$resolutionPower000000000000000000000001",
+          "$resolutionMemberAlice0000000000000000001"
+        ],
+        "content": {
+          "topic": "topic B"
+        }
+      }
+    ],
+    "resolution_cases": [
+      {
+        "id": "unconflicted-state-map",
+        "state_sets": [
+          {
+            "id": "branch-a",
+            "state": [
+              {
+                "type": "m.room.create",
+                "state_key": "",
+                "event_id": "$resolutionCreate000000000000000000000001"
+              },
+              {
+                "type": "m.room.power_levels",
+                "state_key": "",
+                "event_id": "$resolutionPower000000000000000000000001"
+              },
+              {
+                "type": "m.room.member",
+                "state_key": "@alice:example.test",
+                "event_id": "$resolutionMemberAlice0000000000000000001"
+              }
+            ]
+          },
+          {
+            "id": "branch-b",
+            "state": [
+              {
+                "type": "m.room.create",
+                "state_key": "",
+                "event_id": "$resolutionCreate000000000000000000000001"
+              },
+              {
+                "type": "m.room.power_levels",
+                "state_key": "",
+                "event_id": "$resolutionPower000000000000000000000001"
+              },
+              {
+                "type": "m.room.member",
+                "state_key": "@alice:example.test",
+                "event_id": "$resolutionMemberAlice0000000000000000001"
+              }
+            ]
+          }
+        ],
+        "expected": {
+          "unconflicted_state": [
+            {
+              "type": "m.room.create",
+              "state_key": "",
+              "event_id": "$resolutionCreate000000000000000000000001"
+            },
+            {
+              "type": "m.room.power_levels",
+              "state_key": "",
+              "event_id": "$resolutionPower000000000000000000000001"
+            },
+            {
+              "type": "m.room.member",
+              "state_key": "@alice:example.test",
+              "event_id": "$resolutionMemberAlice0000000000000000001"
+            }
+          ],
+          "conflicted_event_ids": [],
+          "resolved_state": [
+            {
+              "type": "m.room.create",
+              "state_key": "",
+              "event_id": "$resolutionCreate000000000000000000000001"
+            },
+            {
+              "type": "m.room.power_levels",
+              "state_key": "",
+              "event_id": "$resolutionPower000000000000000000000001"
+            },
+            {
+              "type": "m.room.member",
+              "state_key": "@alice:example.test",
+              "event_id": "$resolutionMemberAlice0000000000000000001"
+            }
+          ]
+        }
+      },
+      {
+        "id": "simple-mainline-topic-conflict",
+        "state_sets": [
+          {
+            "id": "branch-a",
+            "state": [
+              {
+                "type": "m.room.create",
+                "state_key": "",
+                "event_id": "$resolutionCreate000000000000000000000001"
+              },
+              {
+                "type": "m.room.power_levels",
+                "state_key": "",
+                "event_id": "$resolutionPower000000000000000000000001"
+              },
+              {
+                "type": "m.room.member",
+                "state_key": "@alice:example.test",
+                "event_id": "$resolutionMemberAlice0000000000000000001"
+              },
+              {
+                "type": "m.room.topic",
+                "state_key": "",
+                "event_id": "$resolutionTopicA00000000000000000000001"
+              }
+            ]
+          },
+          {
+            "id": "branch-b",
+            "state": [
+              {
+                "type": "m.room.create",
+                "state_key": "",
+                "event_id": "$resolutionCreate000000000000000000000001"
+              },
+              {
+                "type": "m.room.power_levels",
+                "state_key": "",
+                "event_id": "$resolutionPower000000000000000000000001"
+              },
+              {
+                "type": "m.room.member",
+                "state_key": "@alice:example.test",
+                "event_id": "$resolutionMemberAlice0000000000000000001"
+              },
+              {
+                "type": "m.room.topic",
+                "state_key": "",
+                "event_id": "$resolutionTopicB00000000000000000000001"
+              }
+            ]
+          }
+        ],
+        "expected": {
+          "unconflicted_state": [
+            {
+              "type": "m.room.create",
+              "state_key": "",
+              "event_id": "$resolutionCreate000000000000000000000001"
+            },
+            {
+              "type": "m.room.power_levels",
+              "state_key": "",
+              "event_id": "$resolutionPower000000000000000000000001"
+            },
+            {
+              "type": "m.room.member",
+              "state_key": "@alice:example.test",
+              "event_id": "$resolutionMemberAlice0000000000000000001"
+            }
+          ],
+          "conflicted_event_ids": [
+            "$resolutionTopicA00000000000000000000001",
+            "$resolutionTopicB00000000000000000000001"
+          ],
+          "resolved_state": [
+            {
+              "type": "m.room.create",
+              "state_key": "",
+              "event_id": "$resolutionCreate000000000000000000000001"
+            },
+            {
+              "type": "m.room.power_levels",
+              "state_key": "",
+              "event_id": "$resolutionPower000000000000000000000001"
+            },
+            {
+              "type": "m.room.member",
+              "state_key": "@alice:example.test",
+              "event_id": "$resolutionMemberAlice0000000000000000001"
+            },
+            {
+              "type": "m.room.topic",
+              "state_key": "",
+              "event_id": "$resolutionTopicB00000000000000000000001"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "expected": {
+    "case_count": 2
+  }
+}

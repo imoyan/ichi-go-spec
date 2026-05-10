@@ -1,0 +1,157 @@
+{
+  "name": "matrix-state-snapshot-basic",
+  "contract": "SPEC-041",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/rooms/v12/#state-resolution",
+    "checked_at": "2026-05-10T14:58:00+09:00",
+    "room_version": "12",
+    "room_id": "!snapshotRoom000000000000000000000000000001",
+    "event_catalog": [
+      {
+        "event_id": "$snapshotCreate0000000000000000000000000001",
+        "type": "m.room.create",
+        "state_key": "",
+        "sender": "@alice:example.test",
+        "origin_server_ts": 1710000100000,
+        "content": {
+          "room_version": "12"
+        }
+      },
+      {
+        "event_id": "$snapshotMemberAlice0000000000000000000001",
+        "type": "m.room.member",
+        "state_key": "@alice:example.test",
+        "sender": "@alice:example.test",
+        "origin_server_ts": 1710000100100,
+        "content": {
+          "membership": "join"
+        }
+      },
+      {
+        "event_id": "$snapshotMessage000000000000000000000001",
+        "type": "m.room.message",
+        "sender": "@alice:example.test",
+        "origin_server_ts": 1710000100200,
+        "content": {
+          "msgtype": "m.text",
+          "body": "state unchanged"
+        }
+      },
+      {
+        "event_id": "$snapshotTopicOld00000000000000000000001",
+        "type": "m.room.topic",
+        "state_key": "",
+        "sender": "@alice:example.test",
+        "origin_server_ts": 1710000100300,
+        "content": {
+          "topic": "old topic"
+        }
+      },
+      {
+        "event_id": "$snapshotTopicNew00000000000000000000001",
+        "type": "m.room.topic",
+        "state_key": "",
+        "sender": "@alice:example.test",
+        "origin_server_ts": 1710000100400,
+        "content": {
+          "topic": "new topic"
+        }
+      }
+    ],
+    "snapshots": [
+      {
+        "id": "state-event-adds-key",
+        "before_state": [
+          {
+            "type": "m.room.create",
+            "state_key": "",
+            "event_id": "$snapshotCreate0000000000000000000000000001"
+          }
+        ],
+        "event_id": "$snapshotMemberAlice0000000000000000000001",
+        "expected_after_state": [
+          {
+            "type": "m.room.create",
+            "state_key": "",
+            "event_id": "$snapshotCreate0000000000000000000000000001"
+          },
+          {
+            "type": "m.room.member",
+            "state_key": "@alice:example.test",
+            "event_id": "$snapshotMemberAlice0000000000000000000001"
+          }
+        ]
+      },
+      {
+        "id": "message-event-keeps-state",
+        "before_state": [
+          {
+            "type": "m.room.create",
+            "state_key": "",
+            "event_id": "$snapshotCreate0000000000000000000000000001"
+          },
+          {
+            "type": "m.room.member",
+            "state_key": "@alice:example.test",
+            "event_id": "$snapshotMemberAlice0000000000000000000001"
+          }
+        ],
+        "event_id": "$snapshotMessage000000000000000000000001",
+        "expected_after_state": [
+          {
+            "type": "m.room.create",
+            "state_key": "",
+            "event_id": "$snapshotCreate0000000000000000000000000001"
+          },
+          {
+            "type": "m.room.member",
+            "state_key": "@alice:example.test",
+            "event_id": "$snapshotMemberAlice0000000000000000000001"
+          }
+        ]
+      },
+      {
+        "id": "state-event-replaces-key",
+        "before_state": [
+          {
+            "type": "m.room.create",
+            "state_key": "",
+            "event_id": "$snapshotCreate0000000000000000000000000001"
+          },
+          {
+            "type": "m.room.member",
+            "state_key": "@alice:example.test",
+            "event_id": "$snapshotMemberAlice0000000000000000000001"
+          },
+          {
+            "type": "m.room.topic",
+            "state_key": "",
+            "event_id": "$snapshotTopicOld00000000000000000000001"
+          }
+        ],
+        "event_id": "$snapshotTopicNew00000000000000000000001",
+        "expected_after_state": [
+          {
+            "type": "m.room.create",
+            "state_key": "",
+            "event_id": "$snapshotCreate0000000000000000000000000001"
+          },
+          {
+            "type": "m.room.member",
+            "state_key": "@alice:example.test",
+            "event_id": "$snapshotMemberAlice0000000000000000000001"
+          },
+          {
+            "type": "m.room.topic",
+            "state_key": "",
+            "event_id": "$snapshotTopicNew00000000000000000000001"
+          }
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "snapshot_count": 3
+  }
+}

@@ -96,6 +96,7 @@ void main() {
   checkMatrixMediaMvp(contracts, failures);
   checkMatrixClientServerMvpLiveE2eGate(contracts, failures);
   checkMatrixEventDagAuthEvents(contracts, failures);
+  checkMatrixStateSnapshotResolution(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -996,6 +997,442 @@ bool isMatrixEventId(String id) =>
 
 bool isMatrixRoomId(String id) =>
     id.startsWith('!') && id.length > 1 && id.length <= 255;
+
+void checkMatrixStateSnapshotResolution(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-041')) {
+    failures.add(
+      'Matrix state snapshot/resolution contract SPEC-041 is required.',
+    );
+  }
+  const snapshotPath = 'test-vectors/events/matrix-state-snapshot-basic.json';
+  const resolutionPath =
+      'test-vectors/events/matrix-state-resolution-representative.json';
+  for (final path in [snapshotPath, resolutionPath]) {
+    if (!File(path).existsSync()) {
+      failures.add('Missing Matrix state snapshot/resolution vector: $path');
+    }
+  }
+
+  final snapshotFile = File(snapshotPath);
+  final snapshot = readJsonObject(snapshotFile, failures);
+  if (snapshot != null) {
+    final event = snapshot['event'];
+    if (event is! Map) {
+      failures.add('${relative(snapshotFile)} event must be an object.');
+    } else {
+      validateMatrixStateSnapshotVector(
+        snapshotFile,
+        event.cast<String, Object?>(),
+        failures,
+      );
+    }
+  }
+
+  final resolutionFile = File(resolutionPath);
+  final resolution = readJsonObject(resolutionFile, failures);
+  if (resolution != null) {
+    final event = resolution['event'];
+    if (event is! Map) {
+      failures.add('${relative(resolutionFile)} event must be an object.');
+    } else {
+      validateMatrixStateResolutionVector(
+        resolutionFile,
+        event.cast<String, Object?>(),
+        failures,
+      );
+    }
+  }
+}
+
+void validateMatrixStateSnapshotVector(
+  File file,
+  Map<String, Object?> event,
+  List<String> failures,
+) {
+  final catalog = readMatrixStateEventCatalog(file, event, failures);
+  final snapshots = event['snapshots'];
+  if (snapshots is! List || snapshots.isEmpty) {
+    failures.add('${relative(file)} snapshots must be non-empty.');
+    return;
+  }
+  for (final item in snapshots) {
+    if (item is! Map) {
+      failures.add('${relative(file)} snapshot entries must be objects.');
+      continue;
+    }
+    final snapshot = item.cast<String, Object?>();
+    final id = snapshot['id'];
+    if (id is! String || id.isEmpty) {
+      failures.add('${relative(file)} snapshot id is required.');
+    }
+    final before = readMatrixStateMap(
+      file,
+      snapshot['before_state'],
+      catalog,
+      failures,
+      label: 'snapshot.$id.before_state',
+    );
+    final expected = readMatrixStateMap(
+      file,
+      snapshot['expected_after_state'],
+      catalog,
+      failures,
+      label: 'snapshot.$id.expected_after_state',
+    );
+    final eventId = snapshot['event_id'];
+    if (eventId is! String || !catalog.containsKey(eventId)) {
+      failures.add('${relative(file)} snapshot.$id event_id is unknown.');
+      continue;
+    }
+    final applied = Map<String, String>.from(before);
+    final eventInfo = catalog[eventId]!;
+    final stateKey = eventInfo.stateKey;
+    if (stateKey != null) {
+      applied[matrixStateTuple(eventInfo.type, stateKey)] = eventId;
+    }
+    if (!sameStringMap(applied, expected)) {
+      failures.add(
+        '${relative(file)} snapshot.$id expected_after_state does not match state application.',
+      );
+    }
+  }
+}
+
+void validateMatrixStateResolutionVector(
+  File file,
+  Map<String, Object?> event,
+  List<String> failures,
+) {
+  final catalog = readMatrixStateEventCatalog(file, event, failures);
+  final cases = event['resolution_cases'];
+  if (cases is! List || cases.isEmpty) {
+    failures.add('${relative(file)} resolution_cases must be non-empty.');
+    return;
+  }
+  for (final item in cases) {
+    if (item is! Map) {
+      failures.add('${relative(file)} resolution cases must be objects.');
+      continue;
+    }
+    final testCase = item.cast<String, Object?>();
+    final id = testCase['id'];
+    if (id is! String || id.isEmpty) {
+      failures.add('${relative(file)} resolution case id is required.');
+    }
+    final stateSets = readMatrixStateSets(file, testCase, catalog, failures);
+    final expected = testCase['expected'];
+    if (expected is! Map) {
+      failures.add(
+        '${relative(file)} resolution case $id expected is required.',
+      );
+      continue;
+    }
+    final expectedMap = expected.cast<String, Object?>();
+    final expectedUnconflicted = readMatrixStateMap(
+      file,
+      expectedMap['unconflicted_state'],
+      catalog,
+      failures,
+      label: 'resolution.$id.expected.unconflicted_state',
+    );
+    final expectedResolved = readMatrixStateMap(
+      file,
+      expectedMap['resolved_state'],
+      catalog,
+      failures,
+      label: 'resolution.$id.expected.resolved_state',
+    );
+    final expectedConflicted = readMatrixEventIdSet(
+      expectedMap['conflicted_event_ids'],
+    );
+    if (expectedConflicted == null) {
+      failures.add(
+        '${relative(file)} resolution.$id expected conflicted_event_ids must be event IDs.',
+      );
+      continue;
+    }
+    final classified = classifyMatrixStateSets(stateSets);
+    if (!sameStringMap(classified.unconflicted, expectedUnconflicted)) {
+      failures.add(
+        '${relative(file)} resolution.$id unconflicted_state mismatch.',
+      );
+    }
+    if (!sameStringSet(classified.conflictedEventIds, expectedConflicted)) {
+      failures.add(
+        '${relative(file)} resolution.$id conflicted_event_ids mismatch.',
+      );
+    }
+    final representativeResolved = resolveRepresentativeState(
+      classified,
+      catalog,
+    );
+    if (!sameStringMap(representativeResolved, expectedResolved)) {
+      failures.add('${relative(file)} resolution.$id resolved_state mismatch.');
+    }
+  }
+}
+
+Map<String, MatrixStateEventInfo> readMatrixStateEventCatalog(
+  File file,
+  Map<String, Object?> event,
+  List<String> failures,
+) {
+  if (event['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  if (event['room_version'] != '12') {
+    failures.add('${relative(file)} room_version must be 12.');
+  }
+  final catalog = event['event_catalog'];
+  if (catalog is! List || catalog.isEmpty) {
+    failures.add('${relative(file)} event_catalog must be non-empty.');
+    return const {};
+  }
+  final result = <String, MatrixStateEventInfo>{};
+  for (final item in catalog) {
+    if (item is! Map) {
+      failures.add('${relative(file)} event_catalog entries must be objects.');
+      continue;
+    }
+    final entry = item.cast<String, Object?>();
+    final eventId = entry['event_id'];
+    final type = entry['type'];
+    final stateKey = entry['state_key'];
+    final ts = entry['origin_server_ts'];
+    if (eventId is! String || !isMatrixEventId(eventId)) {
+      failures.add('${relative(file)} event_catalog event_id is invalid.');
+      continue;
+    }
+    if (type is! String || type.isEmpty) {
+      failures.add('${relative(file)} event_catalog $eventId type is invalid.');
+      continue;
+    }
+    if (stateKey != null && stateKey is! String) {
+      failures.add(
+        '${relative(file)} event_catalog $eventId state_key is invalid.',
+      );
+      continue;
+    }
+    final normalizedStateKey = stateKey as String?;
+    if (ts is! int) {
+      failures.add(
+        '${relative(file)} event_catalog $eventId origin_server_ts is invalid.',
+      );
+      continue;
+    }
+    if (result.containsKey(eventId)) {
+      failures.add('${relative(file)} duplicates event_catalog id: $eventId');
+      continue;
+    }
+    result[eventId] = MatrixStateEventInfo(
+      eventId: eventId,
+      type: type,
+      stateKey: normalizedStateKey,
+      originServerTs: ts,
+    );
+  }
+  return result;
+}
+
+Map<String, String> readMatrixStateMap(
+  File file,
+  Object? value,
+  Map<String, MatrixStateEventInfo> catalog,
+  List<String> failures, {
+  required String label,
+}) {
+  if (value is! List) {
+    failures.add('${relative(file)} $label must be an array.');
+    return const {};
+  }
+  final result = <String, String>{};
+  for (final item in value) {
+    if (item is! Map) {
+      failures.add('${relative(file)} $label entries must be objects.');
+      continue;
+    }
+    final entry = item.cast<String, Object?>();
+    final type = entry['type'];
+    final stateKey = entry['state_key'];
+    final eventId = entry['event_id'];
+    if (type is! String || type.isEmpty || stateKey is! String) {
+      failures.add('${relative(file)} $label state tuple is invalid.');
+      continue;
+    }
+    if (eventId is! String || !catalog.containsKey(eventId)) {
+      failures.add('${relative(file)} $label event_id is unknown.');
+      continue;
+    }
+    final catalogEntry = catalog[eventId]!;
+    if (catalogEntry.type != type || catalogEntry.stateKey != stateKey) {
+      failures.add(
+        '${relative(file)} $label event_id does not match type/state_key.',
+      );
+      continue;
+    }
+    final tuple = matrixStateTuple(type, stateKey);
+    if (result.containsKey(tuple)) {
+      failures.add('${relative(file)} $label duplicates state tuple.');
+      continue;
+    }
+    result[tuple] = eventId;
+  }
+  return result;
+}
+
+List<Map<String, String>> readMatrixStateSets(
+  File file,
+  Map<String, Object?> testCase,
+  Map<String, MatrixStateEventInfo> catalog,
+  List<String> failures,
+) {
+  final stateSets = testCase['state_sets'];
+  if (stateSets is! List || stateSets.length < 2) {
+    failures.add('${relative(file)} resolution state_sets must have 2+ sets.');
+    return const [];
+  }
+  final result = <Map<String, String>>[];
+  for (final item in stateSets) {
+    if (item is! Map) {
+      failures.add('${relative(file)} resolution state set must be an object.');
+      continue;
+    }
+    final stateSet = item.cast<String, Object?>();
+    final id = stateSet['id'];
+    if (id is! String || id.isEmpty) {
+      failures.add('${relative(file)} resolution state set id is required.');
+    }
+    result.add(
+      readMatrixStateMap(
+        file,
+        stateSet['state'],
+        catalog,
+        failures,
+        label: 'resolution.state_set.$id.state',
+      ),
+    );
+  }
+  return result;
+}
+
+Set<String>? readMatrixEventIdSet(Object? value) {
+  if (value is! List) {
+    return null;
+  }
+  final result = <String>{};
+  for (final item in value) {
+    if (item is! String || !isMatrixEventId(item)) {
+      return null;
+    }
+    result.add(item);
+  }
+  return result;
+}
+
+MatrixStateClassification classifyMatrixStateSets(
+  List<Map<String, String>> stateSets,
+) {
+  final allTuples = <String>{
+    for (final stateSet in stateSets) ...stateSet.keys,
+  };
+  final unconflicted = <String, String>{};
+  final conflictedEventIds = <String>{};
+  final conflictedByTuple = <String, Set<String>>{};
+  for (final tuple in allTuples) {
+    final values = <String>{};
+    var presentInEverySet = true;
+    for (final stateSet in stateSets) {
+      final eventId = stateSet[tuple];
+      if (eventId == null) {
+        presentInEverySet = false;
+      } else {
+        values.add(eventId);
+      }
+    }
+    if (presentInEverySet && values.length == 1) {
+      unconflicted[tuple] = values.single;
+    } else {
+      conflictedEventIds.addAll(values);
+      conflictedByTuple[tuple] = values;
+    }
+  }
+  return MatrixStateClassification(
+    unconflicted: unconflicted,
+    conflictedEventIds: conflictedEventIds,
+    conflictedByTuple: conflictedByTuple,
+  );
+}
+
+Map<String, String> resolveRepresentativeState(
+  MatrixStateClassification classified,
+  Map<String, MatrixStateEventInfo> catalog,
+) {
+  final result = Map<String, String>.from(classified.unconflicted);
+  for (final entry in classified.conflictedByTuple.entries) {
+    final sorted = entry.value.toList()
+      ..sort((left, right) {
+        final leftInfo = catalog[left]!;
+        final rightInfo = catalog[right]!;
+        final byTs = leftInfo.originServerTs.compareTo(
+          rightInfo.originServerTs,
+        );
+        if (byTs != 0) {
+          return byTs;
+        }
+        return leftInfo.eventId.compareTo(rightInfo.eventId);
+      });
+    if (sorted.isNotEmpty) {
+      result[entry.key] = sorted.last;
+    }
+  }
+  return result;
+}
+
+String matrixStateTuple(String type, String stateKey) => '$type\x00$stateKey';
+
+bool sameStringMap(Map<String, String> left, Map<String, String> right) {
+  if (left.length != right.length) {
+    return false;
+  }
+  for (final entry in left.entries) {
+    if (right[entry.key] != entry.value) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool sameStringSet(Set<String> left, Set<String> right) =>
+    left.length == right.length && left.containsAll(right);
+
+class MatrixStateEventInfo {
+  MatrixStateEventInfo({
+    required this.eventId,
+    required this.type,
+    required this.stateKey,
+    required this.originServerTs,
+  });
+
+  final String eventId;
+  final String type;
+  final String? stateKey;
+  final int originServerTs;
+}
+
+class MatrixStateClassification {
+  MatrixStateClassification({
+    required this.unconflicted,
+    required this.conflictedEventIds,
+    required this.conflictedByTuple,
+  });
+
+  final Map<String, String> unconflicted;
+  final Set<String> conflictedEventIds;
+  final Map<String, Set<String>> conflictedByTuple;
+}
 
 bool isNegativeVector(Map<String, Object?> json) {
   final expected = json['expected'];
