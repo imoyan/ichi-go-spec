@@ -1,0 +1,22 @@
+{
+  "name": "matrix-sync-invalid-since",
+  "contract": "SPEC-037",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/sync",
+    "query": {
+      "since": "not-a-server-token",
+      "timeout": 0
+    },
+    "headers": {
+      "Authorization": "Bearer token-1"
+    }
+  },
+  "expected": {
+    "status": 400,
+    "body_contains": {
+      "errcode": "M_INVALID_PARAM",
+      "error": "Invalid sync token."
+    }
+  }
+}

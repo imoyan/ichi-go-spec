@@ -1,0 +1,18 @@
+{
+  "name": "matrix-sync-missing-token",
+  "contract": "SPEC-037",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/sync",
+    "query": {
+      "timeout": 0
+    }
+  },
+  "expected": {
+    "status": 401,
+    "body_contains": {
+      "errcode": "M_MISSING_TOKEN",
+      "error": "Missing access token."
+    }
+  }
+}

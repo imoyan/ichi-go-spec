@@ -108,6 +108,7 @@ void main() {
   checkMatrixDevices(contracts, failures);
   checkMatrixRoomsMvp(contracts, failures);
   checkMatrixSendEventMessagesMvp(contracts, failures);
+  checkMatrixSyncMvp(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -603,6 +604,24 @@ void checkMatrixSendEventMessagesMvp(
   ]) {
     if (!File(path).existsSync()) {
       failures.add('Missing Matrix send event/messages vector: $path');
+    }
+  }
+}
+
+void checkMatrixSyncMvp(Map<String, String> contracts, List<String> failures) {
+  if (!contracts.containsKey('SPEC-037')) {
+    failures.add('Matrix sync MVP contract SPEC-037 is required.');
+  }
+  for (final path in [
+    'test-vectors/sync/matrix-sync-initial-basic.json',
+    'test-vectors/sync/matrix-sync-incremental-basic.json',
+    'test-vectors/sync/matrix-sync-empty-incremental.json',
+    'test-vectors/sync/matrix-sync-invalid-since.json',
+    'test-vectors/sync/matrix-sync-missing-token.json',
+    'test-vectors/sync/matrix-sync-invalid-token.json',
+  ]) {
+    if (!File(path).existsSync()) {
+      failures.add('Missing Matrix sync MVP vector: $path');
     }
   }
 }

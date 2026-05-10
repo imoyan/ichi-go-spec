@@ -1,0 +1,21 @@
+{
+  "name": "matrix-sync-invalid-token",
+  "contract": "SPEC-037",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/sync",
+    "query": {
+      "timeout": 0
+    },
+    "headers": {
+      "Authorization": "Bearer invalid-token"
+    }
+  },
+  "expected": {
+    "status": 401,
+    "body_contains": {
+      "errcode": "M_UNKNOWN_TOKEN",
+      "error": "Access token is unknown or expired."
+    }
+  }
+}

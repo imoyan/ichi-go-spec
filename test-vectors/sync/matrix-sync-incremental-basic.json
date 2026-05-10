@@ -1,0 +1,54 @@
+{
+  "name": "matrix-sync-incremental-basic",
+  "contract": "SPEC-037",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/sync",
+    "query": {
+      "since": "s1",
+      "timeout": 30000
+    },
+    "headers": {
+      "Authorization": "Bearer token-1"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "next_batch": "s2",
+      "account_data": {
+        "events": []
+      },
+      "rooms": {
+        "join": {
+          "!room:example.test": {
+            "state": {
+              "events": []
+            },
+            "timeline": {
+              "events": [
+                {
+                  "event_id": "$event2:example.test",
+                  "sender": "@bob:example.test",
+                  "origin_server_ts": 1710000001000,
+                  "type": "m.room.message",
+                  "content": {
+                    "msgtype": "m.text",
+                    "body": "Later Matrix"
+                  }
+                }
+              ],
+              "limited": false,
+              "prev_batch": "t1"
+            },
+            "account_data": {
+              "events": []
+            }
+          }
+        },
+        "invite": {},
+        "leave": {}
+      }
+    }
+  }
+}

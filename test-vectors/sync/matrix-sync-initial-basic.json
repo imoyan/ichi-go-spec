@@ -1,0 +1,100 @@
+{
+  "name": "matrix-sync-initial-basic",
+  "contract": "SPEC-037",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/sync",
+    "query": {
+      "timeout": 0
+    },
+    "headers": {
+      "Authorization": "Bearer token-1"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "next_batch": "s1",
+      "account_data": {
+        "events": [
+          {
+            "type": "m.push_rules",
+            "content": {
+              "global": {}
+            }
+          }
+        ]
+      },
+      "rooms": {
+        "join": {
+          "!room:example.test": {
+            "state": {
+              "events": [
+                {
+                  "event_id": "$name:example.test",
+                  "sender": "@alice:example.test",
+                  "origin_server_ts": 1710000000000,
+                  "type": "m.room.name",
+                  "state_key": "",
+                  "content": {
+                    "name": "General"
+                  }
+                },
+                {
+                  "event_id": "$member-alice:example.test",
+                  "sender": "@alice:example.test",
+                  "origin_server_ts": 1710000000000,
+                  "type": "m.room.member",
+                  "state_key": "@alice:example.test",
+                  "content": {
+                    "membership": "join",
+                    "displayname": "Alice"
+                  }
+                }
+              ]
+            },
+            "timeline": {
+              "events": [
+                {
+                  "event_id": "$event1:example.test",
+                  "sender": "@alice:example.test",
+                  "origin_server_ts": 1710000000000,
+                  "type": "m.room.message",
+                  "content": {
+                    "msgtype": "m.text",
+                    "body": "Hello Matrix"
+                  },
+                  "unsigned": {
+                    "transaction_id": "txn-1"
+                  }
+                }
+              ],
+              "limited": false,
+              "prev_batch": "t0"
+            },
+            "account_data": {
+              "events": [
+                {
+                  "type": "m.tag",
+                  "content": {
+                    "tags": {}
+                  }
+                }
+              ]
+            },
+            "summary": {
+              "m.joined_member_count": 1,
+              "m.invited_member_count": 0
+            },
+            "unread_notifications": {
+              "notification_count": 0,
+              "highlight_count": 0
+            }
+          }
+        },
+        "invite": {},
+        "leave": {}
+      }
+    }
+  }
+}
