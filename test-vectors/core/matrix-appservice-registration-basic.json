@@ -1,0 +1,38 @@
+{
+  "name": "matrix-appservice-registration-basic",
+  "contract": "SPEC-058",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/application-service-api/#registration",
+    "checked_at": "2026-05-10T21:03:30+09:00",
+    "registration": {
+      "id": "irc-bridge",
+      "url": "https://appservice.example.test",
+      "as_token": "as-token-redacted",
+      "hs_token": "hs-token-redacted",
+      "sender_localpart": "_irc_bot",
+      "namespaces": {
+        "users": [
+          {
+            "exclusive": true,
+            "regex": "@_irc_bridge_.*:example.test"
+          }
+        ],
+        "aliases": [
+          {
+            "exclusive": true,
+            "regex": "#_irc_bridge_.*:example.test"
+          }
+        ],
+        "rooms": []
+      }
+    },
+    "secrets_redacted": true
+  },
+  "expected": {
+    "valid_registration": true,
+    "sender_user_id": "@_irc_bot:example.test",
+    "tokens_unique": true,
+    "versions_advertisement_widened": false
+  }
+}
