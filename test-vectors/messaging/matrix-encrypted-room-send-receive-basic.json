@@ -1,0 +1,68 @@
+{
+  "name": "matrix-encrypted-room-send-receive-basic",
+  "contract": "SPEC-052",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#mroomencrypted",
+    "checked_at": "2026-05-10T20:12:37+09:00",
+    "room_id": "!encrypted:example.test",
+    "steps": [
+      {
+        "id": "set-room-encryption",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!encrypted:example.test/state/m.room.encryption/",
+        "access_token": "token-alice-device1",
+        "body": {
+          "algorithm": "m.megolm.v1.aes-sha2",
+          "rotation_period_ms": 604800000,
+          "rotation_period_msgs": 100
+        },
+        "expected_status": 200,
+        "expected_body_contains": {
+          "event_id": "$encryption:example.test"
+        }
+      },
+      {
+        "id": "send-encrypted-event",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!encrypted:example.test/send/m.room.encrypted/txn-encrypted-1",
+        "access_token": "token-alice-device1",
+        "body": {
+          "algorithm": "m.megolm.v1.aes-sha2",
+          "sender_key": "alice-curve25519-device1",
+          "ciphertext": "megolm-ciphertext",
+          "session_id": "megolm-session-1",
+          "device_id": "DEVICE1"
+        },
+        "expected_status": 200,
+        "expected_body_contains": {
+          "event_id": "$encrypted1:example.test"
+        },
+        "server_must_not_decrypt": true
+      },
+      {
+        "id": "sync-encrypted-event",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-bob-device1",
+        "expected_status": 200,
+        "expected_timeline_event": {
+          "event_id": "$encrypted1:example.test",
+          "sender": "@alice:example.test",
+          "origin_server_ts": 1710000000000,
+          "type": "m.room.encrypted",
+          "content": {
+            "algorithm": "m.megolm.v1.aes-sha2",
+            "sender_key": "alice-curve25519-device1",
+            "ciphertext": "megolm-ciphertext",
+            "session_id": "megolm-session-1",
+            "device_id": "DEVICE1"
+          }
+        }
+      }
+    ]
+  },
+  "expected": {
+    "step_count": 3
+  }
+}

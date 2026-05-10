@@ -76,6 +76,7 @@ The maintained repository names are:
 - `contracts/SPEC-049-matrix-moderation-reporting-admin-controls.md`
 - `contracts/SPEC-050-matrix-crypto-adapter-boundary.md`
 - `contracts/SPEC-051-matrix-device-one-time-fallback-keys.md`
+- `contracts/SPEC-052-matrix-to-device-encrypted-room-gate.md`
 
 ## Shared Design Inputs
 
@@ -440,7 +441,7 @@ Matrix compliance must be tracked by API domain, not as a single vague label:
 | Identity Service API | third-party identifier validation and lookup | Not implemented | Either explicitly out of supported deployment scope or implemented as a separate identity component with conformance evidence |
 | Push Gateway API | push notification gateway contracts | Not implemented | Either explicitly out of supported deployment scope or implemented with privacy-aware notification payload tests |
 | Room Versions | room version algorithms, event authorization rules, state resolution, room upgrade behavior | MVP rooms do not implement Matrix room versions or event DAG auth; `SPEC-040` adds the first Matrix event DAG and auth-event reference contract, `SPEC-041` adds state snapshot / representative state-resolution vectors, `SPEC-042` defines the stable room versions 1-12 / default 12 gate, `SPEC-043` adds representative membership, power-level, and redaction auth vectors, and `SPEC-044` adds alias / upgrade / restart persistence gates without full room-version auth completeness | Supported room versions are listed, default room version is declared, and auth/state-resolution tests pass |
-| Olm & Megolm | E2EE primitives, one-time keys, device keys, encrypted room messaging, key backup, verification, cross-signing | Not implemented; `SPEC-050` defines the adapter ownership boundary and forbids local Olm/Megolm implementation; `SPEC-051` adds device key, one-time key, and fallback key publication/query contracts | Use a mainstream Matrix crypto stack; encrypted rooms, device trust, key backup, and restore flows pass |
+| Olm & Megolm | E2EE primitives, one-time keys, device keys, encrypted room messaging, key backup, verification, cross-signing | Not implemented; `SPEC-050` defines the adapter ownership boundary and forbids local Olm/Megolm implementation; `SPEC-051` adds device key, one-time key, and fallback key publication/query contracts; `SPEC-052` adds to-device and encrypted-room send/receive gates | Use a mainstream Matrix crypto stack; encrypted rooms, device trust, key backup, and restore flows pass |
 | Appendices/common rules | identifiers, timestamps, namespacing, error vocabulary, deprecation behavior | Partially aligned only where MVP contracts copied the concept | Shared parser and validation tests enforce Matrix grammar and compatibility claims |
 
 Matrix compliance phases:
@@ -634,6 +635,20 @@ Matrix device, one-time, and fallback keys gate:
   helper is intentionally adopted for device key, one-time key, or fallback key
   payload shapes.
 
+Matrix to-device and encrypted room gate:
+
+- `SPEC-052` defines the Matrix v1.18 to-device send/receive surface,
+  `m.room.encryption` setup, `m.room.encrypted` send/receive envelope, and a
+  multi-device encrypted room smoke gate. It preserves the `SPEC-050` boundary
+  that Houra repositories do not implement Olm/Megolm locally.
+- Passing this gate does not claim key backup, verification, cross-signing,
+  secret storage, encrypted attachments, federation to-device delivery, or
+  Matrix v1.18 full compliance.
+- After `SPEC-052` merges, create adoption issues for `houra-server` and
+  `houra-client`. Create an `houra-labs` issue only if a parser-only shared
+  helper is intentionally adopted for encrypted event envelope or to-device
+  payload shape validation.
+
 Matrix room versions gate:
 
 - `SPEC-042` defines the Matrix v1.18 stable room-version allowlist as `1`
@@ -796,6 +811,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-049 | Matrix moderation, reporting, and admin controls endpoint family | `test-vectors/rooms/matrix-room-moderation-*.json`, `test-vectors/rooms/matrix-room-redaction-*.json`, `test-vectors/rooms/matrix-room-reporting-*.json`, and `test-vectors/rooms/matrix-admin-account-moderation-*.json` |
 | SPEC-050 | Matrix E2EE crypto adapter boundary and adoption checklist | `test-vectors/core/matrix-crypto-*.json` |
 | SPEC-051 | Matrix device, one-time, and fallback key endpoint family | `test-vectors/auth/matrix-keys-*.json` |
+| SPEC-052 | Matrix to-device and encrypted room send/receive gate | `test-vectors/messaging/matrix-to-device-*.json`, `test-vectors/messaging/matrix-encrypted-room-*.json`, and `test-vectors/messaging/matrix-e2ee-*.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this

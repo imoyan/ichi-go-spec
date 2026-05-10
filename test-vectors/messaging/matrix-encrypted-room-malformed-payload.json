@@ -1,0 +1,20 @@
+{
+  "name": "matrix-encrypted-room-malformed-payload",
+  "contract": "SPEC-052",
+  "request": {
+    "method": "PUT",
+    "path": "/_matrix/client/v3/rooms/!encrypted:example.test/send/m.room.encrypted/txn-encrypted-bad",
+    "access_token": "token-alice-device1",
+    "body": {
+      "algorithm": "m.megolm.v1.aes-sha2",
+      "ciphertext": "missing sender key and session id"
+    }
+  },
+  "expected": {
+    "status": 400,
+    "error": {
+      "errcode": "M_INVALID_PARAM",
+      "error": "Invalid encrypted event payload."
+    }
+  }
+}

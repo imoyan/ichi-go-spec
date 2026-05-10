@@ -1,0 +1,31 @@
+{
+  "name": "matrix-to-device-missing-token",
+  "contract": "SPEC-052",
+  "request": {
+    "method": "PUT",
+    "path": "/_matrix/client/v3/sendToDevice/m.room.encrypted/txn-to-device-missing-token",
+    "body": {
+      "messages": {
+        "@bob:example.test": {
+          "BOB1": {
+            "algorithm": "m.olm.v1.curve25519-aes-sha2",
+            "sender_key": "alice-curve25519-device1",
+            "ciphertext": {
+              "bob-curve25519-bob1": {
+                "type": 0,
+                "body": "olm-prekey-ciphertext"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "expected": {
+    "status": 401,
+    "error": {
+      "errcode": "M_MISSING_TOKEN",
+      "error": "Missing access token."
+    }
+  }
+}
