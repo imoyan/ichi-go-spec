@@ -1,0 +1,107 @@
+{
+  "name": "matrix-auth-power-levels-v12",
+  "contract": "SPEC-043",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/rooms/v12/#authorization-rules",
+    "checked_at": "2026-05-10T15:35:00+09:00",
+    "room_version": "12",
+    "cases": [
+      {
+        "id": "power-levels-valid-non-creator",
+        "auth_state": [
+          {
+            "type": "m.room.create",
+            "state_key": "",
+            "event_id": "$authCreate",
+            "sender": "@alice:example.test",
+            "content": {
+              "room_version": "12"
+            }
+          }
+        ],
+        "candidate_event": {
+          "event_id": "$authPowerValid",
+          "type": "m.room.power_levels",
+          "sender": "@alice:example.test",
+          "state_key": "",
+          "content": {
+            "users": {
+              "@bob:example.test": 50
+            },
+            "users_default": 0,
+            "events_default": 0,
+            "state_default": 50,
+            "ban": 50,
+            "kick": 50,
+            "redact": 50,
+            "invite": 0
+          }
+        },
+        "expected": {
+          "allowed": true,
+          "reason": "power_levels_valid_non_creator"
+        }
+      },
+      {
+        "id": "power-levels-creator-entry-v12",
+        "auth_state": [
+          {
+            "type": "m.room.create",
+            "state_key": "",
+            "event_id": "$authCreate",
+            "sender": "@alice:example.test",
+            "content": {
+              "room_version": "12"
+            }
+          }
+        ],
+        "candidate_event": {
+          "event_id": "$authPowerCreatorEntry",
+          "type": "m.room.power_levels",
+          "sender": "@alice:example.test",
+          "state_key": "",
+          "content": {
+            "users": {
+              "@alice:example.test": 50
+            }
+          }
+        },
+        "expected": {
+          "allowed": false,
+          "reason": "power_levels_creator_entry_v12"
+        }
+      },
+      {
+        "id": "power-levels-non-integer-field",
+        "auth_state": [
+          {
+            "type": "m.room.create",
+            "state_key": "",
+            "event_id": "$authCreate",
+            "sender": "@alice:example.test",
+            "content": {
+              "room_version": "12"
+            }
+          }
+        ],
+        "candidate_event": {
+          "event_id": "$authPowerNonInteger",
+          "type": "m.room.power_levels",
+          "sender": "@alice:example.test",
+          "state_key": "",
+          "content": {
+            "ban": "50"
+          }
+        },
+        "expected": {
+          "allowed": false,
+          "reason": "power_levels_non_integer_field"
+        }
+      }
+    ]
+  },
+  "expected": {
+    "case_count": 3
+  }
+}

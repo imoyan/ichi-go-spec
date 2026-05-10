@@ -1,0 +1,87 @@
+{
+  "name": "matrix-auth-membership-v12",
+  "contract": "SPEC-043",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/rooms/v12/#authorization-rules",
+    "checked_at": "2026-05-10T15:35:00+09:00",
+    "room_version": "12",
+    "cases": [
+      {
+        "id": "membership-join-self-public",
+        "auth_state": [
+          {
+            "type": "m.room.create",
+            "state_key": "",
+            "event_id": "$authCreate",
+            "sender": "@alice:example.test",
+            "content": {
+              "room_version": "12"
+            }
+          },
+          {
+            "type": "m.room.join_rules",
+            "state_key": "",
+            "event_id": "$authJoinRulesPublic",
+            "sender": "@alice:example.test",
+            "content": {
+              "join_rule": "public"
+            }
+          }
+        ],
+        "candidate_event": {
+          "event_id": "$authMemberAliceJoin",
+          "type": "m.room.member",
+          "sender": "@alice:example.test",
+          "state_key": "@alice:example.test",
+          "content": {
+            "membership": "join"
+          }
+        },
+        "expected": {
+          "allowed": true,
+          "reason": "membership_join_public_self"
+        }
+      },
+      {
+        "id": "membership-join-sender-mismatch",
+        "auth_state": [
+          {
+            "type": "m.room.create",
+            "state_key": "",
+            "event_id": "$authCreate",
+            "sender": "@alice:example.test",
+            "content": {
+              "room_version": "12"
+            }
+          },
+          {
+            "type": "m.room.join_rules",
+            "state_key": "",
+            "event_id": "$authJoinRulesPublic",
+            "sender": "@alice:example.test",
+            "content": {
+              "join_rule": "public"
+            }
+          }
+        ],
+        "candidate_event": {
+          "event_id": "$authMemberBobJoinByAlice",
+          "type": "m.room.member",
+          "sender": "@alice:example.test",
+          "state_key": "@bob:example.test",
+          "content": {
+            "membership": "join"
+          }
+        },
+        "expected": {
+          "allowed": false,
+          "reason": "membership_join_sender_mismatch"
+        }
+      }
+    ]
+  },
+  "expected": {
+    "case_count": 2
+  }
+}
