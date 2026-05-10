@@ -1,0 +1,16 @@
+{
+  "name": "matrix-profile-get-basic",
+  "contract": "SPEC-045",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/profile/@alice:example.test"
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "displayname": "Alice",
+      "avatar_url": "mxc://example.test/avatar-alice",
+      "m.tz": "Asia/Tokyo"
+    }
+  }
+}

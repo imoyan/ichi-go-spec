@@ -1,0 +1,71 @@
+{
+  "name": "matrix-room-tags-basic",
+  "contract": "SPEC-045",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#room-tagging",
+    "checked_at": "2026-05-10T17:51:00+09:00",
+    "user_id": "@alice:example.test",
+    "room_id": "!room:example.test",
+    "tag": "m.favourite",
+    "steps": [
+      {
+        "id": "put-room-tag",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/user/@alice:example.test/rooms/!room:example.test/tags/m.favourite",
+        "access_token": "token-alice",
+        "body": {
+          "order": 0.25
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "get-room-tags",
+        "method": "GET",
+        "path": "/_matrix/client/v3/user/@alice:example.test/rooms/!room:example.test/tags",
+        "access_token": "token-alice",
+        "expected_status": 200,
+        "expected_body": {
+          "tags": {
+            "m.favourite": {
+              "order": 0.25
+            }
+          }
+        }
+      },
+      {
+        "id": "delete-room-tag",
+        "method": "DELETE",
+        "path": "/_matrix/client/v3/user/@alice:example.test/rooms/!room:example.test/tags/m.favourite",
+        "access_token": "token-alice",
+        "expected_status": 200
+      },
+      {
+        "id": "get-room-tags-after-delete",
+        "method": "GET",
+        "path": "/_matrix/client/v3/user/@alice:example.test/rooms/!room:example.test/tags",
+        "access_token": "token-alice",
+        "expected_status": 200,
+        "expected_body": {
+          "tags": {}
+        }
+      },
+      {
+        "id": "sync-room-tags",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-alice",
+        "room_id": "!room:example.test",
+        "expected_room_account_data_event": {
+          "type": "m.tag",
+          "content": {
+            "tags": {}
+          }
+        }
+      }
+    ]
+  },
+  "expected": {
+    "step_count": 5
+  }
+}
