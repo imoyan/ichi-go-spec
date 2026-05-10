@@ -1,0 +1,504 @@
+{
+  "name": "matrix-event-dag-auth-events-invalid",
+  "contract": "SPEC-040",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/rooms/v12/",
+    "checked_at": "2026-05-10T14:31:34+09:00",
+    "invalid_cases": [
+      {
+        "id": "missing-prev-event",
+        "expected_error": "M_INVALID_PARAM",
+        "expected_violation": "missing_prev_event",
+        "room_version": "12",
+        "room_id": "!caseMissingPrev00000000000000000000000000000001",
+        "candidate_event_id": "$caseMissingPrevMessage0000000000000000000001",
+        "events": [
+          {
+            "event_id": "$caseMissingPrevCreate0000000000000000000001",
+            "type": "m.room.create",
+            "sender": "@alice:example.test",
+            "state_key": "",
+            "content": {
+              "room_version": "12"
+            },
+            "origin_server_ts": 1710000010000,
+            "depth": 1,
+            "prev_events": [],
+            "auth_events": [],
+            "hashes": {
+              "sha256": "case-missing-prev-create-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:1": "case-missing-prev-create-signature"
+              }
+            }
+          },
+          {
+            "event_id": "$caseMissingPrevMember0000000000000000000001",
+            "room_id": "!caseMissingPrev00000000000000000000000000000001",
+            "type": "m.room.member",
+            "sender": "@alice:example.test",
+            "state_key": "@alice:example.test",
+            "content": {
+              "membership": "join"
+            },
+            "origin_server_ts": 1710000010100,
+            "depth": 2,
+            "prev_events": [
+              "$caseMissingPrevCreate0000000000000000000001"
+            ],
+            "auth_events": [],
+            "hashes": {
+              "sha256": "case-missing-prev-member-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:1": "case-missing-prev-member-signature"
+              }
+            }
+          },
+          {
+            "event_id": "$caseMissingPrevMessage0000000000000000000001",
+            "room_id": "!caseMissingPrev00000000000000000000000000000001",
+            "type": "m.room.message",
+            "sender": "@alice:example.test",
+            "content": {
+              "msgtype": "m.text",
+              "body": "missing prev"
+            },
+            "origin_server_ts": 1710000010200,
+            "depth": 3,
+            "prev_events": [
+              "$missingPrevEvent0000000000000000000000000001"
+            ],
+            "auth_events": [
+              "$caseMissingPrevMember0000000000000000000001"
+            ],
+            "hashes": {
+              "sha256": "case-missing-prev-message-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:1": "case-missing-prev-message-signature"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "duplicate-auth-event",
+        "expected_error": "M_INVALID_PARAM",
+        "expected_violation": "duplicate_auth_event",
+        "room_version": "12",
+        "room_id": "!caseDuplicateAuth0000000000000000000000000001",
+        "candidate_event_id": "$caseDuplicateAuthMessage0000000000000000001",
+        "events": [
+          {
+            "event_id": "$caseDuplicateAuthCreate0000000000000000001",
+            "type": "m.room.create",
+            "sender": "@alice:example.test",
+            "state_key": "",
+            "content": {
+              "room_version": "12"
+            },
+            "origin_server_ts": 1710000020000,
+            "depth": 1,
+            "prev_events": [],
+            "auth_events": [],
+            "hashes": {
+              "sha256": "case-duplicate-auth-create-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:1": "case-duplicate-auth-create-signature"
+              }
+            }
+          },
+          {
+            "event_id": "$caseDuplicateAuthMember0000000000000000001",
+            "room_id": "!caseDuplicateAuth0000000000000000000000000001",
+            "type": "m.room.member",
+            "sender": "@alice:example.test",
+            "state_key": "@alice:example.test",
+            "content": {
+              "membership": "join"
+            },
+            "origin_server_ts": 1710000020100,
+            "depth": 2,
+            "prev_events": [
+              "$caseDuplicateAuthCreate0000000000000000001"
+            ],
+            "auth_events": [],
+            "hashes": {
+              "sha256": "case-duplicate-auth-member-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:1": "case-duplicate-auth-member-signature"
+              }
+            }
+          },
+          {
+            "event_id": "$caseDuplicateAuthMessage0000000000000000001",
+            "room_id": "!caseDuplicateAuth0000000000000000000000000001",
+            "type": "m.room.message",
+            "sender": "@alice:example.test",
+            "content": {
+              "msgtype": "m.text",
+              "body": "duplicate auth"
+            },
+            "origin_server_ts": 1710000020200,
+            "depth": 3,
+            "prev_events": [
+              "$caseDuplicateAuthMember0000000000000000001"
+            ],
+            "auth_events": [
+              "$caseDuplicateAuthMember0000000000000000001",
+              "$caseDuplicateAuthMember0000000000000000001"
+            ],
+            "hashes": {
+              "sha256": "case-duplicate-auth-message-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:1": "case-duplicate-auth-message-signature"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "self-prev-reference",
+        "expected_error": "M_INVALID_PARAM",
+        "expected_violation": "self_prev_event",
+        "room_version": "12",
+        "room_id": "!caseSelfPrev000000000000000000000000000001",
+        "candidate_event_id": "$caseSelfPrevMessage000000000000000000001",
+        "events": [
+          {
+            "event_id": "$caseSelfPrevCreate000000000000000000001",
+            "type": "m.room.create",
+            "sender": "@alice:example.test",
+            "state_key": "",
+            "content": {
+              "room_version": "12"
+            },
+            "origin_server_ts": 1710000030000,
+            "depth": 1,
+            "prev_events": [],
+            "auth_events": [],
+            "hashes": {
+              "sha256": "case-self-prev-create-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:1": "case-self-prev-create-signature"
+              }
+            }
+          },
+          {
+            "event_id": "$caseSelfPrevMember000000000000000000001",
+            "room_id": "!caseSelfPrev000000000000000000000000000001",
+            "type": "m.room.member",
+            "sender": "@alice:example.test",
+            "state_key": "@alice:example.test",
+            "content": {
+              "membership": "join"
+            },
+            "origin_server_ts": 1710000030100,
+            "depth": 2,
+            "prev_events": [
+              "$caseSelfPrevCreate000000000000000000001"
+            ],
+            "auth_events": [],
+            "hashes": {
+              "sha256": "case-self-prev-member-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:1": "case-self-prev-member-signature"
+              }
+            }
+          },
+          {
+            "event_id": "$caseSelfPrevMessage000000000000000000001",
+            "room_id": "!caseSelfPrev000000000000000000000000000001",
+            "type": "m.room.message",
+            "sender": "@alice:example.test",
+            "content": {
+              "msgtype": "m.text",
+              "body": "self prev"
+            },
+            "origin_server_ts": 1710000030200,
+            "depth": 3,
+            "prev_events": [
+              "$caseSelfPrevMember000000000000000000001",
+              "$caseSelfPrevMessage000000000000000000001"
+            ],
+            "auth_events": [
+              "$caseSelfPrevMember000000000000000000001"
+            ],
+            "hashes": {
+              "sha256": "case-self-prev-message-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:1": "case-self-prev-message-signature"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "auth-create-event-v12",
+        "expected_error": "M_INVALID_PARAM",
+        "expected_violation": "auth_create_event_v12",
+        "room_version": "12",
+        "room_id": "!caseAuthCreate00000000000000000000000000001",
+        "candidate_event_id": "$caseAuthCreateMember00000000000000000001",
+        "events": [
+          {
+            "event_id": "$caseAuthCreateCreate00000000000000000001",
+            "type": "m.room.create",
+            "sender": "@alice:example.test",
+            "state_key": "",
+            "content": {
+              "room_version": "12"
+            },
+            "origin_server_ts": 1710000040000,
+            "depth": 1,
+            "prev_events": [],
+            "auth_events": [],
+            "hashes": {
+              "sha256": "case-auth-create-create-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:1": "case-auth-create-create-signature"
+              }
+            }
+          },
+          {
+            "event_id": "$caseAuthCreateMember00000000000000000001",
+            "room_id": "!caseAuthCreate00000000000000000000000000001",
+            "type": "m.room.member",
+            "sender": "@alice:example.test",
+            "state_key": "@alice:example.test",
+            "content": {
+              "membership": "join"
+            },
+            "origin_server_ts": 1710000040100,
+            "depth": 2,
+            "prev_events": [
+              "$caseAuthCreateCreate00000000000000000001"
+            ],
+            "auth_events": [
+              "$caseAuthCreateCreate00000000000000000001"
+            ],
+            "hashes": {
+              "sha256": "case-auth-create-member-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:1": "case-auth-create-member-signature"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "prev-cycle",
+        "expected_error": "M_INVALID_PARAM",
+        "expected_violation": "prev_event_cycle",
+        "room_version": "12",
+        "room_id": "!casePrevCycle000000000000000000000000000001",
+        "candidate_event_id": "$casePrevCycleMessage000000000000000000001",
+        "events": [
+          {
+            "event_id": "$casePrevCycleCreate000000000000000000001",
+            "type": "m.room.create",
+            "sender": "@alice:example.test",
+            "state_key": "",
+            "content": {
+              "room_version": "12"
+            },
+            "origin_server_ts": 1710000050000,
+            "depth": 1,
+            "prev_events": [],
+            "auth_events": [],
+            "hashes": {
+              "sha256": "case-prev-cycle-create-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:1": "case-prev-cycle-create-signature"
+              }
+            }
+          },
+          {
+            "event_id": "$casePrevCycleMember000000000000000000001",
+            "room_id": "!casePrevCycle000000000000000000000000000001",
+            "type": "m.room.member",
+            "sender": "@alice:example.test",
+            "state_key": "@alice:example.test",
+            "content": {
+              "membership": "join"
+            },
+            "origin_server_ts": 1710000050100,
+            "depth": 4,
+            "prev_events": [
+              "$casePrevCycleMessage000000000000000000001"
+            ],
+            "auth_events": [],
+            "hashes": {
+              "sha256": "case-prev-cycle-member-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:1": "case-prev-cycle-member-signature"
+              }
+            }
+          },
+          {
+            "event_id": "$casePrevCycleMessage000000000000000000001",
+            "room_id": "!casePrevCycle000000000000000000000000000001",
+            "type": "m.room.message",
+            "sender": "@alice:example.test",
+            "content": {
+              "msgtype": "m.text",
+              "body": "cycle"
+            },
+            "origin_server_ts": 1710000050200,
+            "depth": 3,
+            "prev_events": [
+              "$casePrevCycleMember000000000000000000001"
+            ],
+            "auth_events": [
+              "$casePrevCycleMember000000000000000000001"
+            ],
+            "hashes": {
+              "sha256": "case-prev-cycle-message-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:1": "case-prev-cycle-message-signature"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "duplicate-auth-state-key",
+        "expected_error": "M_INVALID_PARAM",
+        "expected_violation": "duplicate_auth_state_key",
+        "room_version": "12",
+        "room_id": "!caseDuplicateState00000000000000000000000001",
+        "candidate_event_id": "$caseDuplicateStateMessage0000000000000001",
+        "events": [
+          {
+            "event_id": "$caseDuplicateStateCreate0000000000000001",
+            "type": "m.room.create",
+            "sender": "@alice:example.test",
+            "state_key": "",
+            "content": {
+              "room_version": "12"
+            },
+            "origin_server_ts": 1710000060000,
+            "depth": 1,
+            "prev_events": [],
+            "auth_events": [],
+            "hashes": {
+              "sha256": "case-duplicate-state-create-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:1": "case-duplicate-state-create-signature"
+              }
+            }
+          },
+          {
+            "event_id": "$caseDuplicateStateMemberA0000000000000001",
+            "room_id": "!caseDuplicateState00000000000000000000000001",
+            "type": "m.room.member",
+            "sender": "@alice:example.test",
+            "state_key": "@alice:example.test",
+            "content": {
+              "membership": "join"
+            },
+            "origin_server_ts": 1710000060100,
+            "depth": 2,
+            "prev_events": [
+              "$caseDuplicateStateCreate0000000000000001"
+            ],
+            "auth_events": [],
+            "hashes": {
+              "sha256": "case-duplicate-state-member-a-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:1": "case-duplicate-state-member-a-signature"
+              }
+            }
+          },
+          {
+            "event_id": "$caseDuplicateStateMemberB0000000000000001",
+            "room_id": "!caseDuplicateState00000000000000000000000001",
+            "type": "m.room.member",
+            "sender": "@alice:example.test",
+            "state_key": "@alice:example.test",
+            "content": {
+              "membership": "join"
+            },
+            "origin_server_ts": 1710000060200,
+            "depth": 3,
+            "prev_events": [
+              "$caseDuplicateStateMemberA0000000000000001"
+            ],
+            "auth_events": [],
+            "hashes": {
+              "sha256": "case-duplicate-state-member-b-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:1": "case-duplicate-state-member-b-signature"
+              }
+            }
+          },
+          {
+            "event_id": "$caseDuplicateStateMessage0000000000000001",
+            "room_id": "!caseDuplicateState00000000000000000000000001",
+            "type": "m.room.message",
+            "sender": "@alice:example.test",
+            "content": {
+              "msgtype": "m.text",
+              "body": "duplicate state key"
+            },
+            "origin_server_ts": 1710000060300,
+            "depth": 4,
+            "prev_events": [
+              "$caseDuplicateStateMemberB0000000000000001"
+            ],
+            "auth_events": [
+              "$caseDuplicateStateMemberA0000000000000001",
+              "$caseDuplicateStateMemberB0000000000000001"
+            ],
+            "hashes": {
+              "sha256": "case-duplicate-state-message-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:1": "case-duplicate-state-message-signature"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "error": "M_INVALID_PARAM",
+    "invalid_case_count": 6
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "name": "matrix-event-dag-auth-events-basic",
+  "contract": "SPEC-040",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/rooms/v12/",
+    "checked_at": "2026-05-10T14:31:34+09:00",
+    "room_version": "12",
+    "room_id": "!wW8x1L9s4pT4tP0mR2a7rTq9bQhF6KjUoYzA3cD5eFg",
+    "candidate_event_id": "$messageEvent000000000000000000000000000000000001",
+    "events": [
+      {
+        "event_id": "$wW8x1L9s4pT4tP0mR2a7rTq9bQhF6KjUoYzA3cD5eFg",
+        "type": "m.room.create",
+        "sender": "@alice:example.test",
+        "state_key": "",
+        "content": {
+          "room_version": "12"
+        },
+        "origin_server_ts": 1710000000000,
+        "depth": 1,
+        "prev_events": [],
+        "auth_events": [],
+        "hashes": {
+          "sha256": "create-event-content-hash"
+        },
+        "signatures": {
+          "example.test": {
+            "ed25519:1": "create-event-signature"
+          }
+        }
+      },
+      {
+        "event_id": "$memberAlice000000000000000000000000000000000001",
+        "room_id": "!wW8x1L9s4pT4tP0mR2a7rTq9bQhF6KjUoYzA3cD5eFg",
+        "type": "m.room.member",
+        "sender": "@alice:example.test",
+        "state_key": "@alice:example.test",
+        "content": {
+          "membership": "join"
+        },
+        "origin_server_ts": 1710000000100,
+        "depth": 2,
+        "prev_events": [
+          "$wW8x1L9s4pT4tP0mR2a7rTq9bQhF6KjUoYzA3cD5eFg"
+        ],
+        "auth_events": [],
+        "hashes": {
+          "sha256": "member-event-content-hash"
+        },
+        "signatures": {
+          "example.test": {
+            "ed25519:1": "member-event-signature"
+          }
+        }
+      },
+      {
+        "event_id": "$messageEvent000000000000000000000000000000000001",
+        "room_id": "!wW8x1L9s4pT4tP0mR2a7rTq9bQhF6KjUoYzA3cD5eFg",
+        "type": "m.room.message",
+        "sender": "@alice:example.test",
+        "content": {
+          "msgtype": "m.text",
+          "body": "Hello DAG"
+        },
+        "origin_server_ts": 1710000000200,
+        "depth": 3,
+        "prev_events": [
+          "$memberAlice000000000000000000000000000000000001"
+        ],
+        "auth_events": [
+          "$memberAlice000000000000000000000000000000000001"
+        ],
+        "hashes": {
+          "sha256": "message-event-content-hash"
+        },
+        "signatures": {
+          "example.test": {
+            "ed25519:1": "message-event-signature"
+          }
+        }
+      }
+    ]
+  },
+  "expected": {
+    "valid": true,
+    "dag_roots": [
+      "$wW8x1L9s4pT4tP0mR2a7rTq9bQhF6KjUoYzA3cD5eFg"
+    ],
+    "candidate_event_id": "$messageEvent000000000000000000000000000000000001",
+    "candidate_prev_events": [
+      "$memberAlice000000000000000000000000000000000001"
+    ],
+    "candidate_auth_events": [
+      "$memberAlice000000000000000000000000000000000001"
+    ]
+  }
+}
