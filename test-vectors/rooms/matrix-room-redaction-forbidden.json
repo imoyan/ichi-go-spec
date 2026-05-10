@@ -1,0 +1,19 @@
+{
+  "name": "matrix-room-redaction-forbidden",
+  "contract": "SPEC-049",
+  "request": {
+    "method": "PUT",
+    "path": "/_matrix/client/v3/rooms/!room:example.test/redact/$alice-event:example.test/txn-redact-2",
+    "access_token": "token-bob",
+    "body": {
+      "reason": "Attempt to redact another user's event"
+    }
+  },
+  "expected": {
+    "status": 403,
+    "error": {
+      "errcode": "M_FORBIDDEN",
+      "error": "You do not have permission to redact this event."
+    }
+  }
+}

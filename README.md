@@ -73,6 +73,7 @@ The maintained repository names are:
 - `contracts/SPEC-046-matrix-receipts-typing-read-markers.md`
 - `contracts/SPEC-047-matrix-filters-presence-capabilities.md`
 - `contracts/SPEC-048-matrix-room-directory-aliases-invites.md`
+- `contracts/SPEC-049-matrix-moderation-reporting-admin-controls.md`
 
 ## Shared Design Inputs
 
@@ -431,7 +432,7 @@ Matrix compliance must be tracked by API domain, not as a single vague label:
 
 | Matrix domain | v1.18 scope source | Current Houra state | Target gate |
 |---|---|---|---|
-| Client-Server API | `/_matrix/client/*`, media, auth, sync, rooms, user data, devices, reporting, admin capabilities | Product MVP covers a small `/_houra/client/*` subset; `SPEC-030` through `SPEC-038` add Matrix versions, auth/session, registration, devices, room create/join/leave/state, send event/messages, sync, and media upload/download contracts; `SPEC-039` defines the integrated live e2e adoption gate; `SPEC-045` starts Client-Server breadth with profile, account data, and room tags; `SPEC-046` adds receipts, typing, and read markers; `SPEC-047` adds filters, presence, and capabilities; `SPEC-048` adds room directory, aliases, and invites | Matrix-compatible endpoint namespace, response shapes, error codes, representative conformance vectors, and live server/client MVP smoke pass |
+| Client-Server API | `/_matrix/client/*`, media, auth, sync, rooms, user data, devices, reporting, admin capabilities | Product MVP covers a small `/_houra/client/*` subset; `SPEC-030` through `SPEC-038` add Matrix versions, auth/session, registration, devices, room create/join/leave/state, send event/messages, sync, and media upload/download contracts; `SPEC-039` defines the integrated live e2e adoption gate; `SPEC-045` starts Client-Server breadth with profile, account data, and room tags; `SPEC-046` adds receipts, typing, and read markers; `SPEC-047` adds filters, presence, and capabilities; `SPEC-048` adds room directory, aliases, and invites; `SPEC-049` adds moderation, reporting, and admin controls | Matrix-compatible endpoint namespace, response shapes, error codes, representative conformance vectors, and live server/client MVP smoke pass |
 | Server-Server API | federation discovery, signed transactions, PDUs/EDUs, event auth, joins/leaves, invites, backfill, key APIs, policy servers | Not implemented | A second homeserver can federate, exchange signed room events, validate auth, and recover state across restart |
 | Application Service API | appservice registration, namespace ownership, transactions, sender localpart, bridge-style event delivery | Not implemented | A registered appservice receives transactions and can puppet/send events within its declared namespaces |
 | Identity Service API | third-party identifier validation and lookup | Not implemented | Either explicitly out of supported deployment scope or implemented as a separate identity component with conformance evidence |
@@ -588,6 +589,19 @@ Matrix room directory, aliases, and invites gate:
   `houra-client`. Create an `houra-labs` issue only if a parser-only shared
   helper is intentionally adopted for public room summaries, alias lists, or
   stripped invite state.
+
+Matrix moderation, reporting, and admin controls gate:
+
+- `SPEC-049` defines the Matrix v1.18 kick, ban, unban, redaction, reporting,
+  and account moderation admin endpoint family. It records representative
+  permission failures and `m.account_moderation` capability evidence for
+  server-local account lock/suspend controls.
+- Passing this gate does not claim policy server signing, moderation queue UI,
+  appeals, federation enforcement, E2EE, or Matrix v1.18 full compliance.
+- After `SPEC-049` merges, create adoption issues for `houra-server` and
+  `houra-client`. Create an `houra-labs` issue only if a parser-only shared
+  helper is intentionally adopted for moderation, reporting, or admin response
+  shapes.
 
 Matrix room versions gate:
 
@@ -748,6 +762,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-046 | Matrix receipts, typing, and read markers endpoint family | `test-vectors/sync/matrix-typing-*.json`, `test-vectors/sync/matrix-receipt-*.json`, and `test-vectors/sync/matrix-read-marker*.json` |
 | SPEC-047 | Matrix filters, presence, and capabilities endpoint family | `test-vectors/sync/matrix-filter-*.json`, `test-vectors/sync/matrix-presence-*.json`, and `test-vectors/sync/matrix-capabilities-*.json` |
 | SPEC-048 | Matrix room directory, aliases, and invites endpoint family | `test-vectors/rooms/matrix-public-rooms-*.json`, `test-vectors/rooms/matrix-room-directory-*.json`, `test-vectors/rooms/matrix-room-alias*.json`, and `test-vectors/rooms/matrix-room-invite-*.json` |
+| SPEC-049 | Matrix moderation, reporting, and admin controls endpoint family | `test-vectors/rooms/matrix-room-moderation-*.json`, `test-vectors/rooms/matrix-room-redaction-*.json`, `test-vectors/rooms/matrix-room-reporting-*.json`, and `test-vectors/rooms/matrix-admin-account-moderation-*.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this

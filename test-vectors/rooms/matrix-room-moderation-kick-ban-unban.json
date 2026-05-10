@@ -1,0 +1,73 @@
+{
+  "name": "matrix-room-moderation-kick-ban-unban",
+  "contract": "SPEC-049",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3roomsroomidkick",
+    "checked_at": "2026-05-10T18:59:32+09:00",
+    "room_id": "!room:example.test",
+    "moderator": "@alice:example.test",
+    "steps": [
+      {
+        "id": "kick-user",
+        "method": "POST",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/kick",
+        "access_token": "token-alice",
+        "body": {
+          "user_id": "@bob:example.test",
+          "reason": "Off topic"
+        },
+        "expected_status": 200,
+        "expected_membership_event": {
+          "type": "m.room.member",
+          "state_key": "@bob:example.test",
+          "content": {
+            "membership": "leave",
+            "reason": "Off topic"
+          }
+        }
+      },
+      {
+        "id": "ban-user",
+        "method": "POST",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/ban",
+        "access_token": "token-alice",
+        "body": {
+          "user_id": "@carol:example.test",
+          "reason": "Spam"
+        },
+        "expected_status": 200,
+        "expected_membership_event": {
+          "type": "m.room.member",
+          "state_key": "@carol:example.test",
+          "content": {
+            "membership": "ban",
+            "reason": "Spam"
+          }
+        }
+      },
+      {
+        "id": "unban-user",
+        "method": "POST",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/unban",
+        "access_token": "token-alice",
+        "body": {
+          "user_id": "@carol:example.test",
+          "reason": "Appeal accepted"
+        },
+        "expected_status": 200,
+        "expected_membership_event": {
+          "type": "m.room.member",
+          "state_key": "@carol:example.test",
+          "content": {
+            "membership": "leave",
+            "reason": "Appeal accepted"
+          }
+        }
+      }
+    ]
+  },
+  "expected": {
+    "step_count": 3
+  }
+}
