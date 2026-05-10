@@ -1,0 +1,129 @@
+{
+  "name": "matrix-verification-sas-to-device-happy-path",
+  "contract": "SPEC-054",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#device-verification",
+    "checked_at": "2026-05-10T19:50:08+09:00",
+    "transport": "to_device",
+    "required_contracts": [
+      "SPEC-050",
+      "SPEC-051",
+      "SPEC-052",
+      "SPEC-054"
+    ],
+    "initiator": {
+      "user_id": "@alice:example.test",
+      "device_id": "ALICE1"
+    },
+    "recipient": {
+      "user_id": "@alice:example.test",
+      "device_id": "ALICE2"
+    },
+    "transaction_id": "verif-txn-1",
+    "steps": [
+      {
+        "id": "send-verification-request",
+        "type": "m.key.verification.request",
+        "to_device": true,
+        "content": {
+          "from_device": "ALICE1",
+          "methods": [
+            "m.sas.v1"
+          ],
+          "timestamp": 1778406608000,
+          "transaction_id": "verif-txn-1"
+        }
+      },
+      {
+        "id": "send-verification-ready",
+        "type": "m.key.verification.ready",
+        "to_device": true,
+        "content": {
+          "from_device": "ALICE2",
+          "methods": [
+            "m.sas.v1"
+          ],
+          "transaction_id": "verif-txn-1"
+        }
+      },
+      {
+        "id": "send-verification-start",
+        "type": "m.key.verification.start",
+        "to_device": true,
+        "content": {
+          "from_device": "ALICE1",
+          "hashes": [
+            "sha256"
+          ],
+          "key_agreement_protocols": [
+            "curve25519",
+            "curve25519-hkdf-sha256"
+          ],
+          "message_authentication_codes": [
+            "hkdf-hmac-sha256.v2"
+          ],
+          "method": "m.sas.v1",
+          "short_authentication_string": [
+            "decimal",
+            "emoji"
+          ],
+          "transaction_id": "verif-txn-1"
+        }
+      },
+      {
+        "id": "send-verification-accept",
+        "type": "m.key.verification.accept",
+        "to_device": true,
+        "content": {
+          "commitment": "base64-commitment",
+          "hash": "sha256",
+          "key_agreement_protocol": "curve25519-hkdf-sha256",
+          "message_authentication_code": "hkdf-hmac-sha256.v2",
+          "method": "m.sas.v1",
+          "short_authentication_string": [
+            "decimal",
+            "emoji"
+          ],
+          "transaction_id": "verif-txn-1"
+        }
+      },
+      {
+        "id": "exchange-verification-keys",
+        "type": "m.key.verification.key",
+        "to_device": true,
+        "content": {
+          "key": "base64-ephemeral-public-key",
+          "transaction_id": "verif-txn-1"
+        }
+      },
+      {
+        "id": "exchange-verification-mac",
+        "type": "m.key.verification.mac",
+        "to_device": true,
+        "content": {
+          "keys": "base64-mac-of-key-ids",
+          "mac": {
+            "ed25519:ALICE2": "base64-device-key-mac"
+          },
+          "transaction_id": "verif-txn-1"
+        }
+      },
+      {
+        "id": "mark-device-verified",
+        "adapter_owned": true,
+        "required": true,
+        "result": {
+          "verified_user_id": "@alice:example.test",
+          "verified_device_id": "ALICE2",
+          "verified": true
+        }
+      }
+    ]
+  },
+  "expected": {
+    "verified": true,
+    "local_sas_allowed": false,
+    "versions_advertisement_widened": false
+  }
+}

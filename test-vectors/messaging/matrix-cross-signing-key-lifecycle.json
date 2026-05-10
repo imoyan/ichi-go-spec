@@ -1,0 +1,137 @@
+{
+  "name": "matrix-cross-signing-key-lifecycle",
+  "contract": "SPEC-054",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#cross-signing",
+    "checked_at": "2026-05-10T19:50:08+09:00",
+    "required_contracts": [
+      "SPEC-050",
+      "SPEC-051",
+      "SPEC-054"
+    ],
+    "user_id": "@alice:example.test",
+    "steps": [
+      {
+        "id": "upload-cross-signing-keys",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/device_signing/upload",
+        "expected_status": 200,
+        "body": {
+          "master_key": {
+            "user_id": "@alice:example.test",
+            "usage": [
+              "master"
+            ],
+            "keys": {
+              "ed25519:master-public": "master-public"
+            },
+            "signatures": {
+              "@alice:example.test": {
+                "ed25519:ALICE1": "signature-of-master-by-device"
+              }
+            }
+          },
+          "self_signing_key": {
+            "user_id": "@alice:example.test",
+            "usage": [
+              "self_signing"
+            ],
+            "keys": {
+              "ed25519:self-signing-public": "self-signing-public"
+            },
+            "signatures": {
+              "@alice:example.test": {
+                "ed25519:master-public": "signature-of-self-signing-by-master"
+              }
+            }
+          },
+          "user_signing_key": {
+            "user_id": "@alice:example.test",
+            "usage": [
+              "user_signing"
+            ],
+            "keys": {
+              "ed25519:user-signing-public": "user-signing-public"
+            },
+            "signatures": {
+              "@alice:example.test": {
+                "ed25519:master-public": "signature-of-user-signing-by-master"
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "query-cross-signing-keys",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/query",
+        "expected_status": 200,
+        "body": {
+          "device_keys": {
+            "@alice:example.test": []
+          }
+        },
+        "expected_body_contains": {
+          "master_keys": {
+            "@alice:example.test": {
+              "usage": [
+                "master"
+              ]
+            }
+          },
+          "self_signing_keys": {
+            "@alice:example.test": {
+              "usage": [
+                "self_signing"
+              ]
+            }
+          },
+          "user_signing_keys": {
+            "@alice:example.test": {
+              "usage": [
+                "user_signing"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": "upload-device-signature",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/signatures/upload",
+        "expected_status": 200,
+        "body": {
+          "@alice:example.test": {
+            "ALICE2": {
+              "user_id": "@alice:example.test",
+              "device_id": "ALICE2",
+              "algorithms": [
+                "m.olm.v1.curve25519-aes-sha2",
+                "m.megolm.v1.aes-sha2"
+              ],
+              "keys": {
+                "curve25519:ALICE2": "curve25519-device-public",
+                "ed25519:ALICE2": "ed25519-device-public"
+              },
+              "signatures": {
+                "@alice:example.test": {
+                  "ed25519:self-signing-public": "signature-of-device-by-self-signing"
+                }
+              }
+            }
+          }
+        },
+        "expected_body_contains": {
+          "failures": {}
+        }
+      }
+    ],
+    "server_must_not_store_private_keys": true
+  },
+  "expected": {
+    "cross_signing_public_keys_available": true,
+    "signature_failures_empty": true,
+    "versions_advertisement_widened": false
+  }
+}

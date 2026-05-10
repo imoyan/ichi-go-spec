@@ -1,0 +1,74 @@
+{
+  "name": "matrix-wrong-device-failure-gate",
+  "contract": "SPEC-054",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#cross-signing",
+    "checked_at": "2026-05-10T19:50:08+09:00",
+    "required_contracts": [
+      "SPEC-050",
+      "SPEC-051",
+      "SPEC-052",
+      "SPEC-054"
+    ],
+    "crypto_stack_required": true,
+    "local_cross_signing_crypto_allowed": false,
+    "trusted_identity": {
+      "user_id": "@bob:example.test",
+      "device_id": "BOB1",
+      "master_key": "trusted-master-public",
+      "device_key": "trusted-ed25519-device-public"
+    },
+    "observed_identity": {
+      "user_id": "@bob:example.test",
+      "device_id": "BOB1",
+      "master_key": "unexpected-master-public",
+      "device_key": "unexpected-ed25519-device-public"
+    },
+    "steps": [
+      {
+        "id": "load-established-trust-chain",
+        "contract": "SPEC-054",
+        "required": true
+      },
+      {
+        "id": "observe-device-or-master-key-mismatch",
+        "contract": "SPEC-051",
+        "required": true
+      },
+      {
+        "id": "refuse-to-mark-device-verified",
+        "contract": "SPEC-054",
+        "required": true
+      },
+      {
+        "id": "refuse-outbound-session-share",
+        "contract": "SPEC-052",
+        "required": true
+      },
+      {
+        "id": "record-verification-failure",
+        "contract": "SPEC-054",
+        "required": true,
+        "cancel_code": "m.key_mismatch"
+      }
+    ],
+    "required_evidence": [
+      "houra_spec_ref",
+      "houra_server_ref",
+      "houra_client_ref",
+      "crypto_stack_name",
+      "crypto_stack_version",
+      "trusted_fingerprint",
+      "observed_fingerprint",
+      "commands",
+      "per_step_pass_fail"
+    ]
+  },
+  "expected": {
+    "device_verified": false,
+    "outbound_session_shared": false,
+    "requires_user_reverification": true,
+    "versions_advertisement_widened": false
+  }
+}

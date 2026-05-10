@@ -109,6 +109,7 @@ void main() {
   checkMatrixDeviceOneTimeFallbackKeys(contracts, failures);
   checkMatrixToDeviceEncryptedRoomGate(contracts, failures);
   checkMatrixKeyBackupRestoreGate(contracts, failures);
+  checkMatrixVerificationCrossSigningGate(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -4598,6 +4599,425 @@ void validateMatrixKeyBackupData(
       sessionData['ciphertext'] is! String ||
       sessionData['mac'] is! String) {
     failures.add('${relative(file)} key backup session_data invalid.');
+  }
+}
+
+void checkMatrixVerificationCrossSigningGate(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-054')) {
+    failures.add(
+      'Matrix verification/cross-signing contract SPEC-054 is required.',
+    );
+  }
+  const paths = [
+    'test-vectors/messaging/matrix-verification-sas-to-device-happy-path.json',
+    'test-vectors/messaging/matrix-verification-sas-mismatch-cancel.json',
+    'test-vectors/messaging/matrix-cross-signing-key-lifecycle.json',
+    'test-vectors/messaging/matrix-cross-signing-invalid-signature.json',
+    'test-vectors/messaging/matrix-wrong-device-failure-gate.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix verification/cross-signing vector: $path');
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('sas-to-device')) {
+      validateMatrixVerificationSasHappyPath(file, json, failures);
+    } else if (path.contains('sas-mismatch')) {
+      validateMatrixVerificationSasMismatch(file, json, failures);
+    } else if (path.contains('key-lifecycle')) {
+      validateMatrixCrossSigningLifecycle(file, json, failures);
+    } else if (path.contains('invalid-signature')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'POST',
+        pathPrefix: '/_matrix/client/v3/keys/device_signing/upload',
+        status: 400,
+        errcode: 'M_INVALID_SIGNATURE',
+      );
+    } else {
+      validateMatrixWrongDeviceFailureGate(file, json, failures);
+    }
+  }
+}
+
+void validateMatrixVerificationSasHappyPath(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixE2eeReference(file, eventMap, failures);
+  requireStringListIncludes(file, eventMap, 'required_contracts', {
+    'SPEC-050',
+    'SPEC-051',
+    'SPEC-052',
+    'SPEC-054',
+  }, failures);
+  if (eventMap['transport'] != 'to_device' ||
+      eventMap['transaction_id'] != 'verif-txn-1') {
+    failures.add('${relative(file)} SAS verification metadata invalid.');
+  }
+  validateMatrixVerificationParticipant(file, eventMap['initiator'], failures);
+  validateMatrixVerificationParticipant(file, eventMap['recipient'], failures);
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = [
+    'send-verification-request',
+    'send-verification-ready',
+    'send-verification-start',
+    'send-verification-accept',
+    'exchange-verification-keys',
+    'exchange-verification-mac',
+    'mark-device-verified',
+  ];
+  validateStepOrder(file, steps, expected, failures);
+  const expectedTypes = {
+    'send-verification-request': 'm.key.verification.request',
+    'send-verification-ready': 'm.key.verification.ready',
+    'send-verification-start': 'm.key.verification.start',
+    'send-verification-accept': 'm.key.verification.accept',
+    'exchange-verification-keys': 'm.key.verification.key',
+    'exchange-verification-mac': 'm.key.verification.mac',
+  };
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    if (id is String && expectedTypes.containsKey(id)) {
+      if (step['type'] != expectedTypes[id] || step['to_device'] != true) {
+        failures.add('${relative(file)} SAS verification step type invalid.');
+      }
+      final content = step['content'];
+      if (content is! Map || content['transaction_id'] != 'verif-txn-1') {
+        failures.add(
+          '${relative(file)} SAS verification transaction_id invalid.',
+        );
+      }
+      if ((id == 'send-verification-start' ||
+              id == 'send-verification-accept') &&
+          content is Map &&
+          content['method'] != 'm.sas.v1') {
+        failures.add('${relative(file)} SAS verification method invalid.');
+      }
+    }
+    if (id == 'mark-device-verified') {
+      final result = step['result'];
+      if (step['adapter_owned'] != true ||
+          result is! Map ||
+          result['verified'] != true) {
+        failures.add('${relative(file)} verified device result invalid.');
+      }
+    }
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['verified'] != true ||
+      expectedResult['local_sas_allowed'] != false ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} SAS verification expectation invalid.');
+  }
+}
+
+void validateMatrixVerificationSasMismatch(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixE2eeReference(file, eventMap, failures);
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = [
+    'detect-sas-mismatch',
+    'send-verification-cancel',
+    'leave-device-unverified',
+  ];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    if (id == 'send-verification-cancel') {
+      final content = step['content'];
+      if (step['type'] != 'm.key.verification.cancel' ||
+          step['to_device'] != true ||
+          content is! Map ||
+          content['code'] != 'm.mismatched_sas' ||
+          content['transaction_id'] != 'verif-txn-mismatch') {
+        failures.add('${relative(file)} SAS mismatch cancel invalid.');
+      }
+    }
+    if (id == 'leave-device-unverified') {
+      final result = step['result'];
+      if (result is! Map || result['verified'] != false) {
+        failures.add('${relative(file)} SAS mismatch trust result invalid.');
+      }
+    }
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['cancel_code'] != 'm.mismatched_sas' ||
+      expectedResult['verified'] != false ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} SAS mismatch expectation invalid.');
+  }
+}
+
+void validateMatrixCrossSigningLifecycle(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixE2eeReference(file, eventMap, failures);
+  requireStringListIncludes(file, eventMap, 'required_contracts', {
+    'SPEC-050',
+    'SPEC-051',
+    'SPEC-054',
+  }, failures);
+  if (eventMap['user_id'] != '@alice:example.test' ||
+      eventMap['server_must_not_store_private_keys'] != true) {
+    failures.add('${relative(file)} cross-signing metadata invalid.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = [
+    'upload-cross-signing-keys',
+    'query-cross-signing-keys',
+    'upload-device-signature',
+  ];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    if (step['expected_status'] != 200 || step['method'] != 'POST') {
+      failures.add('${relative(file)} cross-signing step status invalid.');
+    }
+    final id = step['id'];
+    if (id == 'upload-cross-signing-keys') {
+      if (step['path'] != '/_matrix/client/v3/keys/device_signing/upload') {
+        failures.add('${relative(file)} device_signing path invalid.');
+      }
+      final body = step['body'];
+      if (body is! Map) {
+        failures.add('${relative(file)} cross-signing upload body invalid.');
+      } else {
+        validateMatrixCrossSigningKey(
+          file,
+          body['master_key'],
+          'master',
+          failures,
+        );
+        validateMatrixCrossSigningKey(
+          file,
+          body['self_signing_key'],
+          'self_signing',
+          failures,
+        );
+        validateMatrixCrossSigningKey(
+          file,
+          body['user_signing_key'],
+          'user_signing',
+          failures,
+        );
+      }
+    } else if (id == 'query-cross-signing-keys') {
+      if (step['path'] != '/_matrix/client/v3/keys/query') {
+        failures.add('${relative(file)} keys/query path invalid.');
+      }
+      final response = step['expected_body_contains'];
+      if (response is! Map ||
+          response['master_keys'] is! Map ||
+          response['self_signing_keys'] is! Map ||
+          response['user_signing_keys'] is! Map) {
+        failures.add('${relative(file)} cross-signing query response invalid.');
+      }
+    } else if (id == 'upload-device-signature') {
+      if (step['path'] != '/_matrix/client/v3/keys/signatures/upload') {
+        failures.add('${relative(file)} signatures upload path invalid.');
+      }
+      final response = step['expected_body_contains'];
+      if (response is! Map || response['failures'] is! Map) {
+        failures.add(
+          '${relative(file)} signatures upload expectation invalid.',
+        );
+      }
+    }
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['cross_signing_public_keys_available'] != true ||
+      expectedResult['signature_failures_empty'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} cross-signing expectation invalid.');
+  }
+}
+
+void validateMatrixWrongDeviceFailureGate(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixE2eeReference(file, eventMap, failures);
+  requireStringListIncludes(file, eventMap, 'required_contracts', {
+    'SPEC-050',
+    'SPEC-051',
+    'SPEC-052',
+    'SPEC-054',
+  }, failures);
+  if (eventMap['crypto_stack_required'] != true ||
+      eventMap['local_cross_signing_crypto_allowed'] != false) {
+    failures.add('${relative(file)} wrong-device crypto boundary invalid.');
+  }
+  validateMatrixIdentitySnapshot(file, eventMap['trusted_identity'], failures);
+  validateMatrixIdentitySnapshot(file, eventMap['observed_identity'], failures);
+  final trusted = eventMap['trusted_identity'];
+  final observed = eventMap['observed_identity'];
+  if (trusted is Map && observed is Map) {
+    if (trusted['master_key'] == observed['master_key'] ||
+        trusted['device_key'] == observed['device_key']) {
+      failures.add('${relative(file)} wrong-device mismatch not represented.');
+    }
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = [
+    'load-established-trust-chain',
+    'observe-device-or-master-key-mismatch',
+    'refuse-to-mark-device-verified',
+    'refuse-outbound-session-share',
+    'record-verification-failure',
+  ];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map || item['required'] != true) {
+      failures.add('${relative(file)} all wrong-device steps required.');
+      continue;
+    }
+    if (item['contract'] is! String) {
+      failures.add('${relative(file)} wrong-device step contract missing.');
+    }
+    if (item['id'] == 'record-verification-failure' &&
+        item['cancel_code'] != 'm.key_mismatch') {
+      failures.add('${relative(file)} wrong-device cancel code invalid.');
+    }
+  }
+  requireStringListIncludes(file, eventMap, 'required_evidence', {
+    'houra_spec_ref',
+    'houra_server_ref',
+    'houra_client_ref',
+    'crypto_stack_name',
+    'crypto_stack_version',
+    'trusted_fingerprint',
+    'observed_fingerprint',
+    'commands',
+    'per_step_pass_fail',
+  }, failures);
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['device_verified'] != false ||
+      expectedResult['outbound_session_shared'] != false ||
+      expectedResult['requires_user_reverification'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} wrong-device expectation invalid.');
+  }
+}
+
+void validateMatrixVerificationParticipant(
+  File file,
+  Object? value,
+  List<String> failures,
+) {
+  if (value is! Map ||
+      value['user_id'] is! String ||
+      !(value['user_id'] as String).startsWith('@') ||
+      value['device_id'] is! String ||
+      (value['device_id'] as String).isEmpty) {
+    failures.add('${relative(file)} verification participant invalid.');
+  }
+}
+
+void validateMatrixCrossSigningKey(
+  File file,
+  Object? value,
+  String expectedUsage,
+  List<String> failures,
+) {
+  if (value is! Map ||
+      value['user_id'] != '@alice:example.test' ||
+      value['usage'] is! List ||
+      value['keys'] is! Map) {
+    failures.add('${relative(file)} cross-signing key invalid.');
+    return;
+  }
+  final usage = (value['usage'] as List).cast<Object?>();
+  if (usage.length != 1 || usage.first != expectedUsage) {
+    failures.add('${relative(file)} cross-signing key usage invalid.');
+  }
+  final keys = (value['keys'] as Map).cast<String, Object?>();
+  if (keys.length != 1 ||
+      keys.keys.any((key) => !key.startsWith('ed25519:')) ||
+      keys.values.any((key) => key is! String || key.isEmpty)) {
+    failures.add('${relative(file)} cross-signing public key invalid.');
+  }
+  if (expectedUsage != 'master') {
+    final signatures = value['signatures'];
+    if (signatures is! Map || signatures['@alice:example.test'] is! Map) {
+      failures.add('${relative(file)} cross-signing signature invalid.');
+    }
+  }
+}
+
+void validateMatrixIdentitySnapshot(
+  File file,
+  Object? value,
+  List<String> failures,
+) {
+  if (value is! Map ||
+      value['user_id'] is! String ||
+      !(value['user_id'] as String).startsWith('@') ||
+      value['device_id'] is! String ||
+      (value['device_id'] as String).isEmpty ||
+      value['master_key'] is! String ||
+      value['device_key'] is! String) {
+    failures.add('${relative(file)} identity snapshot invalid.');
   }
 }
 

@@ -1,0 +1,32 @@
+{
+  "name": "matrix-cross-signing-invalid-signature",
+  "contract": "SPEC-054",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/keys/device_signing/upload",
+    "body": {
+      "self_signing_key": {
+        "user_id": "@alice:example.test",
+        "usage": [
+          "self_signing"
+        ],
+        "keys": {
+          "ed25519:self-signing-public": "self-signing-public"
+        },
+        "signatures": {
+          "@alice:example.test": {
+            "ed25519:not-the-master-key": "invalid-signature"
+          }
+        }
+      }
+    }
+  },
+  "expected": {
+    "status": 400,
+    "error": {
+      "errcode": "M_INVALID_SIGNATURE",
+      "error": "Invalid signature"
+    },
+    "versions_advertisement_widened": false
+  }
+}
