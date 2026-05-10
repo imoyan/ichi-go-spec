@@ -63,6 +63,7 @@ The maintained repository names are:
 - `contracts/SPEC-036-matrix-send-event-messages.md`
 - `contracts/SPEC-037-matrix-sync-mvp.md`
 - `contracts/SPEC-038-matrix-media-mvp.md`
+- `contracts/SPEC-039-matrix-client-server-mvp-live-e2e-gate.md`
 
 ## Shared Design Inputs
 
@@ -421,7 +422,7 @@ Matrix compliance must be tracked by API domain, not as a single vague label:
 
 | Matrix domain | v1.18 scope source | Current Houra state | Target gate |
 |---|---|---|---|
-| Client-Server API | `/_matrix/client/*`, media, auth, sync, rooms, user data, devices, reporting, admin capabilities | Product MVP covers a small `/_houra/client/*` subset; `SPEC-030` through `SPEC-038` add Matrix versions, auth/session, registration, devices, room create/join/leave/state, send event/messages, sync, and media upload/download contracts | Matrix-compatible endpoint namespace, response shapes, error codes, and representative conformance vectors pass |
+| Client-Server API | `/_matrix/client/*`, media, auth, sync, rooms, user data, devices, reporting, admin capabilities | Product MVP covers a small `/_houra/client/*` subset; `SPEC-030` through `SPEC-038` add Matrix versions, auth/session, registration, devices, room create/join/leave/state, send event/messages, sync, and media upload/download contracts; `SPEC-039` defines the integrated live e2e adoption gate | Matrix-compatible endpoint namespace, response shapes, error codes, representative conformance vectors, and live server/client MVP smoke pass |
 | Server-Server API | federation discovery, signed transactions, PDUs/EDUs, event auth, joins/leaves, invites, backfill, key APIs, policy servers | Not implemented | A second homeserver can federate, exchange signed room events, validate auth, and recover state across restart |
 | Application Service API | appservice registration, namespace ownership, transactions, sender localpart, bridge-style event delivery | Not implemented | A registered appservice receives transactions and can puppet/send events within its declared namespaces |
 | Identity Service API | third-party identifier validation and lookup | Not implemented | Either explicitly out of supported deployment scope or implemented as a separate identity component with conformance evidence |
@@ -438,7 +439,8 @@ Matrix compliance phases:
 2. **Client-Server compatibility baseline**: add Matrix v3 endpoint contracts
    and vectors for the MVP-equivalent flow first: `/versions`, login, logout,
    whoami, registration, room create/join/leave, state, send event, timeline,
-   sync, and media upload/download.
+   sync, and media upload/download, then bind those families with the
+   `SPEC-039` live server/client adoption gate.
 3. **Matrix data model migration**: introduce Matrix-compatible identifiers,
    event IDs, event DAG storage, state snapshots, auth events, room versions,
    and sync token semantics in `houra-server`.
@@ -475,6 +477,22 @@ Matrix compliance advertisement gate:
 - Issue and PR scopes should stay domain-sized: for example, Client-Server auth,
   Client-Server room state, Room Version 12 auth rules, Federation join, or
   Megolm key backup. Do not mix federation, E2EE, and client UI in one PR.
+
+Matrix Client-Server MVP live e2e gate:
+
+- `SPEC-039` is the integration gate for `SPEC-030` through `SPEC-038`. It
+  requires a live `houra-client` core run against a live `houra-server` target
+  for versions, login flows, registration, password login, whoami, devices,
+  room create/join/state/leave, send event, messages, sync, media upload and
+  download, and logout.
+- A pass record must name the `houra-spec` ref, `houra-server` ref,
+  `houra-client` ref, commands, per-step pass/fail results, `/versions`
+  advertisement result, known exclusions, and clean-room confirmation.
+- After `SPEC-039` merges, create adoption issues for `houra-server` and
+  `houra-client`. Create an `houra-labs` issue only when the gate adopts or
+  changes a shared parser, identifier helper, URI helper, or binding facade.
+- Passing this gate does not claim Matrix v1.18 full compliance. It only closes
+  the Client-Server MVP-equivalent integration milestone.
 
 ## Implementation Follow-Up Checklist
 
@@ -596,6 +614,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-036 | Matrix event send and room messages pagination MVP endpoints | `test-vectors/messaging/matrix-*.json` |
 | SPEC-037 | Matrix initial and incremental sync MVP endpoint | `test-vectors/sync/matrix-sync-*.json` |
 | SPEC-038 | Matrix media upload and authenticated download MVP endpoints | `test-vectors/media/matrix-media-*.json` |
+| SPEC-039 | Integrated Matrix Client-Server MVP live e2e gate | `test-vectors/core/matrix-client-server-mvp-live-e2e-gate.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this

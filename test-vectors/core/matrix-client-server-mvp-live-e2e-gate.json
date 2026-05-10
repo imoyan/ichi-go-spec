@@ -1,0 +1,158 @@
+{
+  "name": "matrix-client-server-mvp-live-e2e-gate",
+  "contract": "SPEC-039",
+  "event": {
+    "gate": "matrix-client-server-mvp-live-e2e",
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/",
+    "checked_at": "2026-05-10T13:57:19+09:00",
+    "required_contracts": [
+      "SPEC-030",
+      "SPEC-031",
+      "SPEC-032",
+      "SPEC-033",
+      "SPEC-034",
+      "SPEC-035",
+      "SPEC-036",
+      "SPEC-037",
+      "SPEC-038"
+    ],
+    "required_repositories": [
+      "houra-server",
+      "houra-client"
+    ],
+    "conditional_repositories": [
+      "houra-labs"
+    ],
+    "scenario_steps": [
+      {
+        "id": "versions",
+        "contract": "SPEC-030",
+        "method": "GET",
+        "path": "/_matrix/client/versions",
+        "vectors": [
+          "test-vectors/core/matrix-client-versions-basic.json"
+        ]
+      },
+      {
+        "id": "login_flows",
+        "contract": "SPEC-032",
+        "method": "GET",
+        "path": "/_matrix/client/v3/login",
+        "vectors": [
+          "test-vectors/auth/matrix-login-flows-basic.json"
+        ]
+      },
+      {
+        "id": "registration",
+        "contract": "SPEC-033",
+        "method": "POST",
+        "path": "/_matrix/client/v3/register",
+        "vectors": [
+          "test-vectors/auth/matrix-registration-basic.json"
+        ]
+      },
+      {
+        "id": "password_login",
+        "contract": "SPEC-032",
+        "method": "POST",
+        "path": "/_matrix/client/v3/login",
+        "vectors": [
+          "test-vectors/auth/matrix-password-login-basic.json"
+        ]
+      },
+      {
+        "id": "whoami",
+        "contract": "SPEC-032",
+        "method": "GET",
+        "path": "/_matrix/client/v3/account/whoami",
+        "vectors": [
+          "test-vectors/auth/matrix-whoami-basic.json"
+        ]
+      },
+      {
+        "id": "devices",
+        "contract": "SPEC-034",
+        "method": "GET",
+        "path": "/_matrix/client/v3/devices",
+        "vectors": [
+          "test-vectors/auth/matrix-devices-list-basic.json"
+        ]
+      },
+      {
+        "id": "room_lifecycle",
+        "contract": "SPEC-035",
+        "method": "POST",
+        "path": "/_matrix/client/v3/createRoom",
+        "vectors": [
+          "test-vectors/rooms/matrix-create-room-basic.json",
+          "test-vectors/rooms/matrix-join-room-basic.json",
+          "test-vectors/rooms/matrix-room-state-basic.json",
+          "test-vectors/rooms/matrix-leave-room-basic.json"
+        ]
+      },
+      {
+        "id": "send_event",
+        "contract": "SPEC-036",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/{roomId}/send/m.room.message/{txnId}",
+        "vectors": [
+          "test-vectors/messaging/matrix-send-event-text-basic.json"
+        ]
+      },
+      {
+        "id": "messages",
+        "contract": "SPEC-036",
+        "method": "GET",
+        "path": "/_matrix/client/v3/rooms/{roomId}/messages",
+        "vectors": [
+          "test-vectors/messaging/matrix-messages-basic.json"
+        ]
+      },
+      {
+        "id": "sync",
+        "contract": "SPEC-037",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "vectors": [
+          "test-vectors/sync/matrix-sync-initial-basic.json",
+          "test-vectors/sync/matrix-sync-incremental-basic.json"
+        ]
+      },
+      {
+        "id": "media",
+        "contract": "SPEC-038",
+        "method": "POST",
+        "path": "/_matrix/media/v3/upload",
+        "vectors": [
+          "test-vectors/media/matrix-media-upload-basic.json",
+          "test-vectors/media/matrix-media-download-basic.json"
+        ]
+      },
+      {
+        "id": "logout",
+        "contract": "SPEC-032",
+        "method": "POST",
+        "path": "/_matrix/client/v3/logout",
+        "vectors": [
+          "test-vectors/auth/matrix-logout-basic.json"
+        ]
+      }
+    ],
+    "required_evidence_fields": [
+      "houra_spec_ref",
+      "houra_server_ref",
+      "houra_client_ref",
+      "commands",
+      "scenario_step_results",
+      "versions_advertisement",
+      "known_exclusions",
+      "clean_room_confirmed"
+    ],
+    "adoption_issue_policy": {
+      "houra-server": "required after SPEC-039 merge",
+      "houra-client": "required after SPEC-039 merge",
+      "houra-labs": "conditional on shared parser or binding adoption"
+    }
+  }
+}
