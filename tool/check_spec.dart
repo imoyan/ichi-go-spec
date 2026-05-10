@@ -105,6 +105,7 @@ void main() {
   checkMatrixFoundation(contracts, failures);
   checkMatrixAuthSession(contracts, failures);
   checkMatrixRegistration(contracts, failures);
+  checkMatrixDevices(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -535,6 +536,29 @@ void checkMatrixRegistration(
   ]) {
     if (!File(path).existsSync()) {
       failures.add('Missing Matrix registration vector: $path');
+    }
+  }
+}
+
+void checkMatrixDevices(Map<String, String> contracts, List<String> failures) {
+  if (!contracts.containsKey('SPEC-034')) {
+    failures.add('Matrix devices/session contract SPEC-034 is required.');
+  }
+  for (final path in [
+    'test-vectors/auth/matrix-devices-list-basic.json',
+    'test-vectors/auth/matrix-device-detail-basic.json',
+    'test-vectors/auth/matrix-device-detail-not-found.json',
+    'test-vectors/auth/matrix-device-update-basic.json',
+    'test-vectors/auth/matrix-device-update-not-found.json',
+    'test-vectors/auth/matrix-device-delete-uia-required.json',
+    'test-vectors/auth/matrix-device-delete-basic.json',
+    'test-vectors/auth/matrix-devices-delete-bulk-uia-required.json',
+    'test-vectors/auth/matrix-devices-delete-bulk-basic.json',
+    'test-vectors/auth/matrix-device-token-invalid-after-delete.json',
+    'test-vectors/auth/matrix-devices-missing-token.json',
+  ]) {
+    if (!File(path).existsSync()) {
+      failures.add('Missing Matrix devices/session vector: $path');
     }
   }
 }

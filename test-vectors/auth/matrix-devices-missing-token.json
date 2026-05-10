@@ -1,0 +1,15 @@
+{
+  "name": "matrix-devices-missing-token",
+  "contract": "SPEC-034",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/devices"
+  },
+  "expected": {
+    "status": 401,
+    "body_contains": {
+      "errcode": "M_MISSING_TOKEN",
+      "error": "Missing access token."
+    }
+  }
+}

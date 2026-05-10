@@ -1,0 +1,32 @@
+{
+  "name": "matrix-devices-delete-bulk-uia-required",
+  "contract": "SPEC-034",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/delete_devices",
+    "headers": {
+      "Authorization": "Bearer token-1"
+    },
+    "body": {
+      "devices": [
+        "DEVICE2",
+        "DEVICE3"
+      ]
+    }
+  },
+  "expected": {
+    "status": 401,
+    "body_contains": {
+      "completed": [],
+      "flows": [
+        {
+          "stages": [
+            "m.login.password"
+          ]
+        }
+      ],
+      "params": {},
+      "session": "device-del-session-1"
+    }
+  }
+}

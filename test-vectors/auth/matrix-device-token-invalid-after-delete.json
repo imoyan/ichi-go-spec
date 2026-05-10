@@ -1,0 +1,38 @@
+{
+  "name": "matrix-device-token-invalid-after-delete",
+  "contract": "SPEC-034",
+  "given": {
+    "previous_request": {
+      "method": "DELETE",
+      "path": "/_matrix/client/v3/devices/DEVICE2",
+      "headers": {
+        "Authorization": "Bearer token-1"
+      },
+      "body": {
+        "auth": {
+          "type": "m.login.password",
+          "session": "device-del-session-1",
+          "identifier": {
+            "type": "m.id.user",
+            "user": "alice"
+          },
+          "password": "correct horse battery staple"
+        }
+      }
+    }
+  },
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/account/whoami",
+    "headers": {
+      "Authorization": "Bearer token-device2"
+    }
+  },
+  "expected": {
+    "status": 401,
+    "body_contains": {
+      "errcode": "M_UNKNOWN_TOKEN",
+      "error": "Access token is no longer valid."
+    }
+  }
+}
