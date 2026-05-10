@@ -1,0 +1,19 @@
+{
+  "name": "matrix-media-upload-missing-token",
+  "contract": "SPEC-038",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/media/v3/upload",
+    "headers": {
+      "content-type": "image/png"
+    },
+    "body_base64": "aGVsbG8="
+  },
+  "expected": {
+    "status": 401,
+    "body_contains": {
+      "errcode": "M_MISSING_TOKEN",
+      "error": "Missing access token."
+    }
+  }
+}

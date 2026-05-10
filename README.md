@@ -62,6 +62,7 @@ The maintained repository names are:
 - `contracts/SPEC-035-matrix-room-membership-state.md`
 - `contracts/SPEC-036-matrix-send-event-messages.md`
 - `contracts/SPEC-037-matrix-sync-mvp.md`
+- `contracts/SPEC-038-matrix-media-mvp.md`
 
 ## Shared Design Inputs
 
@@ -420,7 +421,7 @@ Matrix compliance must be tracked by API domain, not as a single vague label:
 
 | Matrix domain | v1.18 scope source | Current Houra state | Target gate |
 |---|---|---|---|
-| Client-Server API | `/_matrix/client/*`, media, auth, sync, rooms, user data, devices, reporting, admin capabilities | Product MVP covers a small `/_houra/client/*` subset; `SPEC-030` through `SPEC-037` add Matrix versions, auth/session, registration, devices, room create/join/leave/state, send event/messages, and sync contracts | Matrix-compatible endpoint namespace, response shapes, error codes, and representative conformance vectors pass |
+| Client-Server API | `/_matrix/client/*`, media, auth, sync, rooms, user data, devices, reporting, admin capabilities | Product MVP covers a small `/_houra/client/*` subset; `SPEC-030` through `SPEC-038` add Matrix versions, auth/session, registration, devices, room create/join/leave/state, send event/messages, sync, and media upload/download contracts | Matrix-compatible endpoint namespace, response shapes, error codes, and representative conformance vectors pass |
 | Server-Server API | federation discovery, signed transactions, PDUs/EDUs, event auth, joins/leaves, invites, backfill, key APIs, policy servers | Not implemented | A second homeserver can federate, exchange signed room events, validate auth, and recover state across restart |
 | Application Service API | appservice registration, namespace ownership, transactions, sender localpart, bridge-style event delivery | Not implemented | A registered appservice receives transactions and can puppet/send events within its declared namespaces |
 | Identity Service API | third-party identifier validation and lookup | Not implemented | Either explicitly out of supported deployment scope or implemented as a separate identity component with conformance evidence |
@@ -594,6 +595,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-035 | Matrix room create, join, leave, and state MVP endpoints | `test-vectors/rooms/matrix-*.json` |
 | SPEC-036 | Matrix event send and room messages pagination MVP endpoints | `test-vectors/messaging/matrix-*.json` |
 | SPEC-037 | Matrix initial and incremental sync MVP endpoint | `test-vectors/sync/matrix-sync-*.json` |
+| SPEC-038 | Matrix media upload and authenticated download MVP endpoints | `test-vectors/media/matrix-media-*.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this

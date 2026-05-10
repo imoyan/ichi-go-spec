@@ -109,6 +109,7 @@ void main() {
   checkMatrixRoomsMvp(contracts, failures);
   checkMatrixSendEventMessagesMvp(contracts, failures);
   checkMatrixSyncMvp(contracts, failures);
+  checkMatrixMediaMvp(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -626,6 +627,25 @@ void checkMatrixSyncMvp(Map<String, String> contracts, List<String> failures) {
   }
 }
 
+void checkMatrixMediaMvp(Map<String, String> contracts, List<String> failures) {
+  if (!contracts.containsKey('SPEC-038')) {
+    failures.add('Matrix media MVP contract SPEC-038 is required.');
+  }
+  for (final path in [
+    'test-vectors/media/matrix-media-upload-basic.json',
+    'test-vectors/media/matrix-media-upload-missing-token.json',
+    'test-vectors/media/matrix-media-upload-too-large.json',
+    'test-vectors/media/matrix-media-download-basic.json',
+    'test-vectors/media/matrix-media-download-with-filename-basic.json',
+    'test-vectors/media/matrix-media-download-missing-token.json',
+    'test-vectors/media/matrix-media-download-not-found.json',
+  ]) {
+    if (!File(path).existsSync()) {
+      failures.add('Missing Matrix media MVP vector: $path');
+    }
+  }
+}
+
 bool isNegativeVector(Map<String, Object?> json) {
   final expected = json['expected'];
   if (expected is Map) {
@@ -734,10 +754,11 @@ void checkRequest(File file, Object? value, List<String> failures) {
   final path = request['path'];
   if (path is! String ||
       !(path.startsWith('/_houra/client') ||
-          path.startsWith('/_matrix/client'))) {
+          path.startsWith('/_matrix/client') ||
+          path.startsWith('/_matrix/media'))) {
     failures.add(
       '${relative(file)} request.path must use /_houra/client or '
-      '/_matrix/client.',
+      '/_matrix/client or /_matrix/media.',
     );
   }
   final query = request['query'];

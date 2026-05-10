@@ -1,0 +1,15 @@
+{
+  "name": "matrix-media-download-missing-token",
+  "contract": "SPEC-038",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v1/media/download/example.test/media1"
+  },
+  "expected": {
+    "status": 401,
+    "body_contains": {
+      "errcode": "M_MISSING_TOKEN",
+      "error": "Missing access token."
+    }
+  }
+}
