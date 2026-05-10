@@ -1,0 +1,65 @@
+{
+  "name": "matrix-read-markers-basic",
+  "contract": "SPEC-046",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#read-and-unread-markers",
+    "checked_at": "2026-05-10T17:58:32+09:00",
+    "room_id": "!room:example.test",
+    "user_id": "@alice:example.test",
+    "steps": [
+      {
+        "id": "post-read-markers",
+        "method": "POST",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/read_markers",
+        "access_token": "token-alice",
+        "body": {
+          "m.fully_read": "$event1:example.test",
+          "m.read": "$event2:example.test",
+          "m.read.private": "$event2:example.test"
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "sync-fully-read",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-alice",
+        "room_id": "!room:example.test",
+        "expected_room_account_data_event": {
+          "type": "m.fully_read",
+          "content": {
+            "event_id": "$event1:example.test"
+          }
+        }
+      },
+      {
+        "id": "sync-read-marker-receipt",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-alice",
+        "room_id": "!room:example.test",
+        "expected_ephemeral_event": {
+          "type": "m.receipt",
+          "content": {
+            "$event2:example.test": {
+              "m.read": {
+                "@alice:example.test": {
+                  "ts": 1710000002000
+                }
+              },
+              "m.read.private": {
+                "@alice:example.test": {
+                  "ts": 1710000002000
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "expected": {
+    "step_count": 3
+  }
+}

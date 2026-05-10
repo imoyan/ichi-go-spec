@@ -1,0 +1,48 @@
+{
+  "name": "matrix-receipt-basic",
+  "contract": "SPEC-046",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#receipts",
+    "checked_at": "2026-05-10T17:58:32+09:00",
+    "room_id": "!room:example.test",
+    "event_id": "$event1:example.test",
+    "user_id": "@alice:example.test",
+    "receipt_type": "m.read",
+    "steps": [
+      {
+        "id": "send-read-receipt",
+        "method": "POST",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/receipt/m.read/$event1:example.test",
+        "access_token": "token-alice",
+        "body": {
+          "thread_id": "main"
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "sync-read-receipt",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-bob",
+        "room_id": "!room:example.test",
+        "expected_ephemeral_event": {
+          "type": "m.receipt",
+          "content": {
+            "$event1:example.test": {
+              "m.read": {
+                "@alice:example.test": {
+                  "ts": 1710000001000,
+                  "thread_id": "main"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "expected": {
+    "step_count": 2
+  }
+}

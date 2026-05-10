@@ -1,0 +1,19 @@
+{
+  "name": "matrix-receipt-invalid-thread",
+  "contract": "SPEC-046",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/rooms/!room:example.test/receipt/m.read/$event1:example.test",
+    "access_token": "token-alice",
+    "body": {
+      "thread_id": "not-an-event-id"
+    }
+  },
+  "expected": {
+    "status": 400,
+    "error": {
+      "errcode": "M_INVALID_PARAM",
+      "error": "Invalid receipt thread_id."
+    }
+  }
+}

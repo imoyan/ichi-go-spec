@@ -101,6 +101,7 @@ void main() {
   checkMatrixRoomAuthRepresentativeVectors(contracts, failures);
   checkMatrixRoomAliasUpgradePersistenceGate(contracts, failures);
   checkMatrixProfileAccountDataTags(contracts, failures);
+  checkMatrixReceiptsTypingReadMarkers(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -2398,6 +2399,282 @@ void requireExpectedErrcode(
   if (error is! Map || error['errcode'] != errcode) {
     failures.add('${relative(file)} expected.error.errcode must be $errcode.');
   }
+}
+
+void checkMatrixReceiptsTypingReadMarkers(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-046')) {
+    failures.add(
+      'Matrix receipts/typing/read-markers contract SPEC-046 is required.',
+    );
+  }
+  const paths = [
+    'test-vectors/sync/matrix-typing-basic.json',
+    'test-vectors/sync/matrix-typing-missing-token.json',
+    'test-vectors/sync/matrix-receipt-basic.json',
+    'test-vectors/sync/matrix-receipt-invalid-thread.json',
+    'test-vectors/sync/matrix-read-markers-basic.json',
+    'test-vectors/sync/matrix-read-marker-direct-account-data-forbidden.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix receipts/typing/read-markers vector: $path');
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('typing-basic')) {
+      validateMatrixTypingSteps(file, json, failures);
+    } else if (path.contains('typing-missing-token')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'PUT',
+        pathPrefix: '/_matrix/client/v3/rooms/!room:example.test/typing/',
+        status: 401,
+        errcode: 'M_MISSING_TOKEN',
+      );
+    } else if (path.contains('receipt-basic')) {
+      validateMatrixReceiptSteps(file, json, failures);
+    } else if (path.contains('receipt-invalid-thread')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'POST',
+        pathPrefix: '/_matrix/client/v3/rooms/!room:example.test/receipt/',
+        status: 400,
+        errcode: 'M_INVALID_PARAM',
+      );
+    } else if (path.contains('read-markers-basic')) {
+      validateMatrixReadMarkersSteps(file, json, failures);
+    } else {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'PUT',
+        pathPrefix:
+            '/_matrix/client/v3/user/@alice:example.test/rooms/'
+            '!room:example.test/account_data/m.fully_read',
+        status: 403,
+        errcode: 'M_FORBIDDEN',
+      );
+    }
+  }
+}
+
+void validateMatrixTypingSteps(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixEventHeader(file, eventMap, failures);
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = ['typing-start', 'sync-typing-start', 'typing-stop'];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    final path = step['path'];
+    if (path is! String) {
+      failures.add('${relative(file)} typing step path is required.');
+      continue;
+    }
+    if (id == 'sync-typing-start') {
+      if (path != '/_matrix/client/v3/sync' ||
+          step['expected_ephemeral_event'] is! Map) {
+        failures.add('${relative(file)} typing sync expectation is invalid.');
+      }
+      continue;
+    }
+    if (!path.startsWith(
+      '/_matrix/client/v3/rooms/!room:example.test/typing/'
+      '@alice:example.test',
+    )) {
+      failures.add('${relative(file)} typing endpoint path is invalid.');
+    }
+    final body = step['body'];
+    final typing = body is Map ? body['typing'] : null;
+    if (typing is! bool) {
+      failures.add('${relative(file)} typing body must include a boolean.');
+    }
+    if (id == 'typing-start') {
+      final timeout = body is Map ? body['timeout'] : null;
+      if (timeout is! int || timeout <= 0) {
+        failures.add('${relative(file)} typing start timeout is invalid.');
+      }
+    }
+  }
+}
+
+void validateMatrixReceiptSteps(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixEventHeader(file, eventMap, failures);
+  if (eventMap['receipt_type'] != 'm.read') {
+    failures.add('${relative(file)} receipt_type must be m.read.');
+  }
+  final eventId = eventMap['event_id'];
+  if (eventId is! String || !eventId.startsWith(r'$')) {
+    failures.add('${relative(file)} event_id must be a Matrix event ID.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = ['send-read-receipt', 'sync-read-receipt'];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    final path = step['path'];
+    if (path is! String) {
+      failures.add('${relative(file)} receipt step path is required.');
+      continue;
+    }
+    if (id == 'send-read-receipt') {
+      if (!path.startsWith(
+        '/_matrix/client/v3/rooms/!room:example.test/receipt/m.read/',
+      )) {
+        failures.add('${relative(file)} receipt endpoint path is invalid.');
+      }
+      if (step['expected_status'] != 200) {
+        failures.add('${relative(file)} receipt send must expect 200.');
+      }
+    }
+    if (id == 'sync-read-receipt') {
+      if (path != '/_matrix/client/v3/sync' ||
+          step['expected_ephemeral_event'] is! Map) {
+        failures.add('${relative(file)} receipt sync expectation is invalid.');
+      }
+    }
+  }
+}
+
+void validateMatrixReadMarkersSteps(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixEventHeader(file, eventMap, failures);
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = [
+    'post-read-markers',
+    'sync-fully-read',
+    'sync-read-marker-receipt',
+  ];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    final path = step['path'];
+    if (path is! String) {
+      failures.add('${relative(file)} read marker step path is required.');
+      continue;
+    }
+    if (id == 'post-read-markers') {
+      if (path != '/_matrix/client/v3/rooms/!room:example.test/read_markers') {
+        failures.add('${relative(file)} read marker endpoint path is invalid.');
+      }
+      final body = step['body'];
+      if (body is! Map ||
+          body['m.fully_read'] is! String ||
+          body['m.read'] is! String ||
+          body['m.read.private'] is! String) {
+        failures.add('${relative(file)} read marker body is incomplete.');
+      }
+    }
+    if (id == 'sync-fully-read' &&
+        step['expected_room_account_data_event'] is! Map) {
+      failures.add('${relative(file)} fully read sync expectation missing.');
+    }
+    if (id == 'sync-read-marker-receipt' &&
+        step['expected_ephemeral_event'] is! Map) {
+      failures.add(
+        '${relative(file)} read marker receipt sync expectation missing.',
+      );
+    }
+  }
+}
+
+void validateMatrixEventHeader(
+  File file,
+  Map<String, Object?> eventMap,
+  List<String> failures,
+) {
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final roomId = eventMap['room_id'];
+  if (roomId is! String || !isMatrixRoomId(roomId)) {
+    failures.add('${relative(file)} room_id must be a Matrix room ID.');
+  }
+  final userId = eventMap['user_id'];
+  if (userId is! String || !userId.startsWith('@')) {
+    failures.add('${relative(file)} user_id must be a Matrix user ID.');
+  }
+}
+
+void validateMatrixSimpleRequestVector(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures, {
+  required String method,
+  required String pathPrefix,
+  required int status,
+  required String errcode,
+}) {
+  final request = vector['request'];
+  if (request is! Map) {
+    failures.add('${relative(file)} request must be an object.');
+    return;
+  }
+  final requestMap = request.cast<String, Object?>();
+  if (requestMap['method'] != method) {
+    failures.add('${relative(file)} request.method must be $method.');
+  }
+  final path = requestMap['path'];
+  if (path is! String || !path.startsWith(pathPrefix)) {
+    failures.add('${relative(file)} request.path is invalid.');
+  }
+  requireExpectedStatus(file, vector, failures, status);
+  requireExpectedErrcode(file, vector, failures, errcode);
 }
 
 bool isNegativeVector(Map<String, Object?> json) {

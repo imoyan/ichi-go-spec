@@ -1,0 +1,19 @@
+{
+  "name": "matrix-read-marker-direct-account-data-forbidden",
+  "contract": "SPEC-046",
+  "request": {
+    "method": "PUT",
+    "path": "/_matrix/client/v3/user/@alice:example.test/rooms/!room:example.test/account_data/m.fully_read",
+    "access_token": "token-alice",
+    "body": {
+      "event_id": "$event1:example.test"
+    }
+  },
+  "expected": {
+    "status": 403,
+    "error": {
+      "errcode": "M_FORBIDDEN",
+      "error": "Use /read_markers to update m.fully_read."
+    }
+  }
+}
