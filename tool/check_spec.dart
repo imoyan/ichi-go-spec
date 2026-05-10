@@ -100,6 +100,7 @@ void main() {
   checkMatrixRoomVersionsGate(contracts, failures);
   checkMatrixRoomAuthRepresentativeVectors(contracts, failures);
   checkMatrixRoomAliasUpgradePersistenceGate(contracts, failures);
+  checkMatrixProfileAccountDataTags(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -2083,6 +2084,319 @@ void validateMatrixRoomRestartPersistenceGate(
     if (beforeJson != afterJson) {
       failures.add('${relative(file)} restart records differ for $key.');
     }
+  }
+}
+
+void checkMatrixProfileAccountDataTags(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-045')) {
+    failures.add(
+      'Matrix profile/account-data/tags contract SPEC-045 is required.',
+    );
+  }
+  const paths = [
+    'test-vectors/sync/matrix-profile-get-basic.json',
+    'test-vectors/sync/matrix-profile-displayname-basic.json',
+    'test-vectors/sync/matrix-profile-delete-basic.json',
+    'test-vectors/sync/matrix-account-data-global-basic.json',
+    'test-vectors/sync/matrix-account-data-room-basic.json',
+    'test-vectors/sync/matrix-room-tags-basic.json',
+    'test-vectors/sync/matrix-account-data-user-mismatch.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix profile/account-data/tags vector: $path');
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('matrix-profile-')) {
+      validateMatrixProfileVector(file, json, failures);
+    } else if (path.contains('account-data-user-mismatch')) {
+      validateMatrixAccountDataMismatchVector(file, json, failures);
+    } else if (path.contains('account-data-global')) {
+      validateMatrixAccountDataSteps(file, json, failures, roomScoped: false);
+    } else if (path.contains('account-data-room')) {
+      validateMatrixAccountDataSteps(file, json, failures, roomScoped: true);
+    } else {
+      validateMatrixRoomTagsSteps(file, json, failures);
+    }
+  }
+}
+
+void validateMatrixProfileVector(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  if (request is! Map) {
+    failures.add('${relative(file)} request must be an object.');
+    return;
+  }
+  final requestMap = request.cast<String, Object?>();
+  final method = requestMap['method'];
+  final path = requestMap['path'];
+  if (path is! String ||
+      !path.startsWith('/_matrix/client/v3/profile/@alice:example.test')) {
+    failures.add('${relative(file)} profile path is invalid.');
+  }
+  final body = requestMap['body'];
+  if (method == 'PUT') {
+    if (body is! Map || !body.containsKey('displayname')) {
+      failures.add('${relative(file)} PUT profile body must set displayname.');
+    }
+  } else if (method != 'GET' && method != 'DELETE') {
+    failures.add('${relative(file)} profile method is invalid.');
+  }
+  requireExpectedStatus(file, vector, failures, 200);
+}
+
+void validateMatrixAccountDataMismatchVector(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  if (request is! Map) {
+    failures.add('${relative(file)} request must be an object.');
+    return;
+  }
+  final requestMap = request.cast<String, Object?>();
+  if (requestMap['method'] != 'PUT') {
+    failures.add('${relative(file)} mismatch request must use PUT.');
+  }
+  final path = requestMap['path'];
+  if (path is! String ||
+      !path.startsWith('/_matrix/client/v3/user/@bob:example.test/')) {
+    failures.add('${relative(file)} mismatch path must target another user.');
+  }
+  final token = requestMap['access_token'];
+  if (token != 'token-alice') {
+    failures.add('${relative(file)} mismatch vector must use token-alice.');
+  }
+  requireExpectedStatus(file, vector, failures, 403);
+  requireExpectedErrcode(file, vector, failures, 'M_FORBIDDEN');
+}
+
+void validateMatrixAccountDataSteps(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures, {
+  required bool roomScoped,
+}) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final userId = eventMap['user_id'];
+  if (userId is! String || !userId.startsWith('@')) {
+    failures.add('${relative(file)} user_id must be a Matrix user ID.');
+  }
+  if (roomScoped) {
+    final roomId = eventMap['room_id'];
+    if (roomId is! String || !isMatrixRoomId(roomId)) {
+      failures.add('${relative(file)} room_id must be a Matrix room ID.');
+    }
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  final expected = roomScoped
+      ? const [
+          'put-room-account-data',
+          'get-room-account-data',
+          'sync-room-account-data',
+        ]
+      : const [
+          'put-global-account-data',
+          'get-global-account-data',
+          'sync-global-account-data',
+        ];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final path = step['path'];
+    if (path is! String) {
+      failures.add('${relative(file)} account data step path is required.');
+      continue;
+    }
+    final isSync = path == '/_matrix/client/v3/sync';
+    final containsAccountData = roomScoped
+        ? path.contains('/rooms/!room:example.test/account_data/')
+        : path.contains('/account_data/') && !path.contains('/rooms/');
+    if (!isSync && !containsAccountData) {
+      failures.add('${relative(file)} account data step path is invalid.');
+    }
+    final id = step['id'];
+    if (id is String && id.startsWith('put-') && step['body'] is! Map) {
+      failures.add('${relative(file)} account data PUT body is required.');
+    }
+    if (id is String && id.startsWith('get-')) {
+      if (step['expected_status'] != 200 || step['expected_body'] is! Map) {
+        failures.add('${relative(file)} account data GET expectation invalid.');
+      }
+    }
+    if (id is String && id.startsWith('sync-')) {
+      final key = roomScoped
+          ? 'expected_room_account_data_event'
+          : 'expected_account_data_event';
+      if (step[key] is! Map) {
+        failures.add(
+          '${relative(file)} account data sync expectation missing.',
+        );
+      }
+    }
+  }
+}
+
+void validateMatrixRoomTagsSteps(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final roomId = eventMap['room_id'];
+  if (roomId is! String || !isMatrixRoomId(roomId)) {
+    failures.add('${relative(file)} room_id must be a Matrix room ID.');
+  }
+  if (eventMap['tag'] != 'm.favourite') {
+    failures.add('${relative(file)} tag must use m.favourite.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = [
+    'put-room-tag',
+    'get-room-tags',
+    'delete-room-tag',
+    'get-room-tags-after-delete',
+    'sync-room-tags',
+  ];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final path = step['path'];
+    if (path is! String) {
+      failures.add('${relative(file)} room tag step path is required.');
+      continue;
+    }
+    final isSync = path == '/_matrix/client/v3/sync';
+    if (!isSync &&
+        !path.startsWith(
+          '/_matrix/client/v3/user/@alice:example.test/rooms/'
+          '!room:example.test/tags',
+        )) {
+      failures.add('${relative(file)} room tag step path is invalid.');
+    }
+    final id = step['id'];
+    if (id == 'put-room-tag') {
+      final body = step['body'];
+      final order = body is Map ? body['order'] : null;
+      if (order is! num || order < 0 || order > 1) {
+        failures.add('${relative(file)} tag order must be in [0, 1].');
+      }
+    }
+    if (id is String && id.startsWith('get-room-tags')) {
+      if (step['expected_status'] != 200 || step['expected_body'] is! Map) {
+        failures.add('${relative(file)} room tag GET expectation invalid.');
+      }
+    }
+    if (id == 'sync-room-tags' &&
+        step['expected_room_account_data_event'] is! Map) {
+      failures.add('${relative(file)} room tag sync expectation missing.');
+    }
+  }
+}
+
+Map<String, Object?>? requireMatrixEventMap(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final event = vector['event'];
+  if (event is! Map) {
+    failures.add('${relative(file)} event must be an object.');
+    return null;
+  }
+  return event.cast<String, Object?>();
+}
+
+List<Object?>? requireMatrixSteps(
+  File file,
+  Map<String, Object?> eventMap,
+  List<String> failures,
+) {
+  final steps = eventMap['steps'];
+  if (steps is! List || steps.isEmpty) {
+    failures.add('${relative(file)} steps must be a non-empty list.');
+    return null;
+  }
+  return steps.cast<Object?>();
+}
+
+void validateStepOrder(
+  File file,
+  List<Object?> steps,
+  List<String> expected,
+  List<String> failures,
+) {
+  if (steps.length != expected.length) {
+    failures.add('${relative(file)} step count is invalid.');
+    return;
+  }
+  for (var index = 0; index < steps.length; index += 1) {
+    final item = steps[index];
+    if (item is! Map || item['id'] != expected[index]) {
+      failures.add('${relative(file)} step order is invalid.');
+    }
+  }
+}
+
+void requireExpectedStatus(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+  int status,
+) {
+  final expected = vector['expected'];
+  if (expected is! Map || expected['status'] != status) {
+    failures.add('${relative(file)} expected.status must be $status.');
+  }
+}
+
+void requireExpectedErrcode(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+  String errcode,
+) {
+  final expected = vector['expected'];
+  final error = expected is Map ? expected['error'] : null;
+  if (error is! Map || error['errcode'] != errcode) {
+    failures.add('${relative(file)} expected.error.errcode must be $errcode.');
   }
 }
 

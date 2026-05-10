@@ -1,0 +1,50 @@
+{
+  "name": "matrix-account-data-room-basic",
+  "contract": "SPEC-045",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#client-config",
+    "checked_at": "2026-05-10T17:51:00+09:00",
+    "user_id": "@alice:example.test",
+    "room_id": "!room:example.test",
+    "type": "dev.houra.room.settings",
+    "steps": [
+      {
+        "id": "put-room-account-data",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/user/@alice:example.test/rooms/!room:example.test/account_data/dev.houra.room.settings",
+        "access_token": "token-alice",
+        "body": {
+          "muted": true
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "get-room-account-data",
+        "method": "GET",
+        "path": "/_matrix/client/v3/user/@alice:example.test/rooms/!room:example.test/account_data/dev.houra.room.settings",
+        "access_token": "token-alice",
+        "expected_status": 200,
+        "expected_body": {
+          "muted": true
+        }
+      },
+      {
+        "id": "sync-room-account-data",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-alice",
+        "room_id": "!room:example.test",
+        "expected_room_account_data_event": {
+          "type": "dev.houra.room.settings",
+          "content": {
+            "muted": true
+          }
+        }
+      }
+    ]
+  },
+  "expected": {
+    "step_count": 3
+  }
+}

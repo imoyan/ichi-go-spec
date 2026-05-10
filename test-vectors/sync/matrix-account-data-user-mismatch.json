@@ -1,0 +1,19 @@
+{
+  "name": "matrix-account-data-user-mismatch",
+  "contract": "SPEC-045",
+  "request": {
+    "method": "PUT",
+    "path": "/_matrix/client/v3/user/@bob:example.test/account_data/dev.houra.settings",
+    "access_token": "token-alice",
+    "body": {
+      "theme": "dark"
+    }
+  },
+  "expected": {
+    "status": 403,
+    "error": {
+      "errcode": "M_FORBIDDEN",
+      "error": "Cannot add account data for other users."
+    }
+  }
+}

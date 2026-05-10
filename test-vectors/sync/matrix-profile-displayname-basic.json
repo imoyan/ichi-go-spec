@@ -1,0 +1,16 @@
+{
+  "name": "matrix-profile-displayname-basic",
+  "contract": "SPEC-045",
+  "request": {
+    "method": "PUT",
+    "path": "/_matrix/client/v3/profile/@alice:example.test/displayname",
+    "access_token": "token-alice",
+    "body": {
+      "displayname": "Alice Example"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {}
+  }
+}

@@ -69,6 +69,7 @@ The maintained repository names are:
 - `contracts/SPEC-042-matrix-room-versions-gate.md`
 - `contracts/SPEC-043-matrix-room-auth-representative-vectors.md`
 - `contracts/SPEC-044-matrix-room-alias-upgrade-persistence.md`
+- `contracts/SPEC-045-matrix-profile-account-data-tags.md`
 
 ## Shared Design Inputs
 
@@ -427,7 +428,7 @@ Matrix compliance must be tracked by API domain, not as a single vague label:
 
 | Matrix domain | v1.18 scope source | Current Houra state | Target gate |
 |---|---|---|---|
-| Client-Server API | `/_matrix/client/*`, media, auth, sync, rooms, user data, devices, reporting, admin capabilities | Product MVP covers a small `/_houra/client/*` subset; `SPEC-030` through `SPEC-038` add Matrix versions, auth/session, registration, devices, room create/join/leave/state, send event/messages, sync, and media upload/download contracts; `SPEC-039` defines the integrated live e2e adoption gate | Matrix-compatible endpoint namespace, response shapes, error codes, representative conformance vectors, and live server/client MVP smoke pass |
+| Client-Server API | `/_matrix/client/*`, media, auth, sync, rooms, user data, devices, reporting, admin capabilities | Product MVP covers a small `/_houra/client/*` subset; `SPEC-030` through `SPEC-038` add Matrix versions, auth/session, registration, devices, room create/join/leave/state, send event/messages, sync, and media upload/download contracts; `SPEC-039` defines the integrated live e2e adoption gate; `SPEC-045` starts Client-Server breadth with profile, account data, and room tags | Matrix-compatible endpoint namespace, response shapes, error codes, representative conformance vectors, and live server/client MVP smoke pass |
 | Server-Server API | federation discovery, signed transactions, PDUs/EDUs, event auth, joins/leaves, invites, backfill, key APIs, policy servers | Not implemented | A second homeserver can federate, exchange signed room events, validate auth, and recover state across restart |
 | Application Service API | appservice registration, namespace ownership, transactions, sender localpart, bridge-style event delivery | Not implemented | A registered appservice receives transactions and can puppet/send events within its declared namespaces |
 | Identity Service API | third-party identifier validation and lookup | Not implemented | Either explicitly out of supported deployment scope or implemented as a separate identity component with conformance evidence |
@@ -528,6 +529,20 @@ Matrix state snapshot and state-resolution vector gate:
   an `houra-labs` issue only if a shared state map or room-version helper is
   intentionally adopted, and do not create an `houra-client` issue unless the
   UI-free client core starts consuming these storage-facing snapshots.
+
+Matrix profile, account data, and room tags gate:
+
+- `SPEC-045` defines the Matrix v1.18 profile, global account data,
+  room-scoped account data, and room tag endpoint family. It also records that
+  account data and `m.tag` updates must become visible through later `/sync`
+  responses.
+- Passing this gate does not claim receipts, typing, read markers, filters,
+  presence, capabilities, room directory, invites, admin controls, E2EE,
+  federation, or Matrix v1.18 full compliance.
+- After `SPEC-045` merges, create adoption issues for `houra-server` and
+  `houra-client`. Create an `houra-labs` issue only if a parser-only shared
+  helper is intentionally adopted for profile keys, account-data event types,
+  or `m.tag` content.
 
 Matrix room versions gate:
 
@@ -684,6 +699,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-042 | Matrix stable room versions 1-12 and default room version 12 gate | `test-vectors/rooms/matrix-room-version*.json` |
 | SPEC-043 | Matrix room version 12 representative auth vectors | `test-vectors/events/matrix-auth-*.json` |
 | SPEC-044 | Matrix room alias, upgrade, and restart persistence gate | `test-vectors/rooms/matrix-room-*.json` |
+| SPEC-045 | Matrix profile, account data, and room tag endpoint family | `test-vectors/sync/matrix-profile-*.json`, `test-vectors/sync/matrix-account-data-*.json`, and `test-vectors/sync/matrix-room-tags-*.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this

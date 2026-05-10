@@ -1,0 +1,13 @@
+{
+  "name": "matrix-profile-delete-basic",
+  "contract": "SPEC-045",
+  "request": {
+    "method": "DELETE",
+    "path": "/_matrix/client/v3/profile/@alice:example.test/m.tz",
+    "access_token": "token-alice"
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {}
+  }
+}
