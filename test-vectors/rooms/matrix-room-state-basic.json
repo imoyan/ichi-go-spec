@@ -1,0 +1,39 @@
+{
+  "name": "matrix-room-state-basic",
+  "contract": "SPEC-035",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/rooms/!room:example.test/state",
+    "headers": {
+      "Authorization": "Bearer token-1"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": [
+      {
+        "event_id": "$name:example.test",
+        "room_id": "!room:example.test",
+        "sender": "@alice:example.test",
+        "origin_server_ts": 1710000000000,
+        "type": "m.room.name",
+        "state_key": "",
+        "content": {
+          "name": "General"
+        }
+      },
+      {
+        "event_id": "$member-alice:example.test",
+        "room_id": "!room:example.test",
+        "sender": "@alice:example.test",
+        "origin_server_ts": 1710000000000,
+        "type": "m.room.member",
+        "state_key": "@alice:example.test",
+        "content": {
+          "membership": "join",
+          "displayname": "Alice"
+        }
+      }
+    ]
+  }
+}

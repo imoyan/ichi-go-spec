@@ -1,0 +1,16 @@
+{
+  "name": "matrix-leave-room-basic",
+  "contract": "SPEC-035",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/rooms/!room:example.test/leave",
+    "headers": {
+      "Authorization": "Bearer token-1"
+    },
+    "body": {}
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {}
+  }
+}

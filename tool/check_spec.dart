@@ -106,6 +106,7 @@ void main() {
   checkMatrixAuthSession(contracts, failures);
   checkMatrixRegistration(contracts, failures);
   checkMatrixDevices(contracts, failures);
+  checkMatrixRoomsMvp(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -559,6 +560,25 @@ void checkMatrixDevices(Map<String, String> contracts, List<String> failures) {
   ]) {
     if (!File(path).existsSync()) {
       failures.add('Missing Matrix devices/session vector: $path');
+    }
+  }
+}
+
+void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
+  if (!contracts.containsKey('SPEC-035')) {
+    failures.add('Matrix room membership/state contract SPEC-035 is required.');
+  }
+  for (final path in [
+    'test-vectors/rooms/matrix-create-room-basic.json',
+    'test-vectors/rooms/matrix-create-room-missing-token.json',
+    'test-vectors/rooms/matrix-join-room-basic.json',
+    'test-vectors/rooms/matrix-join-room-not-found.json',
+    'test-vectors/rooms/matrix-leave-room-basic.json',
+    'test-vectors/rooms/matrix-room-state-basic.json',
+    'test-vectors/rooms/matrix-room-state-forbidden.json',
+  ]) {
+    if (!File(path).existsSync()) {
+      failures.add('Missing Matrix room membership/state vector: $path');
     }
   }
 }
