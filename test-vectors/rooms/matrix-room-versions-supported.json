@@ -1,0 +1,48 @@
+{
+  "name": "matrix-room-versions-supported",
+  "contract": "SPEC-042",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/rooms/",
+    "checked_at": "2026-05-10T15:15:00+09:00",
+    "stable_room_versions": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12"
+    ],
+    "default_room_version": "12",
+    "deprecated_room_versions": [],
+    "unstable_room_versions_included": false,
+    "unsupported_examples": [
+      "0",
+      "13",
+      "org.example.unstable"
+    ],
+    "grammar_valid_examples": [
+      "1",
+      "12",
+      "1.2-beta",
+      "com.example.version"
+    ],
+    "grammar_invalid_examples": [
+      "",
+      "UPPER",
+      "room_version",
+      "version/12"
+    ]
+  },
+  "expected": {
+    "stable_count": 12,
+    "default_room_version": "12",
+    "unstable_mscs_excluded": true
+  }
+}
