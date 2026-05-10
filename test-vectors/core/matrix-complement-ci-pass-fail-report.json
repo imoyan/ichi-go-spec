@@ -1,0 +1,46 @@
+{
+  "name": "matrix-complement-ci-pass-fail-report",
+  "contract": "SPEC-063",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/",
+    "complement_source": "https://github.com/matrix-org/complement",
+    "checked_at": "2026-05-10T22:52:00+09:00",
+    "report": {
+      "houra_ref": "houra-server@sha256:example-redacted",
+      "complement_ref": "matrix-org/complement@sha-redacted",
+      "stable_spec_only": true,
+      "unstable_mscs_included": false,
+      "domains": [
+        "Client-Server API",
+        "Server-Server API"
+      ],
+      "totals": {
+        "pass": 120,
+        "fail": 2,
+        "skip": 8,
+        "expected_fail": 0
+      },
+      "failures": [
+        {
+          "test": "federation/send_join/state",
+          "domain": "Server-Server API",
+          "failure_class": "unsupported-domain-gap",
+          "artifact": "artifacts/complement/federation-send-join-state.log"
+        }
+      ],
+      "artifacts": {
+        "summary": "artifacts/complement/summary.json",
+        "logs": "artifacts/complement/logs/"
+      },
+      "release_gate_status": "blocked"
+    }
+  },
+  "expected": {
+    "pass_fail_report_defined": true,
+    "failure_artifacts_linked": true,
+    "unstable_mscs_excluded": true,
+    "release_gate_blocked_on_failures": true,
+    "versions_advertisement_widened": false
+  }
+}
