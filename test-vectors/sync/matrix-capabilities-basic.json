@@ -1,0 +1,53 @@
+{
+  "name": "matrix-capabilities-basic",
+  "contract": "SPEC-047",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/capabilities",
+    "access_token": "token-alice"
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "capabilities": {
+        "m.change_password": {
+          "enabled": true
+        },
+        "m.forget_forced_upon_leave": {
+          "enabled": false
+        },
+        "m.room_versions": {
+          "default": "12",
+          "available": {
+            "1": "stable",
+            "2": "stable",
+            "3": "stable",
+            "4": "stable",
+            "5": "stable",
+            "6": "stable",
+            "7": "stable",
+            "8": "stable",
+            "9": "stable",
+            "10": "stable",
+            "11": "stable",
+            "12": "stable"
+          }
+        },
+        "m.profile_fields": {
+          "enabled": true,
+          "allowed": [
+            "displayname",
+            "avatar_url",
+            "m.tz"
+          ]
+        },
+        "m.set_displayname": {
+          "enabled": true
+        },
+        "m.set_avatar_url": {
+          "enabled": true
+        }
+      }
+    }
+  }
+}
