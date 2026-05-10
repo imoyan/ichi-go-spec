@@ -1,0 +1,109 @@
+{
+  "name": "matrix-federation-two-homeserver-smoke",
+  "contract": "SPEC-061",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/server-server-api/#server-server-api",
+    "checked_at": "2026-05-10T22:11:00+09:00",
+    "requires_contracts": [
+      "SPEC-040",
+      "SPEC-041",
+      "SPEC-043",
+      "SPEC-055",
+      "SPEC-056",
+      "SPEC-057",
+      "SPEC-061"
+    ],
+    "topology": {
+      "kind": "two-houra-homeservers",
+      "servers": [
+        {
+          "name": "hs-a.example.test",
+          "role": "resident",
+          "room_version": "12"
+        },
+        {
+          "name": "hs-b.example.test",
+          "role": "joining",
+          "room_version": "12"
+        }
+      ],
+      "isolated_storage": true,
+      "distinct_signing_keys": true
+    },
+    "steps": [
+      {
+        "id": "well-known",
+        "contract": "SPEC-055",
+        "path": "/.well-known/matrix/server",
+        "result": "pass"
+      },
+      {
+        "id": "server-keys",
+        "contract": "SPEC-055",
+        "path": "/_matrix/key/v2/server",
+        "result": "pass"
+      },
+      {
+        "id": "make-join",
+        "contract": "SPEC-056",
+        "path": "/_matrix/federation/v1/make_join/!room:hs-a.example.test/@bob:hs-b.example.test",
+        "origin": "hs-b.example.test",
+        "destination": "hs-a.example.test",
+        "result": "pass"
+      },
+      {
+        "id": "send-join",
+        "contract": "SPEC-056",
+        "path": "/_matrix/federation/v2/send_join/!room:hs-a.example.test/$join:hs-b.example.test",
+        "origin": "hs-b.example.test",
+        "destination": "hs-a.example.test",
+        "result": "pass"
+      },
+      {
+        "id": "send-transaction",
+        "contract": "SPEC-056",
+        "path": "/_matrix/federation/v1/send/txn-interop-1",
+        "origin": "hs-b.example.test",
+        "destination": "hs-a.example.test",
+        "event_id": "$msg:hs-b.example.test",
+        "result": "pass"
+      },
+      {
+        "id": "backfill",
+        "contract": "SPEC-057",
+        "path": "/_matrix/federation/v1/backfill/!room:hs-a.example.test",
+        "result": "pass"
+      },
+      {
+        "id": "event-auth",
+        "contract": "SPEC-057",
+        "path": "/_matrix/federation/v1/event_auth/!room:hs-a.example.test/$msg:hs-b.example.test",
+        "result": "pass"
+      },
+      {
+        "id": "state-ids",
+        "contract": "SPEC-057",
+        "path": "/_matrix/federation/v1/state_ids/!room:hs-a.example.test",
+        "result": "pass"
+      },
+      {
+        "id": "sync-observe",
+        "contract": "SPEC-037",
+        "path": "/_matrix/client/v3/sync",
+        "result": "pass"
+      }
+    ],
+    "evidence": {
+      "command": "npm run smoke:federation:two-houra",
+      "artifact": "artifacts/federation/two-houra.json",
+      "secrets_redacted": true
+    }
+  },
+  "expected": {
+    "two_houra_smoke_defined": true,
+    "all_steps_pass": true,
+    "room_version": "12",
+    "versions_advertisement_widened": false
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "name": "matrix-federation-compose-ci-lane",
+  "contract": "SPEC-061",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/server-server-api/#server-server-api",
+    "complement_source": "https://github.com/matrix-org/complement",
+    "checked_at": "2026-05-10T22:11:00+09:00",
+    "lane": {
+      "kind": "docker-compose-or-complement-ci",
+      "requires_docker": true,
+      "client_port": 8008,
+      "federation_port": 8448,
+      "tls_or_complement_pki": true,
+      "isolated_storage_per_homeserver": true,
+      "healthcheck_required": true
+    },
+    "commands": [
+      {
+        "id": "build-houra-image",
+        "command": "docker build -t houra-server:federation-smoke ."
+      },
+      {
+        "id": "two-houra",
+        "command": "docker compose -f docker/federation-smoke.yml up --abort-on-container-exit"
+      },
+      {
+        "id": "reference",
+        "command": "COMPLEMENT_BASE_IMAGE=houra-server:federation-smoke go test -run 'FederationSmoke' ./tests/..."
+      }
+    ],
+    "evidence_fields": [
+      "matrix_spec_version",
+      "houra_image_or_commit",
+      "reference_image_or_tag",
+      "server_names",
+      "room_id",
+      "room_version",
+      "step_results",
+      "artifact_paths",
+      "secrets_redacted"
+    ]
+  },
+  "expected": {
+    "ci_lane_defined": true,
+    "docker_or_complement_supported": true,
+    "healthcheck_required": true,
+    "secrets_redacted": true,
+    "versions_advertisement_widened": false
+  }
+}
