@@ -3,7 +3,7 @@
   "contract": "SPEC-020",
   "request": {
     "method": "GET",
-    "path": "/_houra/client/media/media1/content",
+    "path": "/_houra/client/media/media2/content",
     "access_token": "token-1"
   },
   "expected": {
