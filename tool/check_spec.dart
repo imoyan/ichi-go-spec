@@ -1086,11 +1086,11 @@ Set<String> readUiActions(
       );
     }
     final disabledWhen = action['disabled_when'];
-    if (disabledWhen is! List) {
+    if (action.containsKey('disabled_when') && disabledWhen is! List) {
       failures.add(
         '${relative(file)} action.$id disabled_when must be an array.',
       );
-    } else {
+    } else if (disabledWhen is List) {
       for (final condition in disabledWhen) {
         if (condition is! String || !stateIds.contains(condition)) {
           failures.add(
