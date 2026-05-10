@@ -1,0 +1,27 @@
+{
+  "name": "matrix-device-delete-uia-required",
+  "contract": "SPEC-034",
+  "request": {
+    "method": "DELETE",
+    "path": "/_matrix/client/v3/devices/DEVICE2",
+    "headers": {
+      "Authorization": "Bearer token-1"
+    },
+    "body": {}
+  },
+  "expected": {
+    "status": 401,
+    "body_contains": {
+      "completed": [],
+      "flows": [
+        {
+          "stages": [
+            "m.login.password"
+          ]
+        }
+      ],
+      "params": {},
+      "session": "device-del-session-1"
+    }
+  }
+}

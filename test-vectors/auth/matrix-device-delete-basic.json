@@ -1,0 +1,26 @@
+{
+  "name": "matrix-device-delete-basic",
+  "contract": "SPEC-034",
+  "request": {
+    "method": "DELETE",
+    "path": "/_matrix/client/v3/devices/DEVICE2",
+    "headers": {
+      "Authorization": "Bearer token-1"
+    },
+    "body": {
+      "auth": {
+        "type": "m.login.password",
+        "session": "device-del-session-1",
+        "identifier": {
+          "type": "m.id.user",
+          "user": "alice"
+        },
+        "password": "correct horse battery staple"
+      }
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {}
+  }
+}

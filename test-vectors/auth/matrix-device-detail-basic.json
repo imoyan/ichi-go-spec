@@ -1,0 +1,20 @@
+{
+  "name": "matrix-device-detail-basic",
+  "contract": "SPEC-034",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/devices/DEVICE1",
+    "headers": {
+      "Authorization": "Bearer token-1"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "device_id": "DEVICE1",
+      "display_name": "Alice phone",
+      "last_seen_ip": "203.0.113.10",
+      "last_seen_ts": 1710000000000
+    }
+  }
+}
