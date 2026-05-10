@@ -123,6 +123,7 @@ void main() {
   checkMatrixFederationInteropSmoke(contracts, failures);
   checkMatrixDomainCoverageReport(contracts, failures);
   checkMatrixComplementCiLane(contracts, failures);
+  checkMatrixVersionAdvertisementGate(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -7565,6 +7566,177 @@ void validateMatrixComplementReference(
       eventMap['complement_source'] !=
           'https://github.com/matrix-org/complement') {
     failures.add('${relative(file)} Complement reference invalid.');
+  }
+}
+
+void checkMatrixVersionAdvertisementGate(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-064')) {
+    failures.add('Matrix version advertisement gate SPEC-064 is required.');
+  }
+  const paths = [
+    'test-vectors/core/matrix-version-advertisement-blocked-missing-evidence.json',
+    'test-vectors/core/matrix-version-advertisement-allowed-with-evidence.json',
+    'test-vectors/core/matrix-version-advertisement-ci-adoption.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix version advertisement vector: $path');
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('blocked')) {
+      validateMatrixVersionAdvertisementBlocked(file, json, failures);
+    } else if (path.contains('allowed')) {
+      validateMatrixVersionAdvertisementAllowed(file, json, failures);
+    } else {
+      validateMatrixVersionAdvertisementAdoption(file, json, failures);
+    }
+  }
+}
+
+void validateMatrixVersionAdvertisementBlocked(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixVersionAdvertisementReference(file, eventMap, failures);
+  final candidate = eventMap['candidate'];
+  final evidence = candidate is Map ? candidate['domain_evidence'] : null;
+  if (candidate is! Map ||
+      candidate['coverage_report_contract'] != 'SPEC-062' ||
+      candidate['complement_lane_contract'] != 'SPEC-063' ||
+      evidence is! List ||
+      evidence.length != 2) {
+    failures.add('${relative(file)} advertisement blocked candidate invalid.');
+  }
+  final gate = eventMap['gate_result'];
+  final reasons = gate is Map ? gate['blocking_reasons'] : null;
+  if (gate is! Map ||
+      gate['status'] != 'blocked' ||
+      reasons is! List ||
+      reasons.isEmpty ||
+      gate['versions_response_must_change'] != true ||
+      gate['release_tag_allowed'] != false) {
+    failures.add('${relative(file)} advertisement blocked gate invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['missing_evidence_blocks_advertisement'] != true ||
+      expectedResult['release_tag_blocked'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} advertisement blocked expectation invalid.',
+    );
+  }
+}
+
+void validateMatrixVersionAdvertisementAllowed(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixVersionAdvertisementReference(file, eventMap, failures);
+  final candidate = eventMap['candidate'];
+  final advertised = candidate is Map ? candidate['advertised_domains'] : null;
+  final excluded = candidate is Map ? candidate['excluded_domains'] : null;
+  final evidence = candidate is Map ? candidate['domain_evidence'] : null;
+  if (candidate is! Map ||
+      advertised is! List ||
+      !advertised.contains('Client-Server API') ||
+      excluded is! List ||
+      excluded.isEmpty ||
+      candidate['unstable_mscs_included'] != false ||
+      evidence is! List ||
+      evidence.length != 1) {
+    failures.add('${relative(file)} advertisement allowed candidate invalid.');
+  }
+  final gate = eventMap['gate_result'];
+  if (gate is! Map ||
+      gate['status'] != 'pass' ||
+      gate['release_tag_allowed'] != true ||
+      gate['release_notes_required'] != true) {
+    failures.add('${relative(file)} advertisement allowed gate invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['included_domains_have_pass_evidence'] != true ||
+      expectedResult['unsupported_domains_are_excluded'] != true ||
+      expectedResult['unstable_mscs_excluded'] != true ||
+      expectedResult['versions_advertisement_allowed'] != true) {
+    failures.add(
+      '${relative(file)} advertisement allowed expectation invalid.',
+    );
+  }
+}
+
+void validateMatrixVersionAdvertisementAdoption(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixVersionAdvertisementReference(file, eventMap, failures);
+  final adoption = eventMap['adoption'];
+  if (adoption is! Map ||
+      adoption['server_issue_required_after_merge'] != true ||
+      adoption['client_issue_required_after_merge'] != true ||
+      adoption['labs_issue_required_after_merge'] != false ||
+      adoption['server_responsibility'] is! List ||
+      adoption['client_responsibility'] is! List) {
+    failures.add('${relative(file)} advertisement adoption invalid.');
+  }
+  final ciStatus = eventMap['ci_status'];
+  if (ciStatus is! Map ||
+      ciStatus['required_check'] != 'matrix-advertisement-gate' ||
+      ciStatus['fails_closed'] != true ||
+      ciStatus['requires_spec_062'] != true ||
+      ciStatus['requires_spec_063_for_homeserver_domains'] != true) {
+    failures.add('${relative(file)} advertisement CI status invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['server_client_adoption_defined'] != true ||
+      expectedResult['ci_fails_closed'] != true ||
+      expectedResult['depends_on_coverage_report'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} advertisement adoption expectation invalid.',
+    );
+  }
+}
+
+void validateMatrixVersionAdvertisementReference(
+  File file,
+  Map<String, Object?> eventMap,
+  List<String> failures,
+) {
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final source = eventMap['matrix_spec_source'];
+  if (source is! String ||
+      !source.startsWith(
+        'https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientversions',
+      )) {
+    failures.add('${relative(file)} matrix_spec_source is invalid.');
   }
 }
 

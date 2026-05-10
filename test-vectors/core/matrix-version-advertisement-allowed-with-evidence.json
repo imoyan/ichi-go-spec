@@ -1,0 +1,47 @@
+{
+  "name": "matrix-version-advertisement-allowed-with-evidence",
+  "contract": "SPEC-064",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientversions",
+    "checked_at": "2026-05-10T23:08:00+09:00",
+    "candidate": {
+      "requested_versions": [
+        "v1.18"
+      ],
+      "advertised_domains": [
+        "Client-Server API"
+      ],
+      "excluded_domains": [
+        "Server-Server API",
+        "Application Service API",
+        "Identity Service API",
+        "Push Gateway API",
+        "Room Versions",
+        "Olm & Megolm"
+      ],
+      "unstable_mscs_included": false,
+      "domain_evidence": [
+        {
+          "domain": "Client-Server API",
+          "contract_gate": "pass",
+          "implementation_gate": "pass",
+          "server_issue": "houra-server#example",
+          "client_issue": "houra-client#example",
+          "artifact": "artifacts/release/client-server.json"
+        }
+      ]
+    },
+    "gate_result": {
+      "status": "pass",
+      "release_tag_allowed": true,
+      "release_notes_required": true
+    }
+  },
+  "expected": {
+    "included_domains_have_pass_evidence": true,
+    "unsupported_domains_are_excluded": true,
+    "unstable_mscs_excluded": true,
+    "versions_advertisement_allowed": true
+  }
+}

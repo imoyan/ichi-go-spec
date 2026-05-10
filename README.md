@@ -88,6 +88,7 @@ The maintained repository names are:
 - `contracts/SPEC-061-matrix-federation-interop-smoke.md`
 - `contracts/SPEC-062-matrix-domain-coverage-evidence-report.md`
 - `contracts/SPEC-063-matrix-complement-ci-lane.md`
+- `contracts/SPEC-064-matrix-version-advertisement-release-gate.md`
 
 ## Shared Design Inputs
 
@@ -480,6 +481,18 @@ Matrix Complement-compatible CI lane:
 - After `SPEC-063` merges, create an adoption issue for `houra-server`. Do not
   create `houra-client` or `houra-labs` adoption issues unless a later
   client-facing or shared-core Complement harness is intentionally scoped.
+
+Matrix version advertisement release gate:
+
+- `SPEC-064` defines the fail-closed release gate for
+  `GET /_matrix/client/versions` and release notes. Matrix versions, domains,
+  and unstable feature flags can be advertised only when the included behavior
+  has passing contract and implementation evidence.
+- Missing, failed, stale, or secret-leaking evidence keeps advertisement and
+  release tags blocked.
+- After `SPEC-064` merges, create adoption issues for `houra-server` and
+  `houra-client`. Create an `houra-labs` issue only if shared-core release
+  artifacts begin advertising Matrix support.
 
 Matrix compliance phases:
 
@@ -992,6 +1005,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-061 | Matrix federation two-homeserver and reference interop smoke gate | `test-vectors/events/matrix-federation-*-smoke.json` and `test-vectors/events/matrix-federation-compose-ci-lane.json` |
 | SPEC-062 | Matrix domain coverage and evidence report gate | `test-vectors/core/matrix-domain-coverage-*.json` |
 | SPEC-063 | Matrix Complement-compatible homeserver CI lane gate | `test-vectors/core/matrix-complement-ci-*.json` |
+| SPEC-064 | Matrix version advertisement release gate | `test-vectors/core/matrix-version-advertisement-*.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
