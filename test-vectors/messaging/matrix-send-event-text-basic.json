@@ -4,13 +4,11 @@
   "request": {
     "method": "PUT",
     "path": "/_matrix/client/v3/rooms/!room:example.test/send/m.room.message/txn-1",
-    "headers": {
-      "Authorization": "Bearer token-1"
-    },
     "body": {
       "msgtype": "m.text",
       "body": "Hello Matrix"
-    }
+    },
+    "access_token": "token-1"
   },
   "expected": {
     "status": 200,

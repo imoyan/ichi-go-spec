@@ -37,10 +37,10 @@ Authorization: Bearer token-1
 - `client_transaction_id` must be a client-generated non-empty string.
 - Clients should reuse the same `client_transaction_id` when retrying the same
   send after a timeout or transport failure.
-- If the same sender sends to the same room with the same
+- If the same authenticated user sends to the same room with the same
   `client_transaction_id`, `msgtype`, and `body` again, servers should return
-  the same `event_id` and must not create a second event.
-- If the same sender reuses a `client_transaction_id` in the same room with a
+  the same `event_id`; servers must not create a second event.
+- If the same authenticated user reuses a `client_transaction_id` in the same room with a
   different `msgtype` or `body`, servers should return HTTP 409 with
   `HOURA_CONFLICT` when a structured error body is available.
 - `event_id` must be a non-empty string.

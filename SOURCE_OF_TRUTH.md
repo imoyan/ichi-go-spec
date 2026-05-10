@@ -75,7 +75,8 @@ Change handling before freeze:
 ## Pre-1.0 Compatibility Policy
 
 Until a stable 1.0 release, contracts remain draft, but published pre-1.0 tags
-must still be changed deliberately:
+must remain immutable; any corrections to those releases must be released as a
+new tag and handled as follows:
 
 - Breaking changes alter expected public behavior for an existing contract,
   vector, or design token. They require a focused spec PR that updates the

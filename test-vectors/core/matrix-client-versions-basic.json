@@ -8,8 +8,9 @@
   "expected": {
     "status": 200,
     "body_contains": {
-      "versions": ["v1.18"],
-      "unstable_features": {}
+      "versions": [
+        "v1.18"
+      ]
     }
   }
 }

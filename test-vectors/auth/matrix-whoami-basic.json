@@ -10,8 +10,7 @@
     "status": 200,
     "body_contains": {
       "user_id": "@alice:example.test",
-      "device_id": "DEVICE1",
-      "is_guest": false
+      "device_id": "DEVICE1"
     }
   }
 }

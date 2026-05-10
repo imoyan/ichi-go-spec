@@ -7,9 +7,7 @@
     "query": {
       "timeout": 0
     },
-    "headers": {
-      "Authorization": "Bearer invalid-token"
-    }
+    "access_token": "invalid-token"
   },
   "expected": {
     "status": 401,

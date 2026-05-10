@@ -11,7 +11,9 @@
       "project": "houra",
       "api_version": "0.1-draft",
       "compatibility_level": "level-1-csapi-subset",
-      "features": ["core"]
+      "features": [
+        "core"
+      ]
     }
   }
 }

@@ -301,7 +301,7 @@ platforms wherever practical:
 - npm packages can include WebAssembly artifacts for browsers and N-API
   binaries for Node.js platforms.
 - Dart packages can include or download native libraries for supported Flutter
-  and Dart Native platforms, while using the WebAssembly JavaScript wrapper on
+  and Dart native platforms, while using the WebAssembly JavaScript wrapper on
   web.
 - CI should rebuild Rust artifacts when the shared core, extension crates, or
   binding crates change, not when an application changes only adapter policy,
@@ -395,13 +395,13 @@ client/server commonality is not lost during planning.
 | Matrix / Houra error parsing and emission | `rust-candidate` | `client+server` | `core-hard-dep` allowed for stable JSON and enum helpers | WASM / N-API through the TypeScript facade | Dart facade dispatches to FFI or JS interop backend | Shared error envelope and Matrix `M_*` vocabulary parser / builder | HTTP status handling, retry policy, telemetry, and user-facing messages | Platform error models require native exception or result types outside the shared ABI | Low; adding host-specific error text stays outside Rust | Same as protocol core artifacts | Vectors cover client parsing and server emission without adapter-specific fields; no measurable UI-path regression |
 | Identifier and URI validation | `rust-candidate` | `client+server` | `core-hard-dep` allowed for regex or parser utilities if they are mainstream and portable | WASM / N-API through the TypeScript facade | FFI on native and JS interop on web | Matrix and Houra identifier, room ID, event ID, user ID, content URI, and namespace validators | Input timing, UI validation display, and normalization before storage | A platform requires native text or URL APIs for correctness, accessibility, or locale behavior | Medium if parser dependencies change; stable grammar updates should be batched | Prebuilt parser artifacts per supported runtime | Positive and negative grammar vectors pass in client and server harnesses; boundary overhead is hidden by validation batch size |
 | Event content and message schema validation | `rust-candidate` | `client+server` | `core-hard-dep` allowed for JSON schema-like validation only when it stays protocol-focused | WASM / N-API for canonical validation; TS may keep permissive draft typing | FFI / JS interop for canonical validation; Dart may keep permissive draft models | Shared event type, message content, state key, and redaction shape validators | Rich composer UX, server persistence, timeline indexing, moderation policy, and draft states | A client needs permissive draft validation while servers require stricter acceptance rules | Medium; schema changes rebuild shared validators but not UI composer policy | Protocol validator artifacts plus native/web facade packages | Client compose fixtures and server acceptance/rejection vectors agree on canonical shapes; validation batch p95 stays within `+10%` |
-| Transaction id and idempotency semantics | `rust-candidate` | `client+server` | `core-hard-dep` only for small deterministic helpers | WASM / N-API helper through TS facade | FFI / JS interop helper through Dart facade | Transaction id grammar, idempotency-key comparison, and replay classification helpers | Retry scheduling, persistence of sent-message state, offline queueing, and conflict UI | Offline clients need language-native queue behavior that cannot share the same runtime | Low; queue policy changes should not rebuild Rust | Small helper artifact bundled with protocol core | Retry and conflict vectors pass with identical transaction classification; local queue performance is not gated on Rust |
+| Transaction ID and idempotency semantics | `rust-candidate` | `client+server` | `core-hard-dep` only for small deterministic helpers | WASM / N-API helper through TS facade | FFI / JS interop helper through Dart facade | Transaction ID grammar, idempotency-key comparison, and replay classification helpers | Retry scheduling, persistence of sent-message state, offline queueing, and conflict UI | Offline clients need language-native queue behavior that cannot share the same runtime | Low; queue policy changes should not rebuild Rust | Small helper artifact bundled with protocol core | Retry and conflict vectors pass with identical transaction classification; local queue performance is not gated on Rust |
 | Canonical JSON / signing helpers | `rust-candidate` | `client+server` | `core-hard-dep` for canonicalization and hash primitives; `extension-dep` for heavier signing stacks | WASM for browser-safe canonicalization; N-API for Node signing helpers when native crypto is useful | FFI for native signing helpers; JS interop/WASM for web canonicalization | Canonical JSON, hash, and signing input helper primitives | Key storage, key rotation policy, secure enclave integration, and request transport | Native crypto policy or platform keychain constraints require separate bindings | Medium to high when crypto dependencies change; isolate heavy crypto outside the pure core | Separate core and crypto extension artifacts | Cross-language canonicalization fixtures produce byte-identical output; crypto extension has its own p95 and binary-size gate |
 | Room version auth/state resolution | `rust-candidate` | `server-only` | `extension-dep` unless the algorithm is small enough for pure core | N-API for Node servers; WASM only for tooling or tests | Usually not used by Dart clients; Dart server may use FFI if adopted | Room-version-aware auth events, state resolution, and event validation helpers | Persistent event store layout, indexing, sync pagination, conflict recovery UI, and federation policy | Performance, database coupling, or federation deployment needs a server-native path | High; keep database and storage policy outside the Rust algorithm crate | Server-side native artifact only until a client/tooling use case exists | Room-version fixtures and restart-safe server integration tests pass; algorithm cost improves or matches local implementation |
 | E2EE bridge | `split-by-language` | `language-family` | `extension-dep`; never hand-roll Olm or Megolm in this repository | Use maintained Matrix crypto bindings where available; TS facade should not own secure storage | Use maintained native or Dart-compatible crypto binding when it fits the target | Wrapper around a maintained Matrix crypto implementation, not hand-rolled Olm or Megolm | Secure storage, device trust UI, backup UX, native keychain access, and background task policy | A target ecosystem already has a maintained native Matrix crypto binding with better support | High; isolate from pure core and publish separately | Separate crypto artifacts per ecosystem and platform | Encrypted-room send, receive, backup, restore, and verification flows pass in each adopted language |
 | HTTP transport / retry / cancellation | `adapter-owned` | `adapter-only` | `adapter-owned` or `avoid-shared` | Native `fetch`, framework client, or Node HTTP stack chosen by the host | Dart `http`, platform channel, or framework-owned client chosen by the host | None by default; shared code may expose request descriptors only | Fetch/client selection, retry, timeout, cancellation, proxy, cookies, and platform network policy | A language family shares a transport runtime and can add it without constraining others | None for Rust when policy changes stay in adapters | No Rust artifact required | Adapter tests prove host-owned cancellation and retry behavior; shared descriptors do not add request latency |
 | Token storage / secure storage | `adapter-owned` | `adapter-only` | `adapter-owned` | Browser storage, server secret store, or Expo secure storage selected by the host | Flutter secure storage, platform keychain, or server secret store selected by the host | None | Secure storage, token refresh timing, logout cleanup, and process lifecycle | A platform has a common secure-storage abstraction that still keeps host ownership explicit | None for Rust | No Rust artifact required | Logout and restore tests prove tokens are not persisted by the UI-free core |
-| UI surface rendering | `adapter-owned` | `adapter-only` | `adapter-owned` | Vue, Next, React Native, or other UI layer renders platform-neutral surfaces | Flutter, native Dart UI, or other UI layer renders platform-neutral surfaces | Platform-neutral UI surface JSON only | Component hierarchy, accessibility affordances, navigation, layout, gestures, and framework state | A design-system adapter can be shared within one ecosystem without leaking into protocol behavior | None for Rust | No Rust artifact required | UI surface conformance maps required operation and acceptance-flow IDs without forcing component structure |
+| UI surface rendering | `adapter-owned` | `adapter-only` | `adapter-owned` | Vue, Next.js, React Native, or other UI layer renders platform-neutral surfaces | Flutter, native Dart UI, or other UI layer renders platform-neutral surfaces | Platform-neutral UI surface JSON only | Component hierarchy, accessibility affordances, navigation, layout, gestures, and framework state | A design-system adapter can be shared within one ecosystem without leaking into protocol behavior | None for Rust | No Rust artifact required | UI surface conformance maps required operation and acceptance-flow IDs without forcing component structure |
 
 ## Matrix v1.18 Compliance Matrix
 
@@ -604,7 +604,7 @@ work.
 
 ## Long-Term Role
 
-This repository is the first source to update before implementation behavior
+This repository is the canonical source to update before implementation behavior
 changes. It owns draft contract profiles, canonical vectors, and
 platform-neutral theme and UI surface files. Client and server repositories
 should add native adapters, server behavior, and package metadata only after
@@ -623,13 +623,13 @@ below.
 
 ### Matrix client versions server adoption
 
-- Spec release consumed: `v0.2.0-pre.17`
+- Spec behavior input inspected: `v0.2.0-pre.17`
 - Compatibility classification: implementation adoption evidence update for the
   first Matrix Client-Server compatibility endpoint.
 - Public behavior impact: server now implements `GET /_matrix/client/versions`
   from `SPEC-030`; existing `/_houra/client/**` behavior is unchanged.
 - Changed contracts: none.
-- Changed vectors: none.
+- Changed vector files: none.
 - Changed design inputs: none.
 - Matrix reference: Matrix Specification 1.18 remains a reference snapshot
   only; this records one Matrix Client-Server endpoint adoption and is not
@@ -645,7 +645,7 @@ Server Matrix client versions evidence:
 - Implementation repository: `imoyan/houra-server`
 - Implementation issue: `imoyan/houra-server#21`
 - Implementation pull request: `imoyan/houra-server#22`
-- Implementation merge commit inspected:
+- Implementation commit inspected:
   `c1a13410ba2d8e93d6af6dedfcee93b1675794d9`
 - Implementation release: `v0.2.0-pre.14`
 - Release URL:
@@ -675,7 +675,7 @@ the first Matrix Client-Server compatibility endpoint.
   `houra-server` Matrix client versions adoption.
 - Changed public behavior profiles: none in this repository.
 - Changed contracts: none.
-- Changed vectors: none.
+- Changed vector files: none.
 - Changed design inputs: none.
 - Implementation evidence added: `houra-server` v0.2.0-pre.14 adoption of
   `SPEC-030`.
@@ -684,14 +684,14 @@ the first Matrix Client-Server compatibility endpoint.
 
 ### Matrix client versions client adoption
 
-- Spec release consumed: `v0.2.0-pre.18`
+- Spec behavior input inspected: `v0.2.0-pre.18`
 - Compatibility classification: implementation adoption evidence update for the
   first Matrix Client-Server compatibility endpoint.
 - Public behavior impact: client core now exposes `HouraClient.matrixVersions()`
   for `GET /_matrix/client/versions`; existing Houra client methods and
   bearer-token persistence are unchanged.
 - Changed contracts: none.
-- Changed vectors: none.
+- Changed vector files: none.
 - Changed design inputs: none.
 - Matrix reference: Matrix Specification 1.18 remains a reference snapshot
   only; this records one Matrix Client-Server endpoint adoption and is not
@@ -707,12 +707,12 @@ Client Matrix client versions evidence:
 - Implementation repository: `imoyan/houra-client`
 - Implementation issue: `imoyan/houra-client#33`
 - Implementation pull request: `imoyan/houra-client#34`
-- Implementation merge commit inspected:
+- Implementation commit inspected:
   `265537e2b1c33c29c977da89215031278bf7fe6a`
 - Implementation release: `v0.2.0-pre.16`
 - Release URL:
   `https://github.com/imoyan/houra-client/releases/tag/v0.2.0-pre.16`
-- Server target for live e2e smoke: `houra-server` v0.2.0-pre.14
+- Server target commit for live e2e smoke: `houra-server` v0.2.0-pre.14
 - Scope: `HouraClient.matrixVersions()`, `MatrixVersionsResponse`, vector
   conformance for `matrix-client-versions-basic`, live e2e Matrix versions
   smoke, and CI input updates to `houra-spec` v0.2.0-pre.18 and
@@ -742,7 +742,7 @@ the first Matrix Client-Server compatibility endpoint in the UI-free core.
   `houra-client` Matrix client versions adoption.
 - Changed public behavior profiles: none in this repository.
 - Changed contracts: none.
-- Changed vectors: none.
+- Changed vector files: none.
 - Changed design inputs: none.
 - Implementation evidence added: `houra-client` v0.2.0-pre.16 adoption of
   `SPEC-030`.

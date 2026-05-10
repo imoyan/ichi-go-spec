@@ -4,12 +4,10 @@
   "request": {
     "method": "PUT",
     "path": "/_matrix/client/v3/devices/UNKNOWN",
-    "headers": {
-      "Authorization": "Bearer token-1"
-    },
     "body": {
       "display_name": "Missing device"
-    }
+    },
+    "access_token": "token-1"
   },
   "expected": {
     "status": 404,

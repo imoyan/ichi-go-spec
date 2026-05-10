@@ -5,9 +5,6 @@
     "previous_request": {
       "method": "DELETE",
       "path": "/_matrix/client/v3/devices/DEVICE2",
-      "headers": {
-        "Authorization": "Bearer token-1"
-      },
       "body": {
         "auth": {
           "type": "m.login.password",
@@ -18,15 +15,14 @@
           },
           "password": "correct horse battery staple"
         }
-      }
+      },
+      "access_token": "token-1"
     }
   },
   "request": {
     "method": "GET",
     "path": "/_matrix/client/v3/account/whoami",
-    "headers": {
-      "Authorization": "Bearer token-device2"
-    }
+    "access_token": "token-device2"
   },
   "expected": {
     "status": 401,
