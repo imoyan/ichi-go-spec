@@ -1,0 +1,41 @@
+{
+  "name": "matrix-verification-sas-mismatch-cancel",
+  "contract": "SPEC-054",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#mkeyverificationcancel",
+    "checked_at": "2026-05-10T19:50:08+09:00",
+    "transport": "to_device",
+    "transaction_id": "verif-txn-mismatch",
+    "steps": [
+      {
+        "id": "detect-sas-mismatch",
+        "adapter_owned": true,
+        "required": true
+      },
+      {
+        "id": "send-verification-cancel",
+        "type": "m.key.verification.cancel",
+        "to_device": true,
+        "content": {
+          "code": "m.mismatched_sas",
+          "reason": "Short authentication string did not match",
+          "transaction_id": "verif-txn-mismatch"
+        }
+      },
+      {
+        "id": "leave-device-unverified",
+        "required": true,
+        "result": {
+          "verified": false,
+          "trust_state": "unverified"
+        }
+      }
+    ]
+  },
+  "expected": {
+    "verified": false,
+    "cancel_code": "m.mismatched_sas",
+    "versions_advertisement_widened": false
+  }
+}
