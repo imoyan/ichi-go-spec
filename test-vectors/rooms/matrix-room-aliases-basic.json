@@ -1,0 +1,18 @@
+{
+  "name": "matrix-room-aliases-basic",
+  "contract": "SPEC-048",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/rooms/!room:example.test/aliases",
+    "access_token": "token-alice"
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "aliases": [
+        "#project:example.test",
+        "#project-alt:example.test"
+      ]
+    }
+  }
+}

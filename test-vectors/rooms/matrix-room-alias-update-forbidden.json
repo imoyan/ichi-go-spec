@@ -1,0 +1,19 @@
+{
+  "name": "matrix-room-alias-update-forbidden",
+  "contract": "SPEC-048",
+  "request": {
+    "method": "PUT",
+    "path": "/_matrix/client/v3/directory/room/%23project%3Aexample.test",
+    "access_token": "token-bob",
+    "body": {
+      "room_id": "!room:example.test"
+    }
+  },
+  "expected": {
+    "status": 403,
+    "error": {
+      "errcode": "M_FORBIDDEN",
+      "error": "User cannot update this room alias."
+    }
+  }
+}

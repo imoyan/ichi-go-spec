@@ -1,0 +1,19 @@
+{
+  "name": "matrix-room-invite-forbidden",
+  "contract": "SPEC-048",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/rooms/!room:example.test/invite",
+    "access_token": "token-bob",
+    "body": {
+      "user_id": "@carol:example.test"
+    }
+  },
+  "expected": {
+    "status": 403,
+    "error": {
+      "errcode": "M_FORBIDDEN",
+      "error": "User cannot invite others to this room."
+    }
+  }
+}
