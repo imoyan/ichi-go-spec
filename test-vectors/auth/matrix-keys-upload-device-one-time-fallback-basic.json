@@ -1,0 +1,58 @@
+{
+  "name": "matrix-keys-upload-device-one-time-fallback-basic",
+  "contract": "SPEC-051",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/keys/upload",
+    "access_token": "token-alice-device1",
+    "body": {
+      "device_keys": {
+        "user_id": "@alice:example.test",
+        "device_id": "DEVICE1",
+        "algorithms": [
+          "m.olm.v1.curve25519-aes-sha2",
+          "m.megolm.v1.aes-sha2"
+        ],
+        "keys": {
+          "curve25519:DEVICE1": "curve25519-public-device1",
+          "ed25519:DEVICE1": "ed25519-public-device1"
+        },
+        "signatures": {
+          "@alice:example.test": {
+            "ed25519:DEVICE1": "signature-device1"
+          }
+        }
+      },
+      "one_time_keys": {
+        "signed_curve25519:otk1": {
+          "key": "one-time-public-key-1",
+          "signatures": {
+            "@alice:example.test": {
+              "ed25519:DEVICE1": "signature-otk1"
+            }
+          }
+        }
+      },
+      "fallback_keys": {
+        "signed_curve25519:fb1": {
+          "key": "fallback-public-key-1",
+          "fallback": true,
+          "signatures": {
+            "@alice:example.test": {
+              "ed25519:DEVICE1": "signature-fb1"
+            }
+          }
+        }
+      }
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "one_time_key_counts": {
+        "signed_curve25519": 1
+      }
+    },
+    "private_key_material_returned": false
+  }
+}

@@ -106,6 +106,7 @@ void main() {
   checkMatrixRoomDirectoryAliasesInvites(contracts, failures);
   checkMatrixModerationReportingAdminControls(contracts, failures);
   checkMatrixCryptoAdapterBoundary(contracts, failures);
+  checkMatrixDeviceOneTimeFallbackKeys(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -3671,6 +3672,300 @@ void requireStringListIncludes(
   for (final item in required) {
     if (!actual.contains(item)) {
       failures.add('${relative(file)} $key missing required item: $item');
+    }
+  }
+}
+
+void checkMatrixDeviceOneTimeFallbackKeys(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-051')) {
+    failures.add(
+      'Matrix device/one-time/fallback keys contract SPEC-051 is required.',
+    );
+  }
+  const paths = [
+    'test-vectors/auth/matrix-keys-upload-device-one-time-fallback-basic.json',
+    'test-vectors/auth/matrix-keys-upload-malformed-device-keys.json',
+    'test-vectors/auth/matrix-keys-query-basic.json',
+    'test-vectors/auth/matrix-keys-query-missing-token.json',
+    'test-vectors/auth/matrix-keys-claim-one-time-fallback-basic.json',
+    'test-vectors/auth/matrix-keys-claim-invalid-algorithm.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix device/one-time/fallback key vector: $path');
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('upload-device-one-time-fallback')) {
+      validateMatrixKeysUploadVector(file, json, failures);
+    } else if (path.contains('upload-malformed')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'POST',
+        pathPrefix: '/_matrix/client/v3/keys/upload',
+        status: 400,
+        errcode: 'M_INVALID_PARAM',
+      );
+    } else if (path.contains('query-basic')) {
+      validateMatrixKeysQueryVector(file, json, failures);
+    } else if (path.contains('query-missing-token')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'POST',
+        pathPrefix: '/_matrix/client/v3/keys/query',
+        status: 401,
+        errcode: 'M_MISSING_TOKEN',
+      );
+    } else if (path.contains('claim-one-time-fallback')) {
+      validateMatrixKeysClaimSteps(file, json, failures);
+    } else {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'POST',
+        pathPrefix: '/_matrix/client/v3/keys/claim',
+        status: 400,
+        errcode: 'M_INVALID_PARAM',
+      );
+    }
+  }
+}
+
+void validateMatrixKeysUploadVector(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  if (request is! Map) {
+    failures.add('${relative(file)} request must be an object.');
+    return;
+  }
+  final requestMap = request.cast<String, Object?>();
+  if (requestMap['method'] != 'POST' ||
+      requestMap['path'] != '/_matrix/client/v3/keys/upload') {
+    failures.add('${relative(file)} keys upload request is invalid.');
+  }
+  final body = requestMap['body'];
+  if (body is! Map) {
+    failures.add('${relative(file)} keys upload body must be an object.');
+    return;
+  }
+  final bodyMap = body.cast<String, Object?>();
+  final deviceKeys = bodyMap['device_keys'];
+  if (deviceKeys is! Map) {
+    failures.add('${relative(file)} device_keys must be an object.');
+  } else {
+    validateMatrixDeviceKeyObject(
+      file,
+      deviceKeys.cast<String, Object?>(),
+      '@alice:example.test',
+      'DEVICE1',
+      failures,
+    );
+  }
+  validateMatrixSignedCurve25519Keys(
+    file,
+    bodyMap['one_time_keys'],
+    failures,
+    fallback: false,
+  );
+  validateMatrixSignedCurve25519Keys(
+    file,
+    bodyMap['fallback_keys'],
+    failures,
+    fallback: true,
+  );
+  requireExpectedStatus(file, vector, failures, 200);
+  final expected = vector['expected'];
+  final bodyContains = expected is Map ? expected['body_contains'] : null;
+  final counts = bodyContains is Map
+      ? bodyContains['one_time_key_counts']
+      : null;
+  if (counts is! Map || counts['signed_curve25519'] is! int) {
+    failures.add('${relative(file)} one_time_key_counts expectation missing.');
+  }
+  if (expected is! Map || expected['private_key_material_returned'] != false) {
+    failures.add('${relative(file)} must assert no private key material.');
+  }
+}
+
+void validateMatrixKeysQueryVector(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  if (request is! Map) {
+    failures.add('${relative(file)} request must be an object.');
+    return;
+  }
+  final requestMap = request.cast<String, Object?>();
+  if (requestMap['method'] != 'POST' ||
+      requestMap['path'] != '/_matrix/client/v3/keys/query') {
+    failures.add('${relative(file)} keys query request is invalid.');
+  }
+  final body = requestMap['body'];
+  final requested = body is Map ? body['device_keys'] : null;
+  if (requested is! Map || requested['@alice:example.test'] is! List) {
+    failures.add('${relative(file)} keys query body is invalid.');
+  }
+  requireExpectedStatus(file, vector, failures, 200);
+  final expected = vector['expected'];
+  final bodyContains = expected is Map ? expected['body_contains'] : null;
+  final deviceKeys = bodyContains is Map ? bodyContains['device_keys'] : null;
+  final aliceKeys = deviceKeys is Map
+      ? deviceKeys['@alice:example.test']
+      : null;
+  final device = aliceKeys is Map ? aliceKeys['DEVICE1'] : null;
+  if (device is! Map) {
+    failures.add('${relative(file)} keys query response device missing.');
+  } else {
+    validateMatrixDeviceKeyObject(
+      file,
+      device.cast<String, Object?>(),
+      '@alice:example.test',
+      'DEVICE1',
+      failures,
+    );
+  }
+}
+
+void validateMatrixKeysClaimSteps(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = [
+    'claim-one-time-key',
+    'claim-fallback-key-after-one-time-exhausted',
+  ];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    if (step['method'] != 'POST' ||
+        step['path'] != '/_matrix/client/v3/keys/claim' ||
+        step['expected_status'] != 200) {
+      failures.add('${relative(file)} keys claim step request invalid.');
+    }
+    final body = step['body'];
+    final requestKeys = body is Map ? body['one_time_keys'] : null;
+    final aliceRequest = requestKeys is Map
+        ? requestKeys['@alice:example.test']
+        : null;
+    final algorithm = aliceRequest is Map ? aliceRequest['DEVICE1'] : null;
+    if (algorithm != 'signed_curve25519') {
+      failures.add('${relative(file)} keys claim algorithm is invalid.');
+    }
+    final expectedBody = step['expected_body_contains'];
+    final responseKeys = expectedBody is Map
+        ? expectedBody['one_time_keys']
+        : null;
+    final aliceResponse = responseKeys is Map
+        ? responseKeys['@alice:example.test']
+        : null;
+    final deviceResponse = aliceResponse is Map
+        ? aliceResponse['DEVICE1']
+        : null;
+    if (deviceResponse is! Map || deviceResponse.isEmpty) {
+      failures.add('${relative(file)} keys claim response is missing a key.');
+      continue;
+    }
+    final first = deviceResponse.values.first;
+    if (first is! Map ||
+        first['key'] is! String ||
+        first['signatures'] is! Map) {
+      failures.add('${relative(file)} claimed key object is invalid.');
+    }
+    final id = step['id'];
+    if (id == 'claim-fallback-key-after-one-time-exhausted' &&
+        first is Map &&
+        first['fallback'] != true) {
+      failures.add('${relative(file)} fallback claim must mark fallback true.');
+    }
+    final serverEffect = step['server_effect'];
+    if (serverEffect is! Map || serverEffect.isEmpty) {
+      failures.add('${relative(file)} keys claim server_effect is required.');
+    }
+  }
+}
+
+void validateMatrixDeviceKeyObject(
+  File file,
+  Map<String, Object?> device,
+  String userId,
+  String deviceId,
+  List<String> failures,
+) {
+  if (device['user_id'] != userId || device['device_id'] != deviceId) {
+    failures.add('${relative(file)} device key identity is invalid.');
+  }
+  requireStringListIncludes(file, device, 'algorithms', {
+    'm.olm.v1.curve25519-aes-sha2',
+    'm.megolm.v1.aes-sha2',
+  }, failures);
+  final keys = device['keys'];
+  if (keys is! Map ||
+      keys['curve25519:$deviceId'] is! String ||
+      keys['ed25519:$deviceId'] is! String) {
+    failures.add('${relative(file)} device key public keys are invalid.');
+  }
+  final signatures = device['signatures'];
+  final userSignatures = signatures is Map ? signatures[userId] : null;
+  if (userSignatures is! Map ||
+      userSignatures['ed25519:$deviceId'] is! String) {
+    failures.add('${relative(file)} device key signature is invalid.');
+  }
+}
+
+void validateMatrixSignedCurve25519Keys(
+  File file,
+  Object? value,
+  List<String> failures, {
+  required bool fallback,
+}) {
+  if (value is! Map || value.isEmpty) {
+    failures.add('${relative(file)} signed_curve25519 key map is required.');
+    return;
+  }
+  for (final entry in value.entries) {
+    if (entry.key is! String ||
+        !(entry.key as String).startsWith('signed_curve25519:')) {
+      failures.add('${relative(file)} signed_curve25519 key id is invalid.');
+    }
+    final key = entry.value;
+    if (key is! Map || key['key'] is! String || key['signatures'] is! Map) {
+      failures.add('${relative(file)} signed_curve25519 key object invalid.');
+      continue;
+    }
+    if (fallback && key['fallback'] != true) {
+      failures.add('${relative(file)} fallback key must set fallback true.');
     }
   }
 }
