@@ -86,6 +86,7 @@ The maintained repository names are:
 - `contracts/SPEC-059-matrix-identity-service-boundary.md`
 - `contracts/SPEC-060-matrix-push-gateway-boundary.md`
 - `contracts/SPEC-061-matrix-federation-interop-smoke.md`
+- `contracts/SPEC-062-matrix-domain-coverage-evidence-report.md`
 
 ## Shared Design Inputs
 
@@ -452,6 +453,20 @@ Matrix compliance must be tracked by API domain, not as a single vague label:
 | Room Versions | room version algorithms, event authorization rules, state resolution, room upgrade behavior | MVP rooms do not implement Matrix room versions or event DAG auth; `SPEC-040` adds the first Matrix event DAG and auth-event reference contract, `SPEC-041` adds state snapshot / representative state-resolution vectors, `SPEC-042` defines the stable room versions 1-12 / default 12 gate, `SPEC-043` adds representative membership, power-level, and redaction auth vectors, and `SPEC-044` adds alias / upgrade / restart persistence gates without full room-version auth completeness | Supported room versions are listed, default room version is declared, and auth/state-resolution tests pass |
 | Olm & Megolm | E2EE primitives, one-time keys, device keys, encrypted room messaging, key backup, verification, cross-signing | Not implemented; `SPEC-050` defines the adapter ownership boundary and forbids local Olm/Megolm implementation; `SPEC-051` adds device key, one-time key, and fallback key publication/query contracts; `SPEC-052` adds to-device and encrypted-room send/receive gates; `SPEC-053` adds server-side key backup and logout/relogin restore gates; `SPEC-054` adds SAS verification, cross-signing, and wrong-device failure gates | Use a mainstream Matrix crypto stack; encrypted rooms, device trust, key backup, restore, verification, and wrong-device failure flows pass |
 | Appendices/common rules | identifiers, timestamps, namespacing, error vocabulary, deprecation behavior | Partially aligned only where MVP contracts copied the concept | Shared parser and validation tests enforce Matrix grammar and compatibility claims |
+
+Matrix domain coverage evidence report:
+
+- `SPEC-062` defines the Matrix v1.18 stable-domain coverage report shape for
+  contract refs, implementation repos, adoption issue refs, pass/fail evidence,
+  artifact paths, and advertisement decisions.
+- The report covers Client-Server API, Server-Server API, Application Service
+  API, Identity Service API, Push Gateway API, Room Versions, Olm & Megolm, and
+  Appendices/common rules.
+- Unstable MSCs remain excluded unless a later issue explicitly adopts a
+  specific MSC with its own contract, vector, adoption issue, and release note.
+- After `SPEC-062` merges, create adoption issues for `houra-server` and
+  `houra-client` to emit implementation evidence in the same shape. Create an
+  `houra-labs` issue only if shared-core evidence becomes part of a domain gate.
 
 Matrix compliance phases:
 
@@ -962,6 +977,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-059 | Matrix Identity Service boundary and lookup/bind/unbind gate | `test-vectors/core/matrix-identity-*.json` |
 | SPEC-060 | Matrix Push Gateway boundary and delivery failure gate | `test-vectors/core/matrix-push-*.json` |
 | SPEC-061 | Matrix federation two-homeserver and reference interop smoke gate | `test-vectors/events/matrix-federation-*-smoke.json` and `test-vectors/events/matrix-federation-compose-ci-lane.json` |
+| SPEC-062 | Matrix domain coverage and evidence report gate | `test-vectors/core/matrix-domain-coverage-*.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
