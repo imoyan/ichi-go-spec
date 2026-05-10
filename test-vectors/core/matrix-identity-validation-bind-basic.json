@@ -1,0 +1,114 @@
+{
+  "name": "matrix-identity-validation-bind-basic",
+  "contract": "SPEC-059",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/identity-service-api/#post_matrixidentityv23pidbind",
+    "checked_at": "2026-05-10T21:34:00+09:00",
+    "validation_steps": [
+      {
+        "id": "email-request-token",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/validate/email/requestToken",
+          "authorization": {
+            "scheme": "Bearer",
+            "token": "identity-token-redacted"
+          },
+          "body": {
+            "client_secret": "client-secret-redacted",
+            "email": "alice@example.test",
+            "send_attempt": 1
+          }
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "sid": "sid-123"
+          }
+        }
+      },
+      {
+        "id": "email-submit-token",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/validate/email/submitToken",
+          "authorization": {
+            "scheme": "Bearer",
+            "token": "identity-token-redacted"
+          },
+          "body": {
+            "client_secret": "client-secret-redacted",
+            "sid": "sid-123",
+            "token": "validation-token-redacted"
+          }
+        },
+        "response": {
+          "status": 200,
+          "body": {}
+        }
+      },
+      {
+        "id": "get-validated-3pid",
+        "request": {
+          "method": "GET",
+          "path": "/_matrix/identity/v2/3pid/getValidated3pid",
+          "authorization": {
+            "scheme": "Bearer",
+            "token": "identity-token-redacted"
+          },
+          "query": {
+            "client_secret": "client-secret-redacted",
+            "sid": "sid-123"
+          }
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "address": "alice@example.test",
+            "medium": "email",
+            "validated_at": 1778410440000
+          }
+        }
+      }
+    ],
+    "bind_request": {
+      "method": "POST",
+      "path": "/_matrix/identity/v2/3pid/bind",
+      "authorization": {
+        "scheme": "Bearer",
+        "token": "identity-token-redacted"
+      },
+      "body": {
+        "client_secret": "client-secret-redacted",
+        "mxid": "@alice:example.test",
+        "sid": "sid-123"
+      }
+    },
+    "bind_response": {
+      "status": 200,
+      "body": {
+        "address": "alice@example.test",
+        "medium": "email",
+        "mxid": "@alice:example.test",
+        "not_after": 1781002440000,
+        "not_before": 1778410440000,
+        "signatures": {
+          "identity.example.test": {
+            "ed25519:0": "signature-redacted"
+          }
+        },
+        "ts": 1778410440000
+      }
+    },
+    "validation_does_not_publish_lookup": true,
+    "secrets_redacted": true
+  },
+  "expected": {
+    "validation_session_defined": true,
+    "bind_defined": true,
+    "signed_association_returned": true,
+    "lookup_published_only_after_bind": true,
+    "versions_advertisement_widened": false
+  }
+}

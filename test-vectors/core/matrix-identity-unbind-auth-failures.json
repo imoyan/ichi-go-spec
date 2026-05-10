@@ -1,0 +1,64 @@
+{
+  "name": "matrix-identity-unbind-auth-failures",
+  "contract": "SPEC-059",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/identity-service-api/#post_matrixidentityv23pidunbind",
+    "checked_at": "2026-05-10T21:34:00+09:00",
+    "unbind_request": {
+      "method": "POST",
+      "path": "/_matrix/identity/v2/3pid/unbind",
+      "authorization": {
+        "scheme": "Bearer",
+        "token": "identity-token-redacted"
+      },
+      "body": {
+        "client_secret": "client-secret-redacted",
+        "mxid": "@alice:example.test",
+        "sid": "sid-123",
+        "threepid": {
+          "address": "alice@example.test",
+          "medium": "email"
+        }
+      }
+    },
+    "unbind_response": {
+      "status": 200,
+      "body": {}
+    },
+    "failure_cases": [
+      {
+        "id": "missing-token",
+        "status": 401,
+        "errcode": "M_UNAUTHORIZED"
+      },
+      {
+        "id": "terms-not-signed",
+        "status": 403,
+        "errcode": "M_TERMS_NOT_SIGNED"
+      },
+      {
+        "id": "invalid-homeserver-signature",
+        "status": 403,
+        "errcode": "M_FORBIDDEN"
+      },
+      {
+        "id": "rotated-pepper",
+        "status": 400,
+        "errcode": "M_INVALID_PEPPER"
+      }
+    ],
+    "privacy": {
+      "lookup_after_unbind_returns_mapping": false,
+      "matrix_error_passthrough_required": true,
+      "secrets_redacted": true
+    }
+  },
+  "expected": {
+    "unbind_defined": true,
+    "future_lookup_removed": true,
+    "auth_failures_defined": true,
+    "privacy_failure_gate_defined": true,
+    "versions_advertisement_widened": false
+  }
+}
