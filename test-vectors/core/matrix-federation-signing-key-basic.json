@@ -1,0 +1,37 @@
+{
+  "name": "matrix-federation-signing-key-basic",
+  "contract": "SPEC-055",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/key/v2/server"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "server_name": "example.test",
+      "verify_keys": {
+        "ed25519:auto1": {
+          "key": "VGhpcyBpcyBhIHRlc3QgcHVibGljIHZlcmlmeSBrZXk"
+        }
+      },
+      "old_verify_keys": {
+        "ed25519:old1": {
+          "expired_ts": 1777801808000,
+          "key": "VGhpcyBpcyBhbiBvbGQgdGVzdCBwdWJsaWMga2V5"
+        }
+      },
+      "valid_until_ts": 1779011408000,
+      "signatures": {
+        "example.test": {
+          "ed25519:auto1": "VGhpcyBpcyBhIHRlc3Qgc2lnbmF0dXJl"
+        }
+      }
+    }
+  },
+  "expected": {
+    "status": 200,
+    "contains_private_key": false,
+    "effective_validity_days_max": 7,
+    "versions_advertisement_widened": false
+  }
+}

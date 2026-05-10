@@ -1,0 +1,61 @@
+{
+  "name": "matrix-federation-destination-resolution-failure",
+  "contract": "SPEC-055",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/server-server-api/#resolving-server-names",
+    "checked_at": "2026-05-10T20:00:21+09:00",
+    "server_name": "broken.example.test",
+    "steps": [
+      {
+        "id": "well-known-invalid",
+        "stage": "well_known",
+        "required": true,
+        "result": {
+          "status": 200,
+          "body_valid": false
+        }
+      },
+      {
+        "id": "matrix-fed-srv-missing",
+        "stage": "srv_matrix_fed",
+        "required": true,
+        "result": {
+          "record_found": false
+        }
+      },
+      {
+        "id": "deprecated-matrix-srv-missing",
+        "stage": "srv_matrix_deprecated",
+        "required": true,
+        "result": {
+          "record_found": false
+        }
+      },
+      {
+        "id": "address-resolution-failed",
+        "stage": "address_records",
+        "required": true,
+        "result": {
+          "address_found": false
+        }
+      },
+      {
+        "id": "record-failure-backoff",
+        "stage": "failure_cache",
+        "required": true,
+        "result": {
+          "destination_resolved": false,
+          "federation_request_sent": false,
+          "backoff_recorded": true
+        }
+      }
+    ]
+  },
+  "expected": {
+    "destination_resolved": false,
+    "federation_request_sent": false,
+    "backoff_recorded": true,
+    "versions_advertisement_widened": false
+  }
+}

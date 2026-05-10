@@ -79,6 +79,7 @@ The maintained repository names are:
 - `contracts/SPEC-052-matrix-to-device-encrypted-room-gate.md`
 - `contracts/SPEC-053-matrix-key-backup-restore-gate.md`
 - `contracts/SPEC-054-matrix-verification-cross-signing-gate.md`
+- `contracts/SPEC-055-matrix-federation-discovery-signing-keys.md`
 
 ## Shared Design Inputs
 
@@ -438,7 +439,7 @@ Matrix compliance must be tracked by API domain, not as a single vague label:
 | Matrix domain | v1.18 scope source | Current Houra state | Target gate |
 |---|---|---|---|
 | Client-Server API | `/_matrix/client/*`, media, auth, sync, rooms, user data, devices, reporting, admin capabilities | Product MVP covers a small `/_houra/client/*` subset; `SPEC-030` through `SPEC-038` add Matrix versions, auth/session, registration, devices, room create/join/leave/state, send event/messages, sync, and media upload/download contracts; `SPEC-039` defines the integrated live e2e adoption gate; `SPEC-045` starts Client-Server breadth with profile, account data, and room tags; `SPEC-046` adds receipts, typing, and read markers; `SPEC-047` adds filters, presence, and capabilities; `SPEC-048` adds room directory, aliases, and invites; `SPEC-049` adds moderation, reporting, and admin controls | Matrix-compatible endpoint namespace, response shapes, error codes, representative conformance vectors, and live server/client MVP smoke pass |
-| Server-Server API | federation discovery, signed transactions, PDUs/EDUs, event auth, joins/leaves, invites, backfill, key APIs, policy servers | Not implemented | A second homeserver can federate, exchange signed room events, validate auth, and recover state across restart |
+| Server-Server API | federation discovery, signed transactions, PDUs/EDUs, event auth, joins/leaves, invites, backfill, key APIs, policy servers | Not implemented; `SPEC-055` adds server discovery, delegated well-known, signing-key publication/query, and destination resolution failure contracts | A second homeserver can federate, exchange signed room events, validate auth, and recover state across restart |
 | Application Service API | appservice registration, namespace ownership, transactions, sender localpart, bridge-style event delivery | Not implemented | A registered appservice receives transactions and can puppet/send events within its declared namespaces |
 | Identity Service API | third-party identifier validation and lookup | Not implemented | Either explicitly out of supported deployment scope or implemented as a separate identity component with conformance evidence |
 | Push Gateway API | push notification gateway contracts | Not implemented | Either explicitly out of supported deployment scope or implemented with privacy-aware notification payload tests |
@@ -680,6 +681,21 @@ Matrix verification and cross-signing gate:
   helper is intentionally adopted for verification event shape or
   cross-signing public key validation.
 
+Matrix federation discovery and signing keys gate:
+
+- `SPEC-055` defines the Matrix v1.18 Server-Server discovery bootstrap:
+  delegated `/.well-known/matrix/server`, `/_matrix/key/v2/server`, batch
+  `/_matrix/key/v2/query`, destination resolution fallback/failure evidence,
+  and signing-key cache boundaries.
+- Passing this gate does not claim federation transactions, make/send join,
+  invite, backfill, event auth, state resolution, Application Service, Identity
+  Service, Push Gateway, or Matrix v1.18 full federation compliance.
+- After `SPEC-055` merges, create an adoption issue for `houra-server`. Do not
+  create `houra-client` work unless a later client-visible federation
+  configuration surface is intentionally added. Create an `houra-labs` issue
+  only if parser-only helpers for server names, well-known bodies, or server-key
+  objects are intentionally adopted.
+
 Matrix room versions gate:
 
 - `SPEC-042` defines the Matrix v1.18 stable room-version allowlist as `1`
@@ -845,6 +861,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-052 | Matrix to-device and encrypted room send/receive gate | `test-vectors/messaging/matrix-to-device-*.json`, `test-vectors/messaging/matrix-encrypted-room-*.json`, and `test-vectors/messaging/matrix-e2ee-*.json` |
 | SPEC-053 | Matrix key backup and logout/relogin restore gate | `test-vectors/messaging/matrix-key-backup-*.json` |
 | SPEC-054 | Matrix verification, cross-signing, and wrong-device failure gate | `test-vectors/messaging/matrix-verification-*.json`, `test-vectors/messaging/matrix-cross-signing-*.json`, and `test-vectors/messaging/matrix-wrong-device-*.json` |
+| SPEC-055 | Matrix federation discovery and signing keys gate | `test-vectors/core/matrix-federation-*.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
