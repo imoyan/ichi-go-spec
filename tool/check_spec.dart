@@ -94,6 +94,7 @@ void main() {
   checkMatrixSendEventMessagesMvp(contracts, failures);
   checkMatrixSyncMvp(contracts, failures);
   checkMatrixMediaMvp(contracts, failures);
+  checkMatrixClientServerMvpLiveE2eGate(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -632,6 +633,23 @@ void checkMatrixMediaMvp(Map<String, String> contracts, List<String> failures) {
     if (!File(path).existsSync()) {
       failures.add('Missing Matrix media MVP vector: $path');
     }
+  }
+}
+
+void checkMatrixClientServerMvpLiveE2eGate(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-039')) {
+    failures.add(
+      'Matrix Client-Server MVP live e2e gate contract SPEC-039 is required.',
+    );
+  }
+  const path = 'test-vectors/core/matrix-client-server-mvp-live-e2e-gate.json';
+  if (!File(path).existsSync()) {
+    failures.add(
+      'Missing Matrix Client-Server MVP live e2e gate vector: $path',
+    );
   }
 }
 
