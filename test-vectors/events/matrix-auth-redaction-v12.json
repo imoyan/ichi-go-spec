@@ -1,0 +1,107 @@
+{
+  "name": "matrix-auth-redaction-v12",
+  "contract": "SPEC-043",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/rooms/v12/#handling-redactions",
+    "checked_at": "2026-05-10T15:35:00+09:00",
+    "room_version": "12",
+    "cases": [
+      {
+        "id": "redaction-send-authorized-by-power",
+        "auth_state": [
+          {
+            "type": "m.room.power_levels",
+            "state_key": "",
+            "event_id": "$authPowerRedact",
+            "sender": "@alice:example.test",
+            "content": {
+              "users": {
+                "@alice:example.test": 50
+              },
+              "redact": 50,
+              "events_default": 0
+            }
+          }
+        ],
+        "candidate_event": {
+          "event_id": "$authRedactionEvent",
+          "type": "m.room.redaction",
+          "sender": "@alice:example.test",
+          "content": {
+            "reason": "moderation"
+          }
+        },
+        "target_event": {
+          "event_id": "$authTargetEvent",
+          "sender": "@bob:remote.test"
+        },
+        "expected": {
+          "allowed": true,
+          "reason": "redaction_send_authorized_by_power"
+        }
+      },
+      {
+        "id": "redaction-apply-same-sender-domain",
+        "auth_state": [
+          {
+            "type": "m.room.power_levels",
+            "state_key": "",
+            "event_id": "$authPowerDefault",
+            "sender": "@alice:example.test",
+            "content": {
+              "users_default": 0,
+              "redact": 50
+            }
+          }
+        ],
+        "candidate_event": {
+          "event_id": "$authRedactionSameDomain",
+          "type": "m.room.redaction",
+          "sender": "@alice:example.test",
+          "content": {}
+        },
+        "target_event": {
+          "event_id": "$authTargetSameDomain",
+          "sender": "@bob:example.test"
+        },
+        "expected": {
+          "redaction_applies": true,
+          "reason": "redaction_apply_same_sender_domain"
+        }
+      },
+      {
+        "id": "redaction-apply-cross-domain-low-power",
+        "auth_state": [
+          {
+            "type": "m.room.power_levels",
+            "state_key": "",
+            "event_id": "$authPowerDefault",
+            "sender": "@alice:example.test",
+            "content": {
+              "users_default": 0,
+              "redact": 50
+            }
+          }
+        ],
+        "candidate_event": {
+          "event_id": "$authRedactionCrossDomain",
+          "type": "m.room.redaction",
+          "sender": "@alice:example.test",
+          "content": {}
+        },
+        "target_event": {
+          "event_id": "$authTargetRemote",
+          "sender": "@bob:remote.test"
+        },
+        "expected": {
+          "redaction_applies": false,
+          "reason": "redaction_apply_cross_domain_low_power"
+        }
+      }
+    ]
+  },
+  "expected": {
+    "case_count": 3
+  }
+}

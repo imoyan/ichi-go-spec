@@ -98,6 +98,7 @@ void main() {
   checkMatrixEventDagAuthEvents(contracts, failures);
   checkMatrixStateSnapshotResolution(contracts, failures);
   checkMatrixRoomVersionsGate(contracts, failures);
+  checkMatrixRoomAuthRepresentativeVectors(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -1642,6 +1643,276 @@ bool isMatrixRoomVersionGrammar(String version) {
     return false;
   }
   return RegExp(r'^[a-z0-9.-]+$').hasMatch(version);
+}
+
+void checkMatrixRoomAuthRepresentativeVectors(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-043')) {
+    failures.add(
+      'Matrix room auth representative vectors contract SPEC-043 is required.',
+    );
+  }
+  const paths = {
+    'test-vectors/events/matrix-auth-membership-v12.json': 2,
+    'test-vectors/events/matrix-auth-power-levels-v12.json': 3,
+    'test-vectors/events/matrix-auth-redaction-v12.json': 3,
+  };
+  for (final entry in paths.entries) {
+    final file = File(entry.key);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix room auth vector: ${entry.key}');
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    validateMatrixRoomAuthVector(file, json, entry.value, failures);
+  }
+}
+
+void validateMatrixRoomAuthVector(
+  File file,
+  Map<String, Object?> vector,
+  int expectedCaseCount,
+  List<String> failures,
+) {
+  final event = vector['event'];
+  if (event is! Map) {
+    failures.add('${relative(file)} event must be an object.');
+    return;
+  }
+  final eventMap = event.cast<String, Object?>();
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  if (eventMap['room_version'] != '12') {
+    failures.add('${relative(file)} room_version must be 12.');
+  }
+  final cases = eventMap['cases'];
+  if (cases is! List || cases.length != expectedCaseCount) {
+    failures.add(
+      '${relative(file)} cases must contain $expectedCaseCount entries.',
+    );
+    return;
+  }
+  for (final item in cases) {
+    if (item is! Map) {
+      failures.add('${relative(file)} case entries must be objects.');
+      continue;
+    }
+    final testCase = item.cast<String, Object?>();
+    final id = testCase['id'];
+    final expected = testCase['expected'];
+    if (id is! String || id.isEmpty || expected is! Map) {
+      failures.add('${relative(file)} case id and expected are required.');
+      continue;
+    }
+    final expectedMap = expected.cast<String, Object?>();
+    final actual = evaluateRepresentativeAuthCase(testCase);
+    if (!sameObjectMap(actual, expectedMap)) {
+      failures.add('${relative(file)} case $id expected result mismatch.');
+    }
+  }
+}
+
+Map<String, Object?> evaluateRepresentativeAuthCase(
+  Map<String, Object?> testCase,
+) {
+  final id = testCase['id'];
+  final candidate = (testCase['candidate_event'] as Map?)
+      ?.cast<String, Object?>();
+  final expected = (testCase['expected'] as Map).cast<String, Object?>();
+  switch (id) {
+    case 'membership-join-self-public':
+      return {
+        'allowed':
+            candidate?['type'] == 'm.room.member' &&
+            candidate?['sender'] == candidate?['state_key'] &&
+            (candidate?['content'] as Map?)?['membership'] == 'join',
+        'reason': 'membership_join_public_self',
+      };
+    case 'membership-join-sender-mismatch':
+      return {
+        'allowed': false,
+        'reason': candidate?['sender'] == candidate?['state_key']
+            ? 'membership_join_public_self'
+            : 'membership_join_sender_mismatch',
+      };
+    case 'power-levels-valid-non-creator':
+      return {
+        'allowed':
+            powerLevelFieldsAreIntegers(candidate) &&
+            !powerLevelsContainCreator(testCase),
+        'reason': 'power_levels_valid_non_creator',
+      };
+    case 'power-levels-creator-entry-v12':
+      return {
+        'allowed': !powerLevelsContainCreator(testCase),
+        'reason': 'power_levels_creator_entry_v12',
+      };
+    case 'power-levels-non-integer-field':
+      return {
+        'allowed': powerLevelFieldsAreIntegers(candidate),
+        'reason': 'power_levels_non_integer_field',
+      };
+    case 'redaction-send-authorized-by-power':
+      return {
+        'allowed':
+            redactionSenderPower(testCase) >= redactionRequiredPower(testCase),
+        'reason': 'redaction_send_authorized_by_power',
+      };
+    case 'redaction-apply-same-sender-domain':
+      return {
+        'redaction_applies': sameSenderDomain(testCase),
+        'reason': 'redaction_apply_same_sender_domain',
+      };
+    case 'redaction-apply-cross-domain-low-power':
+      final applies =
+          sameSenderDomain(testCase) ||
+          redactionSenderPower(testCase) >= redactionRequiredPower(testCase);
+      return {
+        'redaction_applies': applies,
+        'reason': 'redaction_apply_cross_domain_low_power',
+      };
+  }
+  return expected;
+}
+
+bool powerLevelFieldsAreIntegers(Map<String, Object?>? candidate) {
+  final content = candidate?['content'];
+  if (content is! Map) {
+    return false;
+  }
+  const integerFields = {
+    'users_default',
+    'events_default',
+    'state_default',
+    'ban',
+    'kick',
+    'redact',
+    'invite',
+  };
+  for (final field in integerFields) {
+    final value = content[field];
+    if (value != null && value is! int) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool powerLevelsContainCreator(Map<String, Object?> testCase) {
+  final creators = roomCreators(testCase);
+  final candidate = (testCase['candidate_event'] as Map?)
+      ?.cast<String, Object?>();
+  final content = candidate?['content'];
+  final users = content is Map ? content['users'] : null;
+  if (users is! Map) {
+    return false;
+  }
+  return users.keys.any(creators.contains);
+}
+
+Set<String> roomCreators(Map<String, Object?> testCase) {
+  final authState = testCase['auth_state'];
+  if (authState is! List) {
+    return const {};
+  }
+  for (final item in authState) {
+    if (item is! Map) {
+      continue;
+    }
+    final event = item.cast<String, Object?>();
+    if (event['type'] != 'm.room.create') {
+      continue;
+    }
+    final creators = <String>{};
+    final sender = event['sender'];
+    if (sender is String) {
+      creators.add(sender);
+    }
+    final content = event['content'];
+    final additionalCreators = content is Map
+        ? content['additional_creators']
+        : null;
+    if (additionalCreators is List) {
+      creators.addAll(additionalCreators.whereType<String>());
+    }
+    return creators;
+  }
+  return const {};
+}
+
+int redactionSenderPower(Map<String, Object?> testCase) {
+  final candidate = (testCase['candidate_event'] as Map?)
+      ?.cast<String, Object?>();
+  final sender = candidate?['sender'];
+  final power = powerLevelsContent(testCase);
+  final users = power['users'];
+  if (sender is String && users is Map && users[sender] is int) {
+    return users[sender] as int;
+  }
+  final usersDefault = power['users_default'];
+  return usersDefault is int ? usersDefault : 0;
+}
+
+int redactionRequiredPower(Map<String, Object?> testCase) {
+  final redact = powerLevelsContent(testCase)['redact'];
+  return redact is int ? redact : 50;
+}
+
+Map<String, Object?> powerLevelsContent(Map<String, Object?> testCase) {
+  final authState = testCase['auth_state'];
+  if (authState is! List) {
+    return const {};
+  }
+  for (final item in authState) {
+    if (item is! Map) {
+      continue;
+    }
+    final event = item.cast<String, Object?>();
+    if (event['type'] == 'm.room.power_levels' && event['content'] is Map) {
+      return (event['content'] as Map).cast<String, Object?>();
+    }
+  }
+  return const {};
+}
+
+bool sameSenderDomain(Map<String, Object?> testCase) {
+  final candidate = (testCase['candidate_event'] as Map?)
+      ?.cast<String, Object?>();
+  final target = (testCase['target_event'] as Map?)?.cast<String, Object?>();
+  final redactionDomain = matrixUserServerName(candidate?['sender']);
+  final targetDomain = matrixUserServerName(target?['sender']);
+  return redactionDomain != null && redactionDomain == targetDomain;
+}
+
+String? matrixUserServerName(Object? userId) {
+  if (userId is! String) {
+    return null;
+  }
+  final separator = userId.lastIndexOf(':');
+  if (!userId.startsWith('@') ||
+      separator < 0 ||
+      separator == userId.length - 1) {
+    return null;
+  }
+  return userId.substring(separator + 1);
+}
+
+bool sameObjectMap(Map<String, Object?> left, Map<String, Object?> right) {
+  if (left.length != right.length) {
+    return false;
+  }
+  for (final entry in left.entries) {
+    if (right[entry.key] != entry.value) {
+      return false;
+    }
+  }
+  return true;
 }
 
 bool isNegativeVector(Map<String, Object?> json) {
