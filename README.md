@@ -87,6 +87,7 @@ The maintained repository names are:
 - `contracts/SPEC-060-matrix-push-gateway-boundary.md`
 - `contracts/SPEC-061-matrix-federation-interop-smoke.md`
 - `contracts/SPEC-062-matrix-domain-coverage-evidence-report.md`
+- `contracts/SPEC-063-matrix-complement-ci-lane.md`
 
 ## Shared Design Inputs
 
@@ -467,6 +468,18 @@ Matrix domain coverage evidence report:
 - After `SPEC-062` merges, create adoption issues for `houra-server` and
   `houra-client` to emit implementation evidence in the same shape. Create an
   `houra-labs` issue only if shared-core evidence becomes part of a domain gate.
+
+Matrix Complement-compatible CI lane:
+
+- `SPEC-063` defines the Complement-compatible homeserver black-box CI lane
+  setup, minimum pass/fail report shape, artifact requirements, and release gate
+  candidate rules.
+- Passing this gate does not replace the domain-specific vectors in this
+  repository and does not by itself allow Matrix version or domain
+  advertisement.
+- After `SPEC-063` merges, create an adoption issue for `houra-server`. Do not
+  create `houra-client` or `houra-labs` adoption issues unless a later
+  client-facing or shared-core Complement harness is intentionally scoped.
 
 Matrix compliance phases:
 
@@ -978,6 +991,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-060 | Matrix Push Gateway boundary and delivery failure gate | `test-vectors/core/matrix-push-*.json` |
 | SPEC-061 | Matrix federation two-homeserver and reference interop smoke gate | `test-vectors/events/matrix-federation-*-smoke.json` and `test-vectors/events/matrix-federation-compose-ci-lane.json` |
 | SPEC-062 | Matrix domain coverage and evidence report gate | `test-vectors/core/matrix-domain-coverage-*.json` |
+| SPEC-063 | Matrix Complement-compatible homeserver CI lane gate | `test-vectors/core/matrix-complement-ci-*.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this

@@ -122,6 +122,7 @@ void main() {
   checkMatrixPushGatewayBoundary(contracts, failures);
   checkMatrixFederationInteropSmoke(contracts, failures);
   checkMatrixDomainCoverageReport(contracts, failures);
+  checkMatrixComplementCiLane(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -7398,6 +7399,172 @@ void validateMatrixCoverageGate(
   }
   if (!value.containsKey('artifact')) {
     failures.add('${relative(file)} matrix coverage gate artifact missing.');
+  }
+}
+
+void checkMatrixComplementCiLane(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-063')) {
+    failures.add('Matrix Complement CI lane contract SPEC-063 is required.');
+  }
+  const paths = [
+    'test-vectors/core/matrix-complement-ci-lane-setup.json',
+    'test-vectors/core/matrix-complement-ci-pass-fail-report.json',
+    'test-vectors/core/matrix-complement-ci-release-gate.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix Complement CI vector: $path');
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('lane-setup')) {
+      validateMatrixComplementLaneSetup(file, json, failures);
+    } else if (path.contains('pass-fail-report')) {
+      validateMatrixComplementPassFailReport(file, json, failures);
+    } else {
+      validateMatrixComplementReleaseGate(file, json, failures);
+    }
+  }
+}
+
+void validateMatrixComplementLaneSetup(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixComplementReference(file, eventMap, failures);
+  final lane = eventMap['lane'];
+  if (lane is! Map ||
+      lane['kind'] != 'complement-compatible-homeserver' ||
+      lane['owner_repo'] != 'houra-server' ||
+      lane['image_build_command'] is! String ||
+      lane['startup_command'] is! String ||
+      lane['client_api_base_url'] is! String ||
+      lane['federation_base_url'] is! String ||
+      lane['healthcheck_command'] is! String ||
+      lane['isolated_storage_per_test'] != true ||
+      lane['tls_or_complement_pki'] != true ||
+      lane['artifact_dir'] != 'artifacts/complement' ||
+      lane['stable_spec_only'] != true ||
+      lane['unstable_mscs_included'] != false) {
+    failures.add('${relative(file)} Complement lane setup invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['lane_setup_defined'] != true ||
+      expectedResult['server_owned'] != true ||
+      expectedResult['stable_spec_only'] != true ||
+      expectedResult['secrets_redacted'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} Complement lane setup expectation invalid.',
+    );
+  }
+}
+
+void validateMatrixComplementPassFailReport(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixComplementReference(file, eventMap, failures);
+  final report = eventMap['report'];
+  final totals = report is Map ? report['totals'] : null;
+  final failuresList = report is Map ? report['failures'] : null;
+  final artifacts = report is Map ? report['artifacts'] : null;
+  if (report is! Map ||
+      report['houra_ref'] is! String ||
+      report['complement_ref'] is! String ||
+      report['stable_spec_only'] != true ||
+      report['unstable_mscs_included'] != false ||
+      report['domains'] is! List ||
+      totals is! Map ||
+      totals['pass'] is! int ||
+      totals['fail'] is! int ||
+      totals['skip'] is! int ||
+      totals['expected_fail'] is! int ||
+      failuresList is! List ||
+      failuresList.isEmpty ||
+      artifacts is! Map ||
+      artifacts['summary'] is! String ||
+      artifacts['logs'] is! String ||
+      report['release_gate_status'] != 'blocked') {
+    failures.add('${relative(file)} Complement pass/fail report invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['pass_fail_report_defined'] != true ||
+      expectedResult['failure_artifacts_linked'] != true ||
+      expectedResult['unstable_mscs_excluded'] != true ||
+      expectedResult['release_gate_blocked_on_failures'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} Complement report expectation invalid.');
+  }
+}
+
+void validateMatrixComplementReleaseGate(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixComplementReference(file, eventMap, failures);
+  final gate = eventMap['gate'];
+  if (gate is! Map ||
+      gate['requires_domain_coverage_contract'] != 'SPEC-062' ||
+      gate['requires_same_houra_ref'] != true ||
+      gate['requires_artifacts'] != true ||
+      gate['requires_stable_spec_only'] != true ||
+      gate['requires_failure_issue_links'] != true ||
+      gate['requires_secret_redaction'] != true ||
+      gate['blocks_advertisement_on_missing_or_failed_run'] != true) {
+    failures.add('${relative(file)} Complement release gate invalid.');
+  }
+  final adoption = eventMap['adoption'];
+  if (adoption is! Map ||
+      adoption['server_issue_required_after_merge'] != true ||
+      adoption['client_issue_required_after_merge'] != false ||
+      adoption['labs_issue_required_after_merge'] != false) {
+    failures.add('${relative(file)} Complement adoption boundary invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['release_gate_candidate_defined'] != true ||
+      expectedResult['depends_on_spec_062'] != true ||
+      expectedResult['blocks_advertisement_on_missing_or_failed_run'] != true ||
+      expectedResult['server_adoption_only'] != true) {
+    failures.add('${relative(file)} Complement gate expectation invalid.');
+  }
+}
+
+void validateMatrixComplementReference(
+  File file,
+  Map<String, Object?> eventMap,
+  List<String> failures,
+) {
+  if (eventMap['matrix_spec_version'] != 'v1.18' ||
+      eventMap['matrix_spec_source'] != 'https://spec.matrix.org/v1.18/' ||
+      eventMap['complement_source'] !=
+          'https://github.com/matrix-org/complement') {
+    failures.add('${relative(file)} Complement reference invalid.');
   }
 }
 

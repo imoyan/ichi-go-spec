@@ -1,0 +1,31 @@
+{
+  "name": "matrix-complement-ci-lane-setup",
+  "contract": "SPEC-063",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/",
+    "complement_source": "https://github.com/matrix-org/complement",
+    "checked_at": "2026-05-10T22:52:00+09:00",
+    "lane": {
+      "kind": "complement-compatible-homeserver",
+      "owner_repo": "houra-server",
+      "image_build_command": "docker build -t houra-server:complement .",
+      "startup_command": "docker run --rm houra-server:complement",
+      "client_api_base_url": "http://homeserver:8008",
+      "federation_base_url": "https://homeserver:8448",
+      "healthcheck_command": "curl -fsS http://homeserver:8008/_matrix/client/versions",
+      "isolated_storage_per_test": true,
+      "tls_or_complement_pki": true,
+      "artifact_dir": "artifacts/complement",
+      "stable_spec_only": true,
+      "unstable_mscs_included": false
+    }
+  },
+  "expected": {
+    "lane_setup_defined": true,
+    "server_owned": true,
+    "stable_spec_only": true,
+    "secrets_redacted": true,
+    "versions_advertisement_widened": false
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "matrix-complement-ci-release-gate",
+  "contract": "SPEC-063",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/",
+    "complement_source": "https://github.com/matrix-org/complement",
+    "checked_at": "2026-05-10T22:52:00+09:00",
+    "gate": {
+      "requires_domain_coverage_contract": "SPEC-062",
+      "requires_same_houra_ref": true,
+      "requires_artifacts": true,
+      "requires_stable_spec_only": true,
+      "requires_failure_issue_links": true,
+      "requires_secret_redaction": true,
+      "blocks_advertisement_on_missing_or_failed_run": true
+    },
+    "adoption": {
+      "server_issue_required_after_merge": true,
+      "client_issue_required_after_merge": false,
+      "labs_issue_required_after_merge": false
+    }
+  },
+  "expected": {
+    "release_gate_candidate_defined": true,
+    "depends_on_spec_062": true,
+    "blocks_advertisement_on_missing_or_failed_run": true,
+    "server_adoption_only": true
+  }
+}
