@@ -1,0 +1,56 @@
+{
+  "name": "matrix-federation-reference-homeserver-smoke",
+  "contract": "SPEC-061",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/server-server-api/#server-server-api",
+    "complement_source": "https://github.com/matrix-org/complement",
+    "checked_at": "2026-05-10T22:11:00+09:00",
+    "topology": {
+      "kind": "houra-plus-reference-homeserver",
+      "houra_server": "houra.example.test",
+      "reference_server": "reference.example.test",
+      "reference_kind": "complement-compatible",
+      "stable_spec_only": true,
+      "unstable_msc_enabled": false
+    },
+    "checklist": [
+      {
+        "id": "reference-image-recorded",
+        "required": true
+      },
+      {
+        "id": "houra-image-or-commit-recorded",
+        "required": true
+      },
+      {
+        "id": "make-send-join-both-directions",
+        "required": true
+      },
+      {
+        "id": "transaction-both-directions",
+        "required": true
+      },
+      {
+        "id": "backfill-event-auth-state-ids",
+        "required": true
+      },
+      {
+        "id": "failure-artifacts-linked",
+        "required": true
+      }
+    ],
+    "evidence": {
+      "command": "npm run smoke:federation:reference",
+      "artifact": "artifacts/federation/reference-homeserver.json",
+      "pass_fail_record_required": true,
+      "secrets_redacted": true
+    }
+  },
+  "expected": {
+    "reference_homeserver_smoke_defined": true,
+    "stable_spec_only": true,
+    "complement_compatible": true,
+    "versions_advertisement_widened": false
+  }
+}

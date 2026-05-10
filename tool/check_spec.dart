@@ -120,6 +120,7 @@ void main() {
   checkMatrixApplicationServiceRegistrationTransaction(contracts, failures);
   checkMatrixIdentityServiceBoundary(contracts, failures);
   checkMatrixPushGatewayBoundary(contracts, failures);
+  checkMatrixFederationInteropSmoke(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -6935,6 +6936,288 @@ void validateMatrixPushReference(
             'https://spec.matrix.org/v1.18/client-server-api/#',
           ))) {
     failures.add('${relative(file)} matrix_spec_source is invalid.');
+  }
+}
+
+void checkMatrixFederationInteropSmoke(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-061')) {
+    failures.add(
+      'Matrix federation interop smoke contract SPEC-061 is required.',
+    );
+  }
+  const paths = [
+    'test-vectors/events/matrix-federation-two-homeserver-smoke.json',
+    'test-vectors/events/matrix-federation-reference-homeserver-smoke.json',
+    'test-vectors/events/matrix-federation-compose-ci-lane.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix federation interop vector: $path');
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('two-homeserver')) {
+      validateMatrixFederationTwoHomeserverSmoke(file, json, failures);
+    } else if (path.contains('reference-homeserver')) {
+      validateMatrixFederationReferenceSmoke(file, json, failures);
+    } else {
+      validateMatrixFederationComposeCiLane(file, json, failures);
+    }
+  }
+}
+
+void validateMatrixFederationTwoHomeserverSmoke(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixFederationInteropReference(file, eventMap, failures);
+  final requiredContracts = eventMap['requires_contracts'];
+  if (requiredContracts is! List ||
+      !requiredContracts.contains('SPEC-055') ||
+      !requiredContracts.contains('SPEC-056') ||
+      !requiredContracts.contains('SPEC-057') ||
+      !requiredContracts.contains('SPEC-061')) {
+    failures.add('${relative(file)} federation interop requirements invalid.');
+  }
+  final topology = eventMap['topology'];
+  final servers = topology is Map ? topology['servers'] : null;
+  if (topology is! Map ||
+      topology['kind'] != 'two-houra-homeservers' ||
+      topology['isolated_storage'] != true ||
+      topology['distinct_signing_keys'] != true ||
+      servers is! List ||
+      servers.length != 2) {
+    failures.add('${relative(file)} two-homeserver topology invalid.');
+  }
+  validateMatrixFederationInteropSteps(
+    file,
+    eventMap['steps'],
+    failures,
+    requiredStepIds: const {
+      'well-known',
+      'server-keys',
+      'make-join',
+      'send-join',
+      'send-transaction',
+      'backfill',
+      'event-auth',
+      'state-ids',
+      'sync-observe',
+    },
+  );
+  validateMatrixFederationInteropEvidence(file, eventMap['evidence'], failures);
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['two_houra_smoke_defined'] != true ||
+      expectedResult['all_steps_pass'] != true ||
+      expectedResult['room_version'] != '12' ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} two-homeserver expectation invalid.');
+  }
+}
+
+void validateMatrixFederationReferenceSmoke(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixFederationInteropReference(
+    file,
+    eventMap,
+    failures,
+    requireComplement: true,
+  );
+  final topology = eventMap['topology'];
+  if (topology is! Map ||
+      topology['kind'] != 'houra-plus-reference-homeserver' ||
+      topology['reference_kind'] != 'complement-compatible' ||
+      topology['stable_spec_only'] != true ||
+      topology['unstable_msc_enabled'] != false) {
+    failures.add('${relative(file)} reference homeserver topology invalid.');
+  }
+  final checklist = eventMap['checklist'];
+  if (checklist is! List || checklist.length < 6) {
+    failures.add('${relative(file)} reference homeserver checklist invalid.');
+  } else {
+    final ids = <String>{};
+    for (final item in checklist) {
+      if (item is! Map || item['id'] is! String || item['required'] != true) {
+        failures.add('${relative(file)} reference checklist item invalid.');
+        continue;
+      }
+      ids.add(item['id'] as String);
+    }
+    for (final required in [
+      'reference-image-recorded',
+      'houra-image-or-commit-recorded',
+      'make-send-join-both-directions',
+      'transaction-both-directions',
+      'backfill-event-auth-state-ids',
+      'failure-artifacts-linked',
+    ]) {
+      if (!ids.contains(required)) {
+        failures.add(
+          '${relative(file)} reference checklist missing $required.',
+        );
+      }
+    }
+  }
+  validateMatrixFederationInteropEvidence(file, eventMap['evidence'], failures);
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['reference_homeserver_smoke_defined'] != true ||
+      expectedResult['stable_spec_only'] != true ||
+      expectedResult['complement_compatible'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} reference smoke expectation invalid.');
+  }
+}
+
+void validateMatrixFederationComposeCiLane(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixFederationInteropReference(
+    file,
+    eventMap,
+    failures,
+    requireComplement: true,
+  );
+  final lane = eventMap['lane'];
+  if (lane is! Map ||
+      lane['kind'] != 'docker-compose-or-complement-ci' ||
+      lane['requires_docker'] != true ||
+      lane['client_port'] != 8008 ||
+      lane['federation_port'] != 8448 ||
+      lane['tls_or_complement_pki'] != true ||
+      lane['isolated_storage_per_homeserver'] != true ||
+      lane['healthcheck_required'] != true) {
+    failures.add('${relative(file)} federation compose lane invalid.');
+  }
+  final commands = eventMap['commands'];
+  if (commands is! List || commands.length != 3) {
+    failures.add('${relative(file)} federation compose commands invalid.');
+  } else {
+    final commandIds = <String>{};
+    for (final item in commands) {
+      if (item is! Map || item['id'] is! String || item['command'] is! String) {
+        failures.add('${relative(file)} federation command item invalid.');
+        continue;
+      }
+      commandIds.add(item['id'] as String);
+    }
+    if (!commandIds.containsAll({
+      'build-houra-image',
+      'two-houra',
+      'reference',
+    })) {
+      failures.add('${relative(file)} federation command ids invalid.');
+    }
+  }
+  final evidenceFields = eventMap['evidence_fields'];
+  if (evidenceFields is! List ||
+      !evidenceFields.contains('matrix_spec_version') ||
+      !evidenceFields.contains('step_results') ||
+      !evidenceFields.contains('secrets_redacted')) {
+    failures.add('${relative(file)} federation evidence fields invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['ci_lane_defined'] != true ||
+      expectedResult['docker_or_complement_supported'] != true ||
+      expectedResult['healthcheck_required'] != true ||
+      expectedResult['secrets_redacted'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} federation CI expectation invalid.');
+  }
+}
+
+void validateMatrixFederationInteropSteps(
+  File file,
+  Object? value,
+  List<String> failures, {
+  required Set<String> requiredStepIds,
+}) {
+  if (value is! List || value.isEmpty) {
+    failures.add('${relative(file)} federation steps invalid.');
+    return;
+  }
+  final ids = <String>{};
+  for (final item in value) {
+    if (item is! Map ||
+        item['id'] is! String ||
+        item['contract'] is! String ||
+        item['path'] is! String ||
+        item['result'] != 'pass') {
+      failures.add('${relative(file)} federation step invalid.');
+      continue;
+    }
+    ids.add(item['id'] as String);
+    final path = item['path'] as String;
+    if (!(isApiPath(path, '/_matrix/federation') ||
+        isApiPath(path, '/_matrix/client') ||
+        isApiPath(path, '/_matrix/key') ||
+        isApiPath(path, '/.well-known/matrix'))) {
+      failures.add('${relative(file)} federation step path invalid: $path');
+    }
+  }
+  if (!ids.containsAll(requiredStepIds)) {
+    failures.add('${relative(file)} federation required steps missing.');
+  }
+}
+
+void validateMatrixFederationInteropEvidence(
+  File file,
+  Object? value,
+  List<String> failures,
+) {
+  if (value is! Map ||
+      value['command'] is! String ||
+      value['artifact'] is! String ||
+      value['secrets_redacted'] != true) {
+    failures.add('${relative(file)} federation evidence invalid.');
+  }
+}
+
+void validateMatrixFederationInteropReference(
+  File file,
+  Map<String, Object?> eventMap,
+  List<String> failures, {
+  bool requireComplement = false,
+}) {
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final source = eventMap['matrix_spec_source'];
+  if (source is! String ||
+      !source.startsWith('https://spec.matrix.org/v1.18/server-server-api/#')) {
+    failures.add('${relative(file)} matrix_spec_source is invalid.');
+  }
+  if (requireComplement &&
+      eventMap['complement_source'] !=
+          'https://github.com/matrix-org/complement') {
+    failures.add('${relative(file)} complement source is invalid.');
   }
 }
 
