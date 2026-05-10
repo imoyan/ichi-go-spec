@@ -1,0 +1,234 @@
+{
+  "name": "matrix-domain-coverage-report-basic",
+  "contract": "SPEC-062",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/",
+    "checked_at": "2026-05-10T22:34:00+09:00",
+    "unstable_mscs_included": false,
+    "domains": [
+      {
+        "domain": "Appendices/common rules",
+        "source": "https://spec.matrix.org/v1.18/appendices/",
+        "contract_refs": [
+          "SPEC-031"
+        ],
+        "implementation_repos": [
+          "houra-server",
+          "houra-client"
+        ],
+        "adoption_issue_refs": [],
+        "contract_gate": {
+          "command": "dart tool/check_spec.dart",
+          "status": "pass",
+          "artifact": "artifacts/matrix-domain-coverage/appendices.json"
+        },
+        "implementation_gate": {
+          "status": "not-run",
+          "artifact": null
+        },
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Client-Server API",
+        "source": "https://spec.matrix.org/v1.18/client-server-api/",
+        "contract_refs": [
+          "SPEC-030",
+          "SPEC-031",
+          "SPEC-032",
+          "SPEC-033",
+          "SPEC-034",
+          "SPEC-035",
+          "SPEC-036",
+          "SPEC-037",
+          "SPEC-038",
+          "SPEC-039",
+          "SPEC-045",
+          "SPEC-046",
+          "SPEC-047",
+          "SPEC-048",
+          "SPEC-049"
+        ],
+        "implementation_repos": [
+          "houra-server",
+          "houra-client"
+        ],
+        "adoption_issue_refs": [],
+        "contract_gate": {
+          "command": "dart tool/check_spec.dart",
+          "status": "pass",
+          "artifact": "artifacts/matrix-domain-coverage/client-server.json"
+        },
+        "implementation_gate": {
+          "status": "not-run",
+          "artifact": null
+        },
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Server-Server API",
+        "source": "https://spec.matrix.org/v1.18/server-server-api/",
+        "contract_refs": [
+          "SPEC-055",
+          "SPEC-056",
+          "SPEC-057",
+          "SPEC-061"
+        ],
+        "implementation_repos": [
+          "houra-server"
+        ],
+        "adoption_issue_refs": [
+          "houra-server#59",
+          "houra-server#60",
+          "houra-server#61",
+          "houra-server#65"
+        ],
+        "contract_gate": {
+          "command": "dart tool/check_spec.dart",
+          "status": "pass",
+          "artifact": "artifacts/matrix-domain-coverage/server-server.json"
+        },
+        "implementation_gate": {
+          "status": "not-run",
+          "artifact": null
+        },
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Application Service API",
+        "source": "https://spec.matrix.org/v1.18/application-service-api/",
+        "contract_refs": [
+          "SPEC-058"
+        ],
+        "implementation_repos": [
+          "houra-server"
+        ],
+        "adoption_issue_refs": [
+          "houra-server#62"
+        ],
+        "contract_gate": {
+          "command": "dart tool/check_spec.dart",
+          "status": "pass",
+          "artifact": "artifacts/matrix-domain-coverage/application-service.json"
+        },
+        "implementation_gate": {
+          "status": "not-run",
+          "artifact": null
+        },
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Identity Service API",
+        "source": "https://spec.matrix.org/v1.18/identity-service-api/",
+        "contract_refs": [
+          "SPEC-059"
+        ],
+        "implementation_repos": [
+          "houra-server",
+          "houra-client"
+        ],
+        "adoption_issue_refs": [
+          "houra-server#63",
+          "houra-client#65"
+        ],
+        "contract_gate": {
+          "command": "dart tool/check_spec.dart",
+          "status": "pass",
+          "artifact": "artifacts/matrix-domain-coverage/identity-service.json"
+        },
+        "implementation_gate": {
+          "status": "not-run",
+          "artifact": null
+        },
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Push Gateway API",
+        "source": "https://spec.matrix.org/v1.18/push-gateway-api/",
+        "contract_refs": [
+          "SPEC-060"
+        ],
+        "implementation_repos": [
+          "houra-server",
+          "houra-client"
+        ],
+        "adoption_issue_refs": [
+          "houra-server#64",
+          "houra-client#66"
+        ],
+        "contract_gate": {
+          "command": "dart tool/check_spec.dart",
+          "status": "pass",
+          "artifact": "artifacts/matrix-domain-coverage/push-gateway.json"
+        },
+        "implementation_gate": {
+          "status": "not-run",
+          "artifact": null
+        },
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Room Versions",
+        "source": "https://spec.matrix.org/v1.18/rooms/",
+        "contract_refs": [
+          "SPEC-040",
+          "SPEC-041",
+          "SPEC-042",
+          "SPEC-043",
+          "SPEC-044"
+        ],
+        "implementation_repos": [
+          "houra-server"
+        ],
+        "adoption_issue_refs": [],
+        "contract_gate": {
+          "command": "dart tool/check_spec.dart",
+          "status": "pass",
+          "artifact": "artifacts/matrix-domain-coverage/room-versions.json"
+        },
+        "implementation_gate": {
+          "status": "not-run",
+          "artifact": null
+        },
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Olm & Megolm",
+        "source": "https://spec.matrix.org/v1.18/olm-megolm/",
+        "contract_refs": [
+          "SPEC-050",
+          "SPEC-051",
+          "SPEC-052",
+          "SPEC-053",
+          "SPEC-054"
+        ],
+        "implementation_repos": [
+          "houra-server",
+          "houra-client"
+        ],
+        "adoption_issue_refs": [],
+        "contract_gate": {
+          "command": "dart tool/check_spec.dart",
+          "status": "pass",
+          "artifact": "artifacts/matrix-domain-coverage/olm-megolm.json"
+        },
+        "implementation_gate": {
+          "status": "not-run",
+          "artifact": null
+        },
+        "advertisement_allowed": false
+      }
+    ],
+    "excluded_unstable_mscs": {
+      "included": false,
+      "reason": "Matrix v1.18 stable domains only",
+      "opt_in_policy": "separate issue and contract required"
+    }
+  },
+  "expected": {
+    "stable_domain_count": 8,
+    "unstable_mscs_excluded": true,
+    "pass_fail_fields_defined": true,
+    "advertisement_blocked_until_implementation_pass": true
+  }
+}

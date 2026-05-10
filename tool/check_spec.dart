@@ -121,6 +121,7 @@ void main() {
   checkMatrixIdentityServiceBoundary(contracts, failures);
   checkMatrixPushGatewayBoundary(contracts, failures);
   checkMatrixFederationInteropSmoke(contracts, failures);
+  checkMatrixDomainCoverageReport(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -7218,6 +7219,185 @@ void validateMatrixFederationInteropReference(
       eventMap['complement_source'] !=
           'https://github.com/matrix-org/complement') {
     failures.add('${relative(file)} complement source is invalid.');
+  }
+}
+
+void checkMatrixDomainCoverageReport(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-062')) {
+    failures.add(
+      'Matrix domain coverage report contract SPEC-062 is required.',
+    );
+  }
+  const path = 'test-vectors/core/matrix-domain-coverage-report-basic.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix domain coverage report vector: $path');
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  validateMatrixDomainCoverageReport(file, json, contracts, failures);
+}
+
+void validateMatrixDomainCoverageReport(
+  File file,
+  Map<String, Object?> vector,
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18' ||
+      eventMap['matrix_spec_source'] != 'https://spec.matrix.org/v1.18/' ||
+      eventMap['unstable_mscs_included'] != false) {
+    failures.add('${relative(file)} matrix coverage report header invalid.');
+  }
+  const requiredDomains = {
+    'Appendices/common rules',
+    'Client-Server API',
+    'Server-Server API',
+    'Application Service API',
+    'Identity Service API',
+    'Push Gateway API',
+    'Room Versions',
+    'Olm & Megolm',
+  };
+  final domains = eventMap['domains'];
+  if (domains is! List || domains.length != requiredDomains.length) {
+    failures.add('${relative(file)} matrix coverage domain list invalid.');
+  } else {
+    final seen = <String>{};
+    for (final domain in domains) {
+      validateMatrixDomainCoverageRecord(file, domain, contracts, failures);
+      if (domain is Map && domain['domain'] is String) {
+        seen.add(domain['domain'] as String);
+      }
+    }
+    if (!seen.containsAll(requiredDomains) ||
+        seen.length != requiredDomains.length) {
+      failures.add('${relative(file)} matrix coverage domains incomplete.');
+    }
+  }
+  final excluded = eventMap['excluded_unstable_mscs'];
+  if (excluded is! Map ||
+      excluded['included'] != false ||
+      excluded['reason'] != 'Matrix v1.18 stable domains only' ||
+      excluded['opt_in_policy'] != 'separate issue and contract required') {
+    failures.add('${relative(file)} unstable MSC exclusion record invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['stable_domain_count'] != 8 ||
+      expectedResult['unstable_mscs_excluded'] != true ||
+      expectedResult['pass_fail_fields_defined'] != true ||
+      expectedResult['advertisement_blocked_until_implementation_pass'] !=
+          true) {
+    failures.add('${relative(file)} matrix coverage expectation invalid.');
+  }
+}
+
+void validateMatrixDomainCoverageRecord(
+  File file,
+  Object? value,
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (value is! Map) {
+    failures.add('${relative(file)} matrix coverage domain record invalid.');
+    return;
+  }
+  for (final key in [
+    'domain',
+    'source',
+    'contract_refs',
+    'implementation_repos',
+    'adoption_issue_refs',
+    'contract_gate',
+    'implementation_gate',
+    'advertisement_allowed',
+  ]) {
+    if (!value.containsKey(key)) {
+      failures.add('${relative(file)} matrix coverage domain missing $key.');
+    }
+  }
+  final domain = value['domain'];
+  final source = value['source'];
+  if (domain is! String ||
+      source is! String ||
+      !source.startsWith('https://spec.matrix.org/v1.18/')) {
+    failures.add('${relative(file)} matrix coverage domain/source invalid.');
+  }
+  final contractRefs = value['contract_refs'];
+  if (contractRefs is! List || contractRefs.isEmpty) {
+    failures.add('${relative(file)} matrix coverage contract refs invalid.');
+  } else {
+    for (final ref in contractRefs) {
+      if (ref is! String || !contracts.containsKey(ref)) {
+        failures.add('${relative(file)} matrix coverage contract ref invalid.');
+      }
+    }
+  }
+  final repos = value['implementation_repos'];
+  if (repos is! List || repos.isEmpty) {
+    failures.add(
+      '${relative(file)} matrix coverage implementation repos invalid.',
+    );
+  } else {
+    for (final repo in repos) {
+      if (repo is! String ||
+          !{'houra-server', 'houra-client', 'houra-labs'}.contains(repo)) {
+        failures.add('${relative(file)} matrix coverage repo invalid.');
+      }
+    }
+  }
+  final contractGate = value['contract_gate'];
+  final implementationGate = value['implementation_gate'];
+  validateMatrixCoverageGate(
+    file,
+    contractGate,
+    failures,
+    allowedStatuses: const {'pass', 'fail', 'not-run'},
+    requireCommand: true,
+  );
+  validateMatrixCoverageGate(
+    file,
+    implementationGate,
+    failures,
+    allowedStatuses: const {'pass', 'fail', 'not-run', 'not-applicable'},
+    requireCommand: false,
+  );
+  if (value['advertisement_allowed'] != false) {
+    failures.add('${relative(file)} advertisement must stay blocked.');
+  }
+}
+
+void validateMatrixCoverageGate(
+  File file,
+  Object? value,
+  List<String> failures, {
+  required Set<String> allowedStatuses,
+  required bool requireCommand,
+}) {
+  if (value is! Map || value['status'] is! String) {
+    failures.add('${relative(file)} matrix coverage gate invalid.');
+    return;
+  }
+  if (!allowedStatuses.contains(value['status'])) {
+    failures.add('${relative(file)} matrix coverage gate status invalid.');
+  }
+  if (requireCommand &&
+      (value['command'] is! String || (value['command'] as String).isEmpty)) {
+    failures.add('${relative(file)} matrix coverage gate command invalid.');
+  }
+  if (!value.containsKey('artifact')) {
+    failures.add('${relative(file)} matrix coverage gate artifact missing.');
   }
 }
 
