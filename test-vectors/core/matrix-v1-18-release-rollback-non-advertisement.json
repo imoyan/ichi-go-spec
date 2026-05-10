@@ -1,0 +1,30 @@
+{
+  "name": "matrix-v1-18-release-rollback-non-advertisement",
+  "contract": "SPEC-066",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/",
+    "matrix_release_source": "https://matrix.org/blog/2026/03/26/matrix-v1.18-release/",
+    "checked_at": "2026-05-10T23:38:00+09:00",
+    "failure_after_tag": {
+      "publish_matrix_claims": false,
+      "create_follow_up_issue": true,
+      "non_advertisement_notes_allowed": true,
+      "retag_requires_new_candidate": true,
+      "delete_or_rewrite_published_tags": false
+    },
+    "blocking_reasons": [
+      "missing evidence",
+      "failed implementation gate",
+      "failed Complement lane",
+      "release notes evidence mismatch",
+      "secret leak in artifact"
+    ]
+  },
+  "expected": {
+    "rollback_criteria_defined": true,
+    "non_advertisement_decision_defined": true,
+    "retag_requires_new_candidate": true,
+    "versions_advertisement_widened": false
+  }
+}

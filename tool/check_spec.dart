@@ -125,6 +125,7 @@ void main() {
   checkMatrixComplementCiLane(contracts, failures);
   checkMatrixVersionAdvertisementGate(contracts, failures);
   checkMatrixReleaseNotesEvidenceTemplate(contracts, failures);
+  checkMatrixV118ReleaseReadinessGate(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -7829,6 +7830,158 @@ void validateMatrixReleaseNotesEvidenceTemplate(
       expectedResult['unstable_mscs_excluded_by_default'] != true ||
       expectedResult['versions_advertisement_widened'] != false) {
     failures.add('${relative(file)} release notes expectation invalid.');
+  }
+}
+
+void checkMatrixV118ReleaseReadinessGate(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-066')) {
+    failures.add('Matrix v1.18 release readiness SPEC-066 is required.');
+  }
+  const paths = [
+    'test-vectors/core/matrix-v1-18-release-readiness-checklist.json',
+    'test-vectors/core/matrix-v1-18-release-tag-ordering.json',
+    'test-vectors/core/matrix-v1-18-release-rollback-non-advertisement.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix release readiness vector: $path');
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('readiness-checklist')) {
+      validateMatrixReleaseReadinessChecklist(file, json, failures);
+    } else if (path.contains('tag-ordering')) {
+      validateMatrixReleaseTagOrdering(file, json, failures);
+    } else {
+      validateMatrixReleaseRollback(file, json, failures);
+    }
+  }
+}
+
+void validateMatrixReleaseReadinessChecklist(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixReleaseReadinessReference(file, eventMap, failures);
+  final readiness = eventMap['readiness'];
+  if (readiness is! Map ||
+      readiness['requires_spec_062'] != true ||
+      readiness['requires_spec_063_for_homeserver_claims'] != true ||
+      readiness['requires_spec_064'] != true ||
+      readiness['requires_spec_065'] != true ||
+      readiness['all_supported_domain_gates_pass'] != true ||
+      readiness['excluded_domains_have_gap_issue_or_reason'] != true ||
+      readiness['room_versions_listed'] != true ||
+      readiness['default_room_version_listed'] != true ||
+      readiness['unstable_mscs_excluded_or_opted_in'] != true ||
+      readiness['artifacts_secret_redacted'] != true) {
+    failures.add('${relative(file)} release readiness checklist invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['readiness_checklist_defined'] != true ||
+      expectedResult['all_release_gates_required'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} release readiness expectation invalid.');
+  }
+}
+
+void validateMatrixReleaseTagOrdering(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixReleaseReadinessReference(file, eventMap, failures);
+  final ordering = eventMap['ordering'];
+  const expectedOrder = [
+    'freeze-candidate-refs',
+    'run-domain-coverage',
+    'run-implementation-evidence',
+    'run-complement-lane',
+    'run-advertisement-gate',
+    'generate-release-notes',
+    'tag-implementation-repos',
+    'tag-houra-spec',
+    'publish-release-notes',
+  ];
+  if (ordering is! List || ordering.join('|') != expectedOrder.join('|')) {
+    failures.add('${relative(file)} release tag ordering invalid.');
+  }
+  final tagRequirements = eventMap['tag_requirements'];
+  if (tagRequirements is! Map ||
+      tagRequirements['same_checked_refs'] != true ||
+      tagRequirements['evidence_bundle_ref_required'] != true ||
+      tagRequirements['publish_after_tags'] != true) {
+    failures.add('${relative(file)} release tag requirements invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['tag_ordering_defined'] != true ||
+      expectedResult['spec_tag_after_implementation_tags'] != true ||
+      expectedResult['publish_after_tags'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} release tag expectation invalid.');
+  }
+}
+
+void validateMatrixReleaseRollback(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixReleaseReadinessReference(file, eventMap, failures);
+  final failureAfterTag = eventMap['failure_after_tag'];
+  final blockingReasons = eventMap['blocking_reasons'];
+  if (failureAfterTag is! Map ||
+      failureAfterTag['publish_matrix_claims'] != false ||
+      failureAfterTag['create_follow_up_issue'] != true ||
+      failureAfterTag['non_advertisement_notes_allowed'] != true ||
+      failureAfterTag['retag_requires_new_candidate'] != true ||
+      failureAfterTag['delete_or_rewrite_published_tags'] != false ||
+      blockingReasons is! List ||
+      blockingReasons.length < 5) {
+    failures.add('${relative(file)} release rollback gate invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['rollback_criteria_defined'] != true ||
+      expectedResult['non_advertisement_decision_defined'] != true ||
+      expectedResult['retag_requires_new_candidate'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} release rollback expectation invalid.');
+  }
+}
+
+void validateMatrixReleaseReadinessReference(
+  File file,
+  Map<String, Object?> eventMap,
+  List<String> failures,
+) {
+  if (eventMap['matrix_spec_version'] != 'v1.18' ||
+      eventMap['matrix_spec_source'] != 'https://spec.matrix.org/v1.18/' ||
+      eventMap['matrix_release_source'] !=
+          'https://matrix.org/blog/2026/03/26/matrix-v1.18-release/') {
+    failures.add('${relative(file)} release readiness reference invalid.');
   }
 }
 

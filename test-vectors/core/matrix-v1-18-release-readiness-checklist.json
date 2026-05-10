@@ -1,0 +1,27 @@
+{
+  "name": "matrix-v1-18-release-readiness-checklist",
+  "contract": "SPEC-066",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/",
+    "matrix_release_source": "https://matrix.org/blog/2026/03/26/matrix-v1.18-release/",
+    "checked_at": "2026-05-10T23:38:00+09:00",
+    "readiness": {
+      "requires_spec_062": true,
+      "requires_spec_063_for_homeserver_claims": true,
+      "requires_spec_064": true,
+      "requires_spec_065": true,
+      "all_supported_domain_gates_pass": true,
+      "excluded_domains_have_gap_issue_or_reason": true,
+      "room_versions_listed": true,
+      "default_room_version_listed": true,
+      "unstable_mscs_excluded_or_opted_in": true,
+      "artifacts_secret_redacted": true
+    }
+  },
+  "expected": {
+    "readiness_checklist_defined": true,
+    "all_release_gates_required": true,
+    "versions_advertisement_widened": false
+  }
+}
