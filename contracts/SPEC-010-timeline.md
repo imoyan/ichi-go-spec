@@ -35,7 +35,9 @@ page size.
 ## Client expectations
 
 - `events` must be an array of SPEC-007 event objects.
-- `start` must be a non-empty opaque token for this response page.
+- Events must be ordered newest-first for backward pagination pages.
+- `start` must be a non-empty opaque token for this response page. When the
+  request includes `from`, `start` echoes that token.
 - `end` is an optional opaque token for the next older page.
 - To request the next older page, clients should pass the previous response's
   `end` value as the next request's `from`.

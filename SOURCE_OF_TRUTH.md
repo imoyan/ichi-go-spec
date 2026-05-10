@@ -75,7 +75,7 @@ Change handling before freeze:
 ## Pre-1.0 Compatibility Policy
 
 Until a stable 1.0 release, contracts remain draft, but published pre-1.0 tags
-must still be changed deliberately:
+must remain immutable; corrections to those releases:
 
 - Breaking changes alter expected public behavior for an existing contract,
   vector, or design token. They require a focused spec PR that updates the
@@ -98,7 +98,7 @@ Pre-1.0 release notes must identify:
 
 - Changed feature profiles.
 - Changed contracts, vectors, design tokens, or UI surfaces.
-- Whether the change is breaking, additive, or corrective.
+- Whether the change is breaking, additive, or correction.
 - Required implementation follow-up, or that none is required.
 
 ## Current Pre-1.0 Freeze Candidate

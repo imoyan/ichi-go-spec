@@ -4,9 +4,7 @@
   "request": {
     "method": "GET",
     "path": "/_matrix/client/v3/rooms/!room:example.test/state",
-    "headers": {
-      "Authorization": "Bearer token-1"
-    }
+    "access_token": "token-1"
   },
   "expected": {
     "status": 200,

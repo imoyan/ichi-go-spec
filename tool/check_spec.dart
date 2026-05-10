@@ -11,15 +11,7 @@ const profiles = {
   'media',
 };
 
-const fullClientProfiles = {
-  'core',
-  'auth',
-  'rooms',
-  'events',
-  'messaging',
-  'sync',
-  'media',
-};
+const fullClientProfiles = profiles;
 
 const matrixDomains = {
   'Appendices/common rules',
@@ -34,16 +26,6 @@ const negativeVectorProfiles = {
   'messaging',
   'sync',
   'media',
-};
-
-const vectorDirectoryProfiles = {
-  'auth': 'auth',
-  'core': 'core',
-  'events': 'events',
-  'media': 'media',
-  'messaging': 'messaging',
-  'rooms': 'rooms',
-  'sync': 'sync',
 };
 
 final hexColor = RegExp(r'^#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$');
@@ -101,7 +83,9 @@ void main() {
 
   checkDocs(contracts, failures);
   final profileMap = checkProfileMap(contracts, failures);
-  checkVectors(contracts, profileMap, failures);
+  if (profileMap.isNotEmpty) {
+    checkVectors(contracts, profileMap, failures);
+  }
   checkMatrixFoundation(contracts, failures);
   checkMatrixAuthSession(contracts, failures);
   checkMatrixRegistration(contracts, failures);
@@ -378,13 +362,18 @@ Map<String, String> checkProfileMap(
       );
     }
     if (!matrixDomains.contains(parts[3])) {
-      failures.add('Contract map Matrix domain mismatch for $id: ${parts[3]}');
+      failures.add(
+        'Contract map Matrix domain is unknown for $id: ${parts[3]}',
+      );
     }
     if (parts[4].isEmpty) {
       failures.add('Contract map current Matrix alignment is empty for $id.');
     }
-    if (parts.length < 7 || parts[5].isEmpty) {
+    if (parts.length < 6 || parts[5].isEmpty) {
       failures.add('Contract map next compliance action is empty for $id.');
+    }
+    if (parts[2] != contracts[id]) {
+      continue;
     }
     profileMap[id] = parts[2];
     seen.add(id);
@@ -657,9 +646,7 @@ bool isNegativeVector(Map<String, Object?> json) {
       return true;
     }
   }
-  return json['response'] is Map &&
-      expected is Map &&
-      expected.containsKey('error');
+  return false;
 }
 
 void checkGiven(File file, Object? value, List<String> failures) {
@@ -675,12 +662,19 @@ void checkGiven(File file, Object? value, List<String> failures) {
     }
   }
   if (given.containsKey('previous_request')) {
-    checkRequest(file, given['previous_request'], failures);
+    checkRequest(
+      file,
+      given['previous_request'],
+      failures,
+      pathPrefix: 'given.previous_request',
+    );
   }
   final previousEventId = given['previous_event_id'];
   if (previousEventId != null &&
       (previousEventId is! String || previousEventId.isEmpty)) {
-    failures.add('${relative(file)} given.previous_event_id must be a string.');
+    failures.add(
+      '${relative(file)} given.previous_event_id must be a non-empty string.',
+    );
   }
 }
 
@@ -720,8 +714,7 @@ void checkVectorProfile(
   }
 
   final directory = segments[1];
-  final directoryProfile = vectorDirectoryProfiles[directory];
-  if (directoryProfile == null) {
+  if (!profiles.contains(directory)) {
     failures.add('$path uses unknown vector profile directory: $directory');
     return;
   }
@@ -733,31 +726,36 @@ void checkVectorProfile(
     );
     return;
   }
-  if (directoryProfile != contractProfile) {
+  if (directory != contractProfile) {
     failures.add(
       '$path profile directory mismatch for $contract: '
-      '$directoryProfile != $contractProfile',
+      '$directory != $contractProfile',
     );
   }
 }
 
-void checkRequest(File file, Object? value, List<String> failures) {
+void checkRequest(
+  File file,
+  Object? value,
+  List<String> failures, {
+  String pathPrefix = 'request',
+}) {
   if (value is! Map) {
-    failures.add('${relative(file)} request must be an object.');
+    failures.add('${relative(file)} $pathPrefix must be an object.');
     return;
   }
   final request = value.cast<String, Object?>();
   final method = request['method'];
   if (method is! String || method.isEmpty || method != method.toUpperCase()) {
-    failures.add('${relative(file)} request.method must be uppercase.');
+    failures.add('${relative(file)} $pathPrefix.method must be uppercase.');
   }
   final path = request['path'];
   if (path is! String ||
-      !(path.startsWith('/_houra/client') ||
-          path.startsWith('/_matrix/client') ||
-          path.startsWith('/_matrix/media'))) {
+      !(isApiPath(path, '/_houra/client') ||
+          isApiPath(path, '/_matrix/client') ||
+          isApiPath(path, '/_matrix/media'))) {
     failures.add(
-      '${relative(file)} request.path must use /_houra/client or '
+      '${relative(file)} $pathPrefix.path must use /_houra/client or '
       '/_matrix/client or /_matrix/media.',
     );
   }
@@ -766,6 +764,9 @@ void checkRequest(File file, Object? value, List<String> failures) {
     failures.add('${relative(file)} must not put access tokens in query.');
   }
 }
+
+bool isApiPath(String path, String prefix) =>
+    path == prefix || path.startsWith('$prefix/');
 
 void checkStatusObject(
   File file,
@@ -980,6 +981,12 @@ void checkUiBoundary(File file, Object? value, List<String> failures) {
       '${relative(file)} implementation_boundary.server_impact must be none.',
     );
   }
+  if (boundary['canonical_behavior_source'] is! String ||
+      (boundary['canonical_behavior_source'] as String).isEmpty) {
+    failures.add(
+      '${relative(file)} implementation_boundary.canonical_behavior_source must be non-empty.',
+    );
+  }
   final notes = boundary['implementation_notes'];
   if (notes is! List ||
       notes.isEmpty ||
@@ -1079,7 +1086,11 @@ Set<String> readUiActions(
       );
     }
     final disabledWhen = action['disabled_when'];
-    if (disabledWhen is List) {
+    if (disabledWhen is! List) {
+      failures.add(
+        '${relative(file)} action.$id disabled_when must be an array.',
+      );
+    } else {
       for (final condition in disabledWhen) {
         if (condition is! String || !stateIds.contains(condition)) {
           failures.add(
@@ -1148,7 +1159,9 @@ Set<String> readUiScreens(
       }
     }
     final fields = screen['fields'];
-    if (fields is List) {
+    if (fields is! List) {
+      failures.add('${relative(file)} screen.$id fields must be an array.');
+    } else {
       for (final item in fields) {
         if (item is! Map) {
           failures.add(

@@ -29,7 +29,7 @@ If behavior is unclear, add or update a contract before implementing it.
 
 ## Future Clients
 
-- Swift, Kotlin, TypeScript/React, Vue, Next, React Native, and other clients
+- Swift, Kotlin, TypeScript/React, Vue, Next.js, React Native, and other clients
   may share only contracts, vectors, theme JSON, and UI surface JSON from this
   root as canonical specification input.
 - Shared implementation artifacts, such as a Rust protocol core, may be

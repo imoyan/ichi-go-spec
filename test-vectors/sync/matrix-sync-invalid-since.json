@@ -8,9 +8,7 @@
       "since": "not-a-server-token",
       "timeout": 0
     },
-    "headers": {
-      "Authorization": "Bearer token-1"
-    }
+    "access_token": "token-1"
   },
   "expected": {
     "status": 400,
