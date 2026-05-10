@@ -1,0 +1,45 @@
+{
+  "name": "matrix-room-upgrade-representative",
+  "contract": "SPEC-044",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3roomsroomidupgrade",
+    "checked_at": "2026-05-10T15:52:00+09:00",
+    "request": {
+      "method": "POST",
+      "path": "/_matrix/client/v3/rooms/!oldRoom0000000000000000000000000000001/upgrade",
+      "body": {
+        "new_version": "12"
+      },
+      "access_token": "token-1"
+    },
+    "old_room_id": "!oldRoom0000000000000000000000000000001",
+    "replacement_room_id": "!replacementRoom00000000000000000000000001",
+    "new_version": "12",
+    "expected_response": {
+      "replacement_room": "!replacementRoom00000000000000000000000001"
+    },
+    "replacement_create_content": {
+      "room_version": "12",
+      "predecessor": {
+        "room_id": "!oldRoom0000000000000000000000000000001",
+        "event_id": "$oldRoomTombstone000000000000000000001"
+      }
+    },
+    "old_room_tombstone": {
+      "event_id": "$oldRoomTombstone000000000000000000001",
+      "type": "m.room.tombstone",
+      "state_key": "",
+      "content": {
+        "replacement_room": "!replacementRoom00000000000000000000000001",
+        "body": "This room has been replaced"
+      }
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "replacement_room": "!replacementRoom00000000000000000000000001"
+    }
+  }
+}

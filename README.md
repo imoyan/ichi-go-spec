@@ -68,6 +68,7 @@ The maintained repository names are:
 - `contracts/SPEC-041-matrix-state-snapshot-resolution.md`
 - `contracts/SPEC-042-matrix-room-versions-gate.md`
 - `contracts/SPEC-043-matrix-room-auth-representative-vectors.md`
+- `contracts/SPEC-044-matrix-room-alias-upgrade-persistence.md`
 
 ## Shared Design Inputs
 
@@ -431,7 +432,7 @@ Matrix compliance must be tracked by API domain, not as a single vague label:
 | Application Service API | appservice registration, namespace ownership, transactions, sender localpart, bridge-style event delivery | Not implemented | A registered appservice receives transactions and can puppet/send events within its declared namespaces |
 | Identity Service API | third-party identifier validation and lookup | Not implemented | Either explicitly out of supported deployment scope or implemented as a separate identity component with conformance evidence |
 | Push Gateway API | push notification gateway contracts | Not implemented | Either explicitly out of supported deployment scope or implemented with privacy-aware notification payload tests |
-| Room Versions | room version algorithms, event authorization rules, state resolution, room upgrade behavior | MVP rooms do not implement Matrix room versions or event DAG auth; `SPEC-040` adds the first Matrix event DAG and auth-event reference contract, `SPEC-041` adds state snapshot / representative state-resolution vectors, `SPEC-042` defines the stable room versions 1-12 / default 12 gate, and `SPEC-043` adds representative membership, power-level, and redaction auth vectors without full room-version auth completeness | Supported room versions are listed, default room version is declared, and auth/state-resolution tests pass |
+| Room Versions | room version algorithms, event authorization rules, state resolution, room upgrade behavior | MVP rooms do not implement Matrix room versions or event DAG auth; `SPEC-040` adds the first Matrix event DAG and auth-event reference contract, `SPEC-041` adds state snapshot / representative state-resolution vectors, `SPEC-042` defines the stable room versions 1-12 / default 12 gate, `SPEC-043` adds representative membership, power-level, and redaction auth vectors, and `SPEC-044` adds alias / upgrade / restart persistence gates without full room-version auth completeness | Supported room versions are listed, default room version is declared, and auth/state-resolution tests pass |
 | Olm & Megolm | E2EE primitives, one-time keys, device keys, encrypted room messaging, key backup, verification, cross-signing | Not implemented | Use a mainstream Matrix crypto stack; encrypted rooms, device trust, key backup, and restore flows pass |
 | Appendices/common rules | identifiers, timestamps, namespacing, error vocabulary, deprecation behavior | Partially aligned only where MVP contracts copied the concept | Shared parser and validation tests enforce Matrix grammar and compatibility claims |
 
@@ -547,6 +548,15 @@ Matrix room auth representative vectors:
 - Passing this gate does not claim complete Matrix room-version authorization,
   complete state resolution, federation auth-chain validation, or Matrix v1.18
   full compliance.
+
+Matrix room alias, upgrade, and restart persistence gate:
+
+- `SPEC-044` defines representative room alias create/resolve/delete behavior,
+  room upgrade records for replacement room and tombstone links, and a restart
+  persistence gate covering event graph, state snapshot, room version, alias,
+  and upgrade records.
+- Passing this gate does not claim full room directory, full room upgrade,
+  federation upgrade interop, or Matrix v1.18 full compliance.
 
 ## Implementation Follow-Up Checklist
 
@@ -673,6 +683,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-041 | Matrix state snapshot and representative state-resolution vectors | `test-vectors/events/matrix-state-*.json` |
 | SPEC-042 | Matrix stable room versions 1-12 and default room version 12 gate | `test-vectors/rooms/matrix-room-version*.json` |
 | SPEC-043 | Matrix room version 12 representative auth vectors | `test-vectors/events/matrix-auth-*.json` |
+| SPEC-044 | Matrix room alias, upgrade, and restart persistence gate | `test-vectors/rooms/matrix-room-*.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this

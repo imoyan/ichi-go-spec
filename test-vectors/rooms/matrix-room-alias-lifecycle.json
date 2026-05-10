@@ -1,0 +1,50 @@
+{
+  "name": "matrix-room-alias-lifecycle",
+  "contract": "SPEC-044",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#room-directory",
+    "checked_at": "2026-05-10T15:52:00+09:00",
+    "room_alias": "#project:example.test",
+    "room_id": "!projectRoom0000000000000000000000000001",
+    "server_name": "example.test",
+    "steps": [
+      {
+        "id": "create-alias",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/directory/room/%23project%3Aexample.test",
+        "body": {
+          "room_id": "!projectRoom0000000000000000000000000001"
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "resolve-alias",
+        "method": "GET",
+        "path": "/_matrix/client/v3/directory/room/%23project%3Aexample.test",
+        "expected_body": {
+          "room_id": "!projectRoom0000000000000000000000000001",
+          "servers": [
+            "example.test"
+          ]
+        }
+      },
+      {
+        "id": "delete-alias",
+        "method": "DELETE",
+        "path": "/_matrix/client/v3/directory/room/%23project%3Aexample.test",
+        "expected_status": 200
+      },
+      {
+        "id": "resolve-deleted-alias",
+        "method": "GET",
+        "path": "/_matrix/client/v3/directory/room/%23project%3Aexample.test",
+        "expected_status": 404,
+        "expected_errcode": "M_NOT_FOUND"
+      }
+    ]
+  },
+  "expected": {
+    "step_count": 4
+  }
+}
