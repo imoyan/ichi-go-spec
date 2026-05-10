@@ -1,0 +1,55 @@
+{
+  "name": "matrix-appservice-namespace-ownership",
+  "contract": "SPEC-058",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/application-service-api/#registration",
+    "checked_at": "2026-05-10T21:03:30+09:00",
+    "namespaces": {
+      "users": [
+        {
+          "exclusive": true,
+          "regex": "@_irc_bridge_.*:example.test"
+        }
+      ],
+      "aliases": [
+        {
+          "exclusive": true,
+          "regex": "#_irc_bridge_.*:example.test"
+        }
+      ],
+      "rooms": [
+        {
+          "exclusive": false,
+          "regex": "!.*:example.test"
+        }
+      ]
+    },
+    "checks": [
+      {
+        "id": "exclusive-user-blocks-human-create",
+        "kind": "user",
+        "entity": "@_irc_bridge_alice:example.test",
+        "human_create_allowed": false
+      },
+      {
+        "id": "exclusive-alias-blocks-other-service",
+        "kind": "alias",
+        "entity": "#_irc_bridge_lobby:example.test",
+        "other_appservice_create_allowed": false
+      },
+      {
+        "id": "nonexclusive-room-only-adds-interest",
+        "kind": "room",
+        "entity": "!room:example.test",
+        "exclusive": false,
+        "events_are_interesting": true
+      }
+    ]
+  },
+  "expected": {
+    "exclusive_namespaces_enforced": true,
+    "nonexclusive_room_namespace_allowed": true,
+    "versions_advertisement_widened": false
+  }
+}

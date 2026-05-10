@@ -1,0 +1,48 @@
+{
+  "name": "matrix-appservice-transaction-basic",
+  "contract": "SPEC-058",
+  "request": {
+    "method": "PUT",
+    "path": "/_matrix/app/v1/transactions/txn-1",
+    "authorization": {
+      "scheme": "Bearer",
+      "token": "hs-token-redacted"
+    },
+    "body": {
+      "events": [
+        {
+          "event_id": "$event1:example.test",
+          "type": "m.room.message",
+          "room_id": "!room:example.test",
+          "sender": "@alice:example.test",
+          "origin_server_ts": 1778409810000,
+          "content": {
+            "msgtype": "m.text",
+            "body": "bridge me"
+          }
+        }
+      ],
+      "ephemeral": [
+        {
+          "type": "m.typing",
+          "room_id": "!room:example.test",
+          "content": {
+            "user_ids": [
+              "@alice:example.test"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {}
+  },
+  "expected": {
+    "status": 200,
+    "idempotent_by_txn_id": true,
+    "uses_hs_token": true,
+    "versions_advertisement_widened": false
+  }
+}

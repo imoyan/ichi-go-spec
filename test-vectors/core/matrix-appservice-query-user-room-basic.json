@@ -1,0 +1,38 @@
+{
+  "name": "matrix-appservice-query-user-room-basic",
+  "contract": "SPEC-058",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/application-service-api/#querying",
+    "checked_at": "2026-05-10T21:03:30+09:00",
+    "queries": [
+      {
+        "id": "query-user-in-namespace",
+        "method": "GET",
+        "path": "/_matrix/app/v1/users/@_irc_bridge_alice:example.test",
+        "authorization": {
+          "scheme": "Bearer",
+          "token": "hs-token-redacted"
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "query-room-alias-in-namespace",
+        "method": "GET",
+        "path": "/_matrix/app/v1/rooms/#_irc_bridge_lobby:example.test",
+        "authorization": {
+          "scheme": "Bearer",
+          "token": "hs-token-redacted"
+        },
+        "expected_status": 200
+      }
+    ],
+    "namespace_only": true
+  },
+  "expected": {
+    "user_query_defined": true,
+    "room_alias_query_defined": true,
+    "queries_limited_to_namespaces": true,
+    "versions_advertisement_widened": false
+  }
+}

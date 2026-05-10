@@ -15,6 +15,7 @@ const fullClientProfiles = profiles;
 
 const matrixDomains = {
   'Appendices/common rules',
+  'Application Service API',
   'Client-Server API',
   'Client-Server API; Room Versions',
   'Server-Server API',
@@ -114,6 +115,7 @@ void main() {
   checkMatrixFederationDiscoverySigningKeys(contracts, failures);
   checkMatrixFederationTransactionJoinInvite(contracts, failures);
   checkMatrixFederationBackfillAuthState(contracts, failures);
+  checkMatrixApplicationServiceRegistrationTransaction(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -5954,6 +5956,274 @@ void validateMatrixFederationStateInteropGate(
   }
 }
 
+void checkMatrixApplicationServiceRegistrationTransaction(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-058')) {
+    failures.add('Matrix application service contract SPEC-058 is required.');
+  }
+  const paths = [
+    'test-vectors/core/matrix-appservice-registration-basic.json',
+    'test-vectors/core/matrix-appservice-namespace-ownership.json',
+    'test-vectors/core/matrix-appservice-transaction-basic.json',
+    'test-vectors/core/matrix-appservice-query-user-room-basic.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix appservice vector: $path');
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('registration')) {
+      validateMatrixAppserviceRegistration(file, json, failures);
+    } else if (path.contains('namespace')) {
+      validateMatrixAppserviceNamespace(file, json, failures);
+    } else if (path.contains('transaction')) {
+      validateMatrixAppserviceTransaction(file, json, failures);
+    } else {
+      validateMatrixAppserviceQueries(file, json, failures);
+    }
+  }
+}
+
+void validateMatrixAppserviceRegistration(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixAppserviceReference(file, eventMap, failures);
+  final registration = eventMap['registration'];
+  if (registration is! Map) {
+    failures.add('${relative(file)} appservice registration missing.');
+    return;
+  }
+  validateMatrixAppserviceRegistrationObject(file, registration, failures);
+  if (eventMap['secrets_redacted'] != true) {
+    failures.add('${relative(file)} appservice secrets must be redacted.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['valid_registration'] != true ||
+      expectedResult['sender_user_id'] != '@_irc_bot:example.test' ||
+      expectedResult['tokens_unique'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} appservice registration expectation invalid.',
+    );
+  }
+}
+
+void validateMatrixAppserviceNamespace(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixAppserviceReference(file, eventMap, failures);
+  validateMatrixAppserviceNamespaces(file, eventMap['namespaces'], failures);
+  final checks = eventMap['checks'];
+  if (checks is! List || checks.length != 3) {
+    failures.add('${relative(file)} appservice namespace checks invalid.');
+  } else {
+    for (final item in checks) {
+      if (item is! Map ||
+          item['id'] is! String ||
+          item['kind'] is! String ||
+          item['entity'] is! String) {
+        failures.add('${relative(file)} appservice namespace check invalid.');
+      }
+    }
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['exclusive_namespaces_enforced'] != true ||
+      expectedResult['nonexclusive_room_namespace_allowed'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} appservice namespace expectation invalid.');
+  }
+}
+
+void validateMatrixAppserviceTransaction(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  if (request is! Map ||
+      request['method'] != 'PUT' ||
+      request['path'] != '/_matrix/app/v1/transactions/txn-1') {
+    failures.add('${relative(file)} appservice transaction request invalid.');
+    return;
+  }
+  validateMatrixAppserviceAuthorization(
+    file,
+    request['authorization'],
+    failures,
+  );
+  final body = request['body'];
+  final events = body is Map ? body['events'] : null;
+  if (body is! Map || events is! List || events.isEmpty) {
+    failures.add('${relative(file)} appservice transaction body invalid.');
+  }
+  final response = vector['response'];
+  if (response is! Map ||
+      response['status'] != 200 ||
+      response['body'] is! Map) {
+    failures.add('${relative(file)} appservice transaction response invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['status'] != 200 ||
+      expectedResult['idempotent_by_txn_id'] != true ||
+      expectedResult['uses_hs_token'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} appservice transaction expectation invalid.',
+    );
+  }
+}
+
+void validateMatrixAppserviceQueries(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixAppserviceReference(file, eventMap, failures);
+  final queries = eventMap['queries'];
+  if (queries is! List ||
+      queries.length != 2 ||
+      eventMap['namespace_only'] != true) {
+    failures.add('${relative(file)} appservice queries invalid.');
+  } else {
+    final paths = <String>{};
+    for (final item in queries) {
+      if (item is! Map ||
+          item['method'] != 'GET' ||
+          item['path'] is! String ||
+          item['expected_status'] != 200) {
+        failures.add('${relative(file)} appservice query item invalid.');
+        continue;
+      }
+      validateMatrixAppserviceAuthorization(
+        file,
+        item['authorization'],
+        failures,
+      );
+      paths.add(item['path'] as String);
+    }
+    if (!paths.contains(
+          '/_matrix/app/v1/users/@_irc_bridge_alice:example.test',
+        ) ||
+        !paths.contains(
+          '/_matrix/app/v1/rooms/#_irc_bridge_lobby:example.test',
+        )) {
+      failures.add('${relative(file)} appservice query paths invalid.');
+    }
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['user_query_defined'] != true ||
+      expectedResult['room_alias_query_defined'] != true ||
+      expectedResult['queries_limited_to_namespaces'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} appservice query expectation invalid.');
+  }
+}
+
+void validateMatrixAppserviceReference(
+  File file,
+  Map<String, Object?> eventMap,
+  List<String> failures,
+) {
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final source = eventMap['matrix_spec_source'];
+  if (source is! String ||
+      !source.startsWith(
+        'https://spec.matrix.org/v1.18/application-service-api/#',
+      )) {
+    failures.add('${relative(file)} matrix_spec_source is invalid.');
+  }
+}
+
+void validateMatrixAppserviceRegistrationObject(
+  File file,
+  Map<dynamic, dynamic> registration,
+  List<String> failures,
+) {
+  for (final key in ['id', 'url', 'as_token', 'hs_token', 'sender_localpart']) {
+    if (registration[key] is! String || (registration[key] as String).isEmpty) {
+      failures.add('${relative(file)} appservice registration $key invalid.');
+    }
+  }
+  if (registration['as_token'] == registration['hs_token']) {
+    failures.add('${relative(file)} appservice tokens must be unique.');
+  }
+  if (!(registration['sender_localpart'] as String).startsWith('_')) {
+    failures.add('${relative(file)} sender_localpart should use underscore.');
+  }
+  validateMatrixAppserviceNamespaces(
+    file,
+    registration['namespaces'],
+    failures,
+  );
+}
+
+void validateMatrixAppserviceNamespaces(
+  File file,
+  Object? value,
+  List<String> failures,
+) {
+  if (value is! Map) {
+    failures.add('${relative(file)} appservice namespaces invalid.');
+    return;
+  }
+  for (final key in ['users', 'aliases', 'rooms']) {
+    final entries = value[key];
+    if (entries is! List) {
+      failures.add('${relative(file)} appservice namespace $key invalid.');
+      continue;
+    }
+    for (final entry in entries) {
+      if (entry is! Map ||
+          entry['exclusive'] is! bool ||
+          entry['regex'] is! String ||
+          (entry['regex'] as String).isEmpty) {
+        failures.add('${relative(file)} appservice namespace entry invalid.');
+      }
+    }
+  }
+}
+
+void validateMatrixAppserviceAuthorization(
+  File file,
+  Object? value,
+  List<String> failures,
+) {
+  if (value is! Map ||
+      value['scheme'] != 'Bearer' ||
+      value['token'] != 'hs-token-redacted') {
+    failures.add('${relative(file)} appservice authorization invalid.');
+  }
+}
+
 bool isNegativeVector(Map<String, Object?> json) {
   final expected = json['expected'];
   if (expected is Map) {
@@ -6075,11 +6345,12 @@ void checkRequest(
           isApiPath(path, '/_matrix/media') ||
           isApiPath(path, '/_matrix/key') ||
           isApiPath(path, '/_matrix/federation') ||
+          isApiPath(path, '/_matrix/app') ||
           isApiPath(path, '/.well-known/matrix'))) {
     failures.add(
       '${relative(file)} $pathPrefix.path must use /_houra/client or '
       '/_matrix/client or /_matrix/media or /_matrix/key or '
-      '/_matrix/federation or /.well-known/matrix.',
+      '/_matrix/federation or /_matrix/app or /.well-known/matrix.',
     );
   }
   final query = request['query'];
