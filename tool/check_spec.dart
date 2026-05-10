@@ -19,6 +19,7 @@ const matrixDomains = {
   'Client-Server API',
   'Client-Server API; Room Versions',
   'Identity Service API',
+  'Push Gateway API',
   'Server-Server API',
 };
 
@@ -118,6 +119,7 @@ void main() {
   checkMatrixFederationBackfillAuthState(contracts, failures);
   checkMatrixApplicationServiceRegistrationTransaction(contracts, failures);
   checkMatrixIdentityServiceBoundary(contracts, failures);
+  checkMatrixPushGatewayBoundary(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -6598,6 +6600,344 @@ void validateMatrixIdentitySecrets(
   }
 }
 
+void checkMatrixPushGatewayBoundary(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-060')) {
+    failures.add('Matrix push gateway contract SPEC-060 is required.');
+  }
+  const paths = [
+    'test-vectors/core/matrix-push-gateway-boundary-basic.json',
+    'test-vectors/core/matrix-push-gateway-notify-basic.json',
+    'test-vectors/core/matrix-push-gateway-event-id-only.json',
+    'test-vectors/core/matrix-push-rules-pusher-delivery-failures.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix push gateway vector: $path');
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('boundary')) {
+      validateMatrixPushGatewayServiceBoundary(file, json, failures);
+    } else if (path.contains('event-id-only')) {
+      validateMatrixPushGatewayNotify(file, json, failures, eventIdOnly: true);
+    } else if (path.contains('notify')) {
+      validateMatrixPushGatewayNotify(file, json, failures);
+    } else {
+      validateMatrixPushRulesPusherDelivery(file, json, failures);
+    }
+  }
+}
+
+void validateMatrixPushGatewayServiceBoundary(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixPushReference(file, eventMap, failures);
+  final boundary = eventMap['service_boundary'];
+  if (boundary is! Map ||
+      boundary['component'] != 'push-gateway' ||
+      boundary['deployment'] != 'separate-service' ||
+      boundary['not_hidden_homeserver_module'] != true ||
+      boundary['vendor_provider_owned_by_gateway'] != true) {
+    failures.add('${relative(file)} push gateway boundary invalid.');
+  }
+  final endpoint = eventMap['endpoint'];
+  if (endpoint is! Map ||
+      endpoint['method'] != 'POST' ||
+      endpoint['path'] != '/_matrix/push/v1/notify' ||
+      endpoint['requires_authentication'] != false) {
+    failures.add('${relative(file)} push gateway endpoint invalid.');
+  }
+  final unsupported = eventMap['unsupported'];
+  if (unsupported is! List || unsupported.length != 2) {
+    failures.add('${relative(file)} push gateway unsupported cases invalid.');
+  } else {
+    final statuses = <int>{};
+    for (final item in unsupported) {
+      if (item is! Map ||
+          item['status'] is! int ||
+          item['errcode'] != 'M_UNRECOGNIZED') {
+        failures.add(
+          '${relative(file)} push gateway unsupported item invalid.',
+        );
+        continue;
+      }
+      statuses.add(item['status'] as int);
+    }
+    if (!statuses.contains(404) || !statuses.contains(405)) {
+      failures.add(
+        '${relative(file)} push gateway unsupported statuses invalid.',
+      );
+    }
+  }
+  final privacy = eventMap['privacy'];
+  if (privacy is! Map ||
+      privacy['prefer_event_id_only'] != true ||
+      privacy['pushkeys_redacted'] != true ||
+      privacy['vendor_credentials_out_of_scope'] != true) {
+    failures.add('${relative(file)} push gateway privacy boundary invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['separate_service_boundary'] != true ||
+      expectedResult['notify_endpoint_defined'] != true ||
+      expectedResult['unsupported_endpoint_errors_defined'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} push gateway boundary expectation invalid.',
+    );
+  }
+}
+
+void validateMatrixPushGatewayNotify(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures, {
+  bool eventIdOnly = false,
+}) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixPushReference(file, eventMap, failures);
+  checkRequest(
+    file,
+    eventMap['request'],
+    failures,
+    pathPrefix: 'event.request',
+  );
+  final request = eventMap['request'];
+  if (request is! Map ||
+      request['method'] != 'POST' ||
+      request['path'] != '/_matrix/push/v1/notify') {
+    failures.add('${relative(file)} push notify request invalid.');
+    return;
+  }
+  final body = request['body'];
+  final notification = body is Map ? body['notification'] : null;
+  if (notification is! Map) {
+    failures.add('${relative(file)} push notification body invalid.');
+    return;
+  }
+  validateMatrixPushNotification(file, notification, failures, eventIdOnly);
+  final response = eventMap['response'];
+  final responseBody = response is Map ? response['body'] : null;
+  if (response is! Map ||
+      response['status'] != 200 ||
+      responseBody is! Map ||
+      responseBody['rejected'] is! List) {
+    failures.add('${relative(file)} push notify response invalid.');
+  }
+  if (eventIdOnly) {
+    final privacy = eventMap['privacy'];
+    if (privacy is! Map ||
+        privacy['content_omitted'] != true ||
+        privacy['sender_omitted'] != true ||
+        privacy['sync_required_for_content'] != true) {
+      failures.add('${relative(file)} push event_id_only privacy invalid.');
+    }
+    final expectedResult = vector['expected'];
+    if (expectedResult is! Map ||
+        expectedResult['event_id_only_payload_valid'] != true ||
+        expectedResult['content_minimized'] != true ||
+        expectedResult['device_format_forwarded_without_url'] != true ||
+        expectedResult['versions_advertisement_widened'] != false) {
+      failures.add('${relative(file)} push event_id_only expectation invalid.');
+    }
+  } else {
+    final delivery = eventMap['delivery'];
+    if (delivery is! Map ||
+        delivery['duplicate_suppression_key'] != '\$event1:example.test' ||
+        delivery['counts_idempotent'] != true ||
+        delivery['pushkeys_redacted'] != true) {
+      failures.add('${relative(file)} push delivery metadata invalid.');
+    }
+    final expectedResult = vector['expected'];
+    if (expectedResult is! Map ||
+        expectedResult['status'] != 200 ||
+        expectedResult['notify_payload_valid'] != true ||
+        expectedResult['duplicate_suppression_by_event_id'] != true ||
+        expectedResult['rejected_pushkeys_handled'] != true ||
+        expectedResult['versions_advertisement_widened'] != false) {
+      failures.add('${relative(file)} push notify expectation invalid.');
+    }
+  }
+}
+
+void validateMatrixPushRulesPusherDelivery(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixPushReference(file, eventMap, failures);
+  validateMatrixPushClientRequest(
+    file,
+    eventMap['pusher_set_request'],
+    failures,
+    method: 'POST',
+    path: '/_matrix/client/v3/pushers/set',
+    pathPrefix: 'event.pusher_set_request',
+  );
+  final pusherSet = eventMap['pusher_set_request'];
+  final pusherBody = pusherSet is Map ? pusherSet['body'] : null;
+  final pusherData = pusherBody is Map ? pusherBody['data'] : null;
+  if (pusherBody is! Map ||
+      pusherBody['kind'] != 'http' ||
+      pusherBody['app_id'] != 'dev.houra.ios' ||
+      pusherBody['pushkey'] != 'pushkey-redacted' ||
+      pusherData is! Map ||
+      pusherData['format'] != 'event_id_only' ||
+      pusherData['url'] != 'https://push.example.test/_matrix/push/v1/notify') {
+    failures.add('${relative(file)} pusher set body invalid.');
+  }
+  validateMatrixPushClientRequest(
+    file,
+    eventMap['push_rule_request'],
+    failures,
+    method: 'PUT',
+    path: '/_matrix/client/v3/pushrules/global/content/cake-rule',
+    pathPrefix: 'event.push_rule_request',
+  );
+  final pushRule = eventMap['push_rule_request'];
+  final ruleBody = pushRule is Map ? pushRule['body'] : null;
+  if (ruleBody is! Map ||
+      ruleBody['actions'] is! List ||
+      ruleBody['pattern'] != 'cake') {
+    failures.add('${relative(file)} push rule body invalid.');
+  }
+  final accountData = eventMap['sync_account_data'];
+  final accountContent = accountData is Map ? accountData['content'] : null;
+  if (accountData is! Map ||
+      accountData['type'] != 'm.push_rules' ||
+      accountContent is! Map ||
+      accountContent['global'] is! Map) {
+    failures.add('${relative(file)} push rule sync account data invalid.');
+  }
+  final deliveryFailure = eventMap['delivery_failure'];
+  final rejected = deliveryFailure is Map ? deliveryFailure['rejected'] : null;
+  if (deliveryFailure is! Map ||
+      deliveryFailure['gateway_status'] != 200 ||
+      rejected is! List ||
+      !rejected.contains('pushkey-redacted') ||
+      deliveryFailure['homeserver_action'] != 'remove-pusher' ||
+      deliveryFailure['http_error_retry'] != 'exponential-backoff') {
+    failures.add('${relative(file)} push delivery failure invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['pusher_set_defined'] != true ||
+      expectedResult['push_rule_defined'] != true ||
+      expectedResult['push_rule_sync_account_data_defined'] != true ||
+      expectedResult['rejected_pushkey_removes_pusher'] != true ||
+      expectedResult['http_error_retried_with_backoff'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} push delivery expectation invalid.');
+  }
+}
+
+void validateMatrixPushNotification(
+  File file,
+  Map<dynamic, dynamic> notification,
+  List<String> failures,
+  bool eventIdOnly,
+) {
+  final counts = notification['counts'];
+  final devices = notification['devices'];
+  if (counts is! Map || devices is! List || devices.isEmpty) {
+    failures.add('${relative(file)} push notification counts/devices invalid.');
+    return;
+  }
+  for (final device in devices) {
+    if (device is! Map ||
+        device['app_id'] != 'dev.houra.ios' ||
+        device['pushkey'] != 'pushkey-redacted') {
+      failures.add('${relative(file)} push notification device invalid.');
+      continue;
+    }
+    final data = device['data'];
+    if (eventIdOnly &&
+        (data is! Map ||
+            data['format'] != 'event_id_only' ||
+            data.containsKey('url'))) {
+      failures.add('${relative(file)} event_id_only device data invalid.');
+    }
+  }
+  if (eventIdOnly) {
+    if (notification['event_id'] != '\$event2:example.test' ||
+        notification['room_id'] != '!room:example.test' ||
+        notification.containsKey('content') ||
+        notification.containsKey('sender')) {
+      failures.add('${relative(file)} event_id_only notification invalid.');
+    }
+  } else if (notification['event_id'] != '\$event1:example.test' ||
+      notification['room_id'] != '!room:example.test' ||
+      notification['type'] != 'm.room.message' ||
+      notification['sender'] != '@alice:example.test' ||
+      notification['content'] is! Map) {
+    failures.add('${relative(file)} push event notification invalid.');
+  }
+}
+
+void validateMatrixPushClientRequest(
+  File file,
+  Object? value,
+  List<String> failures, {
+  required String method,
+  required String path,
+  required String pathPrefix,
+}) {
+  checkRequest(file, value, failures, pathPrefix: pathPrefix);
+  if (value is! Map) {
+    return;
+  }
+  if (value['method'] != method) {
+    failures.add('${relative(file)} $pathPrefix.method must be $method.');
+  }
+  if (value['path'] != path) {
+    failures.add('${relative(file)} $pathPrefix.path must be $path.');
+  }
+  final authorization = value['authorization'];
+  if (authorization is! Map ||
+      authorization['scheme'] != 'Bearer' ||
+      authorization['token'] != 'client-token-redacted') {
+    failures.add('${relative(file)} push client authorization invalid.');
+  }
+}
+
+void validateMatrixPushReference(
+  File file,
+  Map<String, Object?> eventMap,
+  List<String> failures,
+) {
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final source = eventMap['matrix_spec_source'];
+  if (source is! String ||
+      !(source.startsWith('https://spec.matrix.org/v1.18/push-gateway-api/#') ||
+          source.startsWith(
+            'https://spec.matrix.org/v1.18/client-server-api/#',
+          ))) {
+    failures.add('${relative(file)} matrix_spec_source is invalid.');
+  }
+}
+
 bool isNegativeVector(Map<String, Object?> json) {
   final expected = json['expected'];
   if (expected is Map) {
@@ -6721,12 +7061,13 @@ void checkRequest(
           isApiPath(path, '/_matrix/federation') ||
           isApiPath(path, '/_matrix/app') ||
           isApiPath(path, '/_matrix/identity') ||
+          isApiPath(path, '/_matrix/push') ||
           isApiPath(path, '/.well-known/matrix'))) {
     failures.add(
       '${relative(file)} $pathPrefix.path must use /_houra/client or '
       '/_matrix/client or /_matrix/media or /_matrix/key or '
       '/_matrix/federation or /_matrix/app or /_matrix/identity or '
-      '/.well-known/matrix.',
+      '/_matrix/push or /.well-known/matrix.',
     );
   }
   final query = request['query'];

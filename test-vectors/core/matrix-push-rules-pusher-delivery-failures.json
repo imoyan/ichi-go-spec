@@ -1,0 +1,83 @@
+{
+  "name": "matrix-push-rules-pusher-delivery-failures",
+  "contract": "SPEC-060",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3pushersset",
+    "checked_at": "2026-05-10T21:53:00+09:00",
+    "pusher_set_request": {
+      "method": "POST",
+      "path": "/_matrix/client/v3/pushers/set",
+      "authorization": {
+        "scheme": "Bearer",
+        "token": "client-token-redacted"
+      },
+      "body": {
+        "app_display_name": "Houra",
+        "app_id": "dev.houra.ios",
+        "append": false,
+        "data": {
+          "format": "event_id_only",
+          "url": "https://push.example.test/_matrix/push/v1/notify"
+        },
+        "device_display_name": "Alice iPhone",
+        "kind": "http",
+        "lang": "en-US",
+        "profile_tag": "default",
+        "pushkey": "pushkey-redacted"
+      }
+    },
+    "push_rule_request": {
+      "method": "PUT",
+      "path": "/_matrix/client/v3/pushrules/global/content/cake-rule",
+      "authorization": {
+        "scheme": "Bearer",
+        "token": "client-token-redacted"
+      },
+      "body": {
+        "actions": [
+          "notify",
+          {
+            "set_tweak": "sound",
+            "value": "default"
+          }
+        ],
+        "pattern": "cake"
+      }
+    },
+    "sync_account_data": {
+      "type": "m.push_rules",
+      "content": {
+        "global": {
+          "content": [
+            {
+              "actions": [
+                "notify"
+              ],
+              "default": false,
+              "enabled": true,
+              "pattern": "cake",
+              "rule_id": "cake-rule"
+            }
+          ]
+        }
+      }
+    },
+    "delivery_failure": {
+      "gateway_status": 200,
+      "rejected": [
+        "pushkey-redacted"
+      ],
+      "homeserver_action": "remove-pusher",
+      "http_error_retry": "exponential-backoff"
+    }
+  },
+  "expected": {
+    "pusher_set_defined": true,
+    "push_rule_defined": true,
+    "push_rule_sync_account_data_defined": true,
+    "rejected_pushkey_removes_pusher": true,
+    "http_error_retried_with_backoff": true,
+    "versions_advertisement_widened": false
+  }
+}
