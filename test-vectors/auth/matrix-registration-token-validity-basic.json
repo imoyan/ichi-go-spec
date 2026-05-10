@@ -1,0 +1,17 @@
+{
+  "name": "matrix-registration-token-validity-basic",
+  "contract": "SPEC-033",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v1/register/m.login.registration_token/validity",
+    "query": {
+      "token": "fBVFdqVE"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "valid": true
+    }
+  }
+}

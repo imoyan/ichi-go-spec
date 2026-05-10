@@ -1,0 +1,17 @@
+{
+  "name": "matrix-registration-available-basic",
+  "contract": "SPEC-033",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/register/available",
+    "query": {
+      "username": "charlie"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "available": true
+    }
+  }
+}

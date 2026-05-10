@@ -57,6 +57,7 @@ The maintained repository names are:
 - `contracts/SPEC-030-matrix-client-versions.md`
 - `contracts/SPEC-031-matrix-foundation.md`
 - `contracts/SPEC-032-matrix-auth-session.md`
+- `contracts/SPEC-033-matrix-registration.md`
 
 ## Shared Design Inputs
 
@@ -582,6 +583,9 @@ Use this contract-to-endpoint smoke table:
 | SPEC-011 | incremental sync | `test-vectors/sync/basic-sync.json` and sync error-shape vectors |
 | SPEC-020 | media metadata upload/download and content download | `test-vectors/media/*.json` |
 | SPEC-030 | `GET /_matrix/client/versions` | `test-vectors/core/matrix-client-versions-basic.json` |
+| SPEC-031 | Matrix identifiers, timestamps, namespacing, and error envelopes | `test-vectors/core/matrix-foundation-*.json` |
+| SPEC-032 | Matrix login flows, password login, whoami, and logout | `test-vectors/auth/matrix-login-*.json`, `test-vectors/auth/matrix-password-*.json`, `test-vectors/auth/matrix-whoami-basic.json`, and `test-vectors/auth/matrix-logout-basic.json` |
+| SPEC-033 | Matrix registration, username availability, UIA response, and registration-token validity | `test-vectors/auth/matrix-registration-*.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this

@@ -1,0 +1,19 @@
+{
+  "name": "matrix-registration-invalid-username",
+  "contract": "SPEC-033",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/register",
+    "body": {
+      "username": "Bad User!",
+      "password": "correct horse battery staple"
+    }
+  },
+  "expected": {
+    "status": 400,
+    "body_contains": {
+      "errcode": "M_INVALID_USERNAME",
+      "error": "Invalid username."
+    }
+  }
+}
