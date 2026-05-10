@@ -95,6 +95,7 @@ void main() {
   checkMatrixSyncMvp(contracts, failures);
   checkMatrixMediaMvp(contracts, failures);
   checkMatrixClientServerMvpLiveE2eGate(contracts, failures);
+  checkMatrixEventDagAuthEvents(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -652,6 +653,349 @@ void checkMatrixClientServerMvpLiveE2eGate(
     );
   }
 }
+
+void checkMatrixEventDagAuthEvents(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-040')) {
+    failures.add('Matrix event DAG/auth events contract SPEC-040 is required.');
+  }
+  const basicPath =
+      'test-vectors/events/matrix-event-dag-auth-events-basic.json';
+  const invalidPath =
+      'test-vectors/events/matrix-event-dag-auth-events-invalid.json';
+  for (final path in [basicPath, invalidPath]) {
+    if (!File(path).existsSync()) {
+      failures.add('Missing Matrix event DAG/auth events vector: $path');
+    }
+  }
+
+  final basicFile = File(basicPath);
+  final basic = readJsonObject(basicFile, failures);
+  if (basic != null) {
+    final eventSet = basic['event'];
+    if (eventSet is! Map) {
+      failures.add('${relative(basicFile)} event must be an object.');
+    } else {
+      final errors = validateMatrixEventDagSet(
+        eventSet.cast<String, Object?>(),
+      );
+      for (final error in errors) {
+        failures.add('${relative(basicFile)} must be valid: $error');
+      }
+    }
+  }
+
+  final invalidFile = File(invalidPath);
+  final invalid = readJsonObject(invalidFile, failures);
+  if (invalid != null) {
+    final event = invalid['event'];
+    if (event is! Map) {
+      failures.add('${relative(invalidFile)} event must be an object.');
+      return;
+    }
+    final cases = event['invalid_cases'];
+    if (cases is! List || cases.isEmpty) {
+      failures.add(
+        '${relative(invalidFile)} event.invalid_cases must be non-empty.',
+      );
+      return;
+    }
+    for (final item in cases) {
+      if (item is! Map) {
+        failures.add(
+          '${relative(invalidFile)} invalid case entries must be objects.',
+        );
+        continue;
+      }
+      final testCase = item.cast<String, Object?>();
+      final id = testCase['id'];
+      if (id is! String || id.isEmpty) {
+        failures.add('${relative(invalidFile)} invalid case id is required.');
+      }
+      if (testCase['expected_error'] != 'M_INVALID_PARAM') {
+        failures.add(
+          '${relative(invalidFile)} invalid case $id must expect M_INVALID_PARAM.',
+        );
+      }
+      final expectedViolation = testCase['expected_violation'];
+      if (expectedViolation is! String || expectedViolation.isEmpty) {
+        failures.add(
+          '${relative(invalidFile)} invalid case $id must name expected_violation.',
+        );
+      }
+      final errors = validateMatrixEventDagSet(testCase);
+      if (errors.isEmpty) {
+        failures.add(
+          '${relative(invalidFile)} invalid case $id must fail DAG validation.',
+        );
+      }
+      if (expectedViolation is String &&
+          expectedViolation.isNotEmpty &&
+          !errors.contains(expectedViolation)) {
+        failures.add(
+          '${relative(invalidFile)} invalid case $id expected $expectedViolation '
+          'but got ${errors.join(', ')}.',
+        );
+      }
+    }
+  }
+}
+
+List<String> validateMatrixEventDagSet(Map<String, Object?> eventSet) {
+  final errors = <String>[];
+  if (eventSet['matrix_spec_version'] != 'v1.18' &&
+      !eventSet.containsKey('expected_violation')) {
+    errors.add('matrix_spec_version');
+  }
+  final roomVersion = eventSet['room_version'];
+  if (roomVersion != '12') {
+    errors.add('room_version');
+  }
+  final roomId = eventSet['room_id'];
+  if (roomId is! String || !isMatrixRoomId(roomId)) {
+    errors.add('room_id');
+  }
+  final candidateEventId = eventSet['candidate_event_id'];
+  if (candidateEventId is! String || !isMatrixEventId(candidateEventId)) {
+    errors.add('candidate_event_id');
+  }
+  final events = eventSet['events'];
+  if (events is! List || events.isEmpty) {
+    errors.add('events');
+    return errors;
+  }
+
+  final byId = <String, Map<String, Object?>>{};
+  for (final item in events) {
+    if (item is! Map) {
+      errors.add('event_object');
+      continue;
+    }
+    final event = item.cast<String, Object?>();
+    final eventId = event['event_id'];
+    if (eventId is! String || !isMatrixEventId(eventId)) {
+      errors.add('event_id');
+      continue;
+    }
+    if (byId.containsKey(eventId)) {
+      errors.add('duplicate_event_id');
+      continue;
+    }
+    byId[eventId] = event;
+  }
+
+  if (candidateEventId is String && !byId.containsKey(candidateEventId)) {
+    errors.add('candidate_event_id');
+  }
+
+  for (final entry in byId.entries) {
+    final eventId = entry.key;
+    final event = entry.value;
+    validateMatrixEventEnvelope(
+      eventId,
+      event,
+      byId,
+      roomId is String ? roomId : null,
+      errors,
+    );
+  }
+
+  if (hasPrevEventCycle(byId)) {
+    errors.add('prev_event_cycle');
+  }
+  return errors.toSet().toList();
+}
+
+void validateMatrixEventEnvelope(
+  String eventId,
+  Map<String, Object?> event,
+  Map<String, Map<String, Object?>> byId,
+  String? roomId,
+  List<String> errors,
+) {
+  final type = event['type'];
+  final isCreate = type == 'm.room.create';
+  if (type is! String || type.isEmpty) {
+    errors.add('type');
+  }
+  final sender = event['sender'];
+  if (sender is! String || !sender.startsWith('@')) {
+    errors.add('sender');
+  }
+  if (event['content'] is! Map) {
+    errors.add('content');
+  }
+  if (event['origin_server_ts'] is! int) {
+    errors.add('origin_server_ts');
+  }
+  final depth = event['depth'];
+  if (depth is! int || depth < 1) {
+    errors.add('depth');
+  }
+  final hashes = event['hashes'];
+  if (hashes is! Map ||
+      hashes['sha256'] is! String ||
+      (hashes['sha256'] as String).isEmpty) {
+    errors.add('hashes');
+  }
+  final signatures = event['signatures'];
+  if (signatures is! Map || signatures.isEmpty) {
+    errors.add('signatures');
+  }
+  final stateKey = event['state_key'];
+  if (stateKey != null && stateKey is! String) {
+    errors.add('state_key');
+  }
+
+  final eventRoomId = event['room_id'];
+  if (isCreate) {
+    if (eventRoomId != null) {
+      errors.add('create_room_id');
+    }
+    if (stateKey != '') {
+      errors.add('create_state_key');
+    }
+  } else if (eventRoomId != roomId) {
+    errors.add('room_id_mismatch');
+  }
+
+  final prevEvents = readMatrixEventIdList(event['prev_events']);
+  final authEvents = readMatrixEventIdList(event['auth_events']);
+  if (prevEvents == null) {
+    errors.add('prev_events');
+    return;
+  }
+  if (authEvents == null) {
+    errors.add('auth_events');
+    return;
+  }
+  if (prevEvents.length > 20) {
+    errors.add('prev_events_limit');
+  }
+  if (authEvents.length > 10) {
+    errors.add('auth_events_limit');
+  }
+  if (prevEvents.toSet().length != prevEvents.length) {
+    errors.add('duplicate_prev_event');
+  }
+  if (authEvents.toSet().length != authEvents.length) {
+    errors.add('duplicate_auth_event');
+  }
+  if (prevEvents.contains(eventId)) {
+    errors.add('self_prev_event');
+  }
+  if (authEvents.contains(eventId)) {
+    errors.add('self_auth_event');
+  }
+  if (isCreate && prevEvents.isNotEmpty) {
+    errors.add('create_prev_events');
+  }
+  if (!isCreate && prevEvents.isEmpty) {
+    errors.add('non_create_without_prev_event');
+  }
+
+  var maxPrevDepth = 0;
+  for (final prevEventId in prevEvents) {
+    final prevEvent = byId[prevEventId];
+    if (prevEvent == null) {
+      errors.add('missing_prev_event');
+      continue;
+    }
+    if (roomId != null &&
+        prevEvent['type'] != 'm.room.create' &&
+        prevEvent['room_id'] != roomId) {
+      errors.add('prev_room_id_mismatch');
+    }
+    final prevDepth = prevEvent['depth'];
+    if (prevDepth is int && prevDepth > maxPrevDepth) {
+      maxPrevDepth = prevDepth;
+    }
+  }
+  if (depth is int && prevEvents.isNotEmpty && depth != maxPrevDepth + 1) {
+    errors.add('depth');
+  }
+
+  final authStateKeys = <String>{};
+  for (final authEventId in authEvents) {
+    final authEvent = byId[authEventId];
+    if (authEvent == null) {
+      errors.add('missing_auth_event');
+      continue;
+    }
+    if (authEvent['type'] == 'm.room.create') {
+      errors.add('auth_create_event_v12');
+    }
+    if (roomId != null &&
+        authEvent['type'] != 'm.room.create' &&
+        authEvent['room_id'] != roomId) {
+      errors.add('auth_room_id_mismatch');
+    }
+    final authType = authEvent['type'];
+    final authStateKey = authEvent['state_key'];
+    if (authType is! String || authStateKey is! String) {
+      errors.add('auth_event_not_state');
+      continue;
+    }
+    final tuple = '$authType\x00$authStateKey';
+    if (!authStateKeys.add(tuple)) {
+      errors.add('duplicate_auth_state_key');
+    }
+  }
+}
+
+List<String>? readMatrixEventIdList(Object? value) {
+  if (value is! List) {
+    return null;
+  }
+  final ids = <String>[];
+  for (final item in value) {
+    if (item is! String || !isMatrixEventId(item)) {
+      return null;
+    }
+    ids.add(item);
+  }
+  return ids;
+}
+
+bool hasPrevEventCycle(Map<String, Map<String, Object?>> byId) {
+  final visiting = <String>{};
+  final visited = <String>{};
+
+  bool visit(String eventId) {
+    if (visited.contains(eventId)) {
+      return false;
+    }
+    if (!visiting.add(eventId)) {
+      return true;
+    }
+    final prevEvents = readMatrixEventIdList(byId[eventId]?['prev_events']);
+    if (prevEvents != null) {
+      for (final prevEventId in prevEvents) {
+        if (byId.containsKey(prevEventId) && visit(prevEventId)) {
+          return true;
+        }
+      }
+    }
+    visiting.remove(eventId);
+    visited.add(eventId);
+    return false;
+  }
+
+  for (final eventId in byId.keys) {
+    if (visit(eventId)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool isMatrixEventId(String id) =>
+    id.startsWith(r'$') && id.length > 1 && id.length <= 255;
+
+bool isMatrixRoomId(String id) =>
+    id.startsWith('!') && id.length > 1 && id.length <= 255;
 
 bool isNegativeVector(Map<String, Object?> json) {
   final expected = json['expected'];

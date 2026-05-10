@@ -64,6 +64,7 @@ The maintained repository names are:
 - `contracts/SPEC-037-matrix-sync-mvp.md`
 - `contracts/SPEC-038-matrix-media-mvp.md`
 - `contracts/SPEC-039-matrix-client-server-mvp-live-e2e-gate.md`
+- `contracts/SPEC-040-matrix-event-dag-auth-events.md`
 
 ## Shared Design Inputs
 
@@ -427,7 +428,7 @@ Matrix compliance must be tracked by API domain, not as a single vague label:
 | Application Service API | appservice registration, namespace ownership, transactions, sender localpart, bridge-style event delivery | Not implemented | A registered appservice receives transactions and can puppet/send events within its declared namespaces |
 | Identity Service API | third-party identifier validation and lookup | Not implemented | Either explicitly out of supported deployment scope or implemented as a separate identity component with conformance evidence |
 | Push Gateway API | push notification gateway contracts | Not implemented | Either explicitly out of supported deployment scope or implemented with privacy-aware notification payload tests |
-| Room Versions | room version algorithms, event authorization rules, state resolution, room upgrade behavior | MVP rooms do not implement Matrix room versions or event DAG auth | Supported room versions are listed, default room version is declared, and auth/state-resolution tests pass |
+| Room Versions | room version algorithms, event authorization rules, state resolution, room upgrade behavior | MVP rooms do not implement Matrix room versions or event DAG auth; `SPEC-040` adds the first Matrix event DAG and auth-event reference contract without full room-version auth/state-resolution support | Supported room versions are listed, default room version is declared, and auth/state-resolution tests pass |
 | Olm & Megolm | E2EE primitives, one-time keys, device keys, encrypted room messaging, key backup, verification, cross-signing | Not implemented | Use a mainstream Matrix crypto stack; encrypted rooms, device trust, key backup, and restore flows pass |
 | Appendices/common rules | identifiers, timestamps, namespacing, error vocabulary, deprecation behavior | Partially aligned only where MVP contracts copied the concept | Shared parser and validation tests enforce Matrix grammar and compatibility claims |
 
@@ -493,6 +494,21 @@ Matrix Client-Server MVP live e2e gate:
   changes a shared parser, identifier helper, URI helper, or binding facade.
 - Passing this gate does not claim Matrix v1.18 full compliance. It only closes
   the Client-Server MVP-equivalent integration milestone.
+
+Matrix event DAG and auth-event reference gate:
+
+- `SPEC-040` defines the first Matrix room data model gate after the
+  Client-Server MVP-equivalent milestone. It covers server/storage-facing event
+  envelopes, `prev_events` DAG reference integrity, `auth_events` reference
+  integrity, and representative valid/invalid vectors.
+- Passing this gate does not claim room versions 1 through 12 support, state
+  resolution support, federation support, redaction correctness, or Matrix
+  v1.18 full compliance.
+- After `SPEC-040` merges, create an `houra-server` adoption issue for event
+  DAG persistence. Create an `houra-labs` issue only if a shared parser or
+  event validation helper is intentionally adopted, and do not create an
+  `houra-client` issue unless the UI-free client core starts consuming these
+  server/storage-facing envelopes.
 
 ## Implementation Follow-Up Checklist
 
@@ -615,6 +631,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-037 | Matrix initial and incremental sync MVP endpoint | `test-vectors/sync/matrix-sync-*.json` |
 | SPEC-038 | Matrix media upload and authenticated download MVP endpoints | `test-vectors/media/matrix-media-*.json` |
 | SPEC-039 | Integrated Matrix Client-Server MVP live e2e gate | `test-vectors/core/matrix-client-server-mvp-live-e2e-gate.json` |
+| SPEC-040 | Matrix event DAG and auth-event reference integrity | `test-vectors/events/matrix-event-dag-auth-events-*.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
