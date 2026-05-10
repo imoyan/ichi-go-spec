@@ -1,0 +1,19 @@
+{
+  "name": "matrix-presence-user-mismatch",
+  "contract": "SPEC-047",
+  "request": {
+    "method": "PUT",
+    "path": "/_matrix/client/v3/presence/@bob:example.test/status",
+    "access_token": "token-alice",
+    "body": {
+      "presence": "online"
+    }
+  },
+  "expected": {
+    "status": 403,
+    "error": {
+      "errcode": "M_FORBIDDEN",
+      "error": "Cannot set presence for other users."
+    }
+  }
+}

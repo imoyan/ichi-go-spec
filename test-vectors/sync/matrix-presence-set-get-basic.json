@@ -1,0 +1,53 @@
+{
+  "name": "matrix-presence-set-get-basic",
+  "contract": "SPEC-047",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#presence",
+    "checked_at": "2026-05-10T18:04:49+09:00",
+    "user_id": "@alice:example.test",
+    "steps": [
+      {
+        "id": "set-presence",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/presence/@alice:example.test/status",
+        "access_token": "token-alice",
+        "body": {
+          "presence": "online",
+          "status_msg": "Available"
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "get-presence",
+        "method": "GET",
+        "path": "/_matrix/client/v3/presence/@alice:example.test/status",
+        "access_token": "token-bob",
+        "expected_status": 200,
+        "expected_body": {
+          "presence": "online",
+          "status_msg": "Available",
+          "currently_active": true
+        }
+      },
+      {
+        "id": "sync-presence",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-bob",
+        "expected_presence_event": {
+          "sender": "@alice:example.test",
+          "type": "m.presence",
+          "content": {
+            "presence": "online",
+            "status_msg": "Available",
+            "currently_active": true
+          }
+        }
+      }
+    ]
+  },
+  "expected": {
+    "step_count": 3
+  }
+}

@@ -102,6 +102,7 @@ void main() {
   checkMatrixRoomAliasUpgradePersistenceGate(contracts, failures);
   checkMatrixProfileAccountDataTags(contracts, failures);
   checkMatrixReceiptsTypingReadMarkers(contracts, failures);
+  checkMatrixFiltersPresenceCapabilities(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -2675,6 +2676,244 @@ void validateMatrixSimpleRequestVector(
   }
   requireExpectedStatus(file, vector, failures, status);
   requireExpectedErrcode(file, vector, failures, errcode);
+}
+
+void checkMatrixFiltersPresenceCapabilities(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-047')) {
+    failures.add(
+      'Matrix filters/presence/capabilities contract SPEC-047 is required.',
+    );
+  }
+  const paths = [
+    'test-vectors/sync/matrix-filter-create-read-basic.json',
+    'test-vectors/sync/matrix-filter-user-mismatch.json',
+    'test-vectors/sync/matrix-presence-set-get-basic.json',
+    'test-vectors/sync/matrix-presence-user-mismatch.json',
+    'test-vectors/sync/matrix-capabilities-basic.json',
+    'test-vectors/sync/matrix-capabilities-missing-token.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add(
+        'Missing Matrix filters/presence/capabilities vector: $path',
+      );
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('filter-create-read')) {
+      validateMatrixFilterSteps(file, json, failures);
+    } else if (path.contains('filter-user-mismatch')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'POST',
+        pathPrefix: '/_matrix/client/v3/user/@bob:example.test/filter',
+        status: 403,
+        errcode: 'M_FORBIDDEN',
+      );
+    } else if (path.contains('presence-set-get')) {
+      validateMatrixPresenceSteps(file, json, failures);
+    } else if (path.contains('presence-user-mismatch')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'PUT',
+        pathPrefix: '/_matrix/client/v3/presence/@bob:example.test/status',
+        status: 403,
+        errcode: 'M_FORBIDDEN',
+      );
+    } else if (path.contains('capabilities-basic')) {
+      validateMatrixCapabilitiesVector(file, json, failures);
+    } else {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'GET',
+        pathPrefix: '/_matrix/client/v3/capabilities',
+        status: 401,
+        errcode: 'M_MISSING_TOKEN',
+      );
+    }
+  }
+}
+
+void validateMatrixFilterSteps(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final userId = eventMap['user_id'];
+  if (userId is! String || !userId.startsWith('@')) {
+    failures.add('${relative(file)} user_id must be a Matrix user ID.');
+  }
+  final filterId = eventMap['filter_id'];
+  if (filterId is! String || filterId.isEmpty || filterId.startsWith('{')) {
+    failures.add('${relative(file)} filter_id is invalid.');
+  }
+  final filter = eventMap['filter'];
+  if (filter is! Map || filter['room'] is! Map || filter['presence'] is! Map) {
+    failures.add('${relative(file)} representative filter is incomplete.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = ['create-filter', 'get-filter'];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    final path = step['path'];
+    if (path is! String ||
+        !path.startsWith(
+          '/_matrix/client/v3/user/@alice:example.test/filter',
+        )) {
+      failures.add('${relative(file)} filter step path is invalid.');
+    }
+    if (id == 'create-filter') {
+      if (step['method'] != 'POST' ||
+          step['body'] is! Map ||
+          step['expected_body'] is! Map) {
+        failures.add('${relative(file)} create filter step is incomplete.');
+      }
+    }
+    if (id == 'get-filter') {
+      if (step['method'] != 'GET' ||
+          step['expected_status'] != 200 ||
+          step['expected_body'] is! Map) {
+        failures.add('${relative(file)} get filter step is incomplete.');
+      }
+    }
+  }
+}
+
+void validateMatrixPresenceSteps(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final userId = eventMap['user_id'];
+  if (userId is! String || !userId.startsWith('@')) {
+    failures.add('${relative(file)} user_id must be a Matrix user ID.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = ['set-presence', 'get-presence', 'sync-presence'];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    final path = step['path'];
+    if (path is! String) {
+      failures.add('${relative(file)} presence step path is required.');
+      continue;
+    }
+    if (id == 'sync-presence') {
+      if (path != '/_matrix/client/v3/sync' ||
+          step['expected_presence_event'] is! Map) {
+        failures.add('${relative(file)} presence sync expectation is invalid.');
+      }
+      continue;
+    }
+    if (!path.startsWith(
+      '/_matrix/client/v3/presence/@alice:example.test/status',
+    )) {
+      failures.add('${relative(file)} presence endpoint path is invalid.');
+    }
+    if (id == 'set-presence') {
+      final body = step['body'];
+      final presence = body is Map ? body['presence'] : null;
+      if (presence != 'online' &&
+          presence != 'offline' &&
+          presence != 'unavailable') {
+        failures.add('${relative(file)} presence value is invalid.');
+      }
+    }
+    if (id == 'get-presence' &&
+        (step['expected_status'] != 200 || step['expected_body'] is! Map)) {
+      failures.add('${relative(file)} get presence expectation is invalid.');
+    }
+  }
+}
+
+void validateMatrixCapabilitiesVector(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  if (request is! Map) {
+    failures.add('${relative(file)} request must be an object.');
+    return;
+  }
+  final requestMap = request.cast<String, Object?>();
+  if (requestMap['method'] != 'GET' ||
+      requestMap['path'] != '/_matrix/client/v3/capabilities') {
+    failures.add('${relative(file)} capabilities request is invalid.');
+  }
+  requireExpectedStatus(file, vector, failures, 200);
+  final expected = vector['expected'];
+  final bodyContains = expected is Map ? expected['body_contains'] : null;
+  final capabilities = bodyContains is Map
+      ? bodyContains['capabilities']
+      : null;
+  if (capabilities is! Map) {
+    failures.add('${relative(file)} capabilities body is missing.');
+    return;
+  }
+  final roomVersions = capabilities['m.room_versions'];
+  if (roomVersions is! Map ||
+      roomVersions['default'] != '12' ||
+      roomVersions['available'] is! Map) {
+    failures.add('${relative(file)} m.room_versions capability is invalid.');
+  }
+  final profileFields = capabilities['m.profile_fields'];
+  if (profileFields is! Map || profileFields['enabled'] != true) {
+    failures.add('${relative(file)} m.profile_fields capability is invalid.');
+  }
+  for (final key in [
+    'm.change_password',
+    'm.forget_forced_upon_leave',
+    'm.set_displayname',
+    'm.set_avatar_url',
+  ]) {
+    final capability = capabilities[key];
+    if (capability is! Map || capability['enabled'] is! bool) {
+      failures.add('${relative(file)} $key capability must be boolean.');
+    }
+  }
 }
 
 bool isNegativeVector(Map<String, Object?> json) {

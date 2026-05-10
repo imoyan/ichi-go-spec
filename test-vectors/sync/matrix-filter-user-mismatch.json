@@ -1,0 +1,23 @@
+{
+  "name": "matrix-filter-user-mismatch",
+  "contract": "SPEC-047",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/user/@bob:example.test/filter",
+    "access_token": "token-alice",
+    "body": {
+      "room": {
+        "timeline": {
+          "limit": 20
+        }
+      }
+    }
+  },
+  "expected": {
+    "status": 403,
+    "error": {
+      "errcode": "M_FORBIDDEN",
+      "error": "Cannot create filters for other users."
+    }
+  }
+}

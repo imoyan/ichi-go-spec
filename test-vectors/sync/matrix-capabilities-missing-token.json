@@ -1,0 +1,15 @@
+{
+  "name": "matrix-capabilities-missing-token",
+  "contract": "SPEC-047",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/capabilities"
+  },
+  "expected": {
+    "status": 401,
+    "error": {
+      "errcode": "M_MISSING_TOKEN",
+      "error": "Missing access token."
+    }
+  }
+}
