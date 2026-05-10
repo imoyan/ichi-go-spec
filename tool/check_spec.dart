@@ -104,6 +104,7 @@ void main() {
   checkVectors(contracts, profileMap, failures);
   checkMatrixFoundation(contracts, failures);
   checkMatrixAuthSession(contracts, failures);
+  checkMatrixRegistration(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -511,6 +512,29 @@ void checkMatrixAuthSession(
   ]) {
     if (!File(path).existsSync()) {
       failures.add('Missing Matrix auth session vector: $path');
+    }
+  }
+}
+
+void checkMatrixRegistration(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-033')) {
+    failures.add('Matrix registration contract SPEC-033 is required.');
+  }
+  for (final path in [
+    'test-vectors/auth/matrix-registration-available-basic.json',
+    'test-vectors/auth/matrix-registration-available-in-use.json',
+    'test-vectors/auth/matrix-registration-basic.json',
+    'test-vectors/auth/matrix-registration-disabled.json',
+    'test-vectors/auth/matrix-registration-invalid-username.json',
+    'test-vectors/auth/matrix-registration-token-validity-basic.json',
+    'test-vectors/auth/matrix-registration-token-validity-invalid.json',
+    'test-vectors/auth/matrix-registration-uia-required.json',
+  ]) {
+    if (!File(path).existsSync()) {
+      failures.add('Missing Matrix registration vector: $path');
     }
   }
 }

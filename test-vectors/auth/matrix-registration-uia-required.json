@@ -1,0 +1,28 @@
+{
+  "name": "matrix-registration-uia-required",
+  "contract": "SPEC-033",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/register",
+    "body": {
+      "username": "charlie",
+      "password": "correct horse battery staple",
+      "device_id": "DEVICE2"
+    }
+  },
+  "expected": {
+    "status": 401,
+    "body_contains": {
+      "completed": [],
+      "flows": [
+        {
+          "stages": [
+            "m.login.dummy"
+          ]
+        }
+      ],
+      "params": {},
+      "session": "reg-session-1"
+    }
+  }
+}
