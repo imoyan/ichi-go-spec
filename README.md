@@ -89,6 +89,7 @@ The maintained repository names are:
 - `contracts/SPEC-062-matrix-domain-coverage-evidence-report.md`
 - `contracts/SPEC-063-matrix-complement-ci-lane.md`
 - `contracts/SPEC-064-matrix-version-advertisement-release-gate.md`
+- `contracts/SPEC-065-matrix-release-notes-evidence-template.md`
 
 ## Shared Design Inputs
 
@@ -493,6 +494,16 @@ Matrix version advertisement release gate:
 - After `SPEC-064` merges, create adoption issues for `houra-server` and
   `houra-client`. Create an `houra-labs` issue only if shared-core release
   artifacts begin advertising Matrix support.
+
+Matrix release notes evidence template:
+
+- `SPEC-065` defines the release notes sections and evidence link fields
+  required for any Houra release that mentions Matrix v1.18 support.
+- Supported domains require passing evidence links; excluded domains require a
+  reason or known-gap issue; unstable MSCs are excluded by default.
+- After `SPEC-065` merges, create adoption issues for `houra-server` and
+  `houra-client`. Create an `houra-labs` issue only if shared-core release
+  artifacts begin publishing Matrix support claims.
 
 Matrix compliance phases:
 
@@ -1006,6 +1017,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-062 | Matrix domain coverage and evidence report gate | `test-vectors/core/matrix-domain-coverage-*.json` |
 | SPEC-063 | Matrix Complement-compatible homeserver CI lane gate | `test-vectors/core/matrix-complement-ci-*.json` |
 | SPEC-064 | Matrix version advertisement release gate | `test-vectors/core/matrix-version-advertisement-*.json` |
+| SPEC-065 | Matrix release notes evidence template gate | `test-vectors/core/matrix-release-notes-*.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this

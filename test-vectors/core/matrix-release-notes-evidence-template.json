@@ -1,0 +1,70 @@
+{
+  "name": "matrix-release-notes-evidence-template",
+  "contract": "SPEC-065",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/",
+    "matrix_release_source": "https://matrix.org/blog/2026/03/26/matrix-v1.18-release/",
+    "checked_at": "2026-05-10T23:24:00+09:00",
+    "template": {
+      "required_sections": [
+        "Matrix spec version",
+        "Supported Matrix domains",
+        "Excluded Matrix domains",
+        "Supported room versions",
+        "Excluded unstable MSCs",
+        "Implementation evidence",
+        "Known gaps",
+        "Advertisement decision"
+      ],
+      "evidence_link_fields": [
+        "repo",
+        "ref",
+        "domain",
+        "gate",
+        "status",
+        "artifact",
+        "issue"
+      ],
+      "supported_domain_status": "pass",
+      "excluded_domain_requires_reason": true,
+      "unstable_msc_default": "excluded"
+    },
+    "example": {
+      "matrix_spec_version": "v1.18",
+      "supported_domains": [
+        "Client-Server API"
+      ],
+      "excluded_domains": [
+        {
+          "domain": "Server-Server API",
+          "reason": "implementation evidence not yet pass",
+          "issue": "houra-server#example"
+        }
+      ],
+      "supported_room_versions": [
+        "12"
+      ],
+      "excluded_unstable_mscs": true,
+      "implementation_evidence": [
+        {
+          "repo": "houra-server",
+          "ref": "sha-redacted",
+          "domain": "Client-Server API",
+          "gate": "SPEC-064",
+          "status": "pass",
+          "artifact": "artifacts/release/client-server.json",
+          "issue": "houra-server#example"
+        }
+      ],
+      "advertisement_decision": "allowed-for-listed-domains-only"
+    }
+  },
+  "expected": {
+    "template_sections_defined": true,
+    "evidence_link_format_defined": true,
+    "unsupported_domains_require_reason": true,
+    "unstable_mscs_excluded_by_default": true,
+    "versions_advertisement_widened": false
+  }
+}
