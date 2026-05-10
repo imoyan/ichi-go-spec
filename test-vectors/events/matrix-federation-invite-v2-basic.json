@@ -1,0 +1,75 @@
+{
+  "name": "matrix-federation-invite-v2-basic",
+  "contract": "SPEC-056",
+  "request": {
+    "method": "PUT",
+    "path": "/_matrix/federation/v2/invite/!room:example.test/$invite:example.test",
+    "authorization": {
+      "scheme": "X-Matrix",
+      "origin": "example.test",
+      "destination": "remote.example.test",
+      "key": "ed25519:auto1",
+      "signed_json": true
+    },
+    "body": {
+      "room_version": "12",
+      "event": {
+        "event_id": "$invite:example.test",
+        "type": "m.room.member",
+        "room_id": "!room:example.test",
+        "sender": "@alice:example.test",
+        "state_key": "@bob:remote.example.test",
+        "content": {
+          "membership": "invite"
+        },
+        "origin_server_ts": 1778408851000,
+        "signatures": {
+          "example.test": {
+            "ed25519:auto1": "base64-invite-signature"
+          }
+        },
+        "unsigned": {
+          "invite_room_state": [
+            {
+              "type": "m.room.name",
+              "state_key": "",
+              "content": {
+                "name": "Federated Room"
+              },
+              "sender": "@alice:example.test"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "event": {
+        "event_id": "$invite:example.test",
+        "type": "m.room.member",
+        "room_id": "!room:example.test",
+        "sender": "@alice:example.test",
+        "state_key": "@bob:remote.example.test",
+        "content": {
+          "membership": "invite"
+        },
+        "signatures": {
+          "example.test": {
+            "ed25519:auto1": "base64-invite-signature"
+          },
+          "remote.example.test": {
+            "ed25519:auto1": "base64-remote-signature"
+          }
+        }
+      }
+    }
+  },
+  "expected": {
+    "status": 200,
+    "invite_signed_by_origin": true,
+    "invite_signed_by_destination": true,
+    "versions_advertisement_widened": false
+  }
+}

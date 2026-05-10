@@ -1,0 +1,59 @@
+{
+  "name": "matrix-federation-send-transaction-pdu-failure",
+  "contract": "SPEC-056",
+  "request": {
+    "method": "PUT",
+    "path": "/_matrix/federation/v1/send/txn-failure",
+    "authorization": {
+      "scheme": "X-Matrix",
+      "origin": "remote.example.test",
+      "destination": "example.test",
+      "key": "ed25519:auto1",
+      "signed_json": true
+    },
+    "body": {
+      "origin": "remote.example.test",
+      "origin_server_ts": 1778408851000,
+      "pdus": [
+        {
+          "event_id": "$bad:remote.example.test",
+          "type": "m.room.message",
+          "room_id": "!room:example.test",
+          "sender": "@mallory:remote.example.test",
+          "origin_server_ts": 1778408851000,
+          "depth": 13,
+          "prev_events": [],
+          "auth_events": [],
+          "content": {
+            "msgtype": "m.text",
+            "body": "not authorized"
+          },
+          "hashes": {
+            "sha256": "base64-event-content-hash"
+          },
+          "signatures": {
+            "remote.example.test": {
+              "ed25519:auto1": "base64-event-signature"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "pdus": {
+        "$bad:remote.example.test": {
+          "error": "Event failed authorization"
+        }
+      }
+    }
+  },
+  "expected": {
+    "status": 200,
+    "transaction_failed": false,
+    "pdu_error_recorded": true,
+    "versions_advertisement_widened": false
+  }
+}
