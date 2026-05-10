@@ -1,0 +1,16 @@
+{
+  "name": "matrix-media-download-not-found",
+  "contract": "SPEC-038",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v1/media/download/example.test/missing-media",
+    "access_token": "token-1"
+  },
+  "expected": {
+    "status": 404,
+    "body_contains": {
+      "errcode": "M_NOT_FOUND",
+      "error": "Media not found."
+    }
+  }
+}

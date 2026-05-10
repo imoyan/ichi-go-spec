@@ -1,0 +1,22 @@
+{
+  "name": "matrix-media-upload-basic",
+  "contract": "SPEC-038",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/media/v3/upload",
+    "query": {
+      "filename": "avatar.png"
+    },
+    "headers": {
+      "content-type": "image/png"
+    },
+    "access_token": "token-1",
+    "body_base64": "aGVsbG8="
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "content_uri": "mxc://example.test/media1"
+    }
+  }
+}
