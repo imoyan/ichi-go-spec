@@ -1,0 +1,66 @@
+{
+  "name": "matrix-crypto-adoption-decision-checklist",
+  "contract": "SPEC-050",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#end-to-end-encryption",
+    "checked_at": "2026-05-10T19:28:06+09:00",
+    "adoption_decisions": [
+      {
+        "repo": "houra-client",
+        "create_issue_after_spec_merge": true,
+        "required_scope": [
+          "select_maintained_matrix_crypto_stack",
+          "adapter_facade",
+          "host_owned_token_storage_boundary",
+          "host_owned_secure_key_storage_boundary",
+          "encrypted_room_interop_smoke"
+        ],
+        "forbidden_scope": [
+          "local_olm_implementation",
+          "local_megolm_implementation",
+          "sdk_owned_token_persistence"
+        ]
+      },
+      {
+        "repo": "houra-server",
+        "create_issue_after_spec_merge": "when_server_key_or_to_device_contract_merges",
+        "required_scope": [
+          "opaque_device_key_storage",
+          "one_time_key_claim_semantics",
+          "fallback_key_storage",
+          "opaque_to_device_routing",
+          "opaque_key_backup_storage"
+        ],
+        "forbidden_scope": [
+          "decrypt_room_content",
+          "decrypt_to_device_payloads",
+          "decrypt_key_backup_session_data"
+        ]
+      },
+      {
+        "repo": "houra-labs",
+        "create_issue_after_spec_merge": "parser_only_helper_if_intentionally_adopted",
+        "required_scope": [
+          "parity_vectors",
+          "performance_gate"
+        ],
+        "forbidden_scope": [
+          "crypto_primitives",
+          "olm",
+          "megolm",
+          "transport",
+          "storage",
+          "ui",
+          "retry",
+          "secure_storage"
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "adoption_repo_count": 3,
+    "client_issue_required_after_merge": true,
+    "labs_crypto_issue_allowed": false
+  }
+}
