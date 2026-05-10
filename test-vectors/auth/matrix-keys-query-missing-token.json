@@ -1,0 +1,20 @@
+{
+  "name": "matrix-keys-query-missing-token",
+  "contract": "SPEC-051",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/keys/query",
+    "body": {
+      "device_keys": {
+        "@alice:example.test": []
+      }
+    }
+  },
+  "expected": {
+    "status": 401,
+    "error": {
+      "errcode": "M_MISSING_TOKEN",
+      "error": "Missing access token."
+    }
+  }
+}

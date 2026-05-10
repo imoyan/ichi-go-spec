@@ -1,0 +1,83 @@
+{
+  "name": "matrix-keys-claim-one-time-fallback-basic",
+  "contract": "SPEC-051",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3keysclaim",
+    "checked_at": "2026-05-10T19:46:18+09:00",
+    "steps": [
+      {
+        "id": "claim-one-time-key",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/claim",
+        "access_token": "token-bob-device1",
+        "body": {
+          "one_time_keys": {
+            "@alice:example.test": {
+              "DEVICE1": "signed_curve25519"
+            }
+          }
+        },
+        "expected_status": 200,
+        "expected_body_contains": {
+          "failures": {},
+          "one_time_keys": {
+            "@alice:example.test": {
+              "DEVICE1": {
+                "signed_curve25519:otk1": {
+                  "key": "one-time-public-key-1",
+                  "signatures": {
+                    "@alice:example.test": {
+                      "ed25519:DEVICE1": "signature-otk1"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "server_effect": {
+          "one_time_key_claimed_once": true
+        }
+      },
+      {
+        "id": "claim-fallback-key-after-one-time-exhausted",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/claim",
+        "access_token": "token-bob-device1",
+        "body": {
+          "one_time_keys": {
+            "@alice:example.test": {
+              "DEVICE1": "signed_curve25519"
+            }
+          }
+        },
+        "expected_status": 200,
+        "expected_body_contains": {
+          "failures": {},
+          "one_time_keys": {
+            "@alice:example.test": {
+              "DEVICE1": {
+                "signed_curve25519:fb1": {
+                  "key": "fallback-public-key-1",
+                  "fallback": true,
+                  "signatures": {
+                    "@alice:example.test": {
+                      "ed25519:DEVICE1": "signature-fb1"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "server_effect": {
+          "fallback_key_used_after_one_time_exhaustion": true
+        }
+      }
+    ]
+  },
+  "expected": {
+    "step_count": 2
+  }
+}

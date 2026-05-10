@@ -1,0 +1,44 @@
+{
+  "name": "matrix-keys-query-basic",
+  "contract": "SPEC-051",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/keys/query",
+    "access_token": "token-bob-device1",
+    "body": {
+      "device_keys": {
+        "@alice:example.test": [
+          "DEVICE1"
+        ]
+      },
+      "timeout": 10000
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "failures": {},
+      "device_keys": {
+        "@alice:example.test": {
+          "DEVICE1": {
+            "user_id": "@alice:example.test",
+            "device_id": "DEVICE1",
+            "algorithms": [
+              "m.olm.v1.curve25519-aes-sha2",
+              "m.megolm.v1.aes-sha2"
+            ],
+            "keys": {
+              "curve25519:DEVICE1": "curve25519-public-device1",
+              "ed25519:DEVICE1": "ed25519-public-device1"
+            },
+            "signatures": {
+              "@alice:example.test": {
+                "ed25519:DEVICE1": "signature-device1"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

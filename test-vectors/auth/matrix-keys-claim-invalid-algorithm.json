@@ -1,0 +1,23 @@
+{
+  "name": "matrix-keys-claim-invalid-algorithm",
+  "contract": "SPEC-051",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/keys/claim",
+    "access_token": "token-bob-device1",
+    "body": {
+      "one_time_keys": {
+        "@alice:example.test": {
+          "DEVICE1": "m.megolm.v1.aes-sha2"
+        }
+      }
+    }
+  },
+  "expected": {
+    "status": 400,
+    "error": {
+      "errcode": "M_INVALID_PARAM",
+      "error": "Unsupported one-time key algorithm."
+    }
+  }
+}
