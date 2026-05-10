@@ -1,0 +1,53 @@
+{
+  "name": "matrix-crypto-adapter-boundary",
+  "contract": "SPEC-050",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#end-to-end-encryption",
+    "checked_at": "2026-05-10T19:28:06+09:00",
+    "requires_maintained_matrix_crypto_stack": true,
+    "forbidden_local_crypto": [
+      "olm",
+      "megolm",
+      "sas",
+      "cross_signing_crypto",
+      "secret_storage_crypto",
+      "key_backup_crypto"
+    ],
+    "required_algorithm_coverage": [
+      "m.olm.v1.curve25519-aes-sha2",
+      "m.megolm.v1.aes-sha2"
+    ],
+    "host_owned": [
+      "access_tokens",
+      "refresh_tokens",
+      "secure_storage",
+      "private_key_storage_policy",
+      "recovery_key_storage_policy",
+      "device_trust_ui_policy",
+      "logout_data_deletion_policy"
+    ],
+    "crypto_adapter_owned": [
+      "olm_sessions",
+      "megolm_group_sessions",
+      "device_key_generation",
+      "one_time_key_generation",
+      "fallback_key_generation",
+      "encrypted_room_event_crypto",
+      "key_backup_crypto",
+      "verification_crypto",
+      "cross_signing_crypto"
+    ],
+    "server_must_treat_as_opaque": [
+      "encrypted_room_content",
+      "to_device_payloads",
+      "private_cross_signing_keys",
+      "recovery_keys",
+      "key_backup_session_data"
+    ]
+  },
+  "expected": {
+    "local_olm_megolm_allowed": false,
+    "versions_advertisement_widened": false
+  }
+}

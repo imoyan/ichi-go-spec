@@ -105,6 +105,7 @@ void main() {
   checkMatrixFiltersPresenceCapabilities(contracts, failures);
   checkMatrixRoomDirectoryAliasesInvites(contracts, failures);
   checkMatrixModerationReportingAdminControls(contracts, failures);
+  checkMatrixCryptoAdapterBoundary(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -3446,6 +3447,230 @@ void validateMatrixAdminModerationSteps(
     if ((id == 'get-lock' || id == 'get-suspend') &&
         (step['expected_status'] != 200 || step['expected_body'] is! Map)) {
       failures.add('${relative(file)} admin GET expectation is invalid.');
+    }
+  }
+}
+
+void checkMatrixCryptoAdapterBoundary(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-050')) {
+    failures.add(
+      'Matrix crypto adapter boundary contract SPEC-050 is required.',
+    );
+  }
+  const paths = [
+    'test-vectors/core/matrix-crypto-adapter-boundary.json',
+    'test-vectors/core/matrix-crypto-adoption-decision-checklist.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix crypto adapter boundary vector: $path');
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('adapter-boundary')) {
+      validateMatrixCryptoAdapterBoundary(file, json, failures);
+    } else {
+      validateMatrixCryptoAdoptionChecklist(file, json, failures);
+    }
+  }
+}
+
+void validateMatrixCryptoAdapterBoundary(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixCryptoReference(file, eventMap, failures);
+  if (eventMap['requires_maintained_matrix_crypto_stack'] != true) {
+    failures.add(
+      '${relative(file)} must require a maintained Matrix crypto stack.',
+    );
+  }
+  requireStringListIncludes(file, eventMap, 'forbidden_local_crypto', {
+    'olm',
+    'megolm',
+    'sas',
+    'cross_signing_crypto',
+    'secret_storage_crypto',
+    'key_backup_crypto',
+  }, failures);
+  requireStringListIncludes(file, eventMap, 'required_algorithm_coverage', {
+    'm.olm.v1.curve25519-aes-sha2',
+    'm.megolm.v1.aes-sha2',
+  }, failures);
+  requireStringListIncludes(file, eventMap, 'host_owned', {
+    'access_tokens',
+    'refresh_tokens',
+    'secure_storage',
+    'private_key_storage_policy',
+    'recovery_key_storage_policy',
+  }, failures);
+  requireStringListIncludes(file, eventMap, 'crypto_adapter_owned', {
+    'olm_sessions',
+    'megolm_group_sessions',
+    'device_key_generation',
+    'one_time_key_generation',
+    'fallback_key_generation',
+    'encrypted_room_event_crypto',
+    'key_backup_crypto',
+    'verification_crypto',
+    'cross_signing_crypto',
+  }, failures);
+  requireStringListIncludes(file, eventMap, 'server_must_treat_as_opaque', {
+    'encrypted_room_content',
+    'to_device_payloads',
+    'private_cross_signing_keys',
+    'recovery_keys',
+    'key_backup_session_data',
+  }, failures);
+  final expected = vector['expected'];
+  if (expected is! Map ||
+      expected['local_olm_megolm_allowed'] != false ||
+      expected['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} crypto boundary expectation is invalid.');
+  }
+}
+
+void validateMatrixCryptoAdoptionChecklist(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixCryptoReference(file, eventMap, failures);
+  final decisions = eventMap['adoption_decisions'];
+  if (decisions is! List || decisions.length != 3) {
+    failures.add('${relative(file)} adoption_decisions must list 3 repos.');
+    return;
+  }
+  final byRepo = <String, Map<String, Object?>>{};
+  for (final item in decisions) {
+    if (item is! Map) {
+      failures.add('${relative(file)} adoption_decisions items must be maps.');
+      continue;
+    }
+    final decision = item.cast<String, Object?>();
+    final repo = decision['repo'];
+    if (repo is String) {
+      byRepo[repo] = decision;
+    }
+  }
+  for (final repo in ['houra-client', 'houra-server', 'houra-labs']) {
+    if (!byRepo.containsKey(repo)) {
+      failures.add('${relative(file)} adoption decision missing: $repo');
+    }
+  }
+  final client = byRepo['houra-client'];
+  if (client != null) {
+    if (client['create_issue_after_spec_merge'] != true) {
+      failures.add('${relative(file)} houra-client issue must be required.');
+    }
+    requireStringListIncludes(file, client, 'required_scope', {
+      'select_maintained_matrix_crypto_stack',
+      'adapter_facade',
+      'host_owned_token_storage_boundary',
+      'host_owned_secure_key_storage_boundary',
+    }, failures);
+    requireStringListIncludes(file, client, 'forbidden_scope', {
+      'local_olm_implementation',
+      'local_megolm_implementation',
+      'sdk_owned_token_persistence',
+    }, failures);
+  }
+  final server = byRepo['houra-server'];
+  if (server != null) {
+    if (server['create_issue_after_spec_merge'] !=
+        'when_server_key_or_to_device_contract_merges') {
+      failures.add('${relative(file)} houra-server issue condition invalid.');
+    }
+    requireStringListIncludes(file, server, 'required_scope', {
+      'opaque_device_key_storage',
+      'one_time_key_claim_semantics',
+      'fallback_key_storage',
+      'opaque_to_device_routing',
+      'opaque_key_backup_storage',
+    }, failures);
+    requireStringListIncludes(file, server, 'forbidden_scope', {
+      'decrypt_room_content',
+      'decrypt_to_device_payloads',
+      'decrypt_key_backup_session_data',
+    }, failures);
+  }
+  final labs = byRepo['houra-labs'];
+  if (labs != null) {
+    if (labs['create_issue_after_spec_merge'] !=
+        'parser_only_helper_if_intentionally_adopted') {
+      failures.add('${relative(file)} houra-labs issue condition invalid.');
+    }
+    requireStringListIncludes(file, labs, 'required_scope', {
+      'parity_vectors',
+      'performance_gate',
+    }, failures);
+    requireStringListIncludes(file, labs, 'forbidden_scope', {
+      'crypto_primitives',
+      'olm',
+      'megolm',
+      'transport',
+      'storage',
+      'ui',
+      'retry',
+      'secure_storage',
+    }, failures);
+  }
+  final expected = vector['expected'];
+  if (expected is! Map ||
+      expected['adoption_repo_count'] != 3 ||
+      expected['client_issue_required_after_merge'] != true ||
+      expected['labs_crypto_issue_allowed'] != false) {
+    failures.add('${relative(file)} adoption checklist expectation invalid.');
+  }
+}
+
+void validateMatrixCryptoReference(
+  File file,
+  Map<String, Object?> eventMap,
+  List<String> failures,
+) {
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final source = eventMap['matrix_spec_source'];
+  if (source is! String ||
+      !source.startsWith('https://spec.matrix.org/v1.18/client-server-api/#')) {
+    failures.add('${relative(file)} matrix_spec_source is invalid.');
+  }
+}
+
+void requireStringListIncludes(
+  File file,
+  Map<String, Object?> object,
+  String key,
+  Set<String> required,
+  List<String> failures,
+) {
+  final value = object[key];
+  if (value is! List || value.any((item) => item is! String)) {
+    failures.add('${relative(file)} $key must be a string array.');
+    return;
+  }
+  final actual = value.cast<String>().toSet();
+  for (final item in required) {
+    if (!actual.contains(item)) {
+      failures.add('${relative(file)} $key missing required item: $item');
     }
   }
 }
