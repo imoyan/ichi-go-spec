@@ -108,6 +108,7 @@ void main() {
   checkMatrixCryptoAdapterBoundary(contracts, failures);
   checkMatrixDeviceOneTimeFallbackKeys(contracts, failures);
   checkMatrixToDeviceEncryptedRoomGate(contracts, failures);
+  checkMatrixKeyBackupRestoreGate(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -4327,6 +4328,276 @@ void validateMatrixE2eeReference(
   if (source is! String ||
       !source.startsWith('https://spec.matrix.org/v1.18/client-server-api/#')) {
     failures.add('${relative(file)} matrix_spec_source is invalid.');
+  }
+}
+
+void checkMatrixKeyBackupRestoreGate(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-053')) {
+    failures.add('Matrix key backup/restore contract SPEC-053 is required.');
+  }
+  const paths = [
+    'test-vectors/messaging/matrix-key-backup-version-lifecycle.json',
+    'test-vectors/messaging/matrix-key-backup-session-upload-restore-basic.json',
+    'test-vectors/messaging/matrix-key-backup-wrong-version.json',
+    'test-vectors/messaging/matrix-key-backup-restore-missing-session.json',
+    'test-vectors/messaging/matrix-key-backup-logout-relogin-recovery-gate.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix key backup/restore vector: $path');
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('version-lifecycle')) {
+      validateMatrixKeyBackupVersionLifecycle(file, json, failures);
+    } else if (path.contains('session-upload-restore')) {
+      validateMatrixKeyBackupSessionRestore(file, json, failures);
+    } else if (path.contains('wrong-version')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'PUT',
+        pathPrefix:
+            '/_matrix/client/v3/room_keys/keys/!encrypted:example.test/'
+            'megolm-session-1',
+        status: 403,
+        errcode: 'M_WRONG_ROOM_KEYS_VERSION',
+      );
+    } else if (path.contains('restore-missing-session')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'GET',
+        pathPrefix:
+            '/_matrix/client/v3/room_keys/keys/!encrypted:example.test/'
+            'missing-session',
+        status: 404,
+        errcode: 'M_NOT_FOUND',
+      );
+    } else {
+      validateMatrixKeyBackupLogoutReloginGate(file, json, failures);
+    }
+  }
+}
+
+void validateMatrixKeyBackupVersionLifecycle(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixE2eeReference(file, eventMap, failures);
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = [
+    'create-backup-version',
+    'get-current-backup-version',
+    'update-backup-auth-data',
+    'get-specific-backup-version',
+  ];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    final path = step['path'];
+    if (path is! String || !path.startsWith('/_matrix/client/v3/room_keys/')) {
+      failures.add('${relative(file)} key backup version path invalid.');
+    }
+    if (step['expected_status'] != 200) {
+      failures.add(
+        '${relative(file)} key backup version step must expect 200.',
+      );
+    }
+    if (id == 'create-backup-version' || id == 'update-backup-auth-data') {
+      validateMatrixKeyBackupVersionBody(file, step['body'], failures);
+    }
+    if (id == 'create-backup-version') {
+      final expectedBody = step['expected_body_contains'];
+      if (expectedBody is! Map || expectedBody['version'] != '1') {
+        failures.add('${relative(file)} created backup version missing.');
+      }
+    }
+    if (id == 'get-current-backup-version' ||
+        id == 'get-specific-backup-version') {
+      final expectedBody = step['expected_body_contains'];
+      if (expectedBody is! Map ||
+          expectedBody['algorithm'] !=
+              'm.megolm_backup.v1.curve25519-aes-sha2') {
+        failures.add('${relative(file)} backup version response invalid.');
+      }
+    }
+  }
+}
+
+void validateMatrixKeyBackupSessionRestore(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixE2eeReference(file, eventMap, failures);
+  final roomId = eventMap['room_id'];
+  if (roomId is! String || !isMatrixRoomId(roomId)) {
+    failures.add('${relative(file)} room_id must be a Matrix room ID.');
+  }
+  if (eventMap['session_id'] != 'megolm-session-1') {
+    failures.add('${relative(file)} session_id is invalid.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = ['upload-room-key-session', 'restore-room-key-session'];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    if (step['path'] !=
+        '/_matrix/client/v3/room_keys/keys/!encrypted:example.test/'
+            'megolm-session-1') {
+      failures.add('${relative(file)} room key backup path invalid.');
+    }
+    final query = step['query'];
+    if (query is! Map || query['version'] != '1') {
+      failures.add('${relative(file)} room key backup version query invalid.');
+    }
+    if (step['id'] == 'upload-room-key-session') {
+      if (step['method'] != 'PUT' ||
+          step['expected_status'] != 200 ||
+          step['server_must_not_decrypt'] != true) {
+        failures.add('${relative(file)} room key upload step invalid.');
+      }
+      validateMatrixKeyBackupData(file, step['body'], failures);
+    }
+    if (step['id'] == 'restore-room-key-session') {
+      if (step['method'] != 'GET' || step['expected_status'] != 200) {
+        failures.add('${relative(file)} room key restore step invalid.');
+      }
+      validateMatrixKeyBackupData(
+        file,
+        step['expected_body_contains'],
+        failures,
+      );
+    }
+  }
+}
+
+void validateMatrixKeyBackupLogoutReloginGate(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixE2eeReference(file, eventMap, failures);
+  requireStringListIncludes(file, eventMap, 'required_contracts', {
+    'SPEC-050',
+    'SPEC-052',
+    'SPEC-053',
+  }, failures);
+  if (eventMap['crypto_stack_required'] != true ||
+      eventMap['local_megolm_allowed'] != false) {
+    failures.add('${relative(file)} key backup crypto boundary invalid.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = [
+    'create-or-discover-trusted-backup',
+    'upload-room-session',
+    'logout-and-clear-local-session',
+    'relogin-new-device-session',
+    'restore-room-session-from-backup',
+    'decrypt-previous-encrypted-event',
+  ];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map || item['required'] != true) {
+      failures.add('${relative(file)} all key backup recovery steps required.');
+      continue;
+    }
+    if (item['contract'] is! String) {
+      failures.add('${relative(file)} key backup step contract missing.');
+    }
+  }
+  requireStringListIncludes(file, eventMap, 'required_evidence', {
+    'houra_spec_ref',
+    'houra_server_ref',
+    'houra_client_ref',
+    'crypto_stack_name',
+    'crypto_stack_version',
+    'backup_version',
+    'commands',
+    'per_step_pass_fail',
+  }, failures);
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['logout_relogin_restore'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} key backup recovery expectation invalid.');
+  }
+}
+
+void validateMatrixKeyBackupVersionBody(
+  File file,
+  Object? value,
+  List<String> failures,
+) {
+  if (value is! Map ||
+      value['algorithm'] != 'm.megolm_backup.v1.curve25519-aes-sha2' ||
+      value['auth_data'] is! Map) {
+    failures.add('${relative(file)} key backup version body invalid.');
+    return;
+  }
+  final authData = value['auth_data'] as Map;
+  if (authData['public_key'] is! String || authData['signatures'] is! Map) {
+    failures.add('${relative(file)} key backup auth_data invalid.');
+  }
+}
+
+void validateMatrixKeyBackupData(
+  File file,
+  Object? value,
+  List<String> failures,
+) {
+  if (value is! Map ||
+      value['first_message_index'] is! int ||
+      value['forwarded_count'] is! int ||
+      value['is_verified'] is! bool ||
+      value['session_data'] is! Map) {
+    failures.add('${relative(file)} key backup data invalid.');
+    return;
+  }
+  final sessionData = value['session_data'] as Map;
+  if (sessionData['ephemeral'] is! String ||
+      sessionData['ciphertext'] is! String ||
+      sessionData['mac'] is! String) {
+    failures.add('${relative(file)} key backup session_data invalid.');
   }
 }
 

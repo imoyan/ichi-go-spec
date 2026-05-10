@@ -1,0 +1,19 @@
+{
+  "name": "matrix-key-backup-restore-missing-session",
+  "contract": "SPEC-053",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/room_keys/keys/!encrypted:example.test/missing-session",
+    "query": {
+      "version": "1"
+    },
+    "access_token": "token-alice-device2"
+  },
+  "expected": {
+    "status": 404,
+    "error": {
+      "errcode": "M_NOT_FOUND",
+      "error": "Room key session not found."
+    }
+  }
+}

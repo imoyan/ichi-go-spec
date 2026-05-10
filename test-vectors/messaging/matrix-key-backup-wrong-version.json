@@ -1,0 +1,30 @@
+{
+  "name": "matrix-key-backup-wrong-version",
+  "contract": "SPEC-053",
+  "request": {
+    "method": "PUT",
+    "path": "/_matrix/client/v3/room_keys/keys/!encrypted:example.test/megolm-session-1",
+    "query": {
+      "version": "0"
+    },
+    "access_token": "token-alice-device1",
+    "body": {
+      "first_message_index": 1,
+      "forwarded_count": 0,
+      "is_verified": true,
+      "session_data": {
+        "ephemeral": "backup-ephemeral-key",
+        "ciphertext": "backup-ciphertext",
+        "mac": "backup-mac"
+      }
+    }
+  },
+  "expected": {
+    "status": 403,
+    "error": {
+      "errcode": "M_WRONG_ROOM_KEYS_VERSION",
+      "error": "Wrong room keys version.",
+      "current_version": "1"
+    }
+  }
+}
