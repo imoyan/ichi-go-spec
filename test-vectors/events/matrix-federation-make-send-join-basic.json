@@ -1,0 +1,147 @@
+{
+  "name": "matrix-federation-make-send-join-basic",
+  "contract": "SPEC-056",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/server-server-api/#joining-rooms",
+    "checked_at": "2026-05-10T20:47:31+09:00",
+    "room_id": "!room:example.test",
+    "user_id": "@alice:remote.example.test",
+    "room_version": "12",
+    "steps": [
+      {
+        "id": "make-join-request",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/make_join/!room:example.test/@alice:remote.example.test",
+        "authorization": {
+          "scheme": "X-Matrix",
+          "origin": "remote.example.test",
+          "destination": "example.test",
+          "key": "ed25519:auto1",
+          "signed_json": true
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "make-join-response",
+        "expected_status": 200,
+        "body": {
+          "room_version": "12",
+          "event": {
+            "type": "m.room.member",
+            "room_id": "!room:example.test",
+            "sender": "@alice:remote.example.test",
+            "state_key": "@alice:remote.example.test",
+            "content": {
+              "membership": "join"
+            }
+          }
+        }
+      },
+      {
+        "id": "sign-join-event",
+        "required": true,
+        "result": {
+          "origin": "remote.example.test",
+          "event_id": "$join:remote.example.test",
+          "signed_by_joining_server": true
+        }
+      },
+      {
+        "id": "send-join-request",
+        "method": "PUT",
+        "path": "/_matrix/federation/v2/send_join/!room:example.test/$join:remote.example.test",
+        "authorization": {
+          "scheme": "X-Matrix",
+          "origin": "remote.example.test",
+          "destination": "example.test",
+          "key": "ed25519:auto1",
+          "signed_json": true
+        },
+        "expected_status": 200,
+        "body": {
+          "event_id": "$join:remote.example.test",
+          "type": "m.room.member",
+          "room_id": "!room:example.test",
+          "sender": "@alice:remote.example.test",
+          "state_key": "@alice:remote.example.test",
+          "content": {
+            "membership": "join"
+          },
+          "auth_events": [
+            "$auth:example.test"
+          ],
+          "prev_events": [
+            "$prev:example.test"
+          ],
+          "origin_server_ts": 1778408851000,
+          "signatures": {
+            "remote.example.test": {
+              "ed25519:auto1": "base64-join-signature"
+            }
+          }
+        }
+      },
+      {
+        "id": "send-join-response",
+        "expected_status": 200,
+        "body": {
+          "origin": "example.test",
+          "state": [
+            {
+              "event_id": "$create:example.test",
+              "type": "m.room.create",
+              "room_id": "!room:example.test",
+              "sender": "@creator:example.test",
+              "content": {
+                "room_version": "12"
+              }
+            }
+          ],
+          "auth_chain": [
+            {
+              "event_id": "$auth:example.test",
+              "type": "m.room.power_levels",
+              "room_id": "!room:example.test",
+              "sender": "@creator:example.test",
+              "content": {}
+            }
+          ],
+          "event": {
+            "event_id": "$join:remote.example.test",
+            "type": "m.room.member",
+            "room_id": "!room:example.test",
+            "sender": "@alice:remote.example.test",
+            "state_key": "@alice:remote.example.test",
+            "content": {
+              "membership": "join"
+            },
+            "signatures": {
+              "remote.example.test": {
+                "ed25519:auto1": "base64-join-signature"
+              },
+              "example.test": {
+                "ed25519:auto1": "base64-resident-signature"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "required_evidence": [
+      "houra_spec_ref",
+      "houra_server_ref",
+      "resident_server",
+      "joining_server",
+      "room_version",
+      "commands",
+      "per_step_pass_fail"
+    ]
+  },
+  "expected": {
+    "join_accepted": true,
+    "state_returned": true,
+    "auth_chain_returned": true,
+    "versions_advertisement_widened": false
+  }
+}

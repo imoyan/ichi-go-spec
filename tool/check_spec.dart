@@ -112,6 +112,7 @@ void main() {
   checkMatrixKeyBackupRestoreGate(contracts, failures);
   checkMatrixVerificationCrossSigningGate(contracts, failures);
   checkMatrixFederationDiscoverySigningKeys(contracts, failures);
+  checkMatrixFederationTransactionJoinInvite(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -5297,6 +5298,388 @@ bool isMatrixServerNameForVector(String value) {
 bool isMatrixServerKeyId(String value) =>
     RegExp(r'^ed25519:[A-Za-z0-9_]+$').hasMatch(value);
 
+void checkMatrixFederationTransactionJoinInvite(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-056')) {
+    failures.add(
+      'Matrix federation transaction/join/invite contract SPEC-056 is required.',
+    );
+  }
+  const paths = [
+    'test-vectors/events/matrix-federation-send-transaction-basic.json',
+    'test-vectors/events/matrix-federation-send-transaction-pdu-failure.json',
+    'test-vectors/events/matrix-federation-make-send-join-basic.json',
+    'test-vectors/events/matrix-federation-invite-v2-basic.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix federation transaction vector: $path');
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('send-transaction-basic')) {
+      validateMatrixFederationTransaction(
+        file,
+        json,
+        failures,
+        expectPduError: false,
+      );
+    } else if (path.contains('pdu-failure')) {
+      validateMatrixFederationTransaction(
+        file,
+        json,
+        failures,
+        expectPduError: true,
+      );
+    } else if (path.contains('make-send-join')) {
+      validateMatrixFederationJoin(file, json, failures);
+    } else {
+      validateMatrixFederationInvite(file, json, failures);
+    }
+  }
+}
+
+void validateMatrixFederationTransaction(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures, {
+  required bool expectPduError,
+}) {
+  final request = vector['request'];
+  if (request is! Map ||
+      request['method'] != 'PUT' ||
+      request['path'] is! String ||
+      !(request['path'] as String).startsWith('/_matrix/federation/v1/send/')) {
+    failures.add('${relative(file)} federation transaction request invalid.');
+    return;
+  }
+  validateMatrixFederationAuthorization(
+    file,
+    request['authorization'],
+    failures,
+  );
+  final body = request['body'];
+  if (body is! Map ||
+      body['origin'] != 'remote.example.test' ||
+      body['origin_server_ts'] is! int ||
+      body['pdus'] is! List) {
+    failures.add('${relative(file)} federation transaction body invalid.');
+    return;
+  }
+  final pdus = (body['pdus'] as List).cast<Object?>();
+  final edus = body['edus'];
+  if (pdus.isEmpty || pdus.length > 50) {
+    failures.add('${relative(file)} federation transaction PDU count invalid.');
+  }
+  if (edus is List && edus.length > 100) {
+    failures.add('${relative(file)} federation transaction EDU count invalid.');
+  }
+  for (final pdu in pdus) {
+    validateMatrixFederationPdu(file, pdu, failures);
+  }
+  final response = vector['response'];
+  final responseBody = response is Map ? response['body'] : null;
+  final resultPdus = responseBody is Map ? responseBody['pdus'] : null;
+  if (response is! Map ||
+      response['status'] != 200 ||
+      resultPdus is! Map ||
+      resultPdus.isEmpty) {
+    failures.add('${relative(file)} federation transaction response invalid.');
+    return;
+  }
+  final hasPduError = resultPdus.values.any(
+    (value) => value is Map && value['error'] is String,
+  );
+  if (hasPduError != expectPduError) {
+    failures.add('${relative(file)} federation PDU error expectation invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['status'] != 200 ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} federation transaction expectation invalid.',
+    );
+    return;
+  }
+  final expectedMap = expectedResult.cast<String, Object?>();
+  if (!expectPduError &&
+      (expectedMap['pdu_count_max'] != 50 ||
+          expectedMap['edu_count_max'] != 100 ||
+          expectedMap['accepted_event_id'] is! String)) {
+    failures.add('${relative(file)} federation transaction limits invalid.');
+  }
+  if (expectPduError &&
+      (expectedMap['transaction_failed'] != false ||
+          expectedMap['pdu_error_recorded'] != true)) {
+    failures.add(
+      '${relative(file)} federation transaction failure expectation invalid.',
+    );
+  }
+}
+
+void validateMatrixFederationJoin(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixFederationReference(file, eventMap, failures);
+  if (eventMap['room_id'] != '!room:example.test' ||
+      eventMap['user_id'] != '@alice:remote.example.test' ||
+      eventMap['room_version'] != '12') {
+    failures.add('${relative(file)} federation join metadata invalid.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = [
+    'make-join-request',
+    'make-join-response',
+    'sign-join-event',
+    'send-join-request',
+    'send-join-response',
+  ];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      failures.add('${relative(file)} federation join step invalid.');
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    if (id == 'make-join-request') {
+      if (step['method'] != 'GET' ||
+          step['path'] !=
+              '/_matrix/federation/v1/make_join/!room:example.test/'
+                  '@alice:remote.example.test' ||
+          step['expected_status'] != 200) {
+        failures.add('${relative(file)} make_join request invalid.');
+      }
+      validateMatrixFederationAuthorization(
+        file,
+        step['authorization'],
+        failures,
+      );
+    } else if (id == 'make-join-response') {
+      final body = step['body'];
+      final event = body is Map ? body['event'] : null;
+      if (step['expected_status'] != 200 ||
+          body is! Map ||
+          body['room_version'] != '12') {
+        failures.add('${relative(file)} make_join response invalid.');
+      }
+      validateMatrixFederationMembershipEvent(
+        file,
+        event,
+        'join',
+        failures,
+        requireEventId: false,
+      );
+    } else if (id == 'sign-join-event') {
+      final result = step['result'];
+      if (step['required'] != true ||
+          result is! Map ||
+          result['signed_by_joining_server'] != true ||
+          result['event_id'] is! String ||
+          !isMatrixEventId(result['event_id'] as String)) {
+        failures.add('${relative(file)} sign join step invalid.');
+      }
+    } else if (id == 'send-join-request') {
+      if (step['method'] != 'PUT' ||
+          step['path'] !=
+              '/_matrix/federation/v2/send_join/!room:example.test/'
+                  r'$join:remote.example.test' ||
+          step['expected_status'] != 200) {
+        failures.add('${relative(file)} send_join request invalid.');
+      }
+      validateMatrixFederationAuthorization(
+        file,
+        step['authorization'],
+        failures,
+      );
+      validateMatrixFederationMembershipEvent(
+        file,
+        step['body'],
+        'join',
+        failures,
+        requireEventId: true,
+      );
+    } else if (id == 'send-join-response') {
+      final body = step['body'];
+      if (step['expected_status'] != 200 ||
+          body is! Map ||
+          body['state'] is! List ||
+          body['auth_chain'] is! List) {
+        failures.add('${relative(file)} send_join response invalid.');
+      } else {
+        validateMatrixFederationMembershipEvent(
+          file,
+          body['event'],
+          'join',
+          failures,
+          requireEventId: true,
+        );
+      }
+    }
+  }
+  requireStringListIncludes(file, eventMap, 'required_evidence', {
+    'houra_spec_ref',
+    'houra_server_ref',
+    'resident_server',
+    'joining_server',
+    'room_version',
+    'commands',
+    'per_step_pass_fail',
+  }, failures);
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['join_accepted'] != true ||
+      expectedResult['state_returned'] != true ||
+      expectedResult['auth_chain_returned'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} federation join expectation invalid.');
+  }
+}
+
+void validateMatrixFederationInvite(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  if (request is! Map ||
+      request['method'] != 'PUT' ||
+      request['path'] !=
+          '/_matrix/federation/v2/invite/!room:example.test/'
+              r'$invite:example.test') {
+    failures.add('${relative(file)} federation invite request invalid.');
+    return;
+  }
+  validateMatrixFederationAuthorization(
+    file,
+    request['authorization'],
+    failures,
+  );
+  final body = request['body'];
+  final event = body is Map ? body['event'] : null;
+  if (body is! Map || body['room_version'] != '12') {
+    failures.add('${relative(file)} federation invite body invalid.');
+  }
+  validateMatrixFederationMembershipEvent(
+    file,
+    event,
+    'invite',
+    failures,
+    requireEventId: true,
+  );
+  final response = vector['response'];
+  final responseBody = response is Map ? response['body'] : null;
+  if (response is! Map || response['status'] != 200 || responseBody is! Map) {
+    failures.add('${relative(file)} federation invite response invalid.');
+    return;
+  }
+  validateMatrixFederationMembershipEvent(
+    file,
+    responseBody['event'],
+    'invite',
+    failures,
+    requireEventId: true,
+  );
+  final responseEvent = responseBody['event'];
+  final signatures = responseEvent is Map ? responseEvent['signatures'] : null;
+  if (signatures is! Map ||
+      signatures['example.test'] is! Map ||
+      signatures['remote.example.test'] is! Map) {
+    failures.add('${relative(file)} federation invite signatures invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['status'] != 200 ||
+      expectedResult['invite_signed_by_origin'] != true ||
+      expectedResult['invite_signed_by_destination'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} federation invite expectation invalid.');
+  }
+}
+
+void validateMatrixFederationAuthorization(
+  File file,
+  Object? value,
+  List<String> failures,
+) {
+  if (value is! Map ||
+      value['scheme'] != 'X-Matrix' ||
+      value['origin'] is! String ||
+      !isMatrixServerNameForVector(value['origin'] as String) ||
+      value['destination'] is! String ||
+      !isMatrixServerNameForVector(value['destination'] as String) ||
+      value['key'] is! String ||
+      !isMatrixServerKeyId(value['key'] as String) ||
+      value['signed_json'] != true) {
+    failures.add('${relative(file)} federation authorization invalid.');
+  }
+}
+
+void validateMatrixFederationPdu(
+  File file,
+  Object? value,
+  List<String> failures,
+) {
+  if (value is! Map ||
+      value['event_id'] is! String ||
+      !isMatrixEventId(value['event_id'] as String) ||
+      value['type'] is! String ||
+      value['room_id'] is! String ||
+      !isMatrixRoomId(value['room_id'] as String) ||
+      value['sender'] is! String ||
+      !(value['sender'] as String).startsWith('@') ||
+      value['origin_server_ts'] is! int ||
+      value['prev_events'] is! List ||
+      value['auth_events'] is! List ||
+      value['content'] is! Map ||
+      value['hashes'] is! Map ||
+      value['signatures'] is! Map) {
+    failures.add('${relative(file)} federation PDU invalid.');
+  }
+}
+
+void validateMatrixFederationMembershipEvent(
+  File file,
+  Object? value,
+  String membership,
+  List<String> failures, {
+  required bool requireEventId,
+}) {
+  if (value is! Map ||
+      value['type'] != 'm.room.member' ||
+      value['room_id'] != '!room:example.test' ||
+      value['sender'] is! String ||
+      !(value['sender'] as String).startsWith('@') ||
+      value['state_key'] is! String ||
+      !(value['state_key'] as String).startsWith('@') ||
+      value['content'] is! Map ||
+      (value['content'] as Map)['membership'] != membership) {
+    failures.add('${relative(file)} federation membership event invalid.');
+    return;
+  }
+  if (requireEventId &&
+      (value['event_id'] is! String ||
+          !isMatrixEventId(value['event_id'] as String))) {
+    failures.add('${relative(file)} federation membership event_id invalid.');
+  }
+}
+
 bool isNegativeVector(Map<String, Object?> json) {
   final expected = json['expected'];
   if (expected is Map) {
@@ -5417,11 +5800,12 @@ void checkRequest(
           isApiPath(path, '/_matrix/client') ||
           isApiPath(path, '/_matrix/media') ||
           isApiPath(path, '/_matrix/key') ||
+          isApiPath(path, '/_matrix/federation') ||
           isApiPath(path, '/.well-known/matrix'))) {
     failures.add(
       '${relative(file)} $pathPrefix.path must use /_houra/client or '
       '/_matrix/client or /_matrix/media or /_matrix/key or '
-      '/.well-known/matrix.',
+      '/_matrix/federation or /.well-known/matrix.',
     );
   }
   final query = request['query'];

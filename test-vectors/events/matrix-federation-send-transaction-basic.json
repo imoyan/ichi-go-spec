@@ -1,0 +1,72 @@
+{
+  "name": "matrix-federation-send-transaction-basic",
+  "contract": "SPEC-056",
+  "request": {
+    "method": "PUT",
+    "path": "/_matrix/federation/v1/send/txn-1",
+    "authorization": {
+      "scheme": "X-Matrix",
+      "origin": "remote.example.test",
+      "destination": "example.test",
+      "key": "ed25519:auto1",
+      "signed_json": true
+    },
+    "body": {
+      "origin": "remote.example.test",
+      "origin_server_ts": 1778408851000,
+      "pdus": [
+        {
+          "event_id": "$event1:remote.example.test",
+          "type": "m.room.message",
+          "room_id": "!room:example.test",
+          "sender": "@alice:remote.example.test",
+          "origin_server_ts": 1778408851000,
+          "depth": 12,
+          "prev_events": [
+            "$prev:example.test"
+          ],
+          "auth_events": [
+            "$auth:example.test"
+          ],
+          "content": {
+            "msgtype": "m.text",
+            "body": "hello over federation"
+          },
+          "hashes": {
+            "sha256": "base64-event-content-hash"
+          },
+          "signatures": {
+            "remote.example.test": {
+              "ed25519:auto1": "base64-event-signature"
+            }
+          }
+        }
+      ],
+      "edus": [
+        {
+          "edu_type": "m.typing",
+          "content": {
+            "room_id": "!room:example.test",
+            "user_id": "@alice:remote.example.test",
+            "typing": true
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "pdus": {
+        "$event1:remote.example.test": {}
+      }
+    }
+  },
+  "expected": {
+    "status": 200,
+    "pdu_count_max": 50,
+    "edu_count_max": 100,
+    "accepted_event_id": "$event1:remote.example.test",
+    "versions_advertisement_widened": false
+  }
+}
