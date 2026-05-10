@@ -1,0 +1,19 @@
+{
+  "name": "matrix-admin-account-moderation-forbidden",
+  "contract": "SPEC-049",
+  "request": {
+    "method": "PUT",
+    "path": "/_matrix/client/v1/admin/lock/@bob:example.test",
+    "access_token": "token-alice",
+    "body": {
+      "locked": true
+    }
+  },
+  "expected": {
+    "status": 403,
+    "error": {
+      "errcode": "M_FORBIDDEN",
+      "error": "Requesting user is not a server administrator."
+    }
+  }
+}

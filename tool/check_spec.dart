@@ -104,6 +104,7 @@ void main() {
   checkMatrixReceiptsTypingReadMarkers(contracts, failures);
   checkMatrixFiltersPresenceCapabilities(contracts, failures);
   checkMatrixRoomDirectoryAliasesInvites(contracts, failures);
+  checkMatrixModerationReportingAdminControls(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -3156,6 +3157,295 @@ void validateMatrixInviteSteps(
           step['expected_invite_room'] is! Map) {
         failures.add('${relative(file)} invite sync expectation is invalid.');
       }
+    }
+  }
+}
+
+void checkMatrixModerationReportingAdminControls(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-049')) {
+    failures.add(
+      'Matrix moderation/reporting/admin controls contract SPEC-049 is required.',
+    );
+  }
+  const paths = [
+    'test-vectors/rooms/matrix-room-moderation-kick-ban-unban.json',
+    'test-vectors/rooms/matrix-room-moderation-permission-denied.json',
+    'test-vectors/rooms/matrix-room-redaction-basic.json',
+    'test-vectors/rooms/matrix-room-redaction-forbidden.json',
+    'test-vectors/rooms/matrix-room-reporting-basic.json',
+    'test-vectors/rooms/matrix-admin-account-moderation-basic.json',
+    'test-vectors/rooms/matrix-admin-account-moderation-forbidden.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add(
+        'Missing Matrix moderation/reporting/admin controls vector: $path',
+      );
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('kick-ban-unban')) {
+      validateMatrixModerationSteps(file, json, failures);
+    } else if (path.contains('moderation-permission-denied')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'POST',
+        pathPrefix: '/_matrix/client/v3/rooms/!room:example.test/kick',
+        status: 403,
+        errcode: 'M_FORBIDDEN',
+      );
+    } else if (path.contains('redaction-basic')) {
+      validateMatrixRedactionVector(file, json, failures);
+    } else if (path.contains('redaction-forbidden')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'PUT',
+        pathPrefix: '/_matrix/client/v3/rooms/!room:example.test/redact/',
+        status: 403,
+        errcode: 'M_FORBIDDEN',
+      );
+    } else if (path.contains('reporting-basic')) {
+      validateMatrixReportingSteps(file, json, failures);
+    } else if (path.contains('account-moderation-basic')) {
+      validateMatrixAdminModerationSteps(file, json, failures);
+    } else {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'PUT',
+        pathPrefix: '/_matrix/client/v1/admin/lock/@bob:example.test',
+        status: 403,
+        errcode: 'M_FORBIDDEN',
+      );
+    }
+  }
+}
+
+void validateMatrixModerationSteps(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final roomId = eventMap['room_id'];
+  if (roomId is! String || !isMatrixRoomId(roomId)) {
+    failures.add('${relative(file)} room_id must be a Matrix room ID.');
+  }
+  if (eventMap['moderator'] != '@alice:example.test') {
+    failures.add('${relative(file)} moderator must be @alice:example.test.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = ['kick-user', 'ban-user', 'unban-user'];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    final path = step['path'];
+    if (path is! String ||
+        !path.startsWith('/_matrix/client/v3/rooms/!room:example.test/')) {
+      failures.add('${relative(file)} moderation step path is invalid.');
+    }
+    final expectedPathSuffix = switch (id) {
+      'kick-user' => '/kick',
+      'ban-user' => '/ban',
+      'unban-user' => '/unban',
+      _ => '',
+    };
+    if (expectedPathSuffix.isNotEmpty &&
+        path is String &&
+        !path.endsWith(expectedPathSuffix)) {
+      failures.add('${relative(file)} moderation endpoint suffix is invalid.');
+    }
+    final body = step['body'];
+    if (body is! Map || body['user_id'] is! String) {
+      failures.add('${relative(file)} moderation body must include user_id.');
+    }
+    if (step['expected_status'] != 200 ||
+        step['expected_membership_event'] is! Map) {
+      failures.add('${relative(file)} moderation expectation is incomplete.');
+    }
+  }
+}
+
+void validateMatrixRedactionVector(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  if (request is! Map) {
+    failures.add('${relative(file)} request must be an object.');
+    return;
+  }
+  final requestMap = request.cast<String, Object?>();
+  if (requestMap['method'] != 'PUT') {
+    failures.add('${relative(file)} redaction request must use PUT.');
+  }
+  final path = requestMap['path'];
+  if (path is! String ||
+      !path.startsWith('/_matrix/client/v3/rooms/!room:example.test/redact/')) {
+    failures.add('${relative(file)} redaction path is invalid.');
+  }
+  final body = requestMap['body'];
+  if (body is! Map) {
+    failures.add('${relative(file)} redaction body is required.');
+  }
+  requireExpectedStatus(file, vector, failures, 200);
+  final expected = vector['expected'];
+  final bodyContains = expected is Map ? expected['body_contains'] : null;
+  if (bodyContains is! Map || bodyContains['event_id'] is! String) {
+    failures.add('${relative(file)} redaction event_id expectation missing.');
+  }
+}
+
+void validateMatrixReportingSteps(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = ['report-room', 'report-event', 'report-user'];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    final path = step['path'];
+    if (path is! String || !path.startsWith('/_matrix/client/v3/')) {
+      failures.add('${relative(file)} reporting step path is invalid.');
+    }
+    if (id == 'report-room' &&
+        path != '/_matrix/client/v3/rooms/!room:example.test/report') {
+      failures.add('${relative(file)} room report path is invalid.');
+    }
+    if (id == 'report-event' &&
+        path !=
+            '/_matrix/client/v3/rooms/!room:example.test/report/\$event1:example.test') {
+      failures.add('${relative(file)} event report path is invalid.');
+    }
+    if (id == 'report-user' &&
+        path != '/_matrix/client/v3/users/@spam:example.test/report') {
+      failures.add('${relative(file)} user report path is invalid.');
+    }
+    final body = step['body'];
+    if (body is! Map || body['reason'] is! String) {
+      failures.add('${relative(file)} report body must include reason.');
+    }
+    if (id == 'report-event' && body is Map && body.containsKey('score')) {
+      failures.add('${relative(file)} event report must not include score.');
+    }
+    if (step['expected_status'] != 200) {
+      failures.add('${relative(file)} report step must expect 200.');
+    }
+  }
+}
+
+void validateMatrixAdminModerationSteps(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  if (eventMap['admin_user_id'] != '@admin:example.test' ||
+      eventMap['target_user_id'] != '@bob:example.test') {
+    failures.add('${relative(file)} admin/target users are invalid.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = [
+    'capabilities-account-moderation',
+    'lock-user',
+    'get-lock',
+    'suspend-user',
+    'get-suspend',
+  ];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    final path = step['path'];
+    if (path is! String) {
+      failures.add('${relative(file)} admin step path is required.');
+      continue;
+    }
+    if (id == 'capabilities-account-moderation') {
+      final expectedBody = step['expected_body_contains'];
+      if (path != '/_matrix/client/v3/capabilities' ||
+          expectedBody is! Map ||
+          jsonEncode(expectedBody).contains('false')) {
+        failures.add(
+          '${relative(file)} account moderation capability invalid.',
+        );
+      }
+      continue;
+    }
+    final isLock = path.startsWith('/_matrix/client/v1/admin/lock/');
+    final isSuspend = path.startsWith('/_matrix/client/v1/admin/suspend/');
+    if (!isLock && !isSuspend) {
+      failures.add('${relative(file)} admin moderation path is invalid.');
+    }
+    if (id == 'lock-user') {
+      final body = step['body'];
+      if (body is! Map || body['locked'] != true) {
+        failures.add('${relative(file)} lock body is invalid.');
+      }
+    }
+    if (id == 'suspend-user') {
+      final body = step['body'];
+      if (body is! Map || body['suspended'] != true) {
+        failures.add('${relative(file)} suspend body is invalid.');
+      }
+    }
+    if ((id == 'get-lock' || id == 'get-suspend') &&
+        (step['expected_status'] != 200 || step['expected_body'] is! Map)) {
+      failures.add('${relative(file)} admin GET expectation is invalid.');
     }
   }
 }

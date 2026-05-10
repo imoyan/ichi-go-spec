@@ -1,0 +1,70 @@
+{
+  "name": "matrix-admin-account-moderation-basic",
+  "contract": "SPEC-049",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#server-administration",
+    "checked_at": "2026-05-10T18:59:32+09:00",
+    "admin_user_id": "@admin:example.test",
+    "target_user_id": "@bob:example.test",
+    "steps": [
+      {
+        "id": "capabilities-account-moderation",
+        "method": "GET",
+        "path": "/_matrix/client/v3/capabilities",
+        "access_token": "token-admin",
+        "expected_body_contains": {
+          "capabilities": {
+            "m.account_moderation": {
+              "lock": true,
+              "suspend": true
+            }
+          }
+        }
+      },
+      {
+        "id": "lock-user",
+        "method": "PUT",
+        "path": "/_matrix/client/v1/admin/lock/@bob:example.test",
+        "access_token": "token-admin",
+        "body": {
+          "locked": true
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "get-lock",
+        "method": "GET",
+        "path": "/_matrix/client/v1/admin/lock/@bob:example.test",
+        "access_token": "token-admin",
+        "expected_status": 200,
+        "expected_body": {
+          "locked": true
+        }
+      },
+      {
+        "id": "suspend-user",
+        "method": "PUT",
+        "path": "/_matrix/client/v1/admin/suspend/@bob:example.test",
+        "access_token": "token-admin",
+        "body": {
+          "suspended": true
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "get-suspend",
+        "method": "GET",
+        "path": "/_matrix/client/v1/admin/suspend/@bob:example.test",
+        "access_token": "token-admin",
+        "expected_status": 200,
+        "expected_body": {
+          "suspended": true
+        }
+      }
+    ]
+  },
+  "expected": {
+    "step_count": 5
+  }
+}

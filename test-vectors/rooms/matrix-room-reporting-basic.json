@@ -1,0 +1,49 @@
+{
+  "name": "matrix-room-reporting-basic",
+  "contract": "SPEC-049",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#reporting-content",
+    "checked_at": "2026-05-10T18:59:32+09:00",
+    "room_id": "!room:example.test",
+    "reported_user": "@spam:example.test",
+    "steps": [
+      {
+        "id": "report-room",
+        "method": "POST",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/report",
+        "access_token": "token-alice",
+        "body": {
+          "reason": "Room contains spam"
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "report-event",
+        "method": "POST",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/report/$event1:example.test",
+        "access_token": "token-alice",
+        "body": {
+          "reason": "Message contains spam"
+        },
+        "expected_status": 200,
+        "forbidden_body_keys": [
+          "score"
+        ]
+      },
+      {
+        "id": "report-user",
+        "method": "POST",
+        "path": "/_matrix/client/v3/users/@spam:example.test/report",
+        "access_token": "token-alice",
+        "body": {
+          "reason": "User sends spam"
+        },
+        "expected_status": 200
+      }
+    ]
+  },
+  "expected": {
+    "step_count": 3
+  }
+}
