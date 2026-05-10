@@ -124,6 +124,7 @@ void main() {
   checkMatrixDomainCoverageReport(contracts, failures);
   checkMatrixComplementCiLane(contracts, failures);
   checkMatrixVersionAdvertisementGate(contracts, failures);
+  checkMatrixReleaseNotesEvidenceTemplate(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -7737,6 +7738,97 @@ void validateMatrixVersionAdvertisementReference(
         'https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientversions',
       )) {
     failures.add('${relative(file)} matrix_spec_source is invalid.');
+  }
+}
+
+void checkMatrixReleaseNotesEvidenceTemplate(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-065')) {
+    failures.add('Matrix release notes template SPEC-065 is required.');
+  }
+  const path = 'test-vectors/core/matrix-release-notes-evidence-template.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix release notes template vector: $path');
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  validateMatrixReleaseNotesEvidenceTemplate(file, json, failures);
+}
+
+void validateMatrixReleaseNotesEvidenceTemplate(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18' ||
+      eventMap['matrix_spec_source'] != 'https://spec.matrix.org/v1.18/' ||
+      eventMap['matrix_release_source'] !=
+          'https://matrix.org/blog/2026/03/26/matrix-v1.18-release/') {
+    failures.add('${relative(file)} release notes reference invalid.');
+  }
+  final template = eventMap['template'];
+  final sections = template is Map ? template['required_sections'] : null;
+  final fields = template is Map ? template['evidence_link_fields'] : null;
+  const requiredSections = {
+    'Matrix spec version',
+    'Supported Matrix domains',
+    'Excluded Matrix domains',
+    'Supported room versions',
+    'Excluded unstable MSCs',
+    'Implementation evidence',
+    'Known gaps',
+    'Advertisement decision',
+  };
+  const requiredFields = {
+    'repo',
+    'ref',
+    'domain',
+    'gate',
+    'status',
+    'artifact',
+    'issue',
+  };
+  if (template is! Map ||
+      sections is! List ||
+      !sections.toSet().containsAll(requiredSections) ||
+      fields is! List ||
+      !fields.toSet().containsAll(requiredFields) ||
+      template['supported_domain_status'] != 'pass' ||
+      template['excluded_domain_requires_reason'] != true ||
+      template['unstable_msc_default'] != 'excluded') {
+    failures.add('${relative(file)} release notes template invalid.');
+  }
+  final example = eventMap['example'];
+  final evidence = example is Map ? example['implementation_evidence'] : null;
+  if (example is! Map ||
+      example['matrix_spec_version'] != 'v1.18' ||
+      example['supported_domains'] is! List ||
+      example['excluded_domains'] is! List ||
+      example['supported_room_versions'] is! List ||
+      example['excluded_unstable_mscs'] != true ||
+      evidence is! List ||
+      evidence.isEmpty ||
+      example['advertisement_decision'] != 'allowed-for-listed-domains-only') {
+    failures.add('${relative(file)} release notes example invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['template_sections_defined'] != true ||
+      expectedResult['evidence_link_format_defined'] != true ||
+      expectedResult['unsupported_domains_require_reason'] != true ||
+      expectedResult['unstable_mscs_excluded_by_default'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} release notes expectation invalid.');
   }
 }
 
