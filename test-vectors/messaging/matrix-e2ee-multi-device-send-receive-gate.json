@@ -1,0 +1,80 @@
+{
+  "name": "matrix-e2ee-multi-device-send-receive-gate",
+  "contract": "SPEC-052",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#end-to-end-encryption",
+    "checked_at": "2026-05-10T20:12:37+09:00",
+    "required_contracts": [
+      "SPEC-050",
+      "SPEC-051",
+      "SPEC-052"
+    ],
+    "crypto_stack_required": true,
+    "local_olm_megolm_allowed": false,
+    "devices": {
+      "@alice:example.test": [
+        "DEVICE1"
+      ],
+      "@bob:example.test": [
+        "BOB1",
+        "BOB2"
+      ]
+    },
+    "steps": [
+      {
+        "id": "publish-recipient-device-keys",
+        "contract": "SPEC-051",
+        "required": true
+      },
+      {
+        "id": "claim-recipient-one-time-keys",
+        "contract": "SPEC-051",
+        "required": true
+      },
+      {
+        "id": "distribute-room-session-to-bob-devices",
+        "contract": "SPEC-052",
+        "event_type": "m.room.encrypted",
+        "delivery": "to_device",
+        "recipient_devices": [
+          "BOB1",
+          "BOB2"
+        ],
+        "required": true
+      },
+      {
+        "id": "send-encrypted-room-event",
+        "contract": "SPEC-052",
+        "event_type": "m.room.encrypted",
+        "algorithm": "m.megolm.v1.aes-sha2",
+        "required": true
+      },
+      {
+        "id": "sync-bob-devices",
+        "contract": "SPEC-052",
+        "recipient_devices": [
+          "BOB1",
+          "BOB2"
+        ],
+        "expected_received_devices": 2,
+        "required": true
+      }
+    ],
+    "required_evidence": [
+      "houra_spec_ref",
+      "houra_server_ref",
+      "houra_client_ref",
+      "crypto_stack_name",
+      "crypto_stack_version",
+      "device_ids",
+      "commands",
+      "per_step_pass_fail"
+    ]
+  },
+  "expected": {
+    "recipient_device_count": 2,
+    "encrypted_room_send_receive": true,
+    "versions_advertisement_widened": false
+  }
+}

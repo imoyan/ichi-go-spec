@@ -107,6 +107,7 @@ void main() {
   checkMatrixModerationReportingAdminControls(contracts, failures);
   checkMatrixCryptoAdapterBoundary(contracts, failures);
   checkMatrixDeviceOneTimeFallbackKeys(contracts, failures);
+  checkMatrixToDeviceEncryptedRoomGate(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -3967,6 +3968,365 @@ void validateMatrixSignedCurve25519Keys(
     if (fallback && key['fallback'] != true) {
       failures.add('${relative(file)} fallback key must set fallback true.');
     }
+  }
+}
+
+void checkMatrixToDeviceEncryptedRoomGate(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-052')) {
+    failures.add(
+      'Matrix to-device/encrypted room gate contract SPEC-052 is required.',
+    );
+  }
+  const paths = [
+    'test-vectors/messaging/matrix-to-device-send-basic.json',
+    'test-vectors/messaging/matrix-to-device-sync-receive-basic.json',
+    'test-vectors/messaging/matrix-to-device-missing-token.json',
+    'test-vectors/messaging/matrix-encrypted-room-send-receive-basic.json',
+    'test-vectors/messaging/matrix-encrypted-room-malformed-payload.json',
+    'test-vectors/messaging/matrix-e2ee-multi-device-send-receive-gate.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix to-device/encrypted room vector: $path');
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('to-device-send-basic')) {
+      validateMatrixToDeviceSendVector(file, json, failures);
+    } else if (path.contains('to-device-sync-receive')) {
+      validateMatrixToDeviceSyncSteps(file, json, failures);
+    } else if (path.contains('to-device-missing-token')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'PUT',
+        pathPrefix: '/_matrix/client/v3/sendToDevice/m.room.encrypted/',
+        status: 401,
+        errcode: 'M_MISSING_TOKEN',
+      );
+    } else if (path.contains('send-receive-basic')) {
+      validateMatrixEncryptedRoomSteps(file, json, failures);
+    } else if (path.contains('malformed-payload')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'PUT',
+        pathPrefix:
+            '/_matrix/client/v3/rooms/!encrypted:example.test/send/'
+            'm.room.encrypted/',
+        status: 400,
+        errcode: 'M_INVALID_PARAM',
+      );
+    } else {
+      validateMatrixE2eeMultiDeviceGate(file, json, failures);
+    }
+  }
+}
+
+void validateMatrixToDeviceSendVector(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  if (request is! Map) {
+    failures.add('${relative(file)} request must be an object.');
+    return;
+  }
+  final requestMap = request.cast<String, Object?>();
+  if (requestMap['method'] != 'PUT' ||
+      requestMap['path'] is! String ||
+      !(requestMap['path'] as String).startsWith(
+        '/_matrix/client/v3/sendToDevice/m.room.encrypted/',
+      )) {
+    failures.add('${relative(file)} to-device send request is invalid.');
+  }
+  final body = requestMap['body'];
+  validateMatrixToDeviceMessages(file, body, failures);
+  requireExpectedStatus(file, vector, failures, 200);
+  final expected = vector['expected'];
+  final serverEffect = expected is Map ? expected['server_effect'] : null;
+  if (serverEffect is! Map || serverEffect['queued_to_device_count'] is! int) {
+    failures.add('${relative(file)} queued to-device effect missing.');
+  }
+}
+
+void validateMatrixToDeviceSyncSteps(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixE2eeReference(file, eventMap, failures);
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = ['send-to-device', 'sync-recipient-device'];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    if (id == 'send-to-device') {
+      if (step['method'] != 'PUT' ||
+          step['path'] is! String ||
+          !(step['path'] as String).startsWith(
+            '/_matrix/client/v3/sendToDevice/m.room.encrypted/',
+          ) ||
+          step['expected_status'] != 200) {
+        failures.add('${relative(file)} send-to-device step is invalid.');
+      }
+      validateMatrixToDeviceMessages(file, step['body'], failures);
+    }
+    if (id == 'sync-recipient-device') {
+      if (step['method'] != 'GET' ||
+          step['path'] != '/_matrix/client/v3/sync' ||
+          step['expected_status'] != 200) {
+        failures.add('${relative(file)} to-device sync step is invalid.');
+      }
+      final expectedBody = step['expected_body_contains'];
+      final toDevice = expectedBody is Map ? expectedBody['to_device'] : null;
+      final events = toDevice is Map ? toDevice['events'] : null;
+      if (events is! List || events.isEmpty) {
+        failures.add('${relative(file)} to_device.events expectation missing.');
+      } else {
+        final first = events.first;
+        if (first is! Map ||
+            first['type'] != 'm.room.encrypted' ||
+            first['sender'] != '@alice:example.test') {
+          failures.add('${relative(file)} to-device event envelope invalid.');
+        } else {
+          validateMatrixOlmEncryptedContent(file, first['content'], failures);
+        }
+      }
+    }
+  }
+}
+
+void validateMatrixEncryptedRoomSteps(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixE2eeReference(file, eventMap, failures);
+  final roomId = eventMap['room_id'];
+  if (roomId is! String || !isMatrixRoomId(roomId)) {
+    failures.add('${relative(file)} room_id must be a Matrix room ID.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = [
+    'set-room-encryption',
+    'send-encrypted-event',
+    'sync-encrypted-event',
+  ];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    if (id == 'set-room-encryption') {
+      if (step['method'] != 'PUT' ||
+          step['path'] !=
+              '/_matrix/client/v3/rooms/!encrypted:example.test/state/'
+                  'm.room.encryption/' ||
+          step['expected_status'] != 200) {
+        failures.add('${relative(file)} room encryption state step invalid.');
+      }
+      final body = step['body'];
+      if (body is! Map || body['algorithm'] != 'm.megolm.v1.aes-sha2') {
+        failures.add('${relative(file)} room encryption algorithm invalid.');
+      }
+    }
+    if (id == 'send-encrypted-event') {
+      if (step['method'] != 'PUT' ||
+          step['path'] !=
+              '/_matrix/client/v3/rooms/!encrypted:example.test/send/'
+                  'm.room.encrypted/txn-encrypted-1' ||
+          step['expected_status'] != 200 ||
+          step['server_must_not_decrypt'] != true) {
+        failures.add('${relative(file)} encrypted send step invalid.');
+      }
+      validateMatrixMegolmEncryptedContent(file, step['body'], failures);
+    }
+    if (id == 'sync-encrypted-event') {
+      if (step['method'] != 'GET' ||
+          step['path'] != '/_matrix/client/v3/sync' ||
+          step['expected_status'] != 200) {
+        failures.add('${relative(file)} encrypted sync step invalid.');
+      }
+      final event = step['expected_timeline_event'];
+      if (event is! Map || event['type'] != 'm.room.encrypted') {
+        failures.add('${relative(file)} encrypted timeline event missing.');
+      } else {
+        validateMatrixMegolmEncryptedContent(file, event['content'], failures);
+      }
+    }
+  }
+}
+
+void validateMatrixE2eeMultiDeviceGate(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixE2eeReference(file, eventMap, failures);
+  requireStringListIncludes(file, eventMap, 'required_contracts', {
+    'SPEC-050',
+    'SPEC-051',
+    'SPEC-052',
+  }, failures);
+  if (eventMap['crypto_stack_required'] != true ||
+      eventMap['local_olm_megolm_allowed'] != false) {
+    failures.add('${relative(file)} crypto stack boundary is invalid.');
+  }
+  final devices = eventMap['devices'];
+  final bobDevices = devices is Map ? devices['@bob:example.test'] : null;
+  if (bobDevices is! List || bobDevices.length < 2) {
+    failures.add('${relative(file)} multi-device gate must include 2 devices.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = [
+    'publish-recipient-device-keys',
+    'claim-recipient-one-time-keys',
+    'distribute-room-session-to-bob-devices',
+    'send-encrypted-room-event',
+    'sync-bob-devices',
+  ];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map || item['required'] != true) {
+      failures.add('${relative(file)} all multi-device steps are required.');
+      continue;
+    }
+    if (item['contract'] is! String) {
+      failures.add('${relative(file)} multi-device step contract missing.');
+    }
+  }
+  requireStringListIncludes(file, eventMap, 'required_evidence', {
+    'houra_spec_ref',
+    'houra_server_ref',
+    'houra_client_ref',
+    'crypto_stack_name',
+    'crypto_stack_version',
+    'device_ids',
+    'commands',
+    'per_step_pass_fail',
+  }, failures);
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['recipient_device_count'] != 2 ||
+      expectedResult['encrypted_room_send_receive'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} multi-device expectation invalid.');
+  }
+}
+
+void validateMatrixToDeviceMessages(
+  File file,
+  Object? value,
+  List<String> failures,
+) {
+  if (value is! Map || value['messages'] is! Map) {
+    failures.add(
+      '${relative(file)} to-device body.messages must be an object.',
+    );
+    return;
+  }
+  final messages = value['messages'] as Map;
+  if (messages.isEmpty) {
+    failures.add('${relative(file)} to-device messages must not be empty.');
+  }
+  for (final userEntry in messages.entries) {
+    if (userEntry.key is! String ||
+        !(userEntry.key as String).startsWith('@') ||
+        userEntry.value is! Map) {
+      failures.add('${relative(file)} to-device user map invalid.');
+      continue;
+    }
+    final devices = userEntry.value as Map;
+    if (devices.isEmpty) {
+      failures.add('${relative(file)} to-device device map empty.');
+    }
+    for (final deviceEntry in devices.entries) {
+      if (deviceEntry.key is! String || (deviceEntry.key as String).isEmpty) {
+        failures.add('${relative(file)} to-device device id invalid.');
+      }
+      validateMatrixOlmEncryptedContent(file, deviceEntry.value, failures);
+    }
+  }
+}
+
+void validateMatrixOlmEncryptedContent(
+  File file,
+  Object? value,
+  List<String> failures,
+) {
+  if (value is! Map ||
+      value['algorithm'] != 'm.olm.v1.curve25519-aes-sha2' ||
+      value['sender_key'] is! String ||
+      value['ciphertext'] is! Map) {
+    failures.add('${relative(file)} Olm encrypted content is invalid.');
+  }
+}
+
+void validateMatrixMegolmEncryptedContent(
+  File file,
+  Object? value,
+  List<String> failures,
+) {
+  if (value is! Map ||
+      value['algorithm'] != 'm.megolm.v1.aes-sha2' ||
+      value['sender_key'] is! String ||
+      value['ciphertext'] is! String ||
+      value['session_id'] is! String ||
+      value['device_id'] is! String) {
+    failures.add('${relative(file)} Megolm encrypted content is invalid.');
+  }
+}
+
+void validateMatrixE2eeReference(
+  File file,
+  Map<String, Object?> eventMap,
+  List<String> failures,
+) {
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final source = eventMap['matrix_spec_source'];
+  if (source is! String ||
+      !source.startsWith('https://spec.matrix.org/v1.18/client-server-api/#')) {
+    failures.add('${relative(file)} matrix_spec_source is invalid.');
   }
 }
 
