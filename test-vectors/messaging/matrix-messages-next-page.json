@@ -1,0 +1,50 @@
+{
+  "name": "matrix-messages-next-page",
+  "contract": "SPEC-036",
+  "given": {
+    "previous_request": {
+      "method": "GET",
+      "path": "/_matrix/client/v3/rooms/!room:example.test/messages",
+      "query": {
+        "from": "t1",
+        "dir": "b",
+        "limit": 1
+      },
+      "headers": {
+        "Authorization": "Bearer token-1"
+      }
+    },
+    "previous_event_id": "$event1:example.test"
+  },
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/rooms/!room:example.test/messages",
+    "query": {
+      "from": "t0",
+      "dir": "b",
+      "limit": 1
+    },
+    "headers": {
+      "Authorization": "Bearer token-1"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "chunk": [
+        {
+          "event_id": "$event0:example.test",
+          "room_id": "!room:example.test",
+          "sender": "@bob:example.test",
+          "origin_server_ts": 1709999999000,
+          "type": "m.room.message",
+          "content": {
+            "msgtype": "m.text",
+            "body": "Earlier message"
+          }
+        }
+      ],
+      "start": "t0"
+    }
+  }
+}

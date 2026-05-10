@@ -1,0 +1,19 @@
+{
+  "name": "matrix-send-event-missing-token",
+  "contract": "SPEC-036",
+  "request": {
+    "method": "PUT",
+    "path": "/_matrix/client/v3/rooms/!room:example.test/send/m.room.message/txn-missing-token",
+    "body": {
+      "msgtype": "m.text",
+      "body": "Hello Matrix"
+    }
+  },
+  "expected": {
+    "status": 401,
+    "body_contains": {
+      "errcode": "M_MISSING_TOKEN",
+      "error": "Missing access token."
+    }
+  }
+}

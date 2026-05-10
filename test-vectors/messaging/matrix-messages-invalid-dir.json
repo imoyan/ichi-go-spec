@@ -1,0 +1,23 @@
+{
+  "name": "matrix-messages-invalid-dir",
+  "contract": "SPEC-036",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/rooms/!room:example.test/messages",
+    "query": {
+      "from": "t1",
+      "dir": "sideways",
+      "limit": 10
+    },
+    "headers": {
+      "Authorization": "Bearer token-1"
+    }
+  },
+  "expected": {
+    "status": 400,
+    "body_contains": {
+      "errcode": "M_INVALID_PARAM",
+      "error": "dir must be b or f."
+    }
+  }
+}

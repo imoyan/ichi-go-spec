@@ -1,0 +1,21 @@
+{
+  "name": "matrix-send-event-malformed-payload",
+  "contract": "SPEC-036",
+  "request": {
+    "method": "PUT",
+    "path": "/_matrix/client/v3/rooms/!room:example.test/send/m.room.message/txn-bad",
+    "headers": {
+      "Authorization": "Bearer token-1"
+    },
+    "body": {
+      "msgtype": "m.text"
+    }
+  },
+  "expected": {
+    "status": 400,
+    "body_contains": {
+      "errcode": "M_BAD_JSON",
+      "error": "m.room.message content must include string body."
+    }
+  }
+}
