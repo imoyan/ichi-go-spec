@@ -1,0 +1,44 @@
+{
+  "name": "matrix-identity-service-boundary-basic",
+  "contract": "SPEC-059",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/identity-service-api/#identity-service-api",
+    "checked_at": "2026-05-10T21:34:00+09:00",
+    "service_boundary": {
+      "component": "identity-service",
+      "deployment": "separate-service",
+      "not_hidden_homeserver_module": true
+    },
+    "endpoints": [
+      "GET /_matrix/identity/versions",
+      "GET /_matrix/identity/v2",
+      "GET /_matrix/identity/v2/account",
+      "POST /_matrix/identity/v2/account/register",
+      "POST /_matrix/identity/v2/account/logout",
+      "GET /_matrix/identity/v2/terms",
+      "POST /_matrix/identity/v2/terms",
+      "GET /_matrix/identity/v2/pubkey/{keyId}",
+      "GET /_matrix/identity/v2/pubkey/isvalid",
+      "GET /_matrix/identity/v2/pubkey/ephemeral/isvalid"
+    ],
+    "authentication": {
+      "preferred": "Authorization: Bearer identity-token-redacted",
+      "query_access_token_supported_for_compatibility": true,
+      "query_access_token_deprecated": true,
+      "client_must_emit_query_access_token": false,
+      "token_scope": "identity-service-only"
+    },
+    "terms_gate": {
+      "errcode": "M_TERMS_NOT_SIGNED",
+      "retry_without_user_decision": false
+    },
+    "secrets_redacted": true
+  },
+  "expected": {
+    "separate_service_boundary": true,
+    "identity_tokens_not_client_server_tokens": true,
+    "terms_gate_defined": true,
+    "versions_advertisement_widened": false
+  }
+}

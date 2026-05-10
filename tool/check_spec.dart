@@ -18,6 +18,7 @@ const matrixDomains = {
   'Application Service API',
   'Client-Server API',
   'Client-Server API; Room Versions',
+  'Identity Service API',
   'Server-Server API',
 };
 
@@ -116,6 +117,7 @@ void main() {
   checkMatrixFederationTransactionJoinInvite(contracts, failures);
   checkMatrixFederationBackfillAuthState(contracts, failures);
   checkMatrixApplicationServiceRegistrationTransaction(contracts, failures);
+  checkMatrixIdentityServiceBoundary(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -6224,6 +6226,378 @@ void validateMatrixAppserviceAuthorization(
   }
 }
 
+void checkMatrixIdentityServiceBoundary(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-059')) {
+    failures.add('Matrix identity service contract SPEC-059 is required.');
+  }
+  const paths = [
+    'test-vectors/core/matrix-identity-service-boundary-basic.json',
+    'test-vectors/core/matrix-identity-lookup-hash-details-basic.json',
+    'test-vectors/core/matrix-identity-validation-bind-basic.json',
+    'test-vectors/core/matrix-identity-unbind-auth-failures.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix identity service vector: $path');
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('service-boundary')) {
+      validateMatrixIdentityServiceBoundary(file, json, failures);
+    } else if (path.contains('lookup')) {
+      validateMatrixIdentityLookup(file, json, failures);
+    } else if (path.contains('validation-bind')) {
+      validateMatrixIdentityValidationBind(file, json, failures);
+    } else {
+      validateMatrixIdentityUnbindFailures(file, json, failures);
+    }
+  }
+}
+
+void validateMatrixIdentityServiceBoundary(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixIdentityReference(file, eventMap, failures);
+  final boundary = eventMap['service_boundary'];
+  if (boundary is! Map ||
+      boundary['component'] != 'identity-service' ||
+      boundary['deployment'] != 'separate-service' ||
+      boundary['not_hidden_homeserver_module'] != true) {
+    failures.add('${relative(file)} identity service boundary invalid.');
+  }
+  final endpoints = eventMap['endpoints'];
+  if (endpoints is! List ||
+      !endpoints.contains('GET /_matrix/identity/versions') ||
+      !endpoints.contains('GET /_matrix/identity/v2/account') ||
+      !endpoints.contains('POST /_matrix/identity/v2/account/register')) {
+    failures.add('${relative(file)} identity boundary endpoints invalid.');
+  }
+  final authentication = eventMap['authentication'];
+  if (authentication is! Map ||
+      authentication['query_access_token_supported_for_compatibility'] !=
+          true ||
+      authentication['query_access_token_deprecated'] != true ||
+      authentication['client_must_emit_query_access_token'] != false ||
+      authentication['token_scope'] != 'identity-service-only') {
+    failures.add('${relative(file)} identity authentication boundary invalid.');
+  }
+  validateMatrixIdentitySecrets(file, eventMap, failures);
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['separate_service_boundary'] != true ||
+      expectedResult['identity_tokens_not_client_server_tokens'] != true ||
+      expectedResult['terms_gate_defined'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} identity boundary expectation invalid.');
+  }
+}
+
+void validateMatrixIdentityLookup(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixIdentityReference(file, eventMap, failures);
+  validateMatrixIdentityRequest(
+    file,
+    eventMap['hash_details_request'],
+    failures,
+    method: 'GET',
+    path: '/_matrix/identity/v2/hash_details',
+    pathPrefix: 'event.hash_details_request',
+  );
+  final hashResponse = eventMap['hash_details_response'];
+  final hashBody = hashResponse is Map ? hashResponse['body'] : null;
+  final algorithms = hashBody is Map ? hashBody['algorithms'] : null;
+  if (hashResponse is! Map ||
+      hashResponse['status'] != 200 ||
+      algorithms is! List ||
+      !algorithms.contains('sha256') ||
+      hashBody['lookup_pepper'] != 'pepper-redacted') {
+    failures.add('${relative(file)} identity hash_details response invalid.');
+  }
+  validateMatrixIdentityRequest(
+    file,
+    eventMap['lookup_request'],
+    failures,
+    method: 'POST',
+    path: '/_matrix/identity/v2/lookup',
+    pathPrefix: 'event.lookup_request',
+  );
+  final lookupRequest = eventMap['lookup_request'];
+  final lookupBody = lookupRequest is Map ? lookupRequest['body'] : null;
+  if (lookupBody is! Map ||
+      lookupBody['algorithm'] != 'sha256' ||
+      lookupBody['pepper'] != 'pepper-redacted' ||
+      lookupBody['addresses'] is! List ||
+      (lookupBody['addresses'] as List).isEmpty) {
+    failures.add('${relative(file)} identity lookup request body invalid.');
+  }
+  final lookupResponse = eventMap['lookup_response'];
+  final responseBody = lookupResponse is Map ? lookupResponse['body'] : null;
+  final mappings = responseBody is Map ? responseBody['mappings'] : null;
+  if (lookupResponse is! Map ||
+      lookupResponse['status'] != 200 ||
+      mappings is! Map ||
+      mappings['sha256-address-redacted'] != '@alice:example.test') {
+    failures.add('${relative(file)} identity lookup response invalid.');
+  }
+  final privacy = eventMap['privacy'];
+  if (privacy is! Map ||
+      privacy['reverse_lookup_supported'] != false ||
+      privacy['bulk_graph_export_supported'] != false ||
+      privacy['unmatched_addresses_omitted'] != true) {
+    failures.add('${relative(file)} identity lookup privacy invalid.');
+  }
+  validateMatrixIdentitySecrets(file, eventMap, failures);
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['hash_details_defined'] != true ||
+      expectedResult['lookup_defined'] != true ||
+      expectedResult['sha256_supported'] != true ||
+      expectedResult['privacy_preserving_lookup'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} identity lookup expectation invalid.');
+  }
+}
+
+void validateMatrixIdentityValidationBind(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixIdentityReference(file, eventMap, failures);
+  final steps = eventMap['validation_steps'];
+  if (steps is! List || steps.length != 3) {
+    failures.add('${relative(file)} identity validation steps invalid.');
+  } else {
+    final expectedPaths = {
+      '/_matrix/identity/v2/validate/email/requestToken',
+      '/_matrix/identity/v2/validate/email/submitToken',
+      '/_matrix/identity/v2/3pid/getValidated3pid',
+    };
+    final actualPaths = <String>{};
+    for (final step in steps) {
+      if (step is! Map || step['id'] is! String) {
+        failures.add('${relative(file)} identity validation step invalid.');
+        continue;
+      }
+      final request = step['request'];
+      if (request is Map && request['path'] is String) {
+        actualPaths.add(request['path'] as String);
+      }
+      validateMatrixIdentityRequest(
+        file,
+        request,
+        failures,
+        pathPrefix: 'event.validation_steps.${step['id']}.request',
+      );
+      final response = step['response'];
+      if (response is! Map || response['status'] != 200) {
+        failures.add('${relative(file)} identity validation response invalid.');
+      }
+    }
+    if (!actualPaths.containsAll(expectedPaths)) {
+      failures.add('${relative(file)} identity validation paths invalid.');
+    }
+  }
+  validateMatrixIdentityRequest(
+    file,
+    eventMap['bind_request'],
+    failures,
+    method: 'POST',
+    path: '/_matrix/identity/v2/3pid/bind',
+    pathPrefix: 'event.bind_request',
+  );
+  validateMatrixIdentityAssociation(file, eventMap['bind_response'], failures);
+  if (eventMap['validation_does_not_publish_lookup'] != true) {
+    failures.add(
+      '${relative(file)} identity validation publish boundary invalid.',
+    );
+  }
+  validateMatrixIdentitySecrets(file, eventMap, failures);
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['validation_session_defined'] != true ||
+      expectedResult['bind_defined'] != true ||
+      expectedResult['signed_association_returned'] != true ||
+      expectedResult['lookup_published_only_after_bind'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} identity validation expectation invalid.');
+  }
+}
+
+void validateMatrixIdentityUnbindFailures(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixIdentityReference(file, eventMap, failures);
+  validateMatrixIdentityRequest(
+    file,
+    eventMap['unbind_request'],
+    failures,
+    method: 'POST',
+    path: '/_matrix/identity/v2/3pid/unbind',
+    pathPrefix: 'event.unbind_request',
+  );
+  final unbindResponse = eventMap['unbind_response'];
+  if (unbindResponse is! Map ||
+      unbindResponse['status'] != 200 ||
+      unbindResponse['body'] is! Map) {
+    failures.add('${relative(file)} identity unbind response invalid.');
+  }
+  final failureCases = eventMap['failure_cases'];
+  if (failureCases is! List || failureCases.length < 4) {
+    failures.add('${relative(file)} identity failure cases invalid.');
+  } else {
+    final errcodes = <String>{};
+    for (final item in failureCases) {
+      if (item is! Map ||
+          item['id'] is! String ||
+          item['status'] is! int ||
+          item['errcode'] is! String) {
+        failures.add('${relative(file)} identity failure case invalid.');
+        continue;
+      }
+      errcodes.add(item['errcode'] as String);
+    }
+    for (final code in [
+      'M_UNAUTHORIZED',
+      'M_TERMS_NOT_SIGNED',
+      'M_FORBIDDEN',
+      'M_INVALID_PEPPER',
+    ]) {
+      if (!errcodes.contains(code)) {
+        failures.add('${relative(file)} identity failure code missing: $code');
+      }
+    }
+  }
+  final privacy = eventMap['privacy'];
+  if (privacy is! Map ||
+      privacy['lookup_after_unbind_returns_mapping'] != false ||
+      privacy['matrix_error_passthrough_required'] != true ||
+      privacy['secrets_redacted'] != true) {
+    failures.add('${relative(file)} identity unbind privacy invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['unbind_defined'] != true ||
+      expectedResult['future_lookup_removed'] != true ||
+      expectedResult['auth_failures_defined'] != true ||
+      expectedResult['privacy_failure_gate_defined'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} identity unbind expectation invalid.');
+  }
+}
+
+void validateMatrixIdentityReference(
+  File file,
+  Map<String, Object?> eventMap,
+  List<String> failures,
+) {
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final source = eventMap['matrix_spec_source'];
+  if (source is! String ||
+      !source.startsWith(
+        'https://spec.matrix.org/v1.18/identity-service-api/#',
+      )) {
+    failures.add('${relative(file)} matrix_spec_source is invalid.');
+  }
+}
+
+void validateMatrixIdentityRequest(
+  File file,
+  Object? value,
+  List<String> failures, {
+  String? method,
+  String? path,
+  String pathPrefix = 'request',
+}) {
+  checkRequest(file, value, failures, pathPrefix: pathPrefix);
+  if (value is! Map) {
+    return;
+  }
+  if (method != null && value['method'] != method) {
+    failures.add('${relative(file)} $pathPrefix.method must be $method.');
+  }
+  if (path != null && value['path'] != path) {
+    failures.add('${relative(file)} $pathPrefix.path must be $path.');
+  }
+  validateMatrixIdentityAuthorization(file, value['authorization'], failures);
+}
+
+void validateMatrixIdentityAuthorization(
+  File file,
+  Object? value,
+  List<String> failures,
+) {
+  if (value is! Map ||
+      value['scheme'] != 'Bearer' ||
+      value['token'] != 'identity-token-redacted') {
+    failures.add('${relative(file)} identity authorization invalid.');
+  }
+}
+
+void validateMatrixIdentityAssociation(
+  File file,
+  Object? value,
+  List<String> failures,
+) {
+  final body = value is Map ? value['body'] : null;
+  final signatures = body is Map ? body['signatures'] : null;
+  if (value is! Map ||
+      value['status'] != 200 ||
+      body is! Map ||
+      body['address'] != 'alice@example.test' ||
+      body['medium'] != 'email' ||
+      body['mxid'] != '@alice:example.test' ||
+      body['not_after'] is! int ||
+      body['not_before'] is! int ||
+      body['ts'] is! int ||
+      signatures is! Map ||
+      signatures['identity.example.test'] is! Map) {
+    failures.add('${relative(file)} identity association response invalid.');
+  }
+}
+
+void validateMatrixIdentitySecrets(
+  File file,
+  Map<String, Object?> eventMap,
+  List<String> failures,
+) {
+  if (eventMap['secrets_redacted'] != true) {
+    failures.add('${relative(file)} identity secrets must be redacted.');
+  }
+}
+
 bool isNegativeVector(Map<String, Object?> json) {
   final expected = json['expected'];
   if (expected is Map) {
@@ -6346,11 +6720,13 @@ void checkRequest(
           isApiPath(path, '/_matrix/key') ||
           isApiPath(path, '/_matrix/federation') ||
           isApiPath(path, '/_matrix/app') ||
+          isApiPath(path, '/_matrix/identity') ||
           isApiPath(path, '/.well-known/matrix'))) {
     failures.add(
       '${relative(file)} $pathPrefix.path must use /_houra/client or '
       '/_matrix/client or /_matrix/media or /_matrix/key or '
-      '/_matrix/federation or /_matrix/app or /.well-known/matrix.',
+      '/_matrix/federation or /_matrix/app or /_matrix/identity or '
+      '/.well-known/matrix.',
     );
   }
   final query = request['query'];

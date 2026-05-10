@@ -83,6 +83,7 @@ The maintained repository names are:
 - `contracts/SPEC-056-matrix-federation-transaction-join-invite.md`
 - `contracts/SPEC-057-matrix-federation-backfill-auth-state.md`
 - `contracts/SPEC-058-matrix-application-service-registration-transaction.md`
+- `contracts/SPEC-059-matrix-identity-service-boundary.md`
 
 ## Shared Design Inputs
 
@@ -444,7 +445,7 @@ Matrix compliance must be tracked by API domain, not as a single vague label:
 | Client-Server API | `/_matrix/client/*`, media, auth, sync, rooms, user data, devices, reporting, admin capabilities | Product MVP covers a small `/_houra/client/*` subset; `SPEC-030` through `SPEC-038` add Matrix versions, auth/session, registration, devices, room create/join/leave/state, send event/messages, sync, and media upload/download contracts; `SPEC-039` defines the integrated live e2e adoption gate; `SPEC-045` starts Client-Server breadth with profile, account data, and room tags; `SPEC-046` adds receipts, typing, and read markers; `SPEC-047` adds filters, presence, and capabilities; `SPEC-048` adds room directory, aliases, and invites; `SPEC-049` adds moderation, reporting, and admin controls | Matrix-compatible endpoint namespace, response shapes, error codes, representative conformance vectors, and live server/client MVP smoke pass |
 | Server-Server API | federation discovery, signed transactions, PDUs/EDUs, event auth, joins/leaves, invites, backfill, key APIs, policy servers | Not implemented; `SPEC-055` adds server discovery, delegated well-known, signing-key publication/query, and destination resolution failure contracts; `SPEC-056` adds transaction send/receive, make/send join, and v2 invite contracts; `SPEC-057` adds backfill, event_auth, state_ids, and representative state-resolution interop gates | A second homeserver can federate, exchange signed room events, validate auth, and recover state across restart |
 | Application Service API | appservice registration, namespace ownership, transactions, sender localpart, bridge-style event delivery | Not implemented; `SPEC-058` adds registration shape, namespace ownership, homeserver-to-appservice transactions, user queries, and room-alias queries | A registered appservice receives transactions and can puppet/send events within its declared namespaces |
-| Identity Service API | third-party identifier validation and lookup | Not implemented | Either explicitly out of supported deployment scope or implemented as a separate identity component with conformance evidence |
+| Identity Service API | third-party identifier validation and lookup | Not implemented; `SPEC-059` adds the separate service boundary, identity token scope, hash lookup, validation session, bind, unbind, and privacy/auth failure gate | Either explicitly out of supported deployment scope or implemented as a separate identity component with conformance evidence |
 | Push Gateway API | push notification gateway contracts | Not implemented | Either explicitly out of supported deployment scope or implemented with privacy-aware notification payload tests |
 | Room Versions | room version algorithms, event authorization rules, state resolution, room upgrade behavior | MVP rooms do not implement Matrix room versions or event DAG auth; `SPEC-040` adds the first Matrix event DAG and auth-event reference contract, `SPEC-041` adds state snapshot / representative state-resolution vectors, `SPEC-042` defines the stable room versions 1-12 / default 12 gate, `SPEC-043` adds representative membership, power-level, and redaction auth vectors, and `SPEC-044` adds alias / upgrade / restart persistence gates without full room-version auth completeness | Supported room versions are listed, default room version is declared, and auth/state-resolution tests pass |
 | Olm & Megolm | E2EE primitives, one-time keys, device keys, encrypted room messaging, key backup, verification, cross-signing | Not implemented; `SPEC-050` defines the adapter ownership boundary and forbids local Olm/Megolm implementation; `SPEC-051` adds device key, one-time key, and fallback key publication/query contracts; `SPEC-052` adds to-device and encrypted-room send/receive gates; `SPEC-053` adds server-side key backup and logout/relogin restore gates; `SPEC-054` adds SAS verification, cross-signing, and wrong-device failure gates | Use a mainstream Matrix crypto stack; encrypted rooms, device trust, key backup, restore, verification, and wrong-device failure flows pass |
@@ -744,6 +745,20 @@ Matrix Application Service registration and transaction gate:
   parser-only helpers for registration or namespace matching are intentionally
   adopted.
 
+Matrix Identity Service boundary gate:
+
+- `SPEC-059` defines the Matrix v1.18 Identity Service boundary for version and
+  status checks, identity-service-scoped tokens, terms gate behavior, public key
+  lookup shape, hash details, 3PID lookup, email/MSISDN validation sessions,
+  bind, validated-3PID query, unbind, and representative privacy/auth failures.
+- Passing this gate does not claim invitation storage, ephemeral invitation
+  signing, email/SMS provider infrastructure, user-facing consent UI, push
+  gateway behavior, or Matrix v1.18 full ecosystem compliance.
+- After `SPEC-059` merges, create adoption issues for `houra-server` and
+  `houra-client`. Create an `houra-labs` issue only if parser-only helpers for
+  3PID, token redaction, or signed association validation are intentionally
+  adopted.
+
 Matrix room versions gate:
 
 - `SPEC-042` defines the Matrix v1.18 stable room-version allowlist as `1`
@@ -913,6 +928,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-056 | Matrix federation transaction, join, and invite gate | `test-vectors/events/matrix-federation-*.json` |
 | SPEC-057 | Matrix federation backfill, event auth, and state interop gate | `test-vectors/events/matrix-federation-backfill-*.json`, `test-vectors/events/matrix-federation-event-auth-*.json`, and `test-vectors/events/matrix-federation-state-*.json` |
 | SPEC-058 | Matrix Application Service registration and transaction gate | `test-vectors/core/matrix-appservice-*.json` |
+| SPEC-059 | Matrix Identity Service boundary and lookup/bind/unbind gate | `test-vectors/core/matrix-identity-*.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
