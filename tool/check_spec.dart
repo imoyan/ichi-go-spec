@@ -99,6 +99,7 @@ void main() {
   checkMatrixStateSnapshotResolution(contracts, failures);
   checkMatrixRoomVersionsGate(contracts, failures);
   checkMatrixRoomAuthRepresentativeVectors(contracts, failures);
+  checkMatrixRoomAliasUpgradePersistenceGate(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -1913,6 +1914,176 @@ bool sameObjectMap(Map<String, Object?> left, Map<String, Object?> right) {
     }
   }
   return true;
+}
+
+void checkMatrixRoomAliasUpgradePersistenceGate(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-044')) {
+    failures.add(
+      'Matrix room alias/upgrade/persistence contract SPEC-044 is required.',
+    );
+  }
+  const paths = [
+    'test-vectors/rooms/matrix-room-alias-lifecycle.json',
+    'test-vectors/rooms/matrix-room-upgrade-representative.json',
+    'test-vectors/rooms/matrix-room-restart-persistence-gate.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add(
+        'Missing Matrix room alias/upgrade/persistence vector: $path',
+      );
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('alias-lifecycle')) {
+      validateMatrixRoomAliasLifecycle(file, json, failures);
+    } else if (path.contains('upgrade-representative')) {
+      validateMatrixRoomUpgradeRepresentative(file, json, failures);
+    } else {
+      validateMatrixRoomRestartPersistenceGate(file, json, failures);
+    }
+  }
+}
+
+void validateMatrixRoomAliasLifecycle(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final event = vector['event'];
+  if (event is! Map) {
+    failures.add('${relative(file)} event must be an object.');
+    return;
+  }
+  final eventMap = event.cast<String, Object?>();
+  final alias = eventMap['room_alias'];
+  final roomId = eventMap['room_id'];
+  final serverName = eventMap['server_name'];
+  if (alias is! String || !alias.startsWith('#') || !alias.contains(':')) {
+    failures.add('${relative(file)} room_alias must be a Matrix alias.');
+  }
+  if (roomId is! String || !isMatrixRoomId(roomId)) {
+    failures.add('${relative(file)} room_id must be a Matrix room ID.');
+  }
+  if (serverName is! String || serverName.isEmpty) {
+    failures.add('${relative(file)} server_name is required.');
+  }
+  final steps = eventMap['steps'];
+  if (steps is! List || steps.length != 4) {
+    failures.add(
+      '${relative(file)} steps must contain create/resolve/delete/resolve-deleted.',
+    );
+    return;
+  }
+  const expectedSteps = [
+    'create-alias',
+    'resolve-alias',
+    'delete-alias',
+    'resolve-deleted-alias',
+  ];
+  for (var index = 0; index < steps.length; index += 1) {
+    final item = steps[index];
+    if (item is! Map || item['id'] != expectedSteps[index]) {
+      failures.add('${relative(file)} alias step order is invalid.');
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    if (step['path'] is! String ||
+        !(step['path'] as String).startsWith(
+          '/_matrix/client/v3/directory/room/',
+        )) {
+      failures.add('${relative(file)} alias step path is invalid.');
+    }
+  }
+}
+
+void validateMatrixRoomUpgradeRepresentative(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final event = vector['event'];
+  if (event is! Map) {
+    failures.add('${relative(file)} event must be an object.');
+    return;
+  }
+  final eventMap = event.cast<String, Object?>();
+  final oldRoomId = eventMap['old_room_id'];
+  final replacementRoomId = eventMap['replacement_room_id'];
+  if (oldRoomId is! String ||
+      replacementRoomId is! String ||
+      !isMatrixRoomId(oldRoomId) ||
+      !isMatrixRoomId(replacementRoomId) ||
+      oldRoomId == replacementRoomId) {
+    failures.add('${relative(file)} old and replacement room IDs are invalid.');
+  }
+  if (eventMap['new_version'] != '12') {
+    failures.add('${relative(file)} new_version must be 12.');
+  }
+  final createContent = eventMap['replacement_create_content'];
+  final tombstone = eventMap['old_room_tombstone'];
+  if (createContent is! Map || tombstone is! Map) {
+    failures.add('${relative(file)} upgrade content objects are required.');
+    return;
+  }
+  final predecessor = createContent['predecessor'];
+  final tombstoneContent = tombstone['content'];
+  if (predecessor is! Map ||
+      predecessor['room_id'] != oldRoomId ||
+      predecessor['event_id'] != tombstone['event_id']) {
+    failures.add('${relative(file)} replacement predecessor is invalid.');
+  }
+  if (tombstone['type'] != 'm.room.tombstone' ||
+      tombstoneContent is! Map ||
+      tombstoneContent['replacement_room'] != replacementRoomId) {
+    failures.add('${relative(file)} old room tombstone is invalid.');
+  }
+}
+
+void validateMatrixRoomRestartPersistenceGate(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final event = vector['event'];
+  if (event is! Map) {
+    failures.add('${relative(file)} event must be an object.');
+    return;
+  }
+  final eventMap = event.cast<String, Object?>();
+  const requiredRecordSets = {
+    'event_graph',
+    'state_snapshots',
+    'room_versions',
+    'room_aliases',
+    'room_upgrades',
+  };
+  final records = readStringList(eventMap['required_record_sets']);
+  if (records == null || !sameStringSet(records.toSet(), requiredRecordSets)) {
+    failures.add('${relative(file)} required_record_sets are incomplete.');
+  }
+  final before = eventMap['before_restart'];
+  final after = eventMap['after_restart'];
+  if (before is! Map || after is! Map) {
+    failures.add(
+      '${relative(file)} before_restart and after_restart are required.',
+    );
+    return;
+  }
+  for (final key in requiredRecordSets) {
+    final beforeJson = jsonEncode(before[key]);
+    final afterJson = jsonEncode(after[key]);
+    if (beforeJson != afterJson) {
+      failures.add('${relative(file)} restart records differ for $key.');
+    }
+  }
 }
 
 bool isNegativeVector(Map<String, Object?> json) {

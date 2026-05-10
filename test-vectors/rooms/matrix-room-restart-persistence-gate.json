@@ -1,0 +1,103 @@
+{
+  "name": "matrix-room-restart-persistence-gate",
+  "contract": "SPEC-044",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "checked_at": "2026-05-10T15:52:00+09:00",
+    "gate": "room-data-model-restart-persistence",
+    "required_contracts": [
+      "SPEC-040",
+      "SPEC-041",
+      "SPEC-042",
+      "SPEC-043",
+      "SPEC-044"
+    ],
+    "required_record_sets": [
+      "event_graph",
+      "state_snapshots",
+      "room_versions",
+      "room_aliases",
+      "room_upgrades"
+    ],
+    "before_restart": {
+      "event_graph": [
+        {
+          "event_id": "$messageEvent000000000000000000000000000000000001",
+          "prev_events": [
+            "$memberAlice000000000000000000000000000000000001"
+          ],
+          "depth": 3
+        }
+      ],
+      "state_snapshots": [
+        {
+          "room_id": "!projectRoom0000000000000000000000000001",
+          "type": "m.room.member",
+          "state_key": "@alice:example.test",
+          "event_id": "$memberAlice000000000000000000000000000000000001"
+        }
+      ],
+      "room_versions": [
+        {
+          "room_id": "!projectRoom0000000000000000000000000001",
+          "room_version": "12"
+        }
+      ],
+      "room_aliases": [
+        {
+          "room_alias": "#project:example.test",
+          "room_id": "!projectRoom0000000000000000000000000001"
+        }
+      ],
+      "room_upgrades": [
+        {
+          "old_room_id": "!oldRoom0000000000000000000000000000001",
+          "replacement_room_id": "!replacementRoom00000000000000000000000001",
+          "tombstone_event_id": "$oldRoomTombstone000000000000000000001"
+        }
+      ]
+    },
+    "after_restart": {
+      "event_graph": [
+        {
+          "event_id": "$messageEvent000000000000000000000000000000000001",
+          "prev_events": [
+            "$memberAlice000000000000000000000000000000000001"
+          ],
+          "depth": 3
+        }
+      ],
+      "state_snapshots": [
+        {
+          "room_id": "!projectRoom0000000000000000000000000001",
+          "type": "m.room.member",
+          "state_key": "@alice:example.test",
+          "event_id": "$memberAlice000000000000000000000000000000000001"
+        }
+      ],
+      "room_versions": [
+        {
+          "room_id": "!projectRoom0000000000000000000000000001",
+          "room_version": "12"
+        }
+      ],
+      "room_aliases": [
+        {
+          "room_alias": "#project:example.test",
+          "room_id": "!projectRoom0000000000000000000000000001"
+        }
+      ],
+      "room_upgrades": [
+        {
+          "old_room_id": "!oldRoom0000000000000000000000000000001",
+          "replacement_room_id": "!replacementRoom00000000000000000000000001",
+          "tombstone_event_id": "$oldRoomTombstone000000000000000000001"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "required_record_set_count": 5,
+    "restart_records_match": true
+  }
+}
