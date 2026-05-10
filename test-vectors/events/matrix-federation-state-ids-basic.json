@@ -1,0 +1,38 @@
+{
+  "name": "matrix-federation-state-ids-basic",
+  "contract": "SPEC-057",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/federation/v1/state_ids/!room:example.test",
+    "query": {
+      "event_id": "$event3:example.test"
+    },
+    "authorization": {
+      "scheme": "X-Matrix",
+      "origin": "remote.example.test",
+      "destination": "example.test",
+      "key": "ed25519:auto1",
+      "signed_json": true
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "pdu_ids": [
+        "$create:example.test",
+        "$auth:example.test",
+        "$member:example.test"
+      ],
+      "auth_chain_ids": [
+        "$create:example.test",
+        "$auth:example.test"
+      ]
+    }
+  },
+  "expected": {
+    "status": 200,
+    "pdu_ids_count": 3,
+    "auth_chain_ids_count": 2,
+    "versions_advertisement_widened": false
+  }
+}

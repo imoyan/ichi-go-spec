@@ -113,6 +113,7 @@ void main() {
   checkMatrixVerificationCrossSigningGate(contracts, failures);
   checkMatrixFederationDiscoverySigningKeys(contracts, failures);
   checkMatrixFederationTransactionJoinInvite(contracts, failures);
+  checkMatrixFederationBackfillAuthState(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -5677,6 +5678,279 @@ void validateMatrixFederationMembershipEvent(
       (value['event_id'] is! String ||
           !isMatrixEventId(value['event_id'] as String))) {
     failures.add('${relative(file)} federation membership event_id invalid.');
+  }
+}
+
+void checkMatrixFederationBackfillAuthState(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-057')) {
+    failures.add(
+      'Matrix federation backfill/event-auth/state contract SPEC-057 is required.',
+    );
+  }
+  const paths = [
+    'test-vectors/events/matrix-federation-backfill-basic.json',
+    'test-vectors/events/matrix-federation-event-auth-basic.json',
+    'test-vectors/events/matrix-federation-state-ids-basic.json',
+    'test-vectors/events/matrix-federation-state-resolution-interop-gate.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add(
+        'Missing Matrix federation backfill/event-auth/state vector: $path',
+      );
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('backfill-basic')) {
+      validateMatrixFederationBackfill(file, json, failures);
+    } else if (path.contains('event-auth')) {
+      validateMatrixFederationEventAuth(file, json, failures);
+    } else if (path.contains('state-ids')) {
+      validateMatrixFederationStateIds(file, json, failures);
+    } else {
+      validateMatrixFederationStateInteropGate(file, json, failures);
+    }
+  }
+}
+
+void validateMatrixFederationBackfill(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  if (request is! Map ||
+      request['method'] != 'GET' ||
+      request['path'] != '/_matrix/federation/v1/backfill/!room:example.test') {
+    failures.add('${relative(file)} federation backfill request invalid.');
+    return;
+  }
+  validateMatrixFederationAuthorization(
+    file,
+    request['authorization'],
+    failures,
+  );
+  final query = request['query'];
+  if (query is! Map ||
+      query['v'] is! List ||
+      (query['v'] as List).isEmpty ||
+      (query['v'] as List).any(
+        (value) => value is! String || !isMatrixEventId(value),
+      ) ||
+      query['limit'] is! int ||
+      (query['limit'] as int) < 1) {
+    failures.add('${relative(file)} federation backfill query invalid.');
+  }
+  final response = vector['response'];
+  final body = response is Map ? response['body'] : null;
+  final pdus = body is Map ? body['pdus'] : null;
+  if (response is! Map ||
+      response['status'] != 200 ||
+      body is! Map ||
+      body['origin'] != 'example.test' ||
+      body['origin_server_ts'] is! int ||
+      pdus is! List ||
+      pdus.isEmpty) {
+    failures.add('${relative(file)} federation backfill response invalid.');
+    return;
+  }
+  for (final pdu in pdus) {
+    validateMatrixFederationPdu(file, pdu, failures);
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['status'] != 200 ||
+      expectedResult['backfilled_from'] != r'$event3:example.test' ||
+      expectedResult['pdu_count'] != pdus.length ||
+      expectedResult['historical_prev_auth_count_relaxed'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} federation backfill expectation invalid.');
+  }
+}
+
+void validateMatrixFederationEventAuth(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  if (request is! Map ||
+      request['method'] != 'GET' ||
+      request['path'] !=
+          '/_matrix/federation/v1/event_auth/!room:example.test/'
+              r'$event3:example.test') {
+    failures.add('${relative(file)} federation event_auth request invalid.');
+    return;
+  }
+  validateMatrixFederationAuthorization(
+    file,
+    request['authorization'],
+    failures,
+  );
+  final response = vector['response'];
+  final body = response is Map ? response['body'] : null;
+  final authChain = body is Map ? body['auth_chain'] : null;
+  if (response is! Map ||
+      response['status'] != 200 ||
+      authChain is! List ||
+      authChain.isEmpty) {
+    failures.add('${relative(file)} federation event_auth response invalid.');
+    return;
+  }
+  for (final pdu in authChain) {
+    validateMatrixFederationPdu(file, pdu, failures);
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['status'] != 200 ||
+      expectedResult['auth_chain_count'] != authChain.length ||
+      expectedResult['room_version'] != '12' ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} federation event_auth expectation invalid.',
+    );
+  }
+}
+
+void validateMatrixFederationStateIds(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  if (request is! Map ||
+      request['method'] != 'GET' ||
+      request['path'] !=
+          '/_matrix/federation/v1/state_ids/!room:example.test') {
+    failures.add('${relative(file)} federation state_ids request invalid.');
+    return;
+  }
+  validateMatrixFederationAuthorization(
+    file,
+    request['authorization'],
+    failures,
+  );
+  final query = request['query'];
+  if (query is! Map || query['event_id'] != r'$event3:example.test') {
+    failures.add('${relative(file)} federation state_ids query invalid.');
+  }
+  final response = vector['response'];
+  final body = response is Map ? response['body'] : null;
+  final pduIds = body is Map ? body['pdu_ids'] : null;
+  final authChainIds = body is Map ? body['auth_chain_ids'] : null;
+  if (response is! Map ||
+      response['status'] != 200 ||
+      pduIds is! List ||
+      authChainIds is! List ||
+      pduIds.any((value) => value is! String || !isMatrixEventId(value)) ||
+      authChainIds.any(
+        (value) => value is! String || !isMatrixEventId(value),
+      )) {
+    failures.add('${relative(file)} federation state_ids response invalid.');
+    return;
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['status'] != 200 ||
+      expectedResult['pdu_ids_count'] != pduIds.length ||
+      expectedResult['auth_chain_ids_count'] != authChainIds.length ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} federation state_ids expectation invalid.');
+  }
+}
+
+void validateMatrixFederationStateInteropGate(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixFederationReference(file, eventMap, failures);
+  requireStringListIncludes(file, eventMap, 'required_contracts', {
+    'SPEC-040',
+    'SPEC-041',
+    'SPEC-043',
+    'SPEC-055',
+    'SPEC-056',
+    'SPEC-057',
+  }, failures);
+  if (eventMap['local_server'] != 'local.example.test' ||
+      eventMap['remote_server'] != 'remote.example.test' ||
+      eventMap['room_id'] != '!room:example.test' ||
+      eventMap['room_version'] != '12' ||
+      eventMap['target_event_id'] != r'$event3:example.test') {
+    failures.add(
+      '${relative(file)} federation state interop metadata invalid.',
+    );
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = [
+    'receive-event-with-missing-prev-or-auth',
+    'backfill-missing-history',
+    'fetch-event-auth-chain',
+    'fetch-state-ids-at-event',
+    'run-representative-state-resolution',
+    'run-representative-auth-check',
+    'record-event-decision',
+  ];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map || item['required'] != true) {
+      failures.add(
+        '${relative(file)} all federation state interop steps required.',
+      );
+      continue;
+    }
+    if (item['contract'] is! String) {
+      failures.add(
+        '${relative(file)} federation state interop contract missing.',
+      );
+    }
+    final endpoint = item['endpoint'];
+    if (endpoint is String && !endpoint.startsWith('/_matrix/federation/v1/')) {
+      failures.add(
+        '${relative(file)} federation state interop endpoint invalid.',
+      );
+    }
+    if (item['id'] == 'record-event-decision') {
+      final allowed = item['allowed_results'];
+      if (allowed is! List ||
+          !{'accepted', 'soft_failed', 'rejected'}.every(allowed.contains)) {
+        failures.add('${relative(file)} event decision results invalid.');
+      }
+    }
+  }
+  requireStringListIncludes(file, eventMap, 'required_evidence', {
+    'houra_spec_ref',
+    'houra_server_ref',
+    'local_server',
+    'remote_server',
+    'room_version',
+    'commands',
+    'per_step_pass_fail',
+    'event_decision',
+  }, failures);
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['interop_gate_defined'] != true ||
+      expectedResult['full_state_resolution_completeness_claimed'] != false ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} federation state interop expectation invalid.',
+    );
   }
 }
 

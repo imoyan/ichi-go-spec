@@ -1,0 +1,76 @@
+{
+  "name": "matrix-federation-event-auth-basic",
+  "contract": "SPEC-057",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/federation/v1/event_auth/!room:example.test/$event3:example.test",
+    "authorization": {
+      "scheme": "X-Matrix",
+      "origin": "remote.example.test",
+      "destination": "example.test",
+      "key": "ed25519:auto1",
+      "signed_json": true
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "auth_chain": [
+        {
+          "event_id": "$create:example.test",
+          "type": "m.room.create",
+          "room_id": "!room:example.test",
+          "sender": "@creator:example.test",
+          "origin_server_ts": 1778409000000,
+          "depth": 1,
+          "prev_events": [],
+          "auth_events": [],
+          "content": {
+            "room_version": "12"
+          },
+          "hashes": {
+            "sha256": "base64-create-hash"
+          },
+          "signatures": {
+            "example.test": {
+              "ed25519:auto1": "base64-create-signature"
+            }
+          }
+        },
+        {
+          "event_id": "$auth:example.test",
+          "type": "m.room.power_levels",
+          "room_id": "!room:example.test",
+          "sender": "@creator:example.test",
+          "origin_server_ts": 1778409100000,
+          "depth": 2,
+          "prev_events": [
+            "$create:example.test"
+          ],
+          "auth_events": [
+            "$create:example.test"
+          ],
+          "content": {
+            "users": {
+              "@creator:example.test": 100
+            }
+          },
+          "hashes": {
+            "sha256": "base64-power-levels-hash"
+          },
+          "signatures": {
+            "example.test": {
+              "ed25519:auto1": "base64-power-levels-signature"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "status": 200,
+    "auth_chain_count": 2,
+    "room_version": "12",
+    "versions_advertisement_widened": false
+  }
+}
