@@ -1,0 +1,32 @@
+{
+  "name": "matrix-sync-empty-incremental",
+  "contract": "SPEC-037",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/sync",
+    "query": {
+      "since": "s2",
+      "timeout": 0
+    },
+    "headers": {
+      "Authorization": "Bearer token-1"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "next_batch": "s2",
+      "account_data": {
+        "events": []
+      },
+      "presence": {
+        "events": []
+      },
+      "rooms": {
+        "join": {},
+        "invite": {},
+        "leave": {}
+      }
+    }
+  }
+}
