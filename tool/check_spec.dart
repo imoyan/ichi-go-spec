@@ -103,6 +103,7 @@ void main() {
   checkMatrixProfileAccountDataTags(contracts, failures);
   checkMatrixReceiptsTypingReadMarkers(contracts, failures);
   checkMatrixFiltersPresenceCapabilities(contracts, failures);
+  checkMatrixRoomDirectoryAliasesInvites(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -2912,6 +2913,249 @@ void validateMatrixCapabilitiesVector(
     final capability = capabilities[key];
     if (capability is! Map || capability['enabled'] is! bool) {
       failures.add('${relative(file)} $key capability must be boolean.');
+    }
+  }
+}
+
+void checkMatrixRoomDirectoryAliasesInvites(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-048')) {
+    failures.add(
+      'Matrix room directory/aliases/invites contract SPEC-048 is required.',
+    );
+  }
+  const paths = [
+    'test-vectors/rooms/matrix-public-rooms-basic.json',
+    'test-vectors/rooms/matrix-public-rooms-filter-basic.json',
+    'test-vectors/rooms/matrix-room-directory-visibility-basic.json',
+    'test-vectors/rooms/matrix-room-aliases-basic.json',
+    'test-vectors/rooms/matrix-room-alias-update-forbidden.json',
+    'test-vectors/rooms/matrix-room-invite-basic.json',
+    'test-vectors/rooms/matrix-room-invite-forbidden.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add(
+        'Missing Matrix room directory/aliases/invites vector: $path',
+      );
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('public-rooms')) {
+      validateMatrixPublicRoomsVector(file, json, failures);
+    } else if (path.contains('directory-visibility')) {
+      validateMatrixDirectoryVisibilitySteps(file, json, failures);
+    } else if (path.contains('aliases-basic')) {
+      validateMatrixRoomAliasesVector(file, json, failures);
+    } else if (path.contains('alias-update-forbidden')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'PUT',
+        pathPrefix: '/_matrix/client/v3/directory/room/',
+        status: 403,
+        errcode: 'M_FORBIDDEN',
+      );
+    } else if (path.contains('invite-basic')) {
+      validateMatrixInviteSteps(file, json, failures);
+    } else {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'POST',
+        pathPrefix: '/_matrix/client/v3/rooms/!room:example.test/invite',
+        status: 403,
+        errcode: 'M_FORBIDDEN',
+      );
+    }
+  }
+}
+
+void validateMatrixPublicRoomsVector(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  if (request is! Map) {
+    failures.add('${relative(file)} request must be an object.');
+    return;
+  }
+  final requestMap = request.cast<String, Object?>();
+  final method = requestMap['method'];
+  if (method != 'GET' && method != 'POST') {
+    failures.add('${relative(file)} publicRooms method is invalid.');
+  }
+  if (requestMap['path'] != '/_matrix/client/v3/publicRooms') {
+    failures.add('${relative(file)} publicRooms path is invalid.');
+  }
+  if (method == 'POST' && requestMap['body'] is! Map) {
+    failures.add('${relative(file)} filtered publicRooms body is required.');
+  }
+  requireExpectedStatus(file, vector, failures, 200);
+  final expected = vector['expected'];
+  final bodyContains = expected is Map ? expected['body_contains'] : null;
+  final chunk = bodyContains is Map ? bodyContains['chunk'] : null;
+  if (chunk is! List || chunk.isEmpty) {
+    failures.add('${relative(file)} publicRooms chunk is required.');
+    return;
+  }
+  final first = chunk.first;
+  if (first is! Map ||
+      first['room_id'] is! String ||
+      first['num_joined_members'] is! int ||
+      first['world_readable'] is! bool ||
+      first['guest_can_join'] is! bool) {
+    failures.add('${relative(file)} publicRooms chunk is incomplete.');
+  }
+}
+
+void validateMatrixDirectoryVisibilitySteps(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final roomId = eventMap['room_id'];
+  if (roomId is! String || !isMatrixRoomId(roomId)) {
+    failures.add('${relative(file)} room_id must be a Matrix room ID.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = [
+    'set-directory-public',
+    'get-directory-visibility',
+    'list-public-room',
+  ];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    final path = step['path'];
+    if (path is! String) {
+      failures.add('${relative(file)} directory step path is required.');
+      continue;
+    }
+    if (id == 'list-public-room') {
+      if (path != '/_matrix/client/v3/publicRooms' ||
+          step['expected_body_contains'] is! Map) {
+        failures.add('${relative(file)} public directory expectation invalid.');
+      }
+      continue;
+    }
+    if (!path.startsWith(
+      '/_matrix/client/v3/directory/list/room/!room:example.test',
+    )) {
+      failures.add('${relative(file)} directory visibility path is invalid.');
+    }
+    if (id == 'set-directory-public') {
+      final body = step['body'];
+      if (body is! Map || body['visibility'] != 'public') {
+        failures.add('${relative(file)} directory visibility body invalid.');
+      }
+    }
+    if (id == 'get-directory-visibility' &&
+        (step['expected_status'] != 200 || step['expected_body'] is! Map)) {
+      failures.add('${relative(file)} directory visibility GET invalid.');
+    }
+  }
+}
+
+void validateMatrixRoomAliasesVector(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  if (request is! Map) {
+    failures.add('${relative(file)} request must be an object.');
+    return;
+  }
+  final requestMap = request.cast<String, Object?>();
+  if (requestMap['method'] != 'GET' ||
+      requestMap['path'] !=
+          '/_matrix/client/v3/rooms/!room:example.test/aliases') {
+    failures.add('${relative(file)} aliases request is invalid.');
+  }
+  requireExpectedStatus(file, vector, failures, 200);
+  final expected = vector['expected'];
+  final bodyContains = expected is Map ? expected['body_contains'] : null;
+  final aliases = bodyContains is Map ? bodyContains['aliases'] : null;
+  if (aliases is! List || aliases.isEmpty) {
+    failures.add('${relative(file)} aliases response is missing.');
+  }
+}
+
+void validateMatrixInviteSteps(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final roomId = eventMap['room_id'];
+  if (roomId is! String || !isMatrixRoomId(roomId)) {
+    failures.add('${relative(file)} room_id must be a Matrix room ID.');
+  }
+  if (eventMap['inviter'] != '@alice:example.test' ||
+      eventMap['invitee'] != '@bob:example.test') {
+    failures.add('${relative(file)} inviter/invitee are invalid.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = ['invite-user', 'sync-invite'];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    final path = step['path'];
+    if (path is! String) {
+      failures.add('${relative(file)} invite step path is required.');
+      continue;
+    }
+    if (id == 'invite-user') {
+      if (path != '/_matrix/client/v3/rooms/!room:example.test/invite') {
+        failures.add('${relative(file)} invite endpoint path is invalid.');
+      }
+      final body = step['body'];
+      if (body is! Map || body['user_id'] != '@bob:example.test') {
+        failures.add('${relative(file)} invite body is invalid.');
+      }
+    }
+    if (id == 'sync-invite') {
+      if (path != '/_matrix/client/v3/sync' ||
+          step['expected_invite_room'] is! Map) {
+        failures.add('${relative(file)} invite sync expectation is invalid.');
+      }
     }
   }
 }

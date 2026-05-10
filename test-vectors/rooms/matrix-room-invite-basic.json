@@ -1,0 +1,57 @@
+{
+  "name": "matrix-room-invite-basic",
+  "contract": "SPEC-048",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3roomsroomidinvite",
+    "checked_at": "2026-05-10T18:52:35+09:00",
+    "room_id": "!room:example.test",
+    "inviter": "@alice:example.test",
+    "invitee": "@bob:example.test",
+    "steps": [
+      {
+        "id": "invite-user",
+        "method": "POST",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/invite",
+        "access_token": "token-alice",
+        "body": {
+          "user_id": "@bob:example.test",
+          "reason": "Join the project room"
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "sync-invite",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-bob",
+        "expected_invite_room": {
+          "room_id": "!room:example.test",
+          "invite_state": {
+            "events": [
+              {
+                "type": "m.room.member",
+                "sender": "@alice:example.test",
+                "state_key": "@bob:example.test",
+                "content": {
+                  "membership": "invite",
+                  "reason": "Join the project room"
+                }
+              },
+              {
+                "type": "m.room.name",
+                "state_key": "",
+                "content": {
+                  "name": "Project Room"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "expected": {
+    "step_count": 2
+  }
+}

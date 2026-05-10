@@ -1,0 +1,31 @@
+{
+  "name": "matrix-public-rooms-basic",
+  "contract": "SPEC-048",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/publicRooms",
+    "query": {
+      "limit": 10
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "chunk": [
+        {
+          "room_id": "!room:example.test",
+          "name": "Project Room",
+          "topic": "Project planning",
+          "canonical_alias": "#project:example.test",
+          "avatar_url": "mxc://example.test/room-avatar",
+          "num_joined_members": 2,
+          "world_readable": false,
+          "guest_can_join": false,
+          "join_rule": "public",
+          "room_type": "m.space"
+        }
+      ],
+      "total_room_count_estimate": 1
+    }
+  }
+}

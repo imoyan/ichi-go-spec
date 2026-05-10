@@ -1,0 +1,32 @@
+{
+  "name": "matrix-public-rooms-filter-basic",
+  "contract": "SPEC-048",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/publicRooms",
+    "access_token": "token-alice",
+    "body": {
+      "limit": 10,
+      "filter": {
+        "generic_search_term": "project"
+      },
+      "include_all_networks": false
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "chunk": [
+        {
+          "room_id": "!room:example.test",
+          "name": "Project Room",
+          "canonical_alias": "#project:example.test",
+          "num_joined_members": 2,
+          "world_readable": false,
+          "guest_can_join": false,
+          "join_rule": "public"
+        }
+      ]
+    }
+  }
+}

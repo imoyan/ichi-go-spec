@@ -1,0 +1,43 @@
+{
+  "name": "matrix-room-directory-visibility-basic",
+  "contract": "SPEC-048",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#room-directory",
+    "checked_at": "2026-05-10T18:52:35+09:00",
+    "room_id": "!room:example.test",
+    "steps": [
+      {
+        "id": "set-directory-public",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/directory/list/room/!room:example.test",
+        "access_token": "token-alice",
+        "body": {
+          "visibility": "public"
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "get-directory-visibility",
+        "method": "GET",
+        "path": "/_matrix/client/v3/directory/list/room/!room:example.test",
+        "expected_status": 200,
+        "expected_body": {
+          "visibility": "public"
+        }
+      },
+      {
+        "id": "list-public-room",
+        "method": "GET",
+        "path": "/_matrix/client/v3/publicRooms",
+        "expected_body_contains": {
+          "room_id": "!room:example.test",
+          "canonical_alias": "#project:example.test"
+        }
+      }
+    ]
+  },
+  "expected": {
+    "step_count": 3
+  }
+}
