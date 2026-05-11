@@ -220,6 +220,6 @@
     "complement_failures_excluded_from_advertisement": true,
     "release_notes_link_gate_artifacts": true,
     "readiness_requires_all_bundle_parts": true,
-    "versions_advertisement_widened": false
+    "versions_advertisement_allowed": true
   }
 }

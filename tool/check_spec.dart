@@ -3958,27 +3958,73 @@ void validateMatrixKeysQueryVector(
   }
   final body = requestMap['body'];
   final requested = body is Map ? body['device_keys'] : null;
-  if (requested is! Map || requested['@alice:example.test'] is! List) {
+  if (requested is! Map || requested.isEmpty) {
     failures.add('${relative(file)} keys query body is invalid.');
+  } else {
+    for (final entry in requested.entries) {
+      final userId = entry.key;
+      final selectedDevices = entry.value;
+      if (userId is! String || selectedDevices is! List) {
+        failures.add('${relative(file)} keys query body is invalid.');
+        continue;
+      }
+      for (final deviceId in selectedDevices) {
+        if (deviceId is! String || deviceId.isEmpty) {
+          failures.add(
+            '${relative(file)} keys query device selection invalid.',
+          );
+        }
+      }
+    }
   }
   requireExpectedStatus(file, vector, failures, 200);
   final expected = vector['expected'];
   final bodyContains = expected is Map ? expected['body_contains'] : null;
-  final deviceKeys = bodyContains is Map ? bodyContains['device_keys'] : null;
-  final aliceKeys = deviceKeys is Map
-      ? deviceKeys['@alice:example.test']
-      : null;
-  final device = aliceKeys is Map ? aliceKeys['DEVICE1'] : null;
-  if (device is! Map) {
-    failures.add('${relative(file)} keys query response device missing.');
-  } else {
-    validateMatrixDeviceKeyObject(
-      file,
-      device.cast<String, Object?>(),
-      '@alice:example.test',
-      'DEVICE1',
-      failures,
+  if (bodyContains is! Map) {
+    failures.add('${relative(file)} keys query response body missing.');
+    return;
+  }
+  if (bodyContains.containsKey('omitted_device_keys')) {
+    failures.add(
+      '${relative(file)} must omit unknown devices without reporting omitted_device_keys.',
     );
+  }
+  if (bodyContains['failures'] is! Map) {
+    failures.add('${relative(file)} keys query failures map missing.');
+  }
+  final deviceKeys = bodyContains['device_keys'];
+  if (deviceKeys is! Map) {
+    failures.add('${relative(file)} keys query response device missing.');
+    return;
+  }
+  if (deviceKeys.isEmpty) {
+    return;
+  }
+  for (final userEntry in deviceKeys.entries) {
+    final userId = userEntry.key;
+    final devices = userEntry.value;
+    if (userId is! String || devices is! Map || devices.isEmpty) {
+      failures.add('${relative(file)} keys query response device missing.');
+      continue;
+    }
+    for (final deviceEntry in devices.entries) {
+      final deviceId = deviceEntry.key;
+      final device = deviceEntry.value;
+      if (deviceId is! String || device is! Map) {
+        failures.add('${relative(file)} keys query response device invalid.');
+        continue;
+      }
+      validateMatrixDeviceKeyObject(
+        file,
+        device.cast<String, Object?>(),
+        userId,
+        deviceId,
+        failures,
+      );
+    }
+  }
+  if (expected is! Map || expected['private_key_material_returned'] != false) {
+    failures.add('${relative(file)} must assert no private key material.');
   }
 }
 
@@ -8226,6 +8272,16 @@ void checkMatrixV118ReleaseEvidenceExampleBundle(
     failures.add('${relative(file)} release notes bundle evidence invalid.');
   }
 
+  final versionsResponse = advertisement is Map
+      ? advertisement['versions_response']
+      : null;
+  final versions = versionsResponse is Map
+      ? versionsResponse['versions']
+      : null;
+  if (versions is! List || !versions.contains('v1.18')) {
+    failures.add('${relative(file)} allowed bundle must advertise v1.18.');
+  }
+
   if (readiness is! Map ||
       readiness['same_checked_refs'] != true ||
       readiness['coverage_report_present'] != true ||
@@ -8248,7 +8304,7 @@ void checkMatrixV118ReleaseEvidenceExampleBundle(
           true ||
       expectedResult['release_notes_link_gate_artifacts'] != true ||
       expectedResult['readiness_requires_all_bundle_parts'] != true ||
-      expectedResult['versions_advertisement_widened'] != false) {
+      expectedResult['versions_advertisement_allowed'] != true) {
     failures.add('${relative(file)} bundle expectation invalid.');
   }
 }
