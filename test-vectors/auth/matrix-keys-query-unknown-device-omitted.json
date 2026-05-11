@@ -39,12 +39,6 @@
             }
           }
         }
-      },
-      "omitted_device_keys": {
-        "@alice:example.test": [
-          "UNKNOWNDEVICE"
-        ],
-        "@unknown:example.test": []
       }
     }
   }
