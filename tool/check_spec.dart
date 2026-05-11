@@ -3992,9 +3992,12 @@ void validateMatrixKeysQueryVector(
   if (bodyContains['failures'] is! Map) {
     failures.add('${relative(file)} keys query failures map missing.');
   }
-  final deviceKeys = bodyContains is Map ? bodyContains['device_keys'] : null;
-  if (deviceKeys is! Map || deviceKeys.isEmpty) {
+  final deviceKeys = bodyContains['device_keys'];
+  if (deviceKeys is! Map) {
     failures.add('${relative(file)} keys query response device missing.');
+    return;
+  }
+  if (deviceKeys.isEmpty) {
     return;
   }
   for (final userEntry in deviceKeys.entries) {
@@ -4020,9 +4023,7 @@ void validateMatrixKeysQueryVector(
       );
     }
   }
-  if (expected is Map &&
-      expected.containsKey('private_key_material_returned') &&
-      expected['private_key_material_returned'] != false) {
+  if (expected is! Map || expected['private_key_material_returned'] != false) {
     failures.add('${relative(file)} must assert no private key material.');
   }
 }

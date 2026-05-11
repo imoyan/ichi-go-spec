@@ -42,6 +42,7 @@
           }
         }
       }
-    }
+    },
+    "private_key_material_returned": false
   }
 }
