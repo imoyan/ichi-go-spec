@@ -369,7 +369,7 @@ Reference documents for the current binding direction:
 
 External reference snapshot:
 
-- Checked at: 2026-05-09T23:37:23+09:00
+- Checked at: 2026-05-12T09:00:00+09:00
 - Timezone: Asia/Tokyo
 - Documentation lookup: Context7
 - Dart reference: official Dart docs describe `dart:js_interop` and
@@ -519,6 +519,17 @@ Matrix v1.18 release readiness gate:
 - After `SPEC-066` merges, create adoption issues for `houra-server` and
   `houra-client`. Create an `houra-labs` issue only if shared-core artifacts
   become part of the release candidate.
+
+Canonical release evidence example bundle:
+
+- `test-vectors/core/matrix-v1-18-release-evidence-example-bundle.json` shows
+  one implementation-facing example that links the `SPEC-062` coverage report,
+  `SPEC-063` Complement report, `SPEC-064` advertisement decision, `SPEC-065`
+  release notes evidence, and `SPEC-066` readiness checklist for the same
+  release candidate refs.
+- The bundle is illustrative evidence wiring only. It does not replace the
+  individual contract vectors, add endpoint behavior, or widen Matrix version
+  advertisement beyond the listed domains with passing evidence.
 
 Matrix compliance phases:
 
@@ -1033,7 +1044,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-063 | Matrix Complement-compatible homeserver CI lane gate | `test-vectors/core/matrix-complement-ci-*.json` |
 | SPEC-064 | Matrix version advertisement release gate | `test-vectors/core/matrix-version-advertisement-*.json` |
 | SPEC-065 | Matrix release notes evidence template gate | `test-vectors/core/matrix-release-notes-*.json` |
-| SPEC-066 | Matrix v1.18 release readiness and tag procedure gate | `test-vectors/core/matrix-v1-18-release-*.json` |
+| SPEC-066 | Matrix v1.18 release readiness, tag procedure, and canonical evidence bundle gate | `test-vectors/core/matrix-v1-18-release-*.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this

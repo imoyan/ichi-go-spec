@@ -1,0 +1,225 @@
+{
+  "name": "matrix-v1-18-release-evidence-example-bundle",
+  "contract": "SPEC-066",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/",
+    "matrix_release_source": "https://matrix.org/blog/2026/03/26/matrix-v1.18-release/",
+    "checked_at": "2026-05-12T09:00:00+09:00",
+    "bundle_contracts": [
+      "SPEC-062",
+      "SPEC-063",
+      "SPEC-064",
+      "SPEC-065",
+      "SPEC-066"
+    ],
+    "candidate_refs": {
+      "release_candidate": "houra-matrix-v1.18-rc.1",
+      "houra_spec_ref": "houra-spec@sha-redacted",
+      "houra_server_ref": "houra-server@sha-redacted",
+      "houra_client_ref": "houra-client@sha-redacted"
+    },
+    "coverage_report": {
+      "contract": "SPEC-062",
+      "artifact": "artifacts/release/matrix-v1.18-rc.1/domain-coverage.json",
+      "houra_refs": [
+        "houra-server@sha-redacted",
+        "houra-client@sha-redacted"
+      ],
+      "domain_results": [
+        {
+          "domain": "Client-Server API",
+          "contract_gate": "pass",
+          "implementation_gate": "pass",
+          "adoption_issue_refs": [
+            "houra-server#example-client-server",
+            "houra-client#example-client-server"
+          ],
+          "artifact": "artifacts/release/matrix-v1.18-rc.1/client-server.json",
+          "advertisement_allowed": true
+        },
+        {
+          "domain": "Server-Server API",
+          "contract_gate": "pass",
+          "implementation_gate": "fail",
+          "adoption_issue_refs": [
+            "houra-server#example-server-server"
+          ],
+          "artifact": "artifacts/release/matrix-v1.18-rc.1/server-server.json",
+          "advertisement_allowed": false
+        },
+        {
+          "domain": "Application Service API",
+          "contract_gate": "pass",
+          "implementation_gate": "not-run",
+          "adoption_issue_refs": [
+            "houra-server#example-appservice"
+          ],
+          "artifact": "artifacts/release/matrix-v1.18-rc.1/application-service.json",
+          "advertisement_allowed": false
+        },
+        {
+          "domain": "Identity Service API",
+          "contract_gate": "pass",
+          "implementation_gate": "not-run",
+          "adoption_issue_refs": [
+            "houra-server#example-identity"
+          ],
+          "artifact": "artifacts/release/matrix-v1.18-rc.1/identity-service.json",
+          "advertisement_allowed": false
+        },
+        {
+          "domain": "Push Gateway API",
+          "contract_gate": "pass",
+          "implementation_gate": "not-run",
+          "adoption_issue_refs": [
+            "houra-server#example-push"
+          ],
+          "artifact": "artifacts/release/matrix-v1.18-rc.1/push-gateway.json",
+          "advertisement_allowed": false
+        },
+        {
+          "domain": "Room Versions",
+          "contract_gate": "pass",
+          "implementation_gate": "not-run",
+          "adoption_issue_refs": [
+            "houra-server#example-room-versions"
+          ],
+          "artifact": "artifacts/release/matrix-v1.18-rc.1/room-versions.json",
+          "advertisement_allowed": false
+        },
+        {
+          "domain": "Olm & Megolm",
+          "contract_gate": "pass",
+          "implementation_gate": "not-run",
+          "adoption_issue_refs": [
+            "houra-server#example-e2ee",
+            "houra-client#example-e2ee"
+          ],
+          "artifact": "artifacts/release/matrix-v1.18-rc.1/olm-megolm.json",
+          "advertisement_allowed": false
+        },
+        {
+          "domain": "Appendices/common rules",
+          "contract_gate": "pass",
+          "implementation_gate": "pass",
+          "adoption_issue_refs": [
+            "houra-server#example-common",
+            "houra-client#example-common"
+          ],
+          "artifact": "artifacts/release/matrix-v1.18-rc.1/common-rules.json",
+          "advertisement_allowed": true
+        }
+      ],
+      "excluded_unstable_mscs": {
+        "included": false,
+        "reason": "Matrix v1.18 stable domains only"
+      }
+    },
+    "complement_report": {
+      "contract": "SPEC-063",
+      "artifact": "artifacts/release/matrix-v1.18-rc.1/complement-summary.json",
+      "houra_ref": "houra-server@sha-redacted",
+      "stable_spec_only": true,
+      "unstable_mscs_included": false,
+      "domains": [
+        "Client-Server API",
+        "Server-Server API"
+      ],
+      "totals": {
+        "pass": 120,
+        "fail": 2,
+        "skip": 8,
+        "expected_fail": 0
+      },
+      "release_gate_status": "blocked-for-excluded-domains",
+      "failure_issue_refs": [
+        "houra-server#example-server-server"
+      ]
+    },
+    "advertisement_decision": {
+      "contract": "SPEC-064",
+      "artifact": "artifacts/release/matrix-v1.18-rc.1/advertisement-decision.json",
+      "versions_response": {
+        "versions": [
+          "v1.18"
+        ],
+        "unstable_features": {}
+      },
+      "advertised_domains": [
+        "Client-Server API",
+        "Appendices/common rules"
+      ],
+      "excluded_domains": [
+        "Server-Server API",
+        "Application Service API",
+        "Identity Service API",
+        "Push Gateway API",
+        "Room Versions",
+        "Olm & Megolm"
+      ],
+      "release_tag_allowed": true,
+      "decision": "allowed-for-listed-domains-only"
+    },
+    "release_notes_evidence": {
+      "contract": "SPEC-065",
+      "artifact": "artifacts/release/matrix-v1.18-rc.1/release-notes-evidence.json",
+      "required_sections": [
+        "Matrix spec version",
+        "Supported Matrix domains",
+        "Excluded Matrix domains",
+        "Supported room versions",
+        "Excluded unstable MSCs",
+        "Implementation evidence",
+        "Known gaps",
+        "Advertisement decision"
+      ],
+      "implementation_evidence": [
+        {
+          "repo": "houra-server",
+          "ref": "houra-server@sha-redacted",
+          "domain": "Client-Server API",
+          "gate": "SPEC-064",
+          "status": "pass",
+          "artifact": "artifacts/release/matrix-v1.18-rc.1/advertisement-decision.json",
+          "issue": "houra-server#example-client-server"
+        },
+        {
+          "repo": "houra-server",
+          "ref": "houra-server@sha-redacted",
+          "domain": "Server-Server API",
+          "gate": "SPEC-063",
+          "status": "fail",
+          "artifact": "artifacts/release/matrix-v1.18-rc.1/complement-summary.json",
+          "issue": "houra-server#example-server-server"
+        }
+      ],
+      "advertisement_decision": "allowed-for-listed-domains-only"
+    },
+    "readiness_checklist": {
+      "contract": "SPEC-066",
+      "artifact": "artifacts/release/matrix-v1.18-rc.1/readiness-checklist.json",
+      "same_checked_refs": true,
+      "coverage_report_present": true,
+      "complement_report_present": true,
+      "advertisement_decision_present": true,
+      "release_notes_evidence_present": true,
+      "supported_domain_gates_pass": true,
+      "excluded_domains_have_gap_issue_or_reason": true,
+      "room_versions_listed": true,
+      "default_room_version": "12",
+      "unstable_mscs_excluded": true,
+      "artifacts_secret_redacted": true,
+      "ready_to_publish": true
+    }
+  },
+  "expected": {
+    "bundle_links_spec_062_to_066": true,
+    "same_release_candidate_ref": true,
+    "coverage_report_drives_advertisement": true,
+    "complement_failures_excluded_from_advertisement": true,
+    "release_notes_link_gate_artifacts": true,
+    "readiness_requires_all_bundle_parts": true,
+    "versions_advertisement_widened": false
+  }
+}
