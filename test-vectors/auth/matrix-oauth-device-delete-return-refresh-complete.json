@@ -1,0 +1,28 @@
+{
+  "name": "matrix-oauth-device-delete-return-refresh-complete",
+  "contract": "SPEC-068",
+  "client_context": {
+    "previous_client_redirect": "https://account.example.test/manage?action=org.matrix.device_delete&device_id=DEVICE2",
+    "deleted_device_id": "DEVICE2"
+  },
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/devices",
+    "access_token": "token-1"
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "devices": [
+        {
+          "device_id": "DEVICE1",
+          "display_name": "Alice phone"
+        }
+      ]
+    },
+    "client_expectation": {
+      "missing_device_id": "DEVICE2",
+      "mark_delete_complete": true
+    }
+  }
+}

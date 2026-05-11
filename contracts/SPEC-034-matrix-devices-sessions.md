@@ -19,8 +19,9 @@ routes.
 
 Application-service device creation through `PUT /devices/{deviceId}`,
 cross-signing keys, device list federation, E2EE key upload/query/claim,
-refresh tokens, OAuth account-management redirects, and fallback HTML are
-intentionally left for later contracts.
+refresh tokens, and fallback HTML are intentionally left for later contracts.
+OAuth account-management redirects and post-return reconciliation are covered by
+`SPEC-068`.
 
 ## Matrix reference
 
@@ -164,8 +165,8 @@ Deleting a device must invalidate any access token associated with that device.
 After deletion, using that token must fail with `M_UNKNOWN_TOKEN`.
 
 OAuth-aware clients must not use this endpoint when the server supports the
-Matrix OAuth 2.0 API; they must use the account-management URL flow once a
-later contract defines that behavior.
+Matrix OAuth 2.0 API; they must use the account-management URL flow defined by
+`SPEC-068`.
 
 ## Delete multiple devices
 
