@@ -128,6 +128,7 @@ void main() {
   checkMatrixVersionAdvertisementGate(contracts, failures);
   checkMatrixReleaseNotesEvidenceTemplate(contracts, failures);
   checkMatrixV118ReleaseReadinessGate(contracts, failures);
+  checkMatrixV118ReleaseEvidenceExampleBundle(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -8101,6 +8102,168 @@ void validateMatrixReleaseReadinessReference(
       eventMap['matrix_release_source'] !=
           'https://matrix.org/blog/2026/03/26/matrix-v1.18-release/') {
     failures.add('${relative(file)} release readiness reference invalid.');
+  }
+}
+
+void checkMatrixV118ReleaseEvidenceExampleBundle(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  const path =
+      'test-vectors/core/matrix-v1-18-release-evidence-example-bundle.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix release evidence example bundle: $path');
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-066') {
+    failures.add('${relative(file)} must use SPEC-066 as its readiness gate.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixReleaseReadinessReference(file, eventMap, failures);
+
+  const requiredContracts = {
+    'SPEC-062',
+    'SPEC-063',
+    'SPEC-064',
+    'SPEC-065',
+    'SPEC-066',
+  };
+  for (final id in requiredContracts) {
+    if (!contracts.containsKey(id)) {
+      failures.add('${relative(file)} references missing contract: $id');
+    }
+  }
+  final bundleContracts = eventMap['bundle_contracts'];
+  if (bundleContracts is! List ||
+      !bundleContracts.toSet().containsAll(requiredContracts)) {
+    failures.add('${relative(file)} bundle contract list incomplete.');
+  }
+
+  final refs = eventMap['candidate_refs'];
+  final releaseCandidate = refs is Map ? refs['release_candidate'] : null;
+  if (refs is! Map ||
+      releaseCandidate is! String ||
+      releaseCandidate.isEmpty ||
+      refs['houra_spec_ref'] is! String ||
+      refs['houra_server_ref'] is! String ||
+      refs['houra_client_ref'] is! String) {
+    failures.add('${relative(file)} candidate refs invalid.');
+  }
+
+  final coverage = eventMap['coverage_report'];
+  final complement = eventMap['complement_report'];
+  final advertisement = eventMap['advertisement_decision'];
+  final notes = eventMap['release_notes_evidence'];
+  final readiness = eventMap['readiness_checklist'];
+  validateBundlePart(file, coverage, 'SPEC-062', failures);
+  validateBundlePart(file, complement, 'SPEC-063', failures);
+  validateBundlePart(file, advertisement, 'SPEC-064', failures);
+  validateBundlePart(file, notes, 'SPEC-065', failures);
+  validateBundlePart(file, readiness, 'SPEC-066', failures);
+
+  final domainResults = coverage is Map ? coverage['domain_results'] : null;
+  if (domainResults is! List || domainResults.length != 8) {
+    failures.add('${relative(file)} coverage domain results invalid.');
+  } else {
+    final advertisedDomains = advertisement is Map
+        ? advertisement['advertised_domains']
+        : null;
+    final excludedDomains = advertisement is Map
+        ? advertisement['excluded_domains']
+        : null;
+    if (advertisedDomains is! List ||
+        !advertisedDomains.contains('Client-Server API') ||
+        !advertisedDomains.contains('Appendices/common rules') ||
+        excludedDomains is! List ||
+        !excludedDomains.contains('Server-Server API')) {
+      failures.add('${relative(file)} advertisement domain lists invalid.');
+    }
+    for (final result in domainResults) {
+      if (result is! Map ||
+          result['domain'] is! String ||
+          result['contract_gate'] is! String ||
+          result['implementation_gate'] is! String ||
+          result['artifact'] is! String ||
+          result['advertisement_allowed'] is! bool) {
+        failures.add('${relative(file)} coverage domain result invalid.');
+        continue;
+      }
+      final domain = result['domain'];
+      final allowed = result['advertisement_allowed'];
+      if (allowed == true &&
+          (advertisedDomains is! List || !advertisedDomains.contains(domain))) {
+        failures.add(
+          '${relative(file)} advertised coverage domain is not listed.',
+        );
+      }
+    }
+  }
+
+  final totals = complement is Map ? complement['totals'] : null;
+  if (complement is! Map ||
+      complement['stable_spec_only'] != true ||
+      complement['unstable_mscs_included'] != false ||
+      totals is! Map ||
+      totals['fail'] is! int ||
+      complement['failure_issue_refs'] is! List) {
+    failures.add('${relative(file)} Complement bundle report invalid.');
+  }
+
+  final evidence = notes is Map ? notes['implementation_evidence'] : null;
+  if (notes is! Map ||
+      evidence is! List ||
+      evidence.isEmpty ||
+      notes['advertisement_decision'] !=
+          (advertisement is Map ? advertisement['decision'] : null)) {
+    failures.add('${relative(file)} release notes bundle evidence invalid.');
+  }
+
+  if (readiness is! Map ||
+      readiness['same_checked_refs'] != true ||
+      readiness['coverage_report_present'] != true ||
+      readiness['complement_report_present'] != true ||
+      readiness['advertisement_decision_present'] != true ||
+      readiness['release_notes_evidence_present'] != true ||
+      readiness['supported_domain_gates_pass'] != true ||
+      readiness['excluded_domains_have_gap_issue_or_reason'] != true ||
+      readiness['artifacts_secret_redacted'] != true ||
+      readiness['ready_to_publish'] != true) {
+    failures.add('${relative(file)} readiness bundle checklist invalid.');
+  }
+
+  final expectedResult = json['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['bundle_links_spec_062_to_066'] != true ||
+      expectedResult['same_release_candidate_ref'] != true ||
+      expectedResult['coverage_report_drives_advertisement'] != true ||
+      expectedResult['complement_failures_excluded_from_advertisement'] !=
+          true ||
+      expectedResult['release_notes_link_gate_artifacts'] != true ||
+      expectedResult['readiness_requires_all_bundle_parts'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} bundle expectation invalid.');
+  }
+}
+
+void validateBundlePart(
+  File file,
+  Object? value,
+  String contract,
+  List<String> failures,
+) {
+  if (value is! Map ||
+      value['contract'] != contract ||
+      value['artifact'] is! String ||
+      (value['artifact'] as String).isEmpty) {
+    failures.add('${relative(file)} bundle part invalid for $contract.');
   }
 }
 
