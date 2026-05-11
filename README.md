@@ -91,6 +91,7 @@ The maintained repository names are:
 - `contracts/SPEC-064-matrix-version-advertisement-release-gate.md`
 - `contracts/SPEC-065-matrix-release-notes-evidence-template.md`
 - `contracts/SPEC-066-matrix-v1-18-release-readiness-gate.md`
+- `contracts/SPEC-068-matrix-oauth-account-management.md`
 
 ## Shared Design Inputs
 

@@ -15,9 +15,10 @@ password login, account ownership lookup, and logout.
 This contract is Matrix-defined, not Houra-defined. It adds `/_matrix/**`
 behavior without changing existing `/_houra/client/**` routes.
 
-Registration, refresh tokens, OAuth metadata, application service login,
-login fallback HTML, device management, and `logout/all` are intentionally left
-for later Client-Server compatibility contracts.
+Registration, refresh tokens, application service login, login fallback HTML,
+device management, and `logout/all` are intentionally left for later
+Client-Server compatibility contracts. OAuth-aware account-management metadata
+and redirects are covered by `SPEC-068`.
 
 ## Matrix reference
 
