@@ -1,0 +1,24 @@
+{
+  "name": "matrix-oauth-device-delete-account-management-link",
+  "contract": "SPEC-068",
+  "client_context": {
+    "auth_metadata": {
+      "account_management_uri": "https://account.example.test/manage",
+      "account_management_actions_supported": [
+        "org.matrix.device_delete"
+      ]
+    },
+    "target_device_id": "DEVICE2"
+  },
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v1/auth_metadata"
+  },
+  "expected": {
+    "status": 200,
+    "client_redirect": {
+      "uri": "https://account.example.test/manage?action=org.matrix.device_delete&device_id=DEVICE2",
+      "must_not_include_access_token": true
+    }
+  }
+}

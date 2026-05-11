@@ -1,5 +1,5 @@
 {
-  "name": "matrix-keys-query-basic",
+  "name": "matrix-keys-query-unknown-device-omitted",
   "contract": "SPEC-069",
   "request": {
     "method": "POST",
@@ -8,10 +8,11 @@
     "body": {
       "device_keys": {
         "@alice:example.test": [
-          "DEVICE1"
-        ]
-      },
-      "timeout": 10000
+          "DEVICE1",
+          "UNKNOWNDEVICE"
+        ],
+        "@unknown:example.test": []
+      }
     }
   },
   "expected": {
@@ -35,12 +36,15 @@
               "@alice:example.test": {
                 "ed25519:DEVICE1": "signature-device1"
               }
-            },
-            "unsigned": {
-              "device_display_name": "Alice phone"
             }
           }
         }
+      },
+      "omitted_device_keys": {
+        "@alice:example.test": [
+          "UNKNOWNDEVICE"
+        ],
+        "@unknown:example.test": []
       }
     }
   }

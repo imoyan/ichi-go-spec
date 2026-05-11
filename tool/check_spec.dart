@@ -94,6 +94,8 @@ void main() {
   checkMatrixAuthSession(contracts, failures);
   checkMatrixRegistration(contracts, failures);
   checkMatrixDevices(contracts, failures);
+  checkMatrixOAuthAccountManagement(contracts, failures);
+  checkMatrixDeviceKeyQuery(contracts, failures);
   checkMatrixRoomsMvp(contracts, failures);
   checkMatrixSendEventMessagesMvp(contracts, failures);
   checkMatrixSyncMvp(contracts, failures);
@@ -584,6 +586,123 @@ void checkMatrixDevices(Map<String, String> contracts, List<String> failures) {
   ]) {
     if (!File(path).existsSync()) {
       failures.add('Missing Matrix devices/session vector: $path');
+    }
+  }
+}
+
+void checkMatrixOAuthAccountManagement(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-068')) {
+    failures.add(
+      'Matrix OAuth account-management contract SPEC-068 is required.',
+    );
+  }
+  final required = [
+    'test-vectors/auth/matrix-oauth-auth-metadata-account-management-basic.json',
+    'test-vectors/auth/matrix-oauth-device-delete-account-management-link.json',
+    'test-vectors/auth/matrix-oauth-device-delete-return-refresh-complete.json',
+    'test-vectors/auth/matrix-oauth-current-device-deleted-token-invalid.json',
+    'test-vectors/auth/matrix-oauth-account-deactivate-account-management-link.json',
+  ];
+  for (final path in required) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix OAuth account-management vector: $path');
+    }
+  }
+
+  final metadata = readJsonObject(
+    File(
+      'test-vectors/auth/matrix-oauth-auth-metadata-account-management-basic.json',
+    ),
+    failures,
+  );
+  final body = metadata?['expected'] is Map
+      ? (metadata!['expected'] as Map)['body_contains']
+      : null;
+  if (body is Map) {
+    final uri = body['account_management_uri'];
+    if (uri is! String || !uri.startsWith('https://')) {
+      failures.add('Matrix OAuth account-management URI must be HTTPS.');
+    }
+    final actions = body['account_management_actions_supported'];
+    if (actions is! List ||
+        !actions.contains('org.matrix.device_delete') ||
+        !actions.contains('org.matrix.account_deactivate')) {
+      failures.add(
+        'Matrix OAuth account-management actions must include device delete and account deactivate.',
+      );
+    }
+  }
+
+  for (final path in [
+    'test-vectors/auth/matrix-oauth-device-delete-account-management-link.json',
+    'test-vectors/auth/matrix-oauth-account-deactivate-account-management-link.json',
+  ]) {
+    final json = readJsonObject(File(path), failures);
+    final expected = json?['expected'];
+    final redirect = expected is Map ? expected['client_redirect'] : null;
+    final uri = redirect is Map ? redirect['uri'] : null;
+    if (uri is! String || !uri.startsWith('https://')) {
+      failures.add('$path client_redirect.uri must be HTTPS.');
+    }
+    if (uri is String && uri.contains('access_token')) {
+      failures.add('$path client_redirect.uri must not include access_token.');
+    }
+  }
+}
+
+void checkMatrixDeviceKeyQuery(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-069')) {
+    failures.add('Matrix device key query contract SPEC-069 is required.');
+  }
+  const paths = [
+    'test-vectors/auth/matrix-keys-query-basic.json',
+    'test-vectors/auth/matrix-keys-query-all-devices.json',
+    'test-vectors/auth/matrix-keys-query-unknown-device-omitted.json',
+    'test-vectors/auth/matrix-keys-query-missing-token.json',
+    'test-vectors/auth/matrix-keys-query-missing-device-keys.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix device key query vector: $path');
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (json['contract'] != 'SPEC-069') {
+      failures.add('${relative(file)} must reference SPEC-069.');
+    }
+    if (path.contains('missing-token')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'POST',
+        pathPrefix: '/_matrix/client/v3/keys/query',
+        status: 401,
+        errcode: 'M_MISSING_TOKEN',
+      );
+    } else if (path.contains('missing-device-keys')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'POST',
+        pathPrefix: '/_matrix/client/v3/keys/query',
+        status: 400,
+        errcode: 'M_MISSING_PARAM',
+      );
+    } else {
+      validateMatrixKeysQueryVector(file, json, failures);
     }
   }
 }

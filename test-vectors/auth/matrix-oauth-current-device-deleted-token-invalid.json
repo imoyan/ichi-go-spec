@@ -1,0 +1,24 @@
+{
+  "name": "matrix-oauth-current-device-deleted-token-invalid",
+  "contract": "SPEC-068",
+  "client_context": {
+    "previous_client_redirect": "https://account.example.test/manage?action=org.matrix.device_delete&device_id=DEVICE1",
+    "deleted_device_id": "DEVICE1"
+  },
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/account/whoami",
+    "access_token": "token-device1"
+  },
+  "expected": {
+    "status": 401,
+    "body_contains": {
+      "errcode": "M_UNKNOWN_TOKEN",
+      "error": "Access token is no longer valid."
+    },
+    "client_expectation": {
+      "clear_host_owned_token": true,
+      "route_to_logged_out_recovery": true
+    }
+  }
+}

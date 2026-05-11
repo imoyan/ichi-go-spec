@@ -1,0 +1,23 @@
+{
+  "name": "matrix-oauth-account-deactivate-account-management-link",
+  "contract": "SPEC-068",
+  "client_context": {
+    "auth_metadata": {
+      "account_management_uri": "https://account.example.test/manage",
+      "account_management_actions_supported": [
+        "org.matrix.account_deactivate"
+      ]
+    }
+  },
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v1/auth_metadata"
+  },
+  "expected": {
+    "status": 200,
+    "client_redirect": {
+      "uri": "https://account.example.test/manage?action=org.matrix.account_deactivate",
+      "must_not_include_access_token": true
+    }
+  }
+}

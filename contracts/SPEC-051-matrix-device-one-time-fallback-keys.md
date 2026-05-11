@@ -6,7 +6,7 @@ Canonical: yes
 
 ## Purpose
 
-Define the Matrix v1.18 Client-Server E2EE key publication and query surface
+Define the Matrix v1.18 Client-Server E2EE key publication and claim surface
 for device keys, one-time keys, and fallback keys.
 
 ## Scope
@@ -15,10 +15,11 @@ This contract is Matrix-defined, not Houra-defined. It adds `/_matrix/**` key
 upload, query, and claim behavior without changing existing
 `/_houra/client/**` routes.
 
-This endpoint family builds on `SPEC-034` devices and sessions and `SPEC-050`
-crypto adapter ownership. It covers device key upload/query, one-time key
-upload/claim, fallback key upload/claim, key-count responses, representative
-authorization errors, and malformed key-shape failures. It does not define
+This endpoint family builds on `SPEC-034` devices and sessions, `SPEC-050`
+crypto adapter ownership, and the narrower `SPEC-069` device-key query
+contract. It covers device key upload, one-time key upload/claim, fallback key
+upload/claim, key-count responses, representative authorization errors, and
+malformed key-shape failures. It does not define
 to-device message delivery, encrypted room send/receive, room key sharing, key
 backup, verification, cross-signing publication, secret storage, federation key
 queries, or local Olm/Megolm implementation.
@@ -66,24 +67,16 @@ Servers must not return private key material.
 
 ## Key query
 
-Clients query device keys with:
+The first client/parser-facing query boundary is defined in `SPEC-069`:
 
 ```text
 POST /_matrix/client/v3/keys/query
 ```
 
-The request requires authentication and contains `device_keys`, a map from user
-ID to an array of device IDs. An empty device ID array requests all known
-devices for that user. `timeout` may be included for remote key queries.
-
-Successful responses return `200` with:
-
-- `device_keys`, a map from user ID to device ID to device key object;
-- `failures`, a map of unreachable remote homeservers when applicable;
-- optional cross-signing public key data when later contracts cover it.
-
-Unknown users or devices must be omitted from `device_keys` rather than
-represented as malformed placeholder keys.
+This broader contract may reuse that query behavior when testing upload/query
+round trips, but `SPEC-069` remains the canonical source for the standalone
+request and response parser shape. Optional cross-signing public key data stays
+out of scope until a later cross-signing contract covers it.
 
 ## Key claim
 
