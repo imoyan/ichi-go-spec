@@ -95,6 +95,7 @@ void main() {
   checkMatrixRegistration(contracts, failures);
   checkMatrixDevices(contracts, failures);
   checkMatrixOAuthAccountManagement(contracts, failures);
+  checkMatrixDeviceKeyQuery(contracts, failures);
   checkMatrixRoomsMvp(contracts, failures);
   checkMatrixSendEventMessagesMvp(contracts, failures);
   checkMatrixSyncMvp(contracts, failures);
@@ -649,6 +650,59 @@ void checkMatrixOAuthAccountManagement(
     }
     if (uri is String && uri.contains('access_token')) {
       failures.add('$path client_redirect.uri must not include access_token.');
+    }
+  }
+}
+
+void checkMatrixDeviceKeyQuery(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-069')) {
+    failures.add('Matrix device key query contract SPEC-069 is required.');
+  }
+  const paths = [
+    'test-vectors/auth/matrix-keys-query-basic.json',
+    'test-vectors/auth/matrix-keys-query-all-devices.json',
+    'test-vectors/auth/matrix-keys-query-unknown-device-omitted.json',
+    'test-vectors/auth/matrix-keys-query-missing-token.json',
+    'test-vectors/auth/matrix-keys-query-missing-device-keys.json',
+  ];
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      failures.add('Missing Matrix device key query vector: $path');
+      continue;
+    }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (json['contract'] != 'SPEC-069') {
+      failures.add('${relative(file)} must reference SPEC-069.');
+    }
+    if (path.contains('missing-token')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'POST',
+        pathPrefix: '/_matrix/client/v3/keys/query',
+        status: 401,
+        errcode: 'M_MISSING_TOKEN',
+      );
+    } else if (path.contains('missing-device-keys')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'POST',
+        pathPrefix: '/_matrix/client/v3/keys/query',
+        status: 400,
+        errcode: 'M_MISSING_PARAM',
+      );
+    } else {
+      validateMatrixKeysQueryVector(file, json, failures);
     }
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "matrix-keys-query-basic",
+  "name": "matrix-keys-query-all-devices",
   "contract": "SPEC-069",
   "request": {
     "method": "POST",
@@ -7,9 +7,7 @@
     "access_token": "token-bob-device1",
     "body": {
       "device_keys": {
-        "@alice:example.test": [
-          "DEVICE1"
-        ]
+        "@alice:example.test": []
       },
       "timeout": 10000
     }
@@ -35,13 +33,28 @@
               "@alice:example.test": {
                 "ed25519:DEVICE1": "signature-device1"
               }
+            }
+          },
+          "DEVICE2": {
+            "user_id": "@alice:example.test",
+            "device_id": "DEVICE2",
+            "algorithms": [
+              "m.olm.v1.curve25519-aes-sha2",
+              "m.megolm.v1.aes-sha2"
+            ],
+            "keys": {
+              "curve25519:DEVICE2": "curve25519-public-device2",
+              "ed25519:DEVICE2": "ed25519-public-device2"
             },
-            "unsigned": {
-              "device_display_name": "Alice phone"
+            "signatures": {
+              "@alice:example.test": {
+                "ed25519:DEVICE2": "signature-device2"
+              }
             }
           }
         }
       }
-    }
+    },
+    "private_key_material_returned": false
   }
 }
