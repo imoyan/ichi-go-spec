@@ -1,5 +1,8 @@
 # Reference Policy
 
+Codex-facing repository instructions live in `AGENTS.md`. This document is a
+supporting human reference for allowed and disallowed behavior sources.
+
 Allowed sources:
 
 - Houra contracts
