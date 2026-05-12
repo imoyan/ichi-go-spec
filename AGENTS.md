@@ -35,8 +35,11 @@ When changing documentation:
 - Keep canonical normative requirements in English.
 - Add or update Japanese guidance in the same file when the change affects
   readers, implementation adopters, release readiness, or public positioning.
-- Prefer same-file Japanese sections over separate duplicate docs when the
-  content explains the same scope.
+- Keep same-file Japanese sections short. Put longer Japanese guidance under
+  `docs/ja/` and link to the English canonical source instead of expanding
+  top-level README or contract files heavily.
+- Keep `docs/ja/` in the same repository so release tags freeze English
+  canonical text and Japanese reader guidance together.
 - If Japanese text intentionally lags an English change, record the gap in the
   PR body, release checklist, or a follow-up issue before handoff.
 

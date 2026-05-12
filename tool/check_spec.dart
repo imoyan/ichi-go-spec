@@ -179,6 +179,7 @@ void checkNamespaceConsistency(List<String> failures) {
       ...filesUnder(Directory('test-vectors'), '.json'),
     if (Directory('design').existsSync())
       ...filesUnder(Directory('design'), '.json'),
+    if (Directory('docs').existsSync()) ...filesUnder(Directory('docs'), '.md'),
   ];
 
   for (final file in files) {
@@ -208,6 +209,7 @@ void checkBoundary(List<String> failures) {
     'SOURCE_OF_TRUTH.md',
     'contracts',
     'design',
+    'docs',
     'test-vectors',
     'tool',
   };
@@ -351,8 +353,7 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     'Implementation Adoption Reports',
     'Language: [English](#english) | [日本語](#日本語)',
     '## 日本語',
-    '日本語クイックガイド',
-    '日本語ドキュメントの扱い',
+    'docs/ja/',
   ]) {
     if (!readme.contains(phrase)) {
       failures.add('README.md must document $phrase.');
@@ -361,10 +362,42 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
   if (!readme.contains('UI Surface Contract')) {
     failures.add('README.md must document UI Surface Contract.');
   }
+  checkJapaneseDocs(failures);
 
   final sourceOfTruth = File('SOURCE_OF_TRUTH.md').readAsStringSync();
   if (!sourceOfTruth.contains('MVP Readiness Boundary')) {
     failures.add('SOURCE_OF_TRUTH.md must document MVP Readiness Boundary.');
+  }
+}
+
+void checkJapaneseDocs(List<String> failures) {
+  const requiredDocs = {
+    'docs/ja/README.md',
+    'docs/ja/adoption-guide.md',
+    'docs/ja/release-readiness.md',
+    'docs/ja/matrix-v1-18.md',
+  };
+  for (final path in requiredDocs) {
+    if (!File(path).existsSync()) {
+      failures.add('Missing Japanese documentation: $path');
+    }
+  }
+  final index = File('docs/ja/README.md');
+  if (!index.existsSync()) {
+    return;
+  }
+  final source = index.readAsStringSync();
+  for (final phrase in [
+    '英語',
+    '正本',
+    'release',
+    'adoption-guide.md',
+    'release-readiness.md',
+    'matrix-v1-18.md',
+  ]) {
+    if (!source.contains(phrase)) {
+      failures.add('docs/ja/README.md must document $phrase.');
+    }
   }
 }
 
