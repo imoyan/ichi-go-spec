@@ -358,9 +358,54 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     failures.add('README.md must document UI Surface Contract.');
   }
 
+  final agents = File('AGENTS.md').readAsStringSync();
+  for (final phrase in [
+    'Codex-facing repo instructions live in this file',
+    'Change Workflow',
+    'Contract Update Rules',
+    'Verification',
+    'MCP',
+  ]) {
+    if (!agents.contains(phrase)) {
+      failures.add('AGENTS.md must document $phrase.');
+    }
+  }
+
+  final workflow = File('.github/workflows/spec-check.yml');
+  if (!workflow.existsSync()) {
+    failures.add('Missing workflow: .github/workflows/spec-check.yml');
+  } else if (!workflow.readAsStringSync().contains('git diff --check')) {
+    failures.add('Spec Check workflow must run git diff --check.');
+  }
+
+  final prTemplate = File('.github/PULL_REQUEST_TEMPLATE.md');
+  if (!prTemplate.existsSync()) {
+    failures.add('Missing PR template: .github/PULL_REQUEST_TEMPLATE.md');
+  } else {
+    final source = prTemplate.readAsStringSync();
+    for (final phrase in [
+      'git diff --check',
+      'Adoption evidence',
+      'Matrix reference snapshot',
+      'Clean-room confirmed',
+    ]) {
+      if (!source.contains(phrase)) {
+        failures.add('PR template must document $phrase.');
+      }
+    }
+  }
+
   final sourceOfTruth = File('SOURCE_OF_TRUTH.md').readAsStringSync();
+  if (!sourceOfTruth.contains('Codex-facing repository instructions')) {
+    failures.add('SOURCE_OF_TRUTH.md must point to AGENTS.md.');
+  }
   if (!sourceOfTruth.contains('MVP Readiness Boundary')) {
     failures.add('SOURCE_OF_TRUTH.md must document MVP Readiness Boundary.');
+  }
+
+  final referencePolicy = File('REFERENCE_POLICY.md').readAsStringSync();
+  if (!referencePolicy.contains('Codex-facing repository instructions')) {
+    failures.add('REFERENCE_POLICY.md must point to AGENTS.md.');
   }
 }
 
