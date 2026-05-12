@@ -1,5 +1,9 @@
 # houra-spec
 
+Language: [English](#english) | [日本語](#日本語)
+
+## English
+
 `houra-spec` is the canonical repository for the Houra public specification.
 
 Houra is the product and shared specification boundary. The public API namespace
@@ -14,6 +18,29 @@ test vectors, shared design tokens, and platform-neutral UI surface definitions
 only;
 implementation behavior, package adapters, client-specific details, and
 server-specific details belong in implementation repositories.
+
+## 日本語
+
+`houra-spec` は Houra の公開仕様を管理する正本リポジトリです。
+
+Houra の公開 API、契約、テストベクトル、共通デザイントークン、UI surface はこの
+リポジトリを基準にします。英語の contract 本文を正本としつつ、日本語ドキュメントも
+重要な reader surface として維持します。
+
+長い日本語説明は README に詰め込まず、読みやすさと保守性のため
+[`docs/ja/`](docs/ja/) に分けています。
+
+- 日本語ドキュメント入口: [`docs/ja/README.md`](docs/ja/README.md)
+- 実装採用者向けガイド: [`docs/ja/adoption-guide.md`](docs/ja/adoption-guide.md)
+- release 前の日英確認: [`docs/ja/release-readiness.md`](docs/ja/release-readiness.md)
+- Matrix v1.18 の読み方: [`docs/ja/matrix-v1-18.md`](docs/ja/matrix-v1-18.md)
+
+### GitHub 表示について
+
+GitHub のリポジトリトップではこの README が表示されます。上部の
+[English](#english) / [日本語](#日本語) リンクで、英語の概要と日本語の概要を切り替えて
+読めるようにしています。GitHub README では動的な言語切り替え UI を使わず、アンカーリンクと
+`docs/ja/` への静的リンクで移動する構成にしています。
 
 ## Repository Topology
 
