@@ -8373,13 +8373,22 @@ void checkMatrixV118ReleaseEvidenceBundleNegativeFixtures(
 ) {
   const fixtures = {
     'tool/fixtures/check_spec/spec-066-mismatched-release-candidate-ref.json':
-        _ReleaseBundleFixtureMutation.mismatchedReleaseCandidateRef,
+        _ReleaseBundleFixtureCase(
+          mutation: _ReleaseBundleFixtureMutation.mismatchedReleaseCandidateRef,
+          mutationDescription:
+              'set event.candidate_refs.release_candidate to houra-matrix-v1.18-rc.2',
+        ),
     'tool/fixtures/check_spec/spec-066-inconsistent-release-artifact-path.json':
-        _ReleaseBundleFixtureMutation.inconsistentReleaseArtifactPath,
+        _ReleaseBundleFixtureCase(
+          mutation:
+              _ReleaseBundleFixtureMutation.inconsistentReleaseArtifactPath,
+          mutationDescription:
+              'set one SPEC-065 implementation_evidence artifact to artifacts/release/matrix-v1.18-rc.2',
+        ),
   };
-  final baseFile = File(
-    'test-vectors/core/matrix-v1-18-release-evidence-example-bundle.json',
-  );
+  const basePath =
+      'test-vectors/core/matrix-v1-18-release-evidence-example-bundle.json';
+  final baseFile = File(basePath);
   final base = readJsonObject(baseFile, failures);
   if (base == null) {
     return;
@@ -8396,6 +8405,19 @@ void checkMatrixV118ReleaseEvidenceBundleNegativeFixtures(
     if (fixture == null) {
       continue;
     }
+    final expectedName = file.uri.pathSegments.last.replaceAll('.json', '');
+    if (fixture['name'] != expectedName) {
+      failures.add('${relative(file)} name must match file name.');
+      continue;
+    }
+    if (fixture['base'] != basePath) {
+      failures.add('${relative(file)} base must reference canonical bundle.');
+      continue;
+    }
+    if (fixture['mutation'] != entry.value.mutationDescription) {
+      failures.add('${relative(file)} mutation description invalid.');
+      continue;
+    }
     final expectedFailure = fixture['expected_failure_contains'];
     if (expectedFailure is! String || expectedFailure.isEmpty) {
       failures.add('${relative(file)} expected_failure_contains invalid.');
@@ -8403,7 +8425,7 @@ void checkMatrixV118ReleaseEvidenceBundleNegativeFixtures(
     }
     final candidate = (jsonDecode(jsonEncode(base)) as Map)
         .cast<String, Object?>();
-    mutateReleaseEvidenceBundleFixture(candidate, entry.value);
+    mutateReleaseEvidenceBundleFixture(candidate, entry.value.mutation);
     final fixtureFailures = <String>[];
     final eventMap = requireMatrixEventMap(file, candidate, fixtureFailures);
     if (eventMap != null) {
@@ -8526,6 +8548,16 @@ enum _ReleaseBundleFixtureMutation {
   inconsistentReleaseArtifactPath,
 }
 
+class _ReleaseBundleFixtureCase {
+  const _ReleaseBundleFixtureCase({
+    required this.mutation,
+    required this.mutationDescription,
+  });
+
+  final _ReleaseBundleFixtureMutation mutation;
+  final String mutationDescription;
+}
+
 void mutateReleaseEvidenceBundleFixture(
   Map<String, Object?> bundle,
   _ReleaseBundleFixtureMutation mutation,
@@ -8540,6 +8572,7 @@ void mutateReleaseEvidenceBundleFixture(
       if (refs is Map) {
         refs['release_candidate'] = 'houra-matrix-v1.18-rc.2';
       }
+      return;
     case _ReleaseBundleFixtureMutation.inconsistentReleaseArtifactPath:
       final notes = event['release_notes_evidence'];
       final evidence = notes is Map ? notes['implementation_evidence'] : null;
@@ -8550,6 +8583,7 @@ void mutateReleaseEvidenceBundleFixture(
         first['artifact'] =
             'artifacts/release/matrix-v1.18-rc.2/advertisement-decision.json';
       }
+      return;
   }
 }
 
