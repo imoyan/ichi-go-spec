@@ -129,6 +129,7 @@ void main() {
   checkMatrixReleaseNotesEvidenceTemplate(contracts, failures);
   checkMatrixV118ReleaseReadinessGate(contracts, failures);
   checkMatrixV118ReleaseEvidenceExampleBundle(contracts, failures);
+  checkMatrixV118ReleaseEvidenceBundleNegativeFixtures(failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -212,6 +213,7 @@ void checkBoundary(List<String> failures) {
     'tool',
   };
   const allowedToolFiles = {'check_spec.dart'};
+  const allowedToolDirectories = {'fixtures'};
 
   for (final entity in Directory.current.listSync()) {
     final name = entityName(entity);
@@ -230,8 +232,50 @@ void checkBoundary(List<String> failures) {
   }
   for (final entity in toolRoot.listSync()) {
     final name = entityName(entity);
-    if (entity is! File || !allowedToolFiles.contains(name)) {
-      failures.add('Unexpected spec tool entry: ${relative(entity)}');
+    if (entity is File && allowedToolFiles.contains(name)) {
+      continue;
+    }
+    if (entity is Directory && allowedToolDirectories.contains(name)) {
+      continue;
+    }
+    failures.add('Unexpected spec tool entry: ${relative(entity)}');
+  }
+
+  final allowedToolFixtureFiles = {
+    'tool/fixtures/check_spec/spec-066-inconsistent-release-artifact-path.json',
+    'tool/fixtures/check_spec/spec-066-mismatched-release-candidate-ref.json',
+  };
+  final fixtureRoot = Directory('tool/fixtures');
+  if (fixtureRoot.existsSync()) {
+    for (final entity in fixtureRoot.listSync(recursive: true)) {
+      if (entity is Directory) {
+        continue;
+      }
+      if (entity is! File ||
+          !allowedToolFixtureFiles.contains(relative(entity))) {
+        failures.add('Unexpected spec tool fixture entry: ${relative(entity)}');
+      }
+    }
+  }
+
+  final checkSpecFixtureRoot = Directory('tool/fixtures/check_spec');
+  if (checkSpecFixtureRoot.existsSync()) {
+    for (final path in allowedToolFixtureFiles) {
+      if (!File(path).existsSync()) {
+        failures.add('Missing spec tool fixture entry: $path');
+      }
+    }
+  } else if (fixtureRoot.existsSync()) {
+    failures.add(
+      'Missing spec tool fixture directory: ${relative(checkSpecFixtureRoot)}',
+    );
+  }
+
+  if (fixtureRoot.existsSync()) {
+    for (final entity in fixtureRoot.listSync()) {
+      if (entity is! Directory || entityName(entity) != 'check_spec') {
+        failures.add('Unexpected spec tool entry: ${relative(entity)}');
+      }
     }
   }
 
@@ -8203,6 +8247,9 @@ void checkMatrixV118ReleaseEvidenceExampleBundle(
       refs['houra_client_ref'] is! String) {
     failures.add('${relative(file)} candidate refs invalid.');
   }
+  final expectedArtifactPrefix = releaseCandidate is String
+      ? releaseArtifactPrefixForCandidate(releaseCandidate)
+      : null;
 
   final coverage = eventMap['coverage_report'];
   final complement = eventMap['complement_report'];
@@ -8214,6 +8261,18 @@ void checkMatrixV118ReleaseEvidenceExampleBundle(
   validateBundlePart(file, advertisement, 'SPEC-064', failures);
   validateBundlePart(file, notes, 'SPEC-065', failures);
   validateBundlePart(file, readiness, 'SPEC-066', failures);
+  validateReleaseBundleArtifactPaths(
+    file,
+    {
+      'SPEC-062': coverage,
+      'SPEC-063': complement,
+      'SPEC-064': advertisement,
+      'SPEC-065': notes,
+      'SPEC-066': readiness,
+    },
+    expectedArtifactPrefix,
+    failures,
+  );
 
   final domainResults = coverage is Map ? coverage['domain_results'] : null;
   if (domainResults is! List || domainResults.length != 8) {
@@ -8309,6 +8368,71 @@ void checkMatrixV118ReleaseEvidenceExampleBundle(
   }
 }
 
+void checkMatrixV118ReleaseEvidenceBundleNegativeFixtures(
+  List<String> failures,
+) {
+  const fixtures = {
+    'tool/fixtures/check_spec/spec-066-mismatched-release-candidate-ref.json':
+        _ReleaseBundleFixtureMutation.mismatchedReleaseCandidateRef,
+    'tool/fixtures/check_spec/spec-066-inconsistent-release-artifact-path.json':
+        _ReleaseBundleFixtureMutation.inconsistentReleaseArtifactPath,
+  };
+  final baseFile = File(
+    'test-vectors/core/matrix-v1-18-release-evidence-example-bundle.json',
+  );
+  final base = readJsonObject(baseFile, failures);
+  if (base == null) {
+    return;
+  }
+  for (final entry in fixtures.entries) {
+    final file = File(entry.key);
+    if (!file.existsSync()) {
+      failures.add(
+        'Missing Matrix release bundle negative fixture: ${entry.key}',
+      );
+      continue;
+    }
+    final fixture = readJsonObject(file, failures);
+    if (fixture == null) {
+      continue;
+    }
+    final expectedFailure = fixture['expected_failure_contains'];
+    if (expectedFailure is! String || expectedFailure.isEmpty) {
+      failures.add('${relative(file)} expected_failure_contains invalid.');
+      continue;
+    }
+    final candidate = (jsonDecode(jsonEncode(base)) as Map)
+        .cast<String, Object?>();
+    mutateReleaseEvidenceBundleFixture(candidate, entry.value);
+    final fixtureFailures = <String>[];
+    final eventMap = requireMatrixEventMap(file, candidate, fixtureFailures);
+    if (eventMap != null) {
+      final refs = eventMap['candidate_refs'];
+      final releaseCandidate = refs is Map ? refs['release_candidate'] : null;
+      final expectedArtifactPrefix = releaseCandidate is String
+          ? releaseArtifactPrefixForCandidate(releaseCandidate)
+          : null;
+      validateReleaseBundleArtifactPaths(
+        file,
+        {
+          'SPEC-062': eventMap['coverage_report'],
+          'SPEC-063': eventMap['complement_report'],
+          'SPEC-064': eventMap['advertisement_decision'],
+          'SPEC-065': eventMap['release_notes_evidence'],
+          'SPEC-066': eventMap['readiness_checklist'],
+        },
+        expectedArtifactPrefix,
+        fixtureFailures,
+      );
+    }
+    if (!fixtureFailures.any((failure) => failure.contains(expectedFailure))) {
+      failures.add(
+        '${relative(file)} did not fail with expected release bundle error.',
+      );
+    }
+  }
+}
+
 void validateBundlePart(
   File file,
   Object? value,
@@ -8320,6 +8444,112 @@ void validateBundlePart(
       value['artifact'] is! String ||
       (value['artifact'] as String).isEmpty) {
     failures.add('${relative(file)} bundle part invalid for $contract.');
+  }
+}
+
+void validateReleaseBundleArtifactPaths(
+  File file,
+  Map<String, Object?> bundleParts,
+  String? expectedArtifactPrefix,
+  List<String> failures,
+) {
+  final releaseDirs = <String>{};
+  var candidateMismatch = false;
+  var invalidPath = false;
+  for (final part in bundleParts.entries) {
+    collectArtifactPaths(part.value, (artifact) {
+      final releaseDir = releaseArtifactDirectory(artifact);
+      if (releaseDir == null) {
+        invalidPath = true;
+        return;
+      }
+      releaseDirs.add(releaseDir);
+      if (expectedArtifactPrefix != null &&
+          !artifact.startsWith(expectedArtifactPrefix)) {
+        candidateMismatch = true;
+      }
+    });
+  }
+  if (invalidPath) {
+    failures.add(
+      '${relative(file)} bundle artifact paths must use artifacts/release/.',
+    );
+  }
+  if (candidateMismatch) {
+    failures.add(
+      '${relative(file)} release candidate ref does not match artifact path.',
+    );
+  }
+  if (releaseDirs.length > 1) {
+    failures.add('${relative(file)} artifact release paths inconsistent.');
+  }
+}
+
+void collectArtifactPaths(Object? value, void Function(String artifact) visit) {
+  if (value is Map) {
+    for (final entry in value.entries) {
+      if (entry.key == 'artifact' && entry.value is String) {
+        visit(entry.value as String);
+      } else {
+        collectArtifactPaths(entry.value, visit);
+      }
+    }
+  } else if (value is List) {
+    for (final item in value) {
+      collectArtifactPaths(item, visit);
+    }
+  }
+}
+
+String? releaseArtifactDirectory(String artifact) {
+  const prefix = 'artifacts/release/';
+  if (!artifact.startsWith(prefix)) {
+    return null;
+  }
+  final rest = artifact.substring(prefix.length);
+  final slash = rest.indexOf('/');
+  if (slash <= 0) {
+    return null;
+  }
+  return rest.substring(0, slash);
+}
+
+String releaseArtifactPrefixForCandidate(String releaseCandidate) {
+  final releaseDir = releaseCandidate.startsWith('houra-')
+      ? releaseCandidate.substring('houra-'.length)
+      : releaseCandidate;
+  return 'artifacts/release/$releaseDir/';
+}
+
+enum _ReleaseBundleFixtureMutation {
+  mismatchedReleaseCandidateRef,
+  inconsistentReleaseArtifactPath,
+}
+
+void mutateReleaseEvidenceBundleFixture(
+  Map<String, Object?> bundle,
+  _ReleaseBundleFixtureMutation mutation,
+) {
+  final event = bundle['event'];
+  if (event is! Map) {
+    return;
+  }
+  switch (mutation) {
+    case _ReleaseBundleFixtureMutation.mismatchedReleaseCandidateRef:
+      final refs = event['candidate_refs'];
+      if (refs is Map) {
+        refs['release_candidate'] = 'houra-matrix-v1.18-rc.2';
+      }
+    case _ReleaseBundleFixtureMutation.inconsistentReleaseArtifactPath:
+      final notes = event['release_notes_evidence'];
+      final evidence = notes is Map ? notes['implementation_evidence'] : null;
+      final first = evidence is List && evidence.isNotEmpty
+          ? evidence.first
+          : null;
+      if (first is Map) {
+        first['artifact'] =
+            'artifacts/release/matrix-v1.18-rc.2/advertisement-decision.json';
+      }
   }
 }
 

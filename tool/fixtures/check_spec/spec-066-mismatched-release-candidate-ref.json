@@ -1,0 +1,6 @@
+{
+  "name": "spec-066-mismatched-release-candidate-ref",
+  "base": "test-vectors/core/matrix-v1-18-release-evidence-example-bundle.json",
+  "mutation": "set event.candidate_refs.release_candidate to houra-matrix-v1.18-rc.2",
+  "expected_failure_contains": "release candidate ref does not match artifact path"
+}
