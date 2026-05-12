@@ -158,6 +158,9 @@ or non-string `token` must return a Matrix `M_*` error envelope appropriate to
 the failure (`M_BAD_JSON`, `M_NOT_JSON`, `M_MISSING_PARAM`, or
 `M_INVALID_PARAM`).
 
+Malformed request vectors cover each of those request-shape failures so
+implementations can fail closed before key lookup.
+
 Servers must not return private key material in success or error responses.
 
 ## Compatibility boundaries
