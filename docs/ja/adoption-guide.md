@@ -24,14 +24,22 @@
 実装リポジトリが仕様変更を採用したら、README の `Implementation Adoption Reports` に
 採用 evidence を残します。
 
+詳細な implementation metrics は、まず実装リポジトリ側の issue / PR に残します。
+`houra-spec` の adoption report は release-facing な要約とリンクを残す場所であり、
+作業ごとの timing や Codex usage を重複して書く場所ではありません。
+
 記録する内容は次を基本にします。
 
 - `houra-spec` の ref
 - 実装リポジトリの ref
+- 実装 issue / PR
 - 実行した verification command
 - pass / fail と known gap
 - clean-room 確認
-- Matrix や外部仕様に触れる場合は source と `checked_at`
+- timing と outcome
+- Codex usage は取得できる場合だけ。取得できない場合は推測せず `unavailable` として扱う
+- Matrix や外部仕様に触れる場合は、source と `checked_at` をコピーせず、README と
+  `contracts/SPEC-030-matrix-client-versions.md` の snapshot を参照する
 
 ## 実装側に残すもの
 

@@ -344,6 +344,9 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     'Stateful vector metadata',
     'Houra MVP 100% Readiness Criteria',
     'Implementation Metrics',
+    'Implementation metrics recording locations',
+    'Minimum implementation metrics schema',
+    'matrix_reference_snapshot',
     'Matrix reference',
     'Matrix v1.18 Compliance Matrix',
     'Matrix compliance advertisement gate',
@@ -397,6 +400,20 @@ void checkJapaneseDocs(List<String> failures) {
   ]) {
     if (!source.contains(phrase)) {
       failures.add('docs/ja/README.md must document $phrase.');
+    }
+  }
+  final adoptionGuide = File('docs/ja/adoption-guide.md');
+  if (adoptionGuide.existsSync()) {
+    final adoptionSource = adoptionGuide.readAsStringSync();
+    for (final phrase in [
+      'implementation metrics',
+      'Codex usage',
+      'unavailable',
+      'contracts/SPEC-030-matrix-client-versions.md',
+    ]) {
+      if (!adoptionSource.contains(phrase)) {
+        failures.add('docs/ja/adoption-guide.md must document $phrase.');
+      }
     }
   }
 }

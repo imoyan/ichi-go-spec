@@ -951,6 +951,21 @@ Implementation repositories should record lightweight delivery metrics in the
 implementation issue, pull request, or adoption report. These metrics are
 workflow evidence only; they are not part of the public Houra contract.
 
+Implementation metrics recording locations:
+
+- Implementation issue: owns the detailed task record while the work is active,
+  including timing, verification, blockers, and clean-room notes.
+- Implementation pull request: summarizes the same record for reviewers and
+  links to the issue when the full record would make the PR body noisy.
+- `houra-spec` adoption report: records only release-facing evidence and links
+  to implementation issues, PRs, commits, releases, and verification summaries.
+- Matrix release evidence bundle: links to adoption reports and release-gate
+  artifacts for the same refs; it does not duplicate per-task timing or Codex
+  usage records.
+- Optional JSONL artifacts may be stored in an implementation repository when a
+  repo-specific workflow needs machine-readable history. They are evidence
+  artifacts, not a second specification source.
+
 Required fields:
 
 - Spec input: `houra-spec` commit or tag consumed.
@@ -958,8 +973,10 @@ Required fields:
   commit.
 - Scope: feature profiles, contracts, vectors, design token files, and UI
   surface files consumed or changed.
-- Matrix reference: Matrix specification version, source URL, and check time
-  used as external protocol context for the implementation work.
+- Matrix reference citation: the Matrix snapshot anchor in this README and
+  `contracts/SPEC-030-matrix-client-versions.md` at the consumed `houra-spec`
+  ref. Do not copy the version, source URL, or check time into a second
+  location.
 - Timing: `started_at`, `ended_at`, `elapsed_seconds`, and `timezone`. Use
   ISO 8601 timestamps with an explicit offset and an IANA timezone name such as
   `Asia/Tokyo`.
@@ -996,6 +1013,30 @@ Recommended additional records:
 - Clean-room note: confirmation that no implementation repository was used as a
   behavior source.
 
+Minimum implementation metrics schema:
+
+| Field | Required | Notes |
+|---|---|---|
+| `repo` | yes | Implementation repository name, such as `houra-server` or `houra-client`. |
+| `branch` | yes | Implementation branch used for the work. |
+| `issue` | yes | Implementation issue URL or number. |
+| `pr` | no | Pull request URL or number, or `null` before publication. |
+| `spec_ref` | yes | Consumed `houra-spec` tag or commit. |
+| `implementation_commit` | yes | Head commit verified, or `null` while blocked before commit. |
+| `profiles` | yes | Feature profiles affected or adopted. Use `[]` when the work is release/process only. |
+| `contracts` | yes | `SPEC-*` ids consumed or changed. Use `[]` when not contract-specific. |
+| `vectors` | yes | Vector paths consumed or changed. Use `[]` when not vector-specific. |
+| `design_inputs` | yes | Theme or UI surface paths consumed or changed. Use `[]` when not design-specific. |
+| `matrix_reference_snapshot` | yes | Citation such as `README#matrix-v118-compliance-matrix` and `contracts/SPEC-030-matrix-client-versions.md` at `spec_ref`, not copied version fields. |
+| `started_at` / `ended_at` / `elapsed_seconds` / `timezone` | yes | Timing evidence for implementation work. |
+| `model` / `execution_mode` | yes | Agent model and task mode when known. |
+| `input_tokens` / `cached_input_tokens` / `output_tokens` / `total_tokens` | yes | Use `null` when unavailable. |
+| `usage_source` / `accuracy` | yes | Use `unavailable` / `unavailable` when exact usage is not exposed. |
+| `verification` | yes | Array of command/result/head-ref entries. |
+| `outcome` | yes | `shipped`, `blocked`, `deferred`, or `superseded`. |
+| `clean_room_confirmed` | yes | Boolean clean-room confirmation. |
+| `notes` | no | Short blocker, decision, or follow-up issue reference. |
+
 The canonical Matrix reference snapshot lives in the
 [Matrix v1.18 Compliance Matrix](#matrix-v118-compliance-matrix) section above
 and in `contracts/SPEC-030-matrix-client-versions.md`. Implementation records
@@ -1010,7 +1051,7 @@ in that implementation adoption record.
 Example JSONL record:
 
 ```jsonl
-{"repo":"houra-client","branch":"codex/adopt-media-vectors","pr":null,"spec_commit":"<houra-spec-sha>","implementation_commit":"<implementation-sha>","profiles":["media"],"contracts":["SPEC-020"],"vectors":["test-vectors/media/upload-basic.json"],"matrix_spec_version":"1.18","matrix_spec_source":"https://spec.matrix.org/v1.18/","matrix_spec_checked_at":"2026-05-08T10:00:00+09:00","started_at":"2026-05-08T10:00:00+09:00","ended_at":"2026-05-08T10:42:00+09:00","elapsed_seconds":2520,"timezone":"Asia/Tokyo","model":"gpt-5.3-codex","execution_mode":"local_task","input_tokens":null,"cached_input_tokens":null,"output_tokens":null,"total_tokens":null,"usage_source":"unavailable","accuracy":"unavailable","verification":[{"command":"npm test","result":"pass"}],"outcome":"shipped","clean_room_confirmed":true}
+{"repo":"houra-client","branch":"codex/adopt-media-vectors","issue":"https://github.com/imoyan/houra-client/issues/123","pr":null,"spec_ref":"<houra-spec-sha-or-tag>","implementation_commit":"<implementation-sha>","profiles":["media"],"contracts":["SPEC-020"],"vectors":["test-vectors/media/upload-basic.json"],"design_inputs":[],"matrix_reference_snapshot":"README#matrix-v118-compliance-matrix and contracts/SPEC-030-matrix-client-versions.md at spec_ref","started_at":"2026-05-08T10:00:00+09:00","ended_at":"2026-05-08T10:42:00+09:00","elapsed_seconds":2520,"timezone":"Asia/Tokyo","model":"gpt-5.3-codex","execution_mode":"local_task","input_tokens":null,"cached_input_tokens":null,"output_tokens":null,"total_tokens":null,"usage_source":"unavailable","accuracy":"unavailable","verification":[{"command":"npm test","result":"pass","head":"<implementation-sha>"}],"outcome":"shipped","clean_room_confirmed":true,"notes":"No Matrix version fields copied; snapshot is cited from houra-spec."}
 ```
 
 ## Server Alignment Smoke Checklist
