@@ -28,7 +28,7 @@
   "expected": {
     "status": 200,
     "body_contains": {
-      "room_id": "!newRoomVersion12Hash"
+      "room_id": "!newRoomVersion12Hash:example.test"
     }
   }
 }

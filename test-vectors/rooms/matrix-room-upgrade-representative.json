@@ -13,16 +13,16 @@
       },
       "access_token": "token-1"
     },
-    "old_room_id": "!oldRoom0000000000000000000000000000001",
-    "replacement_room_id": "!replacementRoom00000000000000000000000001",
+    "old_room_id": "!oldRoom0000000000000000000000000000001:example.test",
+    "replacement_room_id": "!replacementRoom00000000000000000000000001:example.test",
     "new_version": "12",
     "expected_response": {
-      "replacement_room": "!replacementRoom00000000000000000000000001"
+      "replacement_room": "!replacementRoom00000000000000000000000001:example.test"
     },
     "replacement_create_content": {
       "room_version": "12",
       "predecessor": {
-        "room_id": "!oldRoom0000000000000000000000000000001",
+        "room_id": "!oldRoom0000000000000000000000000000001:example.test",
         "event_id": "$oldRoomTombstone000000000000000000001"
       }
     },
@@ -31,7 +31,7 @@
       "type": "m.room.tombstone",
       "state_key": "",
       "content": {
-        "replacement_room": "!replacementRoom00000000000000000000000001",
+        "replacement_room": "!replacementRoom00000000000000000000000001:example.test",
         "body": "This room has been replaced"
       }
     }
@@ -39,7 +39,7 @@
   "expected": {
     "status": 200,
     "body_contains": {
-      "replacement_room": "!replacementRoom00000000000000000000000001"
+      "replacement_room": "!replacementRoom00000000000000000000000001:example.test"
     }
   }
 }

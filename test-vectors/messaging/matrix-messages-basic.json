@@ -24,9 +24,6 @@
           "content": {
             "msgtype": "m.text",
             "body": "Hello Matrix"
-          },
-          "unsigned": {
-            "transaction_id": "txn-1"
           }
         }
       ],

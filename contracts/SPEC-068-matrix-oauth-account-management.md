@@ -6,10 +6,11 @@ Canonical: yes
 
 ## Purpose
 
-Define the Matrix v1.18 OAuth-aware account-management route that follows
-`SPEC-034` device deletion: discover account-management metadata, deep-link
-users to web account management for account and device actions, and reconcile
-client state after a device has been deleted outside the native client UI.
+Define the Matrix v1.18 OAuth-aware account-management route that supersedes
+`SPEC-034` legacy UIA device deletion for OAuth-aware clients: discover
+account-management metadata, deep-link users to web account management for
+account and device actions, and reconcile client state after a device has been
+deleted outside the native client UI.
 
 ## Scope
 

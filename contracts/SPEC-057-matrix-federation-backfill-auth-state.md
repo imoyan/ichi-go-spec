@@ -76,8 +76,11 @@ GET /_matrix/federation/v1/state_ids/{roomId}?event_id={eventId}
 ```
 
 `/state` returns `pdus` and `auth_chain`. `/state_ids` returns `pdu_ids` and
-`auth_chain_ids`. Both are used to recover enough room state to validate
-missing events and continue federation.
+`auth_chain_ids`. This gate currently provides canonical vectors for
+`/state_ids`; `/state` body-vector coverage is deferred until a later
+federation state-response contract. Both endpoints remain part of the broader
+Matrix behavior needed to recover enough room state to validate missing events
+and continue federation.
 
 ## State-resolution interop gate
 

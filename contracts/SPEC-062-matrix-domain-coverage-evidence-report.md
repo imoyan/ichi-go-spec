@@ -49,6 +49,7 @@ MSC with its own contract, vector, adoption issue, and release note.
 The coverage report is a JSON object with:
 
 - `matrix_spec_version`, fixed to `v1.18`;
+- `matrix_spec_source`, fixed to the official Matrix v1.18 source root;
 - `checked_at`, an ISO-8601 timestamp with timezone;
 - `unstable_mscs_included`, fixed to `false` unless a later contract changes
   scope;
@@ -64,7 +65,8 @@ Each domain record contains:
 - `implementation_repos`, the repos expected to produce adoption evidence;
 - `adoption_issue_refs`, GitHub issue refs created after spec PR merge;
 - `contract_gate`, with command, pass/fail status, and artifact path;
-- `implementation_gate`, with pass/fail status and artifact path;
+- `implementation_gate`, with pass/fail status and artifact path; `artifact`
+  may be `null` only when the gate status is `not-run` or `not-applicable`;
 - `advertisement_allowed`, a boolean that may be `true` only when included
   domain evidence is complete.
 

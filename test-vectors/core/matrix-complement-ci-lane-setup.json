@@ -14,6 +14,12 @@
       "client_api_base_url": "http://homeserver:8008",
       "federation_base_url": "https://homeserver:8448",
       "healthcheck_command": "curl -fsS http://homeserver:8008/_matrix/client/versions",
+      "timeout_seconds": 900,
+      "retry_policy": {
+        "max_attempts": 1,
+        "retry_on_infra_failure": true,
+        "retry_on_test_failure": false
+      },
       "isolated_storage_per_test": true,
       "tls_or_complement_pki": true,
       "artifact_dir": "artifacts/complement",

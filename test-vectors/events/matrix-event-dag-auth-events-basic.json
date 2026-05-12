@@ -6,7 +6,7 @@
     "matrix_spec_source": "https://spec.matrix.org/v1.18/rooms/v12/",
     "checked_at": "2026-05-10T14:31:34+09:00",
     "room_version": "12",
-    "room_id": "!wW8x1L9s4pT4tP0mR2a7rTq9bQhF6KjUoYzA3cD5eFg",
+    "room_id": "!wW8x1L9s4pT4tP0mR2a7rTq9bQhF6KjUoYzA3cD5eFg:example.test",
     "candidate_event_id": "$messageEvent000000000000000000000000000000000001",
     "events": [
       {
@@ -32,7 +32,7 @@
       },
       {
         "event_id": "$memberAlice000000000000000000000000000000000001",
-        "room_id": "!wW8x1L9s4pT4tP0mR2a7rTq9bQhF6KjUoYzA3cD5eFg",
+        "room_id": "!wW8x1L9s4pT4tP0mR2a7rTq9bQhF6KjUoYzA3cD5eFg:example.test",
         "type": "m.room.member",
         "sender": "@alice:example.test",
         "state_key": "@alice:example.test",
@@ -56,7 +56,7 @@
       },
       {
         "event_id": "$messageEvent000000000000000000000000000000000001",
-        "room_id": "!wW8x1L9s4pT4tP0mR2a7rTq9bQhF6KjUoYzA3cD5eFg",
+        "room_id": "!wW8x1L9s4pT4tP0mR2a7rTq9bQhF6KjUoYzA3cD5eFg:example.test",
         "type": "m.room.message",
         "sender": "@alice:example.test",
         "content": {

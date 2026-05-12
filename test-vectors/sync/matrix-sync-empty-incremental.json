@@ -17,9 +17,6 @@
       "account_data": {
         "events": []
       },
-      "presence": {
-        "events": []
-      },
       "rooms": {
         "join": {},
         "invite": {},

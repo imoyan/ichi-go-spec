@@ -31,7 +31,7 @@
       ],
       "state_snapshots": [
         {
-          "room_id": "!projectRoom0000000000000000000000000001",
+          "room_id": "!projectRoom0000000000000000000000000001:example.test",
           "type": "m.room.member",
           "state_key": "@alice:example.test",
           "event_id": "$memberAlice000000000000000000000000000000000001"
@@ -39,20 +39,20 @@
       ],
       "room_versions": [
         {
-          "room_id": "!projectRoom0000000000000000000000000001",
+          "room_id": "!projectRoom0000000000000000000000000001:example.test",
           "room_version": "12"
         }
       ],
       "room_aliases": [
         {
           "room_alias": "#project:example.test",
-          "room_id": "!projectRoom0000000000000000000000000001"
+          "room_id": "!projectRoom0000000000000000000000000001:example.test"
         }
       ],
       "room_upgrades": [
         {
-          "old_room_id": "!oldRoom0000000000000000000000000000001",
-          "replacement_room_id": "!replacementRoom00000000000000000000000001",
+          "old_room_id": "!oldRoom0000000000000000000000000000001:example.test",
+          "replacement_room_id": "!replacementRoom00000000000000000000000001:example.test",
           "tombstone_event_id": "$oldRoomTombstone000000000000000000001"
         }
       ]
@@ -69,7 +69,7 @@
       ],
       "state_snapshots": [
         {
-          "room_id": "!projectRoom0000000000000000000000000001",
+          "room_id": "!projectRoom0000000000000000000000000001:example.test",
           "type": "m.room.member",
           "state_key": "@alice:example.test",
           "event_id": "$memberAlice000000000000000000000000000000000001"
@@ -77,20 +77,20 @@
       ],
       "room_versions": [
         {
-          "room_id": "!projectRoom0000000000000000000000000001",
+          "room_id": "!projectRoom0000000000000000000000000001:example.test",
           "room_version": "12"
         }
       ],
       "room_aliases": [
         {
           "room_alias": "#project:example.test",
-          "room_id": "!projectRoom0000000000000000000000000001"
+          "room_id": "!projectRoom0000000000000000000000000001:example.test"
         }
       ],
       "room_upgrades": [
         {
-          "old_room_id": "!oldRoom0000000000000000000000000000001",
-          "replacement_room_id": "!replacementRoom00000000000000000000000001",
+          "old_room_id": "!oldRoom0000000000000000000000000000001:example.test",
+          "replacement_room_id": "!replacementRoom00000000000000000000000001:example.test",
           "tombstone_event_id": "$oldRoomTombstone000000000000000000001"
         }
       ]

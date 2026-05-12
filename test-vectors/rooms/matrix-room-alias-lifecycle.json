@@ -6,7 +6,7 @@
     "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#room-directory",
     "checked_at": "2026-05-10T15:52:00+09:00",
     "room_alias": "#project:example.test",
-    "room_id": "!projectRoom0000000000000000000000000001",
+    "room_id": "!projectRoom0000000000000000000000000001:example.test",
     "server_name": "example.test",
     "steps": [
       {
@@ -14,7 +14,7 @@
         "method": "PUT",
         "path": "/_matrix/client/v3/directory/room/%23project%3Aexample.test",
         "body": {
-          "room_id": "!projectRoom0000000000000000000000000001"
+          "room_id": "!projectRoom0000000000000000000000000001:example.test"
         },
         "expected_status": 200
       },
@@ -23,7 +23,7 @@
         "method": "GET",
         "path": "/_matrix/client/v3/directory/room/%23project%3Aexample.test",
         "expected_body": {
-          "room_id": "!projectRoom0000000000000000000000000001",
+          "room_id": "!projectRoom0000000000000000000000000001:example.test",
           "servers": [
             "example.test"
           ]

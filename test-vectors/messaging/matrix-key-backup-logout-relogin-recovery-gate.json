@@ -11,7 +11,7 @@
       "SPEC-053"
     ],
     "crypto_stack_required": true,
-    "local_megolm_allowed": false,
+    "local_olm_megolm_allowed": false,
     "steps": [
       {
         "id": "create-or-discover-trusted-backup",

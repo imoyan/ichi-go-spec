@@ -11,7 +11,7 @@
         "expected_error": "M_INVALID_PARAM",
         "expected_violation": "missing_prev_event",
         "room_version": "12",
-        "room_id": "!caseMissingPrev00000000000000000000000000000001",
+        "room_id": "!caseMissingPrev00000000000000000000000000000001:example.test",
         "candidate_event_id": "$caseMissingPrevMessage0000000000000000000001",
         "events": [
           {
@@ -37,7 +37,7 @@
           },
           {
             "event_id": "$caseMissingPrevMember0000000000000000000001",
-            "room_id": "!caseMissingPrev00000000000000000000000000000001",
+            "room_id": "!caseMissingPrev00000000000000000000000000000001:example.test",
             "type": "m.room.member",
             "sender": "@alice:example.test",
             "state_key": "@alice:example.test",
@@ -61,7 +61,7 @@
           },
           {
             "event_id": "$caseMissingPrevMessage0000000000000000000001",
-            "room_id": "!caseMissingPrev00000000000000000000000000000001",
+            "room_id": "!caseMissingPrev00000000000000000000000000000001:example.test",
             "type": "m.room.message",
             "sender": "@alice:example.test",
             "content": {
@@ -92,7 +92,7 @@
         "expected_error": "M_INVALID_PARAM",
         "expected_violation": "duplicate_auth_event",
         "room_version": "12",
-        "room_id": "!caseDuplicateAuth0000000000000000000000000001",
+        "room_id": "!caseDuplicateAuth0000000000000000000000000001:example.test",
         "candidate_event_id": "$caseDuplicateAuthMessage0000000000000000001",
         "events": [
           {
@@ -118,7 +118,7 @@
           },
           {
             "event_id": "$caseDuplicateAuthMember0000000000000000001",
-            "room_id": "!caseDuplicateAuth0000000000000000000000000001",
+            "room_id": "!caseDuplicateAuth0000000000000000000000000001:example.test",
             "type": "m.room.member",
             "sender": "@alice:example.test",
             "state_key": "@alice:example.test",
@@ -142,7 +142,7 @@
           },
           {
             "event_id": "$caseDuplicateAuthMessage0000000000000000001",
-            "room_id": "!caseDuplicateAuth0000000000000000000000000001",
+            "room_id": "!caseDuplicateAuth0000000000000000000000000001:example.test",
             "type": "m.room.message",
             "sender": "@alice:example.test",
             "content": {
@@ -174,7 +174,7 @@
         "expected_error": "M_INVALID_PARAM",
         "expected_violation": "self_prev_event",
         "room_version": "12",
-        "room_id": "!caseSelfPrev000000000000000000000000000001",
+        "room_id": "!caseSelfPrev000000000000000000000000000001:example.test",
         "candidate_event_id": "$caseSelfPrevMessage000000000000000000001",
         "events": [
           {
@@ -200,7 +200,7 @@
           },
           {
             "event_id": "$caseSelfPrevMember000000000000000000001",
-            "room_id": "!caseSelfPrev000000000000000000000000000001",
+            "room_id": "!caseSelfPrev000000000000000000000000000001:example.test",
             "type": "m.room.member",
             "sender": "@alice:example.test",
             "state_key": "@alice:example.test",
@@ -224,7 +224,7 @@
           },
           {
             "event_id": "$caseSelfPrevMessage000000000000000000001",
-            "room_id": "!caseSelfPrev000000000000000000000000000001",
+            "room_id": "!caseSelfPrev000000000000000000000000000001:example.test",
             "type": "m.room.message",
             "sender": "@alice:example.test",
             "content": {
@@ -256,7 +256,7 @@
         "expected_error": "M_INVALID_PARAM",
         "expected_violation": "auth_create_event_v12",
         "room_version": "12",
-        "room_id": "!caseAuthCreate00000000000000000000000000001",
+        "room_id": "!caseAuthCreate00000000000000000000000000001:example.test",
         "candidate_event_id": "$caseAuthCreateMember00000000000000000001",
         "events": [
           {
@@ -282,7 +282,7 @@
           },
           {
             "event_id": "$caseAuthCreateMember00000000000000000001",
-            "room_id": "!caseAuthCreate00000000000000000000000000001",
+            "room_id": "!caseAuthCreate00000000000000000000000000001:example.test",
             "type": "m.room.member",
             "sender": "@alice:example.test",
             "state_key": "@alice:example.test",
@@ -313,7 +313,7 @@
         "expected_error": "M_INVALID_PARAM",
         "expected_violation": "prev_event_cycle",
         "room_version": "12",
-        "room_id": "!casePrevCycle000000000000000000000000000001",
+        "room_id": "!casePrevCycle000000000000000000000000000001:example.test",
         "candidate_event_id": "$casePrevCycleMessage000000000000000000001",
         "events": [
           {
@@ -339,7 +339,7 @@
           },
           {
             "event_id": "$casePrevCycleMember000000000000000000001",
-            "room_id": "!casePrevCycle000000000000000000000000000001",
+            "room_id": "!casePrevCycle000000000000000000000000000001:example.test",
             "type": "m.room.member",
             "sender": "@alice:example.test",
             "state_key": "@alice:example.test",
@@ -363,7 +363,7 @@
           },
           {
             "event_id": "$casePrevCycleMessage000000000000000000001",
-            "room_id": "!casePrevCycle000000000000000000000000000001",
+            "room_id": "!casePrevCycle000000000000000000000000000001:example.test",
             "type": "m.room.message",
             "sender": "@alice:example.test",
             "content": {
@@ -394,7 +394,7 @@
         "expected_error": "M_INVALID_PARAM",
         "expected_violation": "duplicate_auth_state_key",
         "room_version": "12",
-        "room_id": "!caseDuplicateState00000000000000000000000001",
+        "room_id": "!caseDuplicateState00000000000000000000000001:example.test",
         "candidate_event_id": "$caseDuplicateStateMessage0000000000000001",
         "events": [
           {
@@ -420,7 +420,7 @@
           },
           {
             "event_id": "$caseDuplicateStateMemberA0000000000000001",
-            "room_id": "!caseDuplicateState00000000000000000000000001",
+            "room_id": "!caseDuplicateState00000000000000000000000001:example.test",
             "type": "m.room.member",
             "sender": "@alice:example.test",
             "state_key": "@alice:example.test",
@@ -444,7 +444,7 @@
           },
           {
             "event_id": "$caseDuplicateStateMemberB0000000000000001",
-            "room_id": "!caseDuplicateState00000000000000000000000001",
+            "room_id": "!caseDuplicateState00000000000000000000000001:example.test",
             "type": "m.room.member",
             "sender": "@alice:example.test",
             "state_key": "@alice:example.test",
@@ -468,7 +468,7 @@
           },
           {
             "event_id": "$caseDuplicateStateMessage0000000000000001",
-            "room_id": "!caseDuplicateState00000000000000000000000001",
+            "room_id": "!caseDuplicateState00000000000000000000000001:example.test",
             "type": "m.room.message",
             "sender": "@alice:example.test",
             "content": {

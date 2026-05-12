@@ -64,7 +64,7 @@
       }
     },
     "delivery_failure": {
-      "gateway_status": 200,
+      "gateway_status": 503,
       "rejected": [
         "pushkey-redacted"
       ],
