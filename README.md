@@ -78,6 +78,17 @@ UI surface を更新し、その後で実装リポジトリが採用します。
 - Matrix full compliance と Houra Product MVP は別の目標です。作業範囲が曖昧な場合は、
   仕様変更を広げる前に対象を明示します。
 
+### 日本語ドキュメントの扱い
+
+英語の contract 本文を正本としつつ、日本語ドキュメントも重要な reader surface として扱います。
+日英の説明が一時的にずれることは許容しますが、定期的に差分を確認し、仕様採用者が誤解しない状態へ
+戻すことを前提にします。
+
+特に `v0.X.0`、`v1.0.0`、実装リポジトリが採用基準にする pre-release など、キリのいい
+バージョンでは、英語の contract / vector / design input / adoption evidence / release note と
+対応する日本語説明を揃えてから release tag を切ります。揃っていない場合は、release 前の
+blocker、PR の未解決事項、または follow-up issue として明示します。
+
 ### GitHub 表示について
 
 GitHub のリポジトリトップではこの README が表示されます。上部の

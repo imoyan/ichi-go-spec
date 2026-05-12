@@ -352,6 +352,7 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     'Language: [English](#english) | [日本語](#日本語)',
     '## 日本語',
     '日本語クイックガイド',
+    '日本語ドキュメントの扱い',
   ]) {
     if (!readme.contains(phrase)) {
       failures.add('README.md must document $phrase.');
