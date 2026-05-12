@@ -52,9 +52,9 @@ developer-local state, untracked configuration, or raw secrets in artifacts.
 
 ## Pass/fail report
 
-The lane writes a JSON report containing:
+The lane writes a JSON report under an event that contains `matrix_spec_version`.
+The report object itself contains:
 
-- `matrix_spec_version`;
 - `houra_ref`, such as image digest or commit SHA;
 - `complement_ref`, such as git SHA or image tag;
 - `stable_spec_only`;

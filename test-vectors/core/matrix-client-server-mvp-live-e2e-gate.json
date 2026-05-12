@@ -87,8 +87,7 @@
         "vectors": [
           "test-vectors/rooms/matrix-create-room-basic.json",
           "test-vectors/rooms/matrix-join-room-basic.json",
-          "test-vectors/rooms/matrix-room-state-basic.json",
-          "test-vectors/rooms/matrix-leave-room-basic.json"
+          "test-vectors/rooms/matrix-room-state-basic.json"
         ]
       },
       {

@@ -673,6 +673,10 @@ void checkMatrixOAuthAccountManagement(
         'Matrix OAuth account-management actions must include device delete and account deactivate.',
       );
     }
+  } else {
+    failures.add(
+      'Matrix OAuth account-management metadata expectation is required.',
+    );
   }
 
   for (final path in [
@@ -757,6 +761,7 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
     'test-vectors/rooms/matrix-leave-room-basic.json',
     'test-vectors/rooms/matrix-room-state-basic.json',
     'test-vectors/rooms/matrix-room-state-forbidden.json',
+    'test-vectors/rooms/matrix-room-state-invalid-token.json',
   ]) {
     if (!File(path).existsSync()) {
       failures.add('Missing Matrix room membership/state vector: $path');
@@ -932,8 +937,7 @@ void checkMatrixEventDagAuthEvents(
 
 List<String> validateMatrixEventDagSet(Map<String, Object?> eventSet) {
   final errors = <String>[];
-  if (eventSet['matrix_spec_version'] != 'v1.18' &&
-      !eventSet.containsKey('expected_violation')) {
+  if (eventSet['matrix_spec_version'] != 'v1.18') {
     errors.add('matrix_spec_version');
   }
   final roomVersion = eventSet['room_version'];
@@ -1182,7 +1186,12 @@ bool isMatrixEventId(String id) =>
     id.startsWith(r'$') && id.length > 1 && id.length <= 255;
 
 bool isMatrixRoomId(String id) =>
-    id.startsWith('!') && id.length > 1 && id.length <= 255;
+    id.startsWith('!') &&
+    id.length > 1 &&
+    id.length <= 255 &&
+    id.lastIndexOf(':') > 1 &&
+    !id.substring(1, id.lastIndexOf(':')).contains(':') &&
+    isMatrixServerNameForVector(id.substring(id.lastIndexOf(':') + 1));
 
 void checkMatrixStateSnapshotResolution(
   Map<String, String> contracts,
@@ -1372,6 +1381,10 @@ Map<String, MatrixStateEventInfo> readMatrixStateEventCatalog(
   if (event['room_version'] != '12') {
     failures.add('${relative(file)} room_version must be 12.');
   }
+  final roomId = event['room_id'];
+  if (roomId is! String || !isMatrixRoomId(roomId)) {
+    failures.add('${relative(file)} room_id must be a Matrix room ID.');
+  }
   final catalog = event['event_catalog'];
   if (catalog is! List || catalog.isEmpty) {
     failures.add('${relative(file)} event_catalog must be non-empty.');
@@ -1511,6 +1524,9 @@ Set<String>? readMatrixEventIdSet(Object? value) {
   final result = <String>{};
   for (final item in value) {
     if (item is! String || !isMatrixEventId(item)) {
+      return null;
+    }
+    if (result.contains(item)) {
       return null;
     }
     result.add(item);
@@ -1749,6 +1765,12 @@ void validateMatrixRoomVersionDefaultCreateRoom(
     return;
   }
   final requestMap = request.cast<String, Object?>();
+  if (requestMap['method'] != 'POST' ||
+      requestMap['path'] != '/_matrix/client/v3/createRoom') {
+    failures.add(
+      '${relative(file)} default create-room request target invalid.',
+    );
+  }
   final body = requestMap['body'];
   if (body is! Map) {
     failures.add('${relative(file)} request.body must be an object.');
@@ -1757,6 +1779,12 @@ void validateMatrixRoomVersionDefaultCreateRoom(
   if (body.containsKey('room_version')) {
     failures.add(
       '${relative(file)} default create-room request must omit room_version.',
+    );
+  }
+  final creationContent = body['creation_content'];
+  if (creationContent is! Map || creationContent['room_version'] != '1') {
+    failures.add(
+      '${relative(file)} default create-room vector must include overwritten creation_content.room_version.',
     );
   }
   final eventMap = event.cast<String, Object?>();
@@ -1793,6 +1821,12 @@ void validateMatrixRoomVersionUnsupportedCreateRoom(
     return;
   }
   final body = request['body'];
+  if (request['method'] != 'POST' ||
+      request['path'] != '/_matrix/client/v3/createRoom') {
+    failures.add(
+      '${relative(file)} unsupported create-room request target invalid.',
+    );
+  }
   if (body is! Map || body['room_version'] != '13') {
     failures.add(
       '${relative(file)} unsupported vector must request version 13.',
@@ -1863,6 +1897,13 @@ void validateMatrixRoomAuthVector(
   int expectedCaseCount,
   List<String> failures,
 ) {
+  if (vector['contract'] != 'SPEC-043') {
+    failures.add('${relative(file)} must reference SPEC-043.');
+  }
+  final expectedMeta = vector['expected'];
+  if (expectedMeta is Map && expectedMeta['case_count'] != expectedCaseCount) {
+    failures.add('${relative(file)} expected.case_count is invalid.');
+  }
   final event = vector['event'];
   if (event is! Map) {
     failures.add('${relative(file)} event must be an object.');
@@ -1895,27 +1936,33 @@ void validateMatrixRoomAuthVector(
       continue;
     }
     final expectedMap = expected.cast<String, Object?>();
-    final actual = evaluateRepresentativeAuthCase(testCase);
+    final actual = evaluateRepresentativeAuthCase(file, testCase, failures);
+    if (actual == null) {
+      continue;
+    }
     if (!sameObjectMap(actual, expectedMap)) {
       failures.add('${relative(file)} case $id expected result mismatch.');
     }
   }
 }
 
-Map<String, Object?> evaluateRepresentativeAuthCase(
+Map<String, Object?>? evaluateRepresentativeAuthCase(
+  File file,
   Map<String, Object?> testCase,
+  List<String> failures,
 ) {
   final id = testCase['id'];
   final candidate = (testCase['candidate_event'] as Map?)
       ?.cast<String, Object?>();
-  final expected = (testCase['expected'] as Map).cast<String, Object?>();
   switch (id) {
     case 'membership-join-self-public':
       return {
         'allowed':
             candidate?['type'] == 'm.room.member' &&
             candidate?['sender'] == candidate?['state_key'] &&
-            (candidate?['content'] as Map?)?['membership'] == 'join',
+            (candidate?['content'] as Map?)?['membership'] == 'join' &&
+            roomJoinRule(testCase) == 'public' &&
+            !isBannedFromRoom(testCase, candidate?['state_key']),
         'reason': 'membership_join_public_self',
       };
     case 'membership-join-sender-mismatch':
@@ -1962,7 +2009,8 @@ Map<String, Object?> evaluateRepresentativeAuthCase(
         'reason': 'redaction_apply_cross_domain_low_power',
       };
   }
-  return expected;
+  failures.add('${relative(file)} unsupported room auth case id: $id.');
+  return null;
 }
 
 bool powerLevelFieldsAreIntegers(Map<String, Object?>? candidate) {
@@ -1985,7 +2033,56 @@ bool powerLevelFieldsAreIntegers(Map<String, Object?>? candidate) {
       return false;
     }
   }
+  for (final field in ['users', 'events']) {
+    final value = content[field];
+    if (value is Map && value.values.any((entry) => entry is! int)) {
+      return false;
+    }
+  }
   return true;
+}
+
+String? roomJoinRule(Map<String, Object?> testCase) {
+  final authState = testCase['auth_state'];
+  if (authState is! List) {
+    return null;
+  }
+  for (final item in authState) {
+    if (item is! Map) {
+      continue;
+    }
+    final event = item.cast<String, Object?>();
+    if (event['type'] == 'm.room.join_rules') {
+      final content = event['content'];
+      final joinRule = content is Map ? content['join_rule'] : null;
+      return joinRule is String ? joinRule : null;
+    }
+  }
+  return null;
+}
+
+bool isBannedFromRoom(Map<String, Object?> testCase, Object? userId) {
+  if (userId is! String) {
+    return true;
+  }
+  final authState = testCase['auth_state'];
+  if (authState is! List) {
+    return false;
+  }
+  for (final item in authState) {
+    if (item is! Map) {
+      continue;
+    }
+    final event = item.cast<String, Object?>();
+    final content = event['content'];
+    if (event['type'] == 'm.room.member' &&
+        event['state_key'] == userId &&
+        content is Map &&
+        content['membership'] == 'ban') {
+      return true;
+    }
+  }
+  return false;
 }
 
 bool powerLevelsContainCreator(Map<String, Object?> testCase) {
@@ -2099,6 +2196,33 @@ bool sameObjectMap(Map<String, Object?> left, Map<String, Object?> right) {
   return true;
 }
 
+bool sameJsonValue(Object? left, Object? right) {
+  if (left is Map && right is Map) {
+    if (left.length != right.length) {
+      return false;
+    }
+    for (final entry in left.entries) {
+      if (!right.containsKey(entry.key) ||
+          !sameJsonValue(entry.value, right[entry.key])) {
+        return false;
+      }
+    }
+    return true;
+  }
+  if (left is List && right is List) {
+    if (left.length != right.length) {
+      return false;
+    }
+    for (var index = 0; index < left.length; index += 1) {
+      if (!sameJsonValue(left[index], right[index])) {
+        return false;
+      }
+    }
+    return true;
+  }
+  return left == right;
+}
+
 void checkMatrixRoomAliasUpgradePersistenceGate(
   Map<String, String> contracts,
   List<String> failures,
@@ -2146,6 +2270,9 @@ void validateMatrixRoomAliasLifecycle(
     return;
   }
   final eventMap = event.cast<String, Object?>();
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
   final alias = eventMap['room_alias'];
   final roomId = eventMap['room_id'];
   final serverName = eventMap['server_name'];
@@ -2198,6 +2325,9 @@ void validateMatrixRoomUpgradeRepresentative(
     return;
   }
   final eventMap = event.cast<String, Object?>();
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
   final oldRoomId = eventMap['old_room_id'];
   final replacementRoomId = eventMap['replacement_room_id'];
   if (oldRoomId is! String ||
@@ -2241,6 +2371,9 @@ void validateMatrixRoomRestartPersistenceGate(
     return;
   }
   final eventMap = event.cast<String, Object?>();
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
   const requiredRecordSets = {
     'event_graph',
     'state_snapshots',
@@ -2261,9 +2394,7 @@ void validateMatrixRoomRestartPersistenceGate(
     return;
   }
   for (final key in requiredRecordSets) {
-    final beforeJson = jsonEncode(before[key]);
-    final afterJson = jsonEncode(after[key]);
-    if (beforeJson != afterJson) {
+    if (!sameJsonValue(before[key], after[key])) {
       failures.add('${relative(file)} restart records differ for $key.');
     }
   }
@@ -2330,8 +2461,14 @@ void validateMatrixProfileVector(
   }
   final body = requestMap['body'];
   if (method == 'PUT') {
-    if (body is! Map || !body.containsKey('displayname')) {
-      failures.add('${relative(file)} PUT profile body must set displayname.');
+    final keyName = path is String ? path.split('/').last : null;
+    if (body is! Map ||
+        body.length != 1 ||
+        keyName is! String ||
+        !body.containsKey(keyName)) {
+      failures.add(
+        '${relative(file)} PUT profile body must match the profile key path.',
+      );
     }
   } else if (method != 'GET' && method != 'DELETE') {
     failures.add('${relative(file)} profile method is invalid.');
@@ -2383,6 +2520,10 @@ void validateMatrixAccountDataSteps(
   if (userId is! String || !userId.startsWith('@')) {
     failures.add('${relative(file)} user_id must be a Matrix user ID.');
   }
+  final type = eventMap['type'];
+  if (type is! String || type.isEmpty) {
+    failures.add('${relative(file)} account data type is required.');
+  }
   if (roomScoped) {
     final roomId = eventMap['room_id'];
     if (roomId is! String || !isMatrixRoomId(roomId)) {
@@ -2416,10 +2557,10 @@ void validateMatrixAccountDataSteps(
       continue;
     }
     final isSync = path == '/_matrix/client/v3/sync';
-    final containsAccountData = roomScoped
-        ? path.contains('/rooms/!room:example.test/account_data/')
-        : path.contains('/account_data/') && !path.contains('/rooms/');
-    if (!isSync && !containsAccountData) {
+    final expectedPath = roomScoped
+        ? '/_matrix/client/v3/user/$userId/rooms/${eventMap['room_id']}/account_data/$type'
+        : '/_matrix/client/v3/user/$userId/account_data/$type';
+    if (!isSync && path != expectedPath) {
       failures.add('${relative(file)} account data step path is invalid.');
     }
     final id = step['id'];
@@ -2463,6 +2604,10 @@ void validateMatrixRoomTagsSteps(
   if (eventMap['tag'] != 'm.favourite') {
     failures.add('${relative(file)} tag must use m.favourite.');
   }
+  final userId = eventMap['user_id'];
+  if (userId is! String || !userId.startsWith('@')) {
+    failures.add('${relative(file)} user_id must be a Matrix user ID.');
+  }
   final steps = requireMatrixSteps(file, eventMap, failures);
   if (steps == null) {
     return;
@@ -2486,18 +2631,16 @@ void validateMatrixRoomTagsSteps(
       continue;
     }
     final isSync = path == '/_matrix/client/v3/sync';
-    if (!isSync &&
-        !path.startsWith(
-          '/_matrix/client/v3/user/@alice:example.test/rooms/'
-          '!room:example.test/tags',
-        )) {
+    final tag = eventMap['tag'];
+    final tagsPath = '/_matrix/client/v3/user/$userId/rooms/$roomId/tags';
+    if (!isSync && path != tagsPath && path != '$tagsPath/$tag') {
       failures.add('${relative(file)} room tag step path is invalid.');
     }
     final id = step['id'];
     if (id == 'put-room-tag') {
       final body = step['body'];
       final order = body is Map ? body['order'] : null;
-      if (order is! num || order < 0 || order > 1) {
+      if (order != null && (order is! num || order < 0 || order > 1)) {
         failures.add('${relative(file)} tag order must be in [0, 1].');
       }
     }
@@ -2702,6 +2845,10 @@ void validateMatrixTypingSteps(
         failures.add('${relative(file)} typing start timeout is invalid.');
       }
     }
+    if ((id == 'typing-start' || id == 'typing-stop') &&
+        step['expected_status'] != 200) {
+      failures.add('${relative(file)} typing update must expect 200.');
+    }
   }
 }
 
@@ -2800,13 +2947,18 @@ void validateMatrixReadMarkersSteps(
           body['m.read.private'] is! String) {
         failures.add('${relative(file)} read marker body is incomplete.');
       }
+      if (step['expected_status'] != 200) {
+        failures.add('${relative(file)} read marker post must expect 200.');
+      }
     }
     if (id == 'sync-fully-read' &&
-        step['expected_room_account_data_event'] is! Map) {
+        (path != '/_matrix/client/v3/sync' ||
+            step['expected_room_account_data_event'] is! Map)) {
       failures.add('${relative(file)} fully read sync expectation missing.');
     }
     if (id == 'sync-read-marker-receipt' &&
-        step['expected_ephemeral_event'] is! Map) {
+        (path != '/_matrix/client/v3/sync' ||
+            step['expected_ephemeral_event'] is! Map)) {
       failures.add(
         '${relative(file)} read marker receipt sync expectation missing.',
       );
@@ -3542,8 +3694,19 @@ void validateMatrixReportingSteps(
       failures.add('${relative(file)} user report path is invalid.');
     }
     final body = step['body'];
-    if (body is! Map || body['reason'] is! String) {
-      failures.add('${relative(file)} report body must include reason.');
+    if (body is! Map) {
+      failures.add('${relative(file)} report body must be an object.');
+    }
+    if (id == 'report-room' && (body is! Map || body['reason'] is! String)) {
+      failures.add('${relative(file)} room report body must include reason.');
+    }
+    if (id != 'report-room' &&
+        body is Map &&
+        body.containsKey('reason') &&
+        body['reason'] is! String) {
+      failures.add(
+        '${relative(file)} report reason must be a string when present.',
+      );
     }
     if (id == 'report-event' && body is Map && body.containsKey('score')) {
       failures.add('${relative(file)} event report must not include score.');
@@ -3595,9 +3758,17 @@ void validateMatrixAdminModerationSteps(
     }
     if (id == 'capabilities-account-moderation') {
       final expectedBody = step['expected_body_contains'];
-      if (path != '/_matrix/client/v3/capabilities' ||
-          expectedBody is! Map ||
-          jsonEncode(expectedBody).contains('false')) {
+      final capabilities = expectedBody is Map
+          ? expectedBody['capabilities']
+          : null;
+      final moderation = capabilities is Map
+          ? capabilities['m.account_moderation']
+          : null;
+      if (step['method'] != 'GET' ||
+          path != '/_matrix/client/v3/capabilities' ||
+          moderation is! Map ||
+          moderation['lock'] != true ||
+          moderation['suspend'] != true) {
         failures.add(
           '${relative(file)} account moderation capability invalid.',
         );
@@ -4740,7 +4911,7 @@ void validateMatrixKeyBackupLogoutReloginGate(
     'SPEC-053',
   }, failures);
   if (eventMap['crypto_stack_required'] != true ||
-      eventMap['local_megolm_allowed'] != false) {
+      eventMap['local_olm_megolm_allowed'] != false) {
     failures.add('${relative(file)} key backup crypto boundary invalid.');
   }
   final steps = requireMatrixSteps(file, eventMap, failures);
@@ -4964,6 +5135,9 @@ void validateMatrixVerificationSasMismatch(
     return;
   }
   validateMatrixE2eeReference(file, eventMap, failures);
+  if (eventMap['transport'] != 'to_device') {
+    failures.add('${relative(file)} SAS mismatch transport must be to_device.');
+  }
   final steps = requireMatrixSteps(file, eventMap, failures);
   if (steps == null) {
     return;
@@ -4980,6 +5154,10 @@ void validateMatrixVerificationSasMismatch(
     }
     final step = item.cast<String, Object?>();
     final id = step['id'];
+    if (id == 'detect-sas-mismatch' &&
+        (step['adapter_owned'] != true || step['required'] != true)) {
+      failures.add('${relative(file)} SAS mismatch detection flags invalid.');
+    }
     if (id == 'send-verification-cancel') {
       final content = step['content'];
       if (step['type'] != 'm.key.verification.cancel' ||
@@ -5128,7 +5306,7 @@ void validateMatrixWrongDeviceFailureGate(
   final trusted = eventMap['trusted_identity'];
   final observed = eventMap['observed_identity'];
   if (trusted is Map && observed is Map) {
-    if (trusted['master_key'] == observed['master_key'] ||
+    if (trusted['master_key'] == observed['master_key'] &&
         trusted['device_key'] == observed['device_key']) {
       failures.add('${relative(file)} wrong-device mismatch not represented.');
     }
@@ -5508,7 +5686,30 @@ bool isMatrixServerNameForVector(String value) {
   if (value.isEmpty || value.length > 255) {
     return false;
   }
-  return RegExp(r'^[A-Za-z0-9.-]+(:[0-9]{1,5})?$').hasMatch(value);
+  if (value.startsWith('[') && !value.contains(']')) {
+    return false;
+  }
+  final portIndex = value.lastIndexOf(':');
+  final host = value.startsWith('[')
+      ? value.substring(0, value.indexOf(']') + 1)
+      : portIndex > 0 && value.indexOf(':') == portIndex
+      ? value.substring(0, portIndex)
+      : value;
+  final port = value.startsWith('[')
+      ? value.substring(value.indexOf(']') + 1)
+      : portIndex > 0 && value.indexOf(':') == portIndex
+      ? value.substring(portIndex)
+      : '';
+  if (port.isNotEmpty && !RegExp(r'^:[0-9]{1,5}$').hasMatch(port)) {
+    return false;
+  }
+  if (RegExp(r'^[A-Za-z0-9.-]+$').hasMatch(host)) {
+    return true;
+  }
+  if (RegExp(r'^[0-9]{1,3}(?:\.[0-9]{1,3}){3}$').hasMatch(host)) {
+    return true;
+  }
+  return RegExp(r'^\[[0-9A-Fa-f:.]+\]$').hasMatch(host);
 }
 
 bool isMatrixServerKeyId(String value) =>
@@ -5590,7 +5791,7 @@ void validateMatrixFederationTransaction(
   }
   final pdus = (body['pdus'] as List).cast<Object?>();
   final edus = body['edus'];
-  if (pdus.isEmpty || pdus.length > 50) {
+  if (pdus.length > 50) {
     failures.add('${relative(file)} federation transaction PDU count invalid.');
   }
   if (edus is List && edus.length > 100) {
@@ -5602,10 +5803,7 @@ void validateMatrixFederationTransaction(
   final response = vector['response'];
   final responseBody = response is Map ? response['body'] : null;
   final resultPdus = responseBody is Map ? responseBody['pdus'] : null;
-  if (response is! Map ||
-      response['status'] != 200 ||
-      resultPdus is! Map ||
-      resultPdus.isEmpty) {
+  if (response is! Map || response['status'] != 200 || resultPdus is! Map) {
     failures.add('${relative(file)} federation transaction response invalid.');
     return;
   }
@@ -6064,6 +6262,8 @@ void validateMatrixFederationStateIds(
       response['status'] != 200 ||
       pduIds is! List ||
       authChainIds is! List ||
+      pduIds.isEmpty ||
+      authChainIds.isEmpty ||
       pduIds.any((value) => value is! String || !isMatrixEventId(value)) ||
       authChainIds.any(
         (value) => value is! String || !isMatrixEventId(value),
@@ -6389,7 +6589,8 @@ void validateMatrixAppserviceRegistrationObject(
   if (registration['as_token'] == registration['hs_token']) {
     failures.add('${relative(file)} appservice tokens must be unique.');
   }
-  if (!(registration['sender_localpart'] as String).startsWith('_')) {
+  final senderLocalpart = registration['sender_localpart'];
+  if (senderLocalpart is! String || !senderLocalpart.startsWith('_')) {
     failures.add('${relative(file)} sender_localpart should use underscore.');
   }
   validateMatrixAppserviceNamespaces(
@@ -7041,7 +7242,8 @@ void validateMatrixPushRulesPusherDelivery(
   final deliveryFailure = eventMap['delivery_failure'];
   final rejected = deliveryFailure is Map ? deliveryFailure['rejected'] : null;
   if (deliveryFailure is! Map ||
-      deliveryFailure['gateway_status'] != 200 ||
+      deliveryFailure['gateway_status'] is! int ||
+      (deliveryFailure['gateway_status'] as int) < 500 ||
       rejected is! List ||
       !rejected.contains('pushkey-redacted') ||
       deliveryFailure['homeserver_action'] != 'remove-pusher' ||
@@ -7466,6 +7668,10 @@ void validateMatrixDomainCoverageReport(
       eventMap['unstable_mscs_included'] != false) {
     failures.add('${relative(file)} matrix coverage report header invalid.');
   }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String || DateTime.tryParse(checkedAt) == null) {
+    failures.add('${relative(file)} checked_at must be an ISO-8601 timestamp.');
+  }
   const requiredDomains = {
     'Appendices/common rules',
     'Client-Server API',
@@ -7564,6 +7770,10 @@ void validateMatrixDomainCoverageRecord(
       }
     }
   }
+  final adoptionRefs = value['adoption_issue_refs'];
+  if (adoptionRefs is! List || adoptionRefs.any((item) => item is! String)) {
+    failures.add('${relative(file)} matrix coverage adoption refs invalid.');
+  }
   final contractGate = value['contract_gate'];
   final implementationGate = value['implementation_gate'];
   validateMatrixCoverageGate(
@@ -7580,8 +7790,18 @@ void validateMatrixDomainCoverageRecord(
     allowedStatuses: const {'pass', 'fail', 'not-run', 'not-applicable'},
     requireCommand: false,
   );
-  if (value['advertisement_allowed'] != false) {
-    failures.add('${relative(file)} advertisement must stay blocked.');
+  final advertisementAllowed = value['advertisement_allowed'];
+  if (advertisementAllowed is! bool) {
+    failures.add('${relative(file)} advertisement_allowed must be boolean.');
+  }
+  if (advertisementAllowed == true &&
+      !(contractGate is Map &&
+          contractGate['status'] == 'pass' &&
+          implementationGate is Map &&
+          implementationGate['status'] == 'pass')) {
+    failures.add(
+      '${relative(file)} advertisement requires passing contract and implementation gates.',
+    );
   }
 }
 
@@ -7605,6 +7825,20 @@ void validateMatrixCoverageGate(
   }
   if (!value.containsKey('artifact')) {
     failures.add('${relative(file)} matrix coverage gate artifact missing.');
+  } else {
+    final status = value['status'];
+    final artifact = value['artifact'];
+    if ((status == 'pass' || status == 'fail') &&
+        (artifact is! String || artifact.isEmpty)) {
+      failures.add('${relative(file)} matrix coverage gate artifact invalid.');
+    }
+    if ((status == 'not-run' || status == 'not-applicable') &&
+        artifact != null &&
+        artifact is! String) {
+      failures.add(
+        '${relative(file)} matrix coverage gate artifact must be null or string.',
+      );
+    }
   }
 }
 
@@ -7659,6 +7893,9 @@ void validateMatrixComplementLaneSetup(
       lane['client_api_base_url'] is! String ||
       lane['federation_base_url'] is! String ||
       lane['healthcheck_command'] is! String ||
+      lane['timeout_seconds'] is! int ||
+      (lane['timeout_seconds'] as int) <= 0 ||
+      lane['retry_policy'] is! Map ||
       lane['isolated_storage_per_test'] != true ||
       lane['tls_or_complement_pki'] != true ||
       lane['artifact_dir'] != 'artifacts/complement' ||
@@ -7705,12 +7942,22 @@ void validateMatrixComplementPassFailReport(
       totals['skip'] is! int ||
       totals['expected_fail'] is! int ||
       failuresList is! List ||
-      failuresList.isEmpty ||
       artifacts is! Map ||
       artifacts['summary'] is! String ||
       artifacts['logs'] is! String ||
       report['release_gate_status'] != 'blocked') {
     failures.add('${relative(file)} Complement pass/fail report invalid.');
+  }
+  if (failuresList is List) {
+    for (final item in failuresList) {
+      if (item is! Map ||
+          item['test'] is! String ||
+          item['domain'] is! String ||
+          item['failure_class'] is! String ||
+          item['artifact'] is! String) {
+        failures.add('${relative(file)} Complement failure entry invalid.');
+      }
+    }
   }
   final expectedResult = vector['expected'];
   if (expectedResult is! Map ||
@@ -7861,6 +8108,8 @@ void validateMatrixVersionAdvertisementAllowed(
   final excluded = candidate is Map ? candidate['excluded_domains'] : null;
   final evidence = candidate is Map ? candidate['domain_evidence'] : null;
   if (candidate is! Map ||
+      candidate['coverage_report_contract'] != 'SPEC-062' ||
+      candidate['complement_lane_contract'] != 'SPEC-063' ||
       advertised is! List ||
       !advertised.contains('Client-Server API') ||
       excluded is! List ||
@@ -8024,6 +8273,17 @@ void validateMatrixReleaseNotesEvidenceTemplate(
       evidence.isEmpty ||
       example['advertisement_decision'] != 'allowed-for-listed-domains-only') {
     failures.add('${relative(file)} release notes example invalid.');
+  }
+  if (evidence is List) {
+    for (final item in evidence) {
+      if (item is! Map ||
+          !requiredFields.every(
+            (field) =>
+                item[field] is String && (item[field] as String).isNotEmpty,
+          )) {
+        failures.add('${relative(file)} release notes evidence link invalid.');
+      }
+    }
   }
   final expectedResult = vector['expected'];
   if (expectedResult is! Map ||

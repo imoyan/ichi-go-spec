@@ -9,6 +9,8 @@
       "requested_versions": [
         "v1.18"
       ],
+      "coverage_report_contract": "SPEC-062",
+      "complement_lane_contract": "SPEC-063",
       "advertised_domains": [
         "Client-Server API"
       ],

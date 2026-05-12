@@ -1,0 +1,16 @@
+{
+  "name": "matrix-room-state-invalid-token",
+  "contract": "SPEC-035",
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/rooms/!room:example.test/state",
+    "access_token": "token-invalid"
+  },
+  "expected": {
+    "status": 401,
+    "body_contains": {
+      "errcode": "M_UNKNOWN_TOKEN",
+      "error": "Invalid access token."
+    }
+  }
+}

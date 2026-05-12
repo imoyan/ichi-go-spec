@@ -6,7 +6,7 @@
     "matrix_spec_source": "https://spec.matrix.org/v1.18/rooms/v12/#state-resolution",
     "checked_at": "2026-05-10T14:58:00+09:00",
     "room_version": "12",
-    "room_id": "!snapshotRoom000000000000000000000000000001",
+    "room_id": "!snapshotRoom000000000000000000000000000001:example.test",
     "event_catalog": [
       {
         "event_id": "$snapshotCreate0000000000000000000000000001",

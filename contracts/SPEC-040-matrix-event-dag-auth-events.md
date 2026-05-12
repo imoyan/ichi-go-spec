@@ -54,7 +54,7 @@ request:
 {
   "matrix_spec_version": "v1.18",
   "room_version": "12",
-  "room_id": "!roomVersion12CreateEventHash",
+  "room_id": "!roomVersion12CreateEventHash:example.test",
   "candidate_event_id": "$messageEventHash",
   "events": []
 }

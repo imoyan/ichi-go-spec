@@ -15,8 +15,8 @@ room-version authorization support.
 
 ## Scope
 
-This contract is Matrix-defined, not Houra-defined. It covers representative
-room version 12 cases for:
+This contract follows Matrix-defined room version 12 auth rules, not Houra-only
+policy. It covers representative cases for:
 
 - membership `join` authorization
 - `m.room.power_levels` validation and creator handling
@@ -50,8 +50,8 @@ federated join auth are left to later auth and federation gates.
 
 The power-level vectors cover representative room version 12 behavior:
 
-- Room creators, defined by the create event sender plus
-  `additional_creators`, must not be listed in `content.users` of
+- Room creators, derived from the create event sender and the room-version 12
+  `additional_creators` field, must not be listed in `content.users` of
   `m.room.power_levels`.
 - Integer-valued power-level fields must stay integers.
 - A room creator may set valid power levels for non-creators in these

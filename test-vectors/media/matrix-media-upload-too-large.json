@@ -8,6 +8,7 @@
       "content-type": "image/png"
     },
     "access_token": "token-1",
+    "body_size_bytes": 10485761,
     "body_base64": "aGVsbG8="
   },
   "expected": {
