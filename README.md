@@ -1,5 +1,9 @@
 # houra-spec
 
+Language: [English](#english) | [日本語](#日本語)
+
+## English
+
 `houra-spec` is the canonical repository for the Houra public specification.
 
 Houra is the product and shared specification boundary. The public API namespace
@@ -14,6 +18,72 @@ test vectors, shared design tokens, and platform-neutral UI surface definitions
 only;
 implementation behavior, package adapters, client-specific details, and
 server-specific details belong in implementation repositories.
+
+## 日本語
+
+`houra-spec` は Houra の公開仕様を管理する正本リポジトリです。
+
+Houra の公開 API、契約、テストベクトル、共通デザイントークン、プラットフォーム非依存の
+UI サーフェス定義はこのリポジトリを基準にします。`houra-server`、
+`houra-client`、`houra-labs` などの実装リポジトリは、この仕様を読み取り専用の入力として
+参照する peer であり、どれか 1 つの実装が仕様の正本になることはありません。
+
+このリポジトリには、実装詳細、パッケージアダプタ、クライアント固有の状態管理、
+サーバー固有の永続化設計は置きません。公開動作を変える必要がある場合は、先に
+`contracts/SPEC-*.md`、対応する `test-vectors/`、必要に応じて `design/` の schema や
+UI surface を更新し、その後で実装リポジトリが採用します。
+
+### 日本語クイックガイド
+
+- `contracts/`: 公開 API と互換性に関する規範的な仕様です。
+- `test-vectors/`: 実装が満たすべき request / response / parser fixture です。
+- `design/`: 共通 theme token と、UI が満たすべき操作面の定義です。
+- `SOURCE_OF_TRUTH.md`: 仕様の優先順位と変更ルールです。
+- `REFERENCE_POLICY.md`: clean-room の参照方針です。
+- `FEATURE_PROFILES.md`: `core`、`auth`、`rooms` などの機能 slice です。
+- `MODULE_DEPENDENCIES.md`: 仕様モジュール間の依存方向です。
+- `CONTRACT_MODULE_MAP.md`: `SPEC-*` と feature profile の対応表です。
+- `CHANGELOG.md`: 過去の `v0.2.0-pre.X` adoption report の保管場所です。現在の
+  baseline evidence はこの README にあります。
+- `tool/check_spec.dart`: 仕様ルートの構造、参照、vector、design 入力を検査する
+  ローカル consistency check です。
+
+### 日本語で読むときの入口
+
+- 仕様の優先順位を確認する: [`SOURCE_OF_TRUTH.md`](SOURCE_OF_TRUTH.md)
+- 実装が参照してよい情報を確認する: [`REFERENCE_POLICY.md`](REFERENCE_POLICY.md)
+- MVP の機能範囲を確認する: [`FEATURE_PROFILES.md`](FEATURE_PROFILES.md)
+- 契約と profile の対応を確認する: [`CONTRACT_MODULE_MAP.md`](CONTRACT_MODULE_MAP.md)
+- 既存の API 仕様を読む: [`contracts/`](contracts/)
+- 実装用 fixture を読む: [`test-vectors/`](test-vectors/)
+- UI / theme の共通入力を読む: [`design/`](design/)
+
+### 日本語での変更手順
+
+1. 変更したい公開動作に対応する `contracts/SPEC-*.md` を先に確認します。
+2. 実装向けの公開動作が変わる場合は、関連する `test-vectors/` を同じ変更に含めます。
+3. UI surface や theme token に影響する場合だけ、`design/` の schema または JSON を更新します。
+4. `dart tool/check_spec.dart` を実行して、仕様ルートの整合性を確認します。
+5. `git diff --check` を実行して、Markdown や JSON の空白差分を確認します。
+6. 実装リポジトリがこの仕様変更を採用した場合は、採用 evidence をこの README の
+   `Implementation Adoption Reports` に記録します。
+
+### 日本語での境界
+
+- このリポジトリは公開仕様の正本です。サーバーの storage、client SDK の便利 API、
+  framework 固有 UI、token 永続化、retry policy、deployment policy は実装リポジトリ側の責務です。
+- 互換性 evidence が足りない場合は、対応済みとして広告せず、fail-closed の gate を優先します。
+- Matrix 関連の外部仕様情報は、現在情報として固定せず、source と `checked_at` を持つ
+  dated snapshot として記録します。
+- Matrix full compliance と Houra Product MVP は別の目標です。作業範囲が曖昧な場合は、
+  仕様変更を広げる前に対象を明示します。
+
+### GitHub 表示について
+
+GitHub のリポジトリトップではこの README が表示されます。上部の
+[English](#english) / [日本語](#日本語) リンクで、英語の概要と日本語の概要を切り替えて
+読めるようにしています。GitHub README では動的な言語切り替え UI を使わず、アンカーリンクで
+同じ正本ファイル内を移動する構成にしています。
 
 ## Repository Topology
 
