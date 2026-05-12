@@ -603,6 +603,7 @@ void checkMatrixOAuthAccountManagement(
   final required = [
     'test-vectors/auth/matrix-oauth-auth-metadata-account-management-basic.json',
     'test-vectors/auth/matrix-oauth-device-delete-account-management-link.json',
+    'test-vectors/auth/matrix-oauth-generic-account-management-fallback.json',
     'test-vectors/auth/matrix-oauth-device-delete-return-refresh-complete.json',
     'test-vectors/auth/matrix-oauth-current-device-deleted-token-invalid.json',
     'test-vectors/auth/matrix-oauth-account-deactivate-account-management-link.json',
@@ -641,6 +642,7 @@ void checkMatrixOAuthAccountManagement(
   for (final path in [
     'test-vectors/auth/matrix-oauth-device-delete-account-management-link.json',
     'test-vectors/auth/matrix-oauth-account-deactivate-account-management-link.json',
+    'test-vectors/auth/matrix-oauth-generic-account-management-fallback.json',
   ]) {
     final json = readJsonObject(File(path), failures);
     final expected = json?['expected'];
@@ -652,6 +654,41 @@ void checkMatrixOAuthAccountManagement(
     if (uri is String && uri.contains('access_token')) {
       failures.add('$path client_redirect.uri must not include access_token.');
     }
+  }
+
+  final fallback = readJsonObject(
+    File(
+      'test-vectors/auth/matrix-oauth-generic-account-management-fallback.json',
+    ),
+    failures,
+  );
+  final fallbackContext = fallback?['client_context'];
+  final fallbackMetadata = fallbackContext is Map
+      ? fallbackContext['auth_metadata']
+      : null;
+  final fallbackExpected = fallback?['expected'];
+  final fallbackRedirect = fallbackExpected is Map
+      ? fallbackExpected['client_redirect']
+      : null;
+  final fallbackUri = fallbackRedirect is Map ? fallbackRedirect['uri'] : null;
+  if (fallbackMetadata is Map) {
+    final actions = fallbackMetadata['account_management_actions_supported'];
+    if (actions is List && actions.isNotEmpty) {
+      failures.add(
+        'Matrix OAuth generic account-management fallback must not advertise actions.',
+      );
+    }
+  }
+  if (fallbackUri != 'https://account.example.test/manage') {
+    failures.add(
+      'Matrix OAuth generic account-management fallback must use the bare account_management_uri.',
+    );
+  }
+  if (fallbackUri is String &&
+      (fallbackUri.contains('action=') || fallbackUri.contains('device_id='))) {
+    failures.add(
+      'Matrix OAuth generic account-management fallback must not include action parameters.',
+    );
   }
 }
 
@@ -668,6 +705,12 @@ void checkMatrixDeviceKeyQuery(
     'test-vectors/auth/matrix-keys-query-unknown-device-omitted.json',
     'test-vectors/auth/matrix-keys-query-missing-token.json',
     'test-vectors/auth/matrix-keys-query-missing-device-keys.json',
+    'test-vectors/auth/matrix-keys-query-body-not-object.json',
+    'test-vectors/auth/matrix-keys-query-device-keys-not-object.json',
+    'test-vectors/auth/matrix-keys-query-device-selection-not-array.json',
+    'test-vectors/auth/matrix-keys-query-device-id-not-string.json',
+    'test-vectors/auth/matrix-keys-query-timeout-not-integer.json',
+    'test-vectors/auth/matrix-keys-query-token-not-string.json',
   ];
   for (final path in paths) {
     final file = File(path);
@@ -701,6 +744,29 @@ void checkMatrixDeviceKeyQuery(
         pathPrefix: '/_matrix/client/v3/keys/query',
         status: 400,
         errcode: 'M_MISSING_PARAM',
+      );
+    } else if (path.contains('body-not-object')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'POST',
+        pathPrefix: '/_matrix/client/v3/keys/query',
+        status: 400,
+        errcode: 'M_NOT_JSON',
+      );
+    } else if (path.contains('not-object') ||
+        path.contains('not-array') ||
+        path.contains('not-string') ||
+        path.contains('not-integer')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'POST',
+        pathPrefix: '/_matrix/client/v3/keys/query',
+        status: 400,
+        errcode: 'M_INVALID_PARAM',
       );
     } else {
       validateMatrixKeysQueryVector(file, json, failures);

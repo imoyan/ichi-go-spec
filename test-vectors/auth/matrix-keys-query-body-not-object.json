@@ -1,0 +1,17 @@
+{
+  "name": "matrix-keys-query-body-not-object",
+  "contract": "SPEC-069",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/keys/query",
+    "access_token": "token-bob-device1",
+    "body": []
+  },
+  "expected": {
+    "status": 400,
+    "error": {
+      "errcode": "M_NOT_JSON",
+      "error": "Request body must be a JSON object."
+    }
+  }
+}

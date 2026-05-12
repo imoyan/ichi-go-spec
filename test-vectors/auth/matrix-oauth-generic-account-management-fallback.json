@@ -1,0 +1,26 @@
+{
+  "name": "matrix-oauth-generic-account-management-fallback",
+  "contract": "SPEC-068",
+  "client_context": {
+    "auth_metadata": {
+      "account_management_uri": "https://account.example.test/manage"
+    },
+    "requested_account_management_action": "org.matrix.device_delete",
+    "target_device_id": "DEVICE2"
+  },
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v1/auth_metadata"
+  },
+  "expected": {
+    "status": 200,
+    "client_redirect": {
+      "uri": "https://account.example.test/manage",
+      "must_not_include_action": true,
+      "must_not_include_access_token": true
+    },
+    "client_expectation": {
+      "must_not_use_legacy_uia_endpoint": true
+    }
+  }
+}

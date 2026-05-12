@@ -1,0 +1,22 @@
+{
+  "name": "matrix-keys-query-timeout-not-integer",
+  "contract": "SPEC-069",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/keys/query",
+    "access_token": "token-bob-device1",
+    "body": {
+      "device_keys": {
+        "@alice:example.test": []
+      },
+      "timeout": "10000"
+    }
+  },
+  "expected": {
+    "status": 400,
+    "error": {
+      "errcode": "M_INVALID_PARAM",
+      "error": "timeout must be an integer."
+    }
+  }
+}
