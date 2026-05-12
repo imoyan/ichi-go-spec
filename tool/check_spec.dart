@@ -1185,13 +1185,19 @@ bool hasPrevEventCycle(Map<String, Map<String, Object?>> byId) {
 bool isMatrixEventId(String id) =>
     id.startsWith(r'$') && id.length > 1 && id.length <= 255;
 
-bool isMatrixRoomId(String id) =>
-    id.startsWith('!') &&
-    id.length > 1 &&
-    id.length <= 255 &&
-    id.lastIndexOf(':') > 1 &&
-    !id.substring(1, id.lastIndexOf(':')).contains(':') &&
-    isMatrixServerNameForVector(id.substring(id.lastIndexOf(':') + 1));
+bool isMatrixRoomId(String id) {
+  if (!id.startsWith('!') || id.length <= 1 || id.length > 255) {
+    return false;
+  }
+  final separator = id.indexOf(':', 1);
+  return separator > 1 &&
+      separator < id.length - 1 &&
+      isMatrixServerNameForVector(id.substring(separator + 1));
+}
+
+bool isIso8601TimestampWithTimezone(String value) =>
+    DateTime.tryParse(value) != null &&
+    RegExp(r'(Z|[+-]\d{2}:\d{2})$').hasMatch(value);
 
 void checkMatrixStateSnapshotResolution(
   Map<String, String> contracts,
@@ -7669,8 +7675,10 @@ void validateMatrixDomainCoverageReport(
     failures.add('${relative(file)} matrix coverage report header invalid.');
   }
   final checkedAt = eventMap['checked_at'];
-  if (checkedAt is! String || DateTime.tryParse(checkedAt) == null) {
-    failures.add('${relative(file)} checked_at must be an ISO-8601 timestamp.');
+  if (checkedAt is! String || !isIso8601TimestampWithTimezone(checkedAt)) {
+    failures.add(
+      '${relative(file)} checked_at must be an ISO-8601 timestamp with timezone.',
+    );
   }
   const requiredDomains = {
     'Appendices/common rules',
