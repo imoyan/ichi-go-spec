@@ -548,6 +548,34 @@ client/server commonality is not lost during planning.
 | Token storage / secure storage | `adapter-owned` | `adapter-only` | `adapter-owned` | Browser storage, server secret store, or Expo secure storage selected by the host | Flutter secure storage, platform keychain, or server secret store selected by the host | None | Secure storage, token refresh timing, logout cleanup, and process lifecycle | A platform has a common secure-storage abstraction that still keeps host ownership explicit | None for Rust | No Rust artifact required | Logout and restore tests prove tokens are not persisted by the UI-free core |
 | UI surface rendering | `adapter-owned` | `adapter-only` | `adapter-owned` | Vue, Next.js, React Native, or other UI layer renders platform-neutral surfaces | Flutter, native Dart UI, or other UI layer renders platform-neutral surfaces | Platform-neutral UI surface JSON only | Component hierarchy, accessibility affordances, navigation, layout, gestures, and framework state | A design-system adapter can be shared within one ecosystem without leaking into protocol behavior | None for Rust | No Rust artifact required | UI surface conformance maps required operation and acceptance-flow IDs without forcing component structure |
 
+### Initial Shared-Core Adoption Gates
+
+The first shared-core work should prove the adoption loop before larger
+domains move. Start with small, observable protocol boundaries that can pass the
+same vectors in `houra-spec`, `houra-labs`, `houra-server`, and `houra-client`
+without turning adapter policy into shared code.
+
+| Candidate | Scope | Spec and vectors | Consumer repos | Shared artifact boundary | Adapter-owned boundary | Timing rule | Evidence before adoption |
+|---|---|---|---|---|---|---|---|
+| Matrix versions request/response handling | Parse and validate `GET /_matrix/client/versions` request/response shape and release-advertisement result fields | `SPEC-030`, `SPEC-064`, `test-vectors/core/matrix-client-versions-basic.json`, `test-vectors/core/matrix-version-advertisement-*.json` | `houra-labs` first, then separate adoption issues for `houra-server` and `houra-client` | Rust parser / validator plus TypeScript WASM or N-API facade and Dart facade only after artifact evidence exists | Fetching the endpoint, cache policy, runtime feature gating, release decision ownership, and all network behavior | Planned adoption gate; do not migrate existing implementations only because adjacent code was touched | Vector parity, p95 `+10%` or hidden latency evidence, secret-free diagnostics, artifact manifest, `abi_version`, facade stability notes, rollback to local parser |
+| Matrix / Houra error parsing and emission | Parse and build public error envelopes and stable Matrix `M_*` vocabulary without owning user-facing messages or retry policy | `SPEC-002`, `SPEC-031`, `test-vectors/core/error-basic.json`, `test-vectors/core/matrix-foundation-error-basic.json`, `test-vectors/auth/auth-error-basic.json`, `test-vectors/media/matrix-media-download-not-found.json` | `houra-labs` first, then separate adoption issues for `houra-server` and `houra-client` | Shared error enum, envelope parser, and serializer with stable host-language result types | HTTP status selection, retry/cancellation, telemetry, localization, UI copy, and product-specific recovery flow | Planned adoption gate, with next-touch only for tiny call-site swaps after the shared facade exists | Cross-repo vector parity, no adapter-specific fields in shared output, redaction review, p95 evidence, packaging notes, rollback to local error mapping |
+
+Deferred candidates:
+
+- Identifier and URI validation should follow once the versions and error
+  gates prove the artifact manifest and facade stability flow.
+- Transaction ID and idempotency helpers should follow only when retry and
+  offline queue policy can stay adapter-owned.
+- Event content validation, canonical JSON / signing helpers, room-version
+  algorithms, and E2EE bridges stay planned gates until domain-specific parity,
+  security, and packaging evidence exists.
+- HTTP transport, token storage, secure storage, and UI rendering remain
+  non-targets for shared protocol core adoption.
+
+日本語メモ: 初回 adoption は `versions` と error envelope に絞ります。既存実装を
+一括移行するのではなく、`houra-labs` で artifact / parity / performance evidence を
+揃えた後、`houra-server` と `houra-client` の adoption issue に分けて進めます。
+
 ## Matrix v1.18 Compliance Matrix
 
 This section is the planning boundary for moving from the Houra Product MVP
