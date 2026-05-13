@@ -67,11 +67,19 @@ here before changing an implementation.
   make the target explicit before widening scope.
 - Before adopting shared implementation code or routing a feature through a
   common boundary, classify whether the behavior belongs in protocol
-  parse/normalize/validate/authorize logic, adapter-owned transport/storage/UI,
-  or an explicit fail-closed advertisement gate.
-- Prefer common boundaries only when they reduce protocol drift, repeated
-  validation, or security ambiguity without adding hidden I/O, secret handling,
-  rebuild cost, or cross-language boundary overhead to hot paths.
+  parse/normalize/validate/authorize logic, reusable domain/helper logic,
+  adapter-owned transport/storage/UI, or an explicit fail-closed advertisement
+  gate.
+- Prefer common boundaries when they reduce duplicate implementation,
+  repeated decisions, protocol or product drift, validation gaps, or security
+  ambiguity without adding hidden I/O, secret handling, rebuild cost, or
+  cross-language boundary overhead on hot paths.
+- Sharing code through common boundaries is not limited to security-sensitive
+  boundaries. Domain primitives,
+  identifier/URI/date/amount handling, error mapping, retry/idempotency policy,
+  config or feature-flag interpretation, and fixture/vector adapters are also
+  candidates when shared code improves maintainability, testability, or
+  implementation size across repos.
 - Do not turn existing implementation cleanup into a broad shared-code
   migration by default. Apply the next-touch rule: when a task already changes
   parsing, normalization, validation, authorization, or advertisement behavior,
@@ -90,6 +98,8 @@ here before changing an implementation.
   timeless current facts.
 - Do not encode server storage design, client internals, or SDK convenience
   behavior as contract behavior unless the public Houra contract requires it.
+  These areas may still use small shared helpers when ownership boundaries,
+  product behavior, and performance impact are explicit.
 - When compatibility evidence is incomplete, prefer a fail-closed contract
   or advertisement gate over claiming support without evidence.
 - Shared implementation adoption requires parity vectors, security boundary
