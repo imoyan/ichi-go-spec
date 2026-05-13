@@ -724,7 +724,7 @@ Canonical release evidence example bundle:
 
 Matrix v1.18 roadmap close-out snapshot:
 
-- Snapshot checked at: 2026-05-14T06:54:13+09:00.
+- Snapshot checked at: 2026-05-14T07:15:04+09:00.
 - #95 remains the parent Matrix v1.18 roadmap. #189 is the close-out snapshot
   lane for keeping #95, domain issues, implementation adoption refs, and
   release evidence in sync.
@@ -733,9 +733,11 @@ Matrix v1.18 roadmap close-out snapshot:
   support claim.
 - `houra-server` adoption refs named by #189 are closed:
   imoyan/houra-server#59 through imoyan/houra-server#69 and
-  imoyan/houra-server#106 through imoyan/houra-server#108. The open server
-  release blocker for Complement/full-breadth evidence is
-  imoyan/houra-server#133.
+  imoyan/houra-server#106 through imoyan/houra-server#108. imoyan/houra-server#145
+  records the current-candidate release-scope exclusion decisions that closed
+  imoyan/houra-server#133 as an active Complement/full-breadth blocker. The
+  full-breadth follow-up trackers remain open as imoyan/houra-server#135
+  through imoyan/houra-server#142.
 - `houra-client` adoption refs named by #189 are closed:
   imoyan/houra-client#55 through imoyan/houra-client#66 and
   imoyan/houra-client#95 through imoyan/houra-client#97.
@@ -754,18 +756,21 @@ Matrix v1.18 roadmap close-out snapshot:
   #97 through #101 link current pass/fail evidence and #95 records a
   publishable Matrix support claim or explicit blocked / out-of-scope decisions
   for the release candidate.
-- The current blocked bundle now points active domain blockers at #97 through
-  #101 and imoyan/houra-server#133 instead of the closed #200 through #202
-  record issues. Client-Server API references both #97 and #99 because the
-  MVP-equivalent slice and breadth slice share the same Matrix domain. Those
-  domain issues remain open until #95 links refreshed same-candidate evidence
-  or an explicit blocked / out-of-scope decision for the release candidate. The
-  current same-candidate evidence now records merged server/client refs, but
-  release readiness remains blocked by fail-closed Matrix version advertisement
-  and imoyan/houra-server#133 Complement breadth evidence.
+- The current blocked bundle records the same candidate set from `houra-spec`
+  ce587f202de77dade3eebb07b63a0a6b4908743b, `houra-server`
+  3fa134955c9e0804adc9e4b54e6d90fb24631f77, and `houra-client`
+  0f330a14ad86d69ad4f147c7a5b6d1852c9c78f2. It links every excluded stable
+  domain to an explicit current-candidate release-scope decision:
+  imoyan/houra-server#135 through imoyan/houra-server#142. Client-Server API
+  still references both #97 and #99 because the MVP-equivalent slice and
+  breadth slice share the same Matrix domain. Release readiness remains blocked
+  by fail-closed Matrix version advertisement; `GET /_matrix/client/versions`
+  still returns no Matrix versions and no publishable Matrix support claim is
+  allowed.
 - #97 through #101 should not be closed merely because their spec-side
-  checklists are complete. Close them only when #95 links current pass/fail
-  evidence or names the domain as blocked / out of scope for the release.
+  checklists are complete or because the current release candidate excludes the
+  domain from advertisement. Close them only when #95 links current pass/fail
+  evidence and records the intended release outcome for that domain.
 
 Matrix compliance phases:
 

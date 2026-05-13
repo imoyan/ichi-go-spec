@@ -9791,8 +9791,8 @@ void checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(
   if (refs is! Map ||
       refs['release_candidate'] !=
           'houra-matrix-v1.18-current-blocked-2026-05-14' ||
-      refs['houra_spec_ref'] != '22dab9242223934271e7f99e5ee044197296be20' ||
-      refs['houra_server_ref'] != '660bea2b60b0c2459c864856f7bb6db2d08b4060' ||
+      refs['houra_spec_ref'] != 'ce587f202de77dade3eebb07b63a0a6b4908743b' ||
+      refs['houra_server_ref'] != '3fa134955c9e0804adc9e4b54e6d90fb24631f77' ||
       refs['houra_client_ref'] != '0f330a14ad86d69ad4f147c7a5b6d1852c9c78f2') {
     failures.add('${relative(file)} current candidate refs invalid.');
   }
@@ -9803,7 +9803,7 @@ void checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(
   if (server is! Map ||
       server['repo'] != 'houra-server' ||
       server['issue'] != 'imoyan/houra-server#108' ||
-      server['pull_request'] != 'imoyan/houra-server#134' ||
+      server['pull_request'] != 'imoyan/houra-server#145' ||
       server['merge_commit'] !=
           (refs is Map ? refs['houra_server_ref'] : null) ||
       server['head_under_test'] !=
@@ -9828,6 +9828,16 @@ void checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(
   }
 
   final domainResults = eventMap['domain_results'];
+  const expectedScopeDecisionRefsByDomain = {
+    'Appendices/common rules': 'imoyan/houra-server#142',
+    'Client-Server API': 'imoyan/houra-server#135',
+    'Server-Server API': 'imoyan/houra-server#136',
+    'Application Service API': 'imoyan/houra-server#137',
+    'Identity Service API': 'imoyan/houra-server#138',
+    'Push Gateway API': 'imoyan/houra-server#139',
+    'Room Versions': 'imoyan/houra-server#140',
+    'Olm & Megolm': 'imoyan/houra-server#141',
+  };
   if (domainResults is! List || domainResults.length != 8) {
     failures.add('${relative(file)} current bundle domain results invalid.');
   } else {
@@ -9838,6 +9848,17 @@ void checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(
           result['advertisement_allowed'] != false ||
           result['blocker_issue_refs'] is! List) {
         failures.add('${relative(file)} current domain result invalid.');
+        continue;
+      }
+      final domain = result['domain'];
+      final expectedScopeRef = expectedScopeDecisionRefsByDomain[domain];
+      final scopeDecisionRefs = result['scope_decision_refs'];
+      if (expectedScopeRef == null ||
+          scopeDecisionRefs is! List ||
+          !scopeDecisionRefs.contains(expectedScopeRef)) {
+        failures.add(
+          '${relative(file)} current domain scope decision invalid.',
+        );
       }
     }
   }
@@ -9867,6 +9888,34 @@ void checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(
     failures.add('${relative(file)} current advertisement decision invalid.');
   }
 
+  final releaseScopeDecisions = eventMap['release_scope_decisions'];
+  if (releaseScopeDecisions is! List || releaseScopeDecisions.length != 8) {
+    failures.add('${relative(file)} release scope decisions invalid.');
+  } else {
+    final seenIssueRefs = <String>{};
+    for (final decision in releaseScopeDecisions) {
+      if (decision is! Map ||
+          decision['domain'] is! String ||
+          decision['decision'] !=
+              'out-of-scope-for-current-release-candidate' ||
+          decision['issue'] is! String ||
+          decision['reason'] is! String ||
+          decision['advertisement_allowed'] != false) {
+        failures.add('${relative(file)} release scope decision invalid.');
+        continue;
+      }
+      final domain = decision['domain'];
+      final issue = decision['issue'];
+      if (expectedScopeDecisionRefsByDomain[domain] != issue) {
+        failures.add('${relative(file)} release scope issue ref invalid.');
+      }
+      seenIssueRefs.add(issue as String);
+    }
+    if (!seenIssueRefs.containsAll(expectedScopeDecisionRefsByDomain.values)) {
+      failures.add('${relative(file)} release scope issue refs incomplete.');
+    }
+  }
+
   final readiness = eventMap['readiness_checklist'];
   if (readiness is! Map ||
       readiness['contract'] != 'SPEC-066' ||
@@ -9874,16 +9923,26 @@ void checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(
       readiness['supported_domain_gates_pass'] != true ||
       readiness['ready_to_publish'] != false ||
       readiness['artifacts_secret_redacted'] != true ||
+      readiness['explicit_out_of_scope_decisions_present'] != true ||
+      readiness['scope_decision_issue_refs'] is! List ||
       readiness['release_candidate_ref_mismatch_blocks_publish'] != false) {
     failures.add('${relative(file)} current readiness checklist invalid.');
+  } else {
+    final scopeRefs = readiness['scope_decision_issue_refs'] as List;
+    if (!scopeRefs.toSet().containsAll(
+      expectedScopeDecisionRefsByDomain.values,
+    )) {
+      failures.add('${relative(file)} readiness scope issue refs incomplete.');
+    }
   }
 
   final blockers = eventMap['blockers'];
   if (blockers is! List ||
+      blockers.length != 1 ||
       !blockers.any(
         (item) => item is Map && item['id'] == 'no-matrix-advertisement',
       ) ||
-      !blockers.any(
+      blockers.any(
         (item) =>
             item is Map &&
             item['id'] == 'complement-full-breadth-blocked' &&
