@@ -33,10 +33,11 @@ Matrix version advertisement の blocker ではありません。
 
 #200 は current blocked bundle として、実 implementation refs と fail-closed の判断を
 記録しました。#201 は `SPEC-068` の OAuth account-management adoption boundary を
-記録し、full Matrix OAuth 2.0 support claim とは分けます。#202 が残る間は、#95 を
-release-ready として読ませないでください。#97 から #101 も、pass/fail evidence
-または blocked / out-of-scope の判断が #95 にリンクされるまでは、単なる spec
-checklist 完了だけで close しません。
+記録し、full Matrix OAuth 2.0 support claim とは分けます。#202 は `SPEC-069` の
+device-key query-only adoption boundary を記録し、full E2EE / Olm-Megolm support
+claim とは分けます。#95 は、#97 から #101 が current pass/fail evidence または
+release candidate に対する explicit blocked / out-of-scope の判断をリンクするまで、
+release-ready として読ませないでください。
 
 ## 広告してよいこと
 

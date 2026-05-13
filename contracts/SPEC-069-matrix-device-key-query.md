@@ -31,6 +31,26 @@ key replacement, private key storage, Olm/Megolm implementation, encrypted room
 send/receive, key backup, verification, federation key queries, or local crypto
 adapter APIs.
 
+## Query-only adoption boundary
+
+`SPEC-069` is a query-only adoption gate. It can be adopted before the broader
+E2EE endpoint family because it covers request construction, public response
+shape, parser behavior, omission semantics, timeout validation, and Matrix
+error envelopes for `POST /_matrix/client/v3/keys/query` only.
+
+Server adoption means returning public device-key query responses and Matrix
+`M_*` errors for this endpoint. It does not require key upload, one-time key
+claim, fallback key replacement, to-device delivery, encrypted rooms, key
+backup, verification, cross-signing, private key storage, or local crypto
+operations to be implemented or advertised. Unsupported E2EE behavior must stay
+fail-closed and must not widen `GET /_matrix/client/versions` advertisement.
+
+Client or shared-core adoption means request-descriptor construction and
+response parser/validator coverage for public device-key objects only. The host
+application and maintained crypto adapter still own access-token storage,
+transport retry policy, signature verification, trust UI, secure storage,
+Olm/Megolm sessions, key backup, verification, and encrypted-room behavior.
+
 ## Matrix reference
 
 - Matrix specification version: `v1.18`
@@ -176,6 +196,9 @@ Servers must not return private key material in success or error responses.
 - This contract does not implement or advertise E2EE support by itself.
 - This contract must not by itself widen `GET /_matrix/client/versions`
   advertisement beyond the evidence gate in `SPEC-030` and `SPEC-031`.
-- After this spec PR is merged, create adoption issues for `houra-server` and
-  `houra-client`. Create an `houra-labs` issue only if parser-only shared-core
-  adoption is useful for device-key query request/response shapes.
+- Adoption follow-up is split by implementation repository:
+  `imoyan/houra-server#107` tracks server endpoint response behavior,
+  `imoyan/houra-client#96` tracks client parser/request-descriptor behavior,
+  and `imoyan/houra-labs#65` tracks parser-only shared-core scope. These issues
+  must not claim Olm/Megolm, secure storage, verification UX, encrypted-room
+  behavior, key backup, or Matrix E2EE support.
