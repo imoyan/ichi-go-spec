@@ -5,7 +5,7 @@
     "matrix_spec_version": "v1.18",
     "matrix_spec_source": "https://spec.matrix.org/v1.18/",
     "matrix_release_source": "https://matrix.org/blog/2026/03/26/matrix-v1.18-release/",
-    "checked_at": "2026-05-14T06:30:38+09:00",
+    "checked_at": "2026-05-14T06:54:13+09:00",
     "bundle_contracts": [
       "SPEC-062",
       "SPEC-063",
@@ -15,18 +15,18 @@
     ],
     "candidate_refs": {
       "release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-14",
-      "houra_spec_ref": "12fe1e8e2148b582d20047f198fe49b233f5fdeb",
-      "houra_server_ref": "a98d12979029cf6dcf6f066af233a4d5911ffb78",
+      "houra_spec_ref": "22dab9242223934271e7f99e5ee044197296be20",
+      "houra_server_ref": "660bea2b60b0c2459c864856f7bb6db2d08b4060",
       "houra_client_ref": "0f330a14ad86d69ad4f147c7a5b6d1852c9c78f2"
     },
     "evidence_sources": {
       "server": {
         "repo": "houra-server",
         "issue": "imoyan/houra-server#108",
-        "pull_request": "imoyan/houra-server#129",
-        "merge_commit": "a98d12979029cf6dcf6f066af233a4d5911ffb78",
-        "head_under_test": "a98d12979029cf6dcf6f066af233a4d5911ffb78",
-        "spec_ref_under_test": "12fe1e8e2148b582d20047f198fe49b233f5fdeb",
+        "pull_request": "imoyan/houra-server#134",
+        "merge_commit": "660bea2b60b0c2459c864856f7bb6db2d08b4060",
+        "head_under_test": "660bea2b60b0c2459c864856f7bb6db2d08b4060",
+        "spec_ref_under_test": "22dab9242223934271e7f99e5ee044197296be20",
         "checks": [
           "GitHub Actions CI / test pass"
         ],
@@ -41,7 +41,7 @@
         "pull_request": "imoyan/houra-client#116",
         "merge_commit": "0f330a14ad86d69ad4f147c7a5b6d1852c9c78f2",
         "head_under_test": "0f330a14ad86d69ad4f147c7a5b6d1852c9c78f2",
-        "spec_ref_under_test": "12fe1e8e2148b582d20047f198fe49b233f5fdeb",
+        "spec_ref_under_test": "22dab9242223934271e7f99e5ee044197296be20",
         "checks": [
           "GitHub Actions test pass",
           "GitHub Actions e2e pass"
@@ -66,7 +66,7 @@
         "contract_gate": "pass",
         "implementation_gate": "blocked-by-complement-breadth",
         "blocker_issue_refs": [
-          "imoyan/houra-server#66"
+          "imoyan/houra-server#133"
         ],
         "advertisement_allowed": false
       },
@@ -166,7 +166,7 @@
       },
       {
         "id": "complement-full-breadth-blocked",
-        "issue": "imoyan/houra-server#66",
+        "issue": "imoyan/houra-server#133",
         "reason": "Complement full-breadth evidence remains blocked, so Matrix Server-Server breadth is not release-ready"
       },
       {
