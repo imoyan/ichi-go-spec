@@ -65,6 +65,13 @@ here before changing an implementation.
   Matrix domains, Product MVP work, and release-readiness work in one change.
 - If the goal could mean either Houra Product MVP or broad Matrix compliance,
   make the target explicit before widening scope.
+- Before adopting shared implementation code or routing a feature through a
+  common boundary, classify whether the behavior belongs in protocol
+  parse/normalize/validate/authorize logic, adapter-owned transport/storage/UI,
+  or an explicit fail-closed advertisement gate.
+- Prefer common boundaries only when they reduce protocol drift, repeated
+  validation, or security ambiguity without adding hidden I/O, secret handling,
+  rebuild cost, or cross-language boundary overhead to hot paths.
 - Record implementation adoption evidence in `README.md` when another Houra
   repository adopts a spec change; implementation repositories remain
   non-canonical.
@@ -80,6 +87,9 @@ here before changing an implementation.
   behavior as contract behavior unless the public Houra contract requires it.
 - When compatibility evidence is incomplete, prefer a fail-closed contract
   or advertisement gate over claiming support without evidence.
+- Shared implementation adoption requires parity vectors, security boundary
+  review, packaging or rebuild-cost notes, and performance evidence for the
+  affected representative vector batch before it can be treated as required.
 
 ## Verification
 
