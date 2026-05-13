@@ -5208,6 +5208,7 @@ void checkMatrixVerificationCrossSigningGate(
     'test-vectors/messaging/matrix-verification-sas-to-device-happy-path.json',
     'test-vectors/messaging/matrix-verification-sas-mismatch-cancel.json',
     'test-vectors/messaging/matrix-cross-signing-key-lifecycle.json',
+    'test-vectors/messaging/matrix-cross-signing-missing-token.json',
     'test-vectors/messaging/matrix-cross-signing-invalid-signature.json',
     'test-vectors/messaging/matrix-wrong-device-failure-gate.json',
   ];
@@ -5227,6 +5228,8 @@ void checkMatrixVerificationCrossSigningGate(
       validateMatrixVerificationSasMismatch(file, json, failures);
     } else if (path.contains('key-lifecycle')) {
       validateMatrixCrossSigningLifecycle(file, json, failures);
+    } else if (path.contains('missing-token')) {
+      validateMatrixCrossSigningMissingToken(file, json, failures);
     } else if (path.contains('invalid-signature')) {
       validateMatrixSimpleRequestVector(
         file,
@@ -5237,6 +5240,12 @@ void checkMatrixVerificationCrossSigningGate(
         status: 400,
         errcode: 'M_INVALID_SIGNATURE',
       );
+      final request = json['request'];
+      if (request is! Map || request['access_token'] is! String) {
+        failures.add(
+          '${relative(file)} invalid signature must be authenticated.',
+        );
+      }
     } else {
       validateMatrixWrongDeviceFailureGate(file, json, failures);
     }
@@ -5424,6 +5433,11 @@ void validateMatrixCrossSigningLifecycle(
     if (step['expected_status'] != 200 || step['method'] != 'POST') {
       failures.add('${relative(file)} cross-signing step status invalid.');
     }
+    if (step['access_token'] != 'token-alice-device1') {
+      failures.add(
+        '${relative(file)} cross-signing protected step missing access token.',
+      );
+    }
     final id = step['id'];
     if (id == 'upload-cross-signing-keys') {
       if (step['path'] != '/_matrix/client/v3/keys/device_signing/upload') {
@@ -5481,6 +5495,68 @@ void validateMatrixCrossSigningLifecycle(
       expectedResult['signature_failures_empty'] != true ||
       expectedResult['versions_advertisement_widened'] != false) {
     failures.add('${relative(file)} cross-signing expectation invalid.');
+  }
+}
+
+void validateMatrixCrossSigningMissingToken(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixE2eeReference(file, eventMap, failures);
+  requireStringListIncludes(file, eventMap, 'required_contracts', {
+    'SPEC-050',
+    'SPEC-051',
+    'SPEC-054',
+  }, failures);
+  if (eventMap['auth_precedes_signature_validation'] != true) {
+    failures.add('${relative(file)} auth precedence flag missing.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = {
+    'missing-token-device-signing-upload':
+        '/_matrix/client/v3/keys/device_signing/upload',
+    'missing-token-keys-query': '/_matrix/client/v3/keys/query',
+    'missing-token-signatures-upload':
+        '/_matrix/client/v3/keys/signatures/upload',
+  };
+  validateStepOrder(file, steps, expected.keys.toList(), failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    if (id is! String || !expected.containsKey(id)) {
+      failures.add('${relative(file)} unexpected missing-token step.');
+      continue;
+    }
+    if (step['method'] != 'POST' ||
+        step['path'] != expected[id] ||
+        step.containsKey('access_token') ||
+        step['expected_status'] != 401) {
+      failures.add('${relative(file)} missing-token request invalid.');
+    }
+    final error = step['expected_error'];
+    if (error is! Map ||
+        error['errcode'] != 'M_MISSING_TOKEN' ||
+        error['error'] is! String) {
+      failures.add('${relative(file)} missing-token error invalid.');
+    }
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['protected_key_operations_require_token'] != true ||
+      expectedResult['semantic_errors_suppressed_until_authenticated'] != true ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} missing-token expectation invalid.');
   }
 }
 

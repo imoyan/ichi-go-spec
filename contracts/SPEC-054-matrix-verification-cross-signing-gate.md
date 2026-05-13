@@ -95,6 +95,13 @@ The response may include `master_keys`, `self_signing_keys`, and
 `user_signing_keys` in addition to device keys. Trust decisions remain
 client-owned and adapter-backed.
 
+`keys/device_signing/upload`, `keys/signatures/upload`, and `keys/query` are
+protected key endpoints. Servers must authenticate the bearer token before
+validating cross-signing key shape, signature semantics, or query body
+semantics. A missing or invalid token must return the Matrix auth error for the
+token failure, not `M_INVALID_SIGNATURE`, `M_BAD_JSON`, `M_INVALID_PARAM`, or a
+success response.
+
 ## Wrong-device failure gate
 
 A passing implementation must demonstrate that a changed or mismatched device

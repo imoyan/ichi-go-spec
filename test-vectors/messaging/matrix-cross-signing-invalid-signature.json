@@ -4,6 +4,7 @@
   "request": {
     "method": "POST",
     "path": "/_matrix/client/v3/keys/device_signing/upload",
+    "access_token": "token-alice-device1",
     "body": {
       "self_signing_key": {
         "user_id": "@alice:example.test",
