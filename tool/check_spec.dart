@@ -6093,6 +6093,7 @@ void checkMatrixFederationDiscoverySigningKeys(
     'test-vectors/core/matrix-federation-signing-key-basic.json',
     'test-vectors/core/matrix-federation-key-query-basic.json',
     'test-vectors/core/matrix-federation-destination-resolution-failure.json',
+    'test-vectors/core/matrix-federation-outbound-destination-controls.json',
   ];
   for (final path in paths) {
     final file = File(path);
@@ -6112,6 +6113,8 @@ void checkMatrixFederationDiscoverySigningKeys(
       validateMatrixFederationSigningKey(file, json, failures);
     } else if (path.contains('key-query')) {
       validateMatrixFederationKeyQuery(file, json, failures);
+    } else if (path.contains('outbound-destination-controls')) {
+      validateMatrixFederationOutboundDestinationControls(file, json, failures);
     } else {
       validateMatrixFederationDestinationFailure(file, json, failures);
     }
@@ -6277,6 +6280,101 @@ void validateMatrixFederationDestinationFailure(
   }
 }
 
+void validateMatrixFederationOutboundDestinationControls(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixFederationReference(file, eventMap, failures);
+  validateIanaAddressRegistrySources(file, eventMap, failures);
+  final allowed = eventMap['allowed_public_case'];
+  if (allowed is! Map ||
+      allowed['server_name'] != 'public.example.test' ||
+      allowed['delegated_server_name'] != 'delegated.example.test:8448' ||
+      allowed['resolved_addresses'] is! List ||
+      allowed['destination_allowed'] != true ||
+      allowed['federation_request_sent'] != true) {
+    failures.add('${relative(file)} allowed federation egress case invalid.');
+  }
+  final cases = eventMap['unsafe_cases'];
+  if (cases is! List || cases.length < 5) {
+    failures.add('${relative(file)} unsafe federation cases are incomplete.');
+    return;
+  }
+  final seenClassifications = <String>{};
+  for (final item in cases) {
+    if (item is! Map) {
+      failures.add('${relative(file)} unsafe federation case must be object.');
+      continue;
+    }
+    final testCase = item.cast<String, Object?>();
+    final id = testCase['id'];
+    final classification = testCase['expected_classification'];
+    if (id is! String || id.isEmpty || testCase['stage'] is! String) {
+      failures.add(
+        '${relative(file)} unsafe federation case id/stage invalid.',
+      );
+    }
+    if (classification is! String || classification.isEmpty) {
+      failures.add(
+        '${relative(file)} unsafe federation classification missing.',
+      );
+    } else {
+      seenClassifications.add(classification);
+    }
+    if (testCase['expected_blocked'] != true ||
+        testCase['federation_request_sent'] != false) {
+      failures.add('${relative(file)} unsafe federation case must be blocked.');
+    }
+    if (id == 'redirect-to-private-well-known' &&
+        testCase['redirect_location'] is! String) {
+      failures.add('${relative(file)} redirect unsafe case missing location.');
+    }
+    if (id == 'dns-rebinding-before-connect' &&
+        (testCase['initial_resolved_addresses'] is! List ||
+            testCase['connect_resolved_addresses'] is! List)) {
+      failures.add('${relative(file)} DNS rebinding case invalid.');
+    }
+  }
+  for (final classification in const {
+    'loopback',
+    'link_local',
+    'private_use',
+    'redirect_to_unsafe_destination',
+    'dns_rebinding_to_private_use',
+  }) {
+    if (!seenClassifications.contains(classification)) {
+      failures.add(
+        '${relative(file)} missing unsafe federation class: $classification.',
+      );
+    }
+  }
+  final controls = eventMap['controls'];
+  if (controls is! Map ||
+      controls['redirect_revalidation_required'] != true ||
+      controls['dns_revalidation_before_connect'] != true ||
+      controls['unsafe_addresses_blocked_before_signed_request'] != true ||
+      controls['max_redirects'] is! int ||
+      controls['connect_timeout_ms_max'] is! int ||
+      controls['read_timeout_ms_max'] is! int ||
+      controls['response_body_bytes_max'] is! int) {
+    failures.add('${relative(file)} federation outbound controls invalid.');
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['legitimate_public_egress_allowed'] != true ||
+      expectedResult['unsafe_internal_destination_blocked'] != true ||
+      expectedResult['federation_request_sent_to_unsafe_destination'] !=
+          false ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} federation outbound expectation invalid.');
+  }
+}
+
 void validateMatrixFederationReference(
   File file,
   Map<String, Object?> eventMap,
@@ -6289,6 +6387,22 @@ void validateMatrixFederationReference(
   if (source is! String ||
       !source.startsWith('https://spec.matrix.org/v1.18/server-server-api/#')) {
     failures.add('${relative(file)} matrix_spec_source is invalid.');
+  }
+}
+
+void validateIanaAddressRegistrySources(
+  File file,
+  Map<String, Object?> eventMap,
+  List<String> failures,
+) {
+  final ianaSources = readStringList(eventMap['iana_sources']);
+  for (final source in const [
+    'https://www.iana.org/assignments/iana-ipv4-special-registry',
+    'https://www.iana.org/assignments/iana-ipv6-special-registry',
+  ]) {
+    if (ianaSources == null || !ianaSources.contains(source)) {
+      failures.add('${relative(file)} iana_sources must include $source.');
+    }
   }
 }
 
@@ -7680,6 +7794,7 @@ void checkMatrixPushGatewayBoundary(
   }
   const paths = [
     'test-vectors/core/matrix-push-gateway-boundary-basic.json',
+    'test-vectors/core/matrix-push-gateway-destination-controls.json',
     'test-vectors/core/matrix-push-gateway-notify-basic.json',
     'test-vectors/core/matrix-push-gateway-event-id-only.json',
     'test-vectors/core/matrix-push-rules-pusher-delivery-failures.json',
@@ -7694,7 +7809,9 @@ void checkMatrixPushGatewayBoundary(
     if (json == null) {
       continue;
     }
-    if (path.contains('boundary')) {
+    if (path.contains('destination-controls')) {
+      validateMatrixPushGatewayDestinationControls(file, json, failures);
+    } else if (path.contains('boundary')) {
       validateMatrixPushGatewayServiceBoundary(file, json, failures);
     } else if (path.contains('event-id-only')) {
       validateMatrixPushGatewayNotify(file, json, failures, eventIdOnly: true);
@@ -7703,6 +7820,104 @@ void checkMatrixPushGatewayBoundary(
     } else {
       validateMatrixPushRulesPusherDelivery(file, json, failures);
     }
+  }
+}
+
+void validateMatrixPushGatewayDestinationControls(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixPushReference(file, eventMap, failures);
+  validateIanaAddressRegistrySources(file, eventMap, failures);
+  final allowed = eventMap['allowed_public_case'];
+  if (allowed is! Map ||
+      allowed['pusher_url'] !=
+          'https://push.example.test/_matrix/push/v1/notify' ||
+      allowed['resolved_addresses'] is! List ||
+      allowed['destination_allowed'] != true ||
+      allowed['notification_sent'] != true) {
+    failures.add('${relative(file)} allowed push gateway case invalid.');
+  }
+  final cases = eventMap['unsafe_cases'];
+  if (cases is! List || cases.length < 6) {
+    failures.add('${relative(file)} unsafe push gateway cases incomplete.');
+    return;
+  }
+  final seenClassifications = <String>{};
+  for (final item in cases) {
+    if (item is! Map) {
+      failures.add('${relative(file)} unsafe push case must be object.');
+      continue;
+    }
+    final testCase = item.cast<String, Object?>();
+    final id = testCase['id'];
+    final pusherUrl = testCase['pusher_url'];
+    final classification = testCase['expected_classification'];
+    if (id is! String || id.isEmpty || pusherUrl is! String) {
+      failures.add('${relative(file)} unsafe push case id/url invalid.');
+    }
+    if (classification is! String || classification.isEmpty) {
+      failures.add('${relative(file)} unsafe push classification missing.');
+    } else {
+      seenClassifications.add(classification);
+    }
+    if (testCase['expected_blocked'] != true ||
+        testCase['notification_sent'] != false) {
+      failures.add('${relative(file)} unsafe push case must be blocked.');
+    }
+    if (id == 'redirect-to-private' &&
+        testCase['redirect_location'] is! String) {
+      failures.add('${relative(file)} push redirect case missing location.');
+    }
+    if (id == 'dns-rebinding-before-connect' &&
+        (testCase['initial_resolved_addresses'] is! List ||
+            testCase['connect_resolved_addresses'] is! List)) {
+      failures.add('${relative(file)} push DNS rebinding case invalid.');
+    }
+  }
+  for (final classification in const {
+    'non_https_scheme',
+    'loopback',
+    'link_local',
+    'private_use',
+    'redirect_to_unsafe_destination',
+    'dns_rebinding_to_private_use',
+  }) {
+    if (!seenClassifications.contains(classification)) {
+      failures.add(
+        '${relative(file)} missing unsafe push class: $classification.',
+      );
+    }
+  }
+  final controls = eventMap['controls'];
+  if (controls is! Map ||
+      controls['https_required'] != true ||
+      controls['exact_notify_path_required'] != true ||
+      controls['userinfo_forbidden'] != true ||
+      controls['fragment_forbidden'] != true ||
+      controls['redirect_revalidation_required'] != true ||
+      controls['dns_revalidation_before_connect'] != true ||
+      controls['max_redirects'] is! int ||
+      controls['connect_timeout_ms_max'] is! int ||
+      controls['read_timeout_ms_max'] is! int ||
+      controls['response_body_bytes_max'] is! int ||
+      controls['pushkeys_redacted_in_diagnostics'] != true) {
+    failures.add(
+      '${relative(file)} push gateway destination controls invalid.',
+    );
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['legitimate_public_push_gateway_allowed'] != true ||
+      expectedResult['unsafe_gateway_url_rejected'] != true ||
+      expectedResult['notification_sent_to_unsafe_destination'] != false ||
+      expectedResult['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} push destination expectation invalid.');
   }
 }
 

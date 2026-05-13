@@ -1,0 +1,98 @@
+{
+  "name": "matrix-federation-outbound-destination-controls",
+  "contract": "SPEC-055",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/server-server-api/#server-discovery",
+    "iana_sources": [
+      "https://www.iana.org/assignments/iana-ipv4-special-registry",
+      "https://www.iana.org/assignments/iana-ipv6-special-registry"
+    ],
+    "checked_at": "2026-05-13T20:05:00+09:00",
+    "allowed_public_case": {
+      "server_name": "public.example.test",
+      "delegated_server_name": "delegated.example.test:8448",
+      "resolved_addresses": [
+        "203.0.113.10"
+      ],
+      "destination_allowed": true,
+      "federation_request_sent": true
+    },
+    "unsafe_cases": [
+      {
+        "id": "loopback-literal-server-name",
+        "stage": "server_name",
+        "candidate": "127.0.0.1:8448",
+        "resolved_addresses": [
+          "127.0.0.1"
+        ],
+        "expected_blocked": true,
+        "expected_classification": "loopback",
+        "federation_request_sent": false
+      },
+      {
+        "id": "link-local-well-known-delegation",
+        "stage": "well_known_m_server",
+        "candidate": "169.254.169.254:8448",
+        "resolved_addresses": [
+          "169.254.169.254"
+        ],
+        "expected_blocked": true,
+        "expected_classification": "link_local",
+        "federation_request_sent": false
+      },
+      {
+        "id": "private-address-record",
+        "stage": "address_records",
+        "candidate": "private.example.test:8448",
+        "resolved_addresses": [
+          "10.0.0.7"
+        ],
+        "expected_blocked": true,
+        "expected_classification": "private_use",
+        "federation_request_sent": false
+      },
+      {
+        "id": "redirect-to-private-well-known",
+        "stage": "well_known_redirect",
+        "candidate": "https://public.example.test/.well-known/matrix/server",
+        "redirect_location": "https://127.0.0.1/.well-known/matrix/server",
+        "resolved_addresses": [
+          "127.0.0.1"
+        ],
+        "expected_blocked": true,
+        "expected_classification": "redirect_to_unsafe_destination",
+        "federation_request_sent": false
+      },
+      {
+        "id": "dns-rebinding-before-connect",
+        "stage": "pre_connect_revalidation",
+        "candidate": "rebind.example.test:8448",
+        "initial_resolved_addresses": [
+          "203.0.113.20"
+        ],
+        "connect_resolved_addresses": [
+          "10.0.0.8"
+        ],
+        "expected_blocked": true,
+        "expected_classification": "dns_rebinding_to_private_use",
+        "federation_request_sent": false
+      }
+    ],
+    "controls": {
+      "redirect_revalidation_required": true,
+      "dns_revalidation_before_connect": true,
+      "unsafe_addresses_blocked_before_signed_request": true,
+      "max_redirects": 5,
+      "connect_timeout_ms_max": 5000,
+      "read_timeout_ms_max": 15000,
+      "response_body_bytes_max": 65536
+    }
+  },
+  "expected": {
+    "legitimate_public_egress_allowed": true,
+    "unsafe_internal_destination_blocked": true,
+    "federation_request_sent_to_unsafe_destination": false,
+    "versions_advertisement_widened": false
+  }
+}

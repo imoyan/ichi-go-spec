@@ -588,7 +588,7 @@ keys, push provider credentials, or unredacted release artifacts.
 | Auth/session lifecycle and owner scope | `SPEC-004`, `SPEC-032`, `SPEC-034`, `SPEC-053` cover bearer-token attachment, logout invalidation, device APIs, and key-backup surfaces | #180 closes the missing Houra stale-token logout vector plus Matrix device and key-backup owner-scope negative vectors | Do not record implementation adoption unless stale-token and cross-user negative vectors pass |
 | Protected key and verification operations | `SPEC-050`, `SPEC-054`, `SPEC-069` keep crypto operations adapter-owned and define parser-facing device-key / verification surfaces | #179 tracked the original `SPEC-054` auth precondition mismatch; `SPEC-054` now requires auth before signature or query semantics | Protected key operations must fail authentication before semantic signature errors are evaluated |
 | Media filename and download metadata | `SPEC-020`, `SPEC-038`, `SPEC-071`, `SPEC-072` cover MVP media, Matrix media, deferred range/thumbnail behavior, and encrypted-media boundaries | #181 closes `Content-Disposition` filename safety for CR/LF, control characters, separators, traversal-like names, and MVP quoting policy | Download metadata must not permit header injection or unsafe path-shaped filenames as canonical behavior |
-| Federation and push outbound destinations | `SPEC-055`, `SPEC-060`, and `SPEC-061` define federation bootstrap, push gateway, and federation smoke boundaries | #182 tracks SSRF-oriented destination controls for well-known redirects, DNS rebinding, private ranges, and push gateway URLs | Outbound request contracts must fail closed on unsafe internal destinations while preserving legitimate public federation and push gateway paths |
+| Federation and push outbound destinations | `SPEC-055`, `SPEC-060`, and `SPEC-061` define federation bootstrap, push gateway, and federation smoke boundaries | #182 closes SSRF-oriented destination controls for well-known redirects, DNS rebinding, private ranges, and push gateway URLs | Outbound request contracts must fail closed on unsafe internal destinations while preserving legitimate public federation and push gateway paths |
 | Error envelopes, diagnostics, and release evidence | `SPEC-002`, `SPEC-031`, `SPEC-064`, `SPEC-065`, `SPEC-070`, `SPEC-071`, and `SPEC-072` define public error shape, fail-closed advertisement, release evidence fields, and redacted deferred-boundary evidence | No new issue from this pass; release evidence implementation refs remain tracked by #200 and must cite redacted artifacts only | Public errors and release evidence must not expose bearer tokens, refresh tokens, reset tokens, private keys, pushkeys, vendor tokens, raw secrets, or internal state beyond the contract vector |
 | Shared-core security boundary | `Shared boundary and risk rule` and `Initial Shared-Core Adoption Gates` keep shared parser/validator work separate from host-owned transport, storage, token, crypto, retry, and UI policy | Future adoption issues should inherit #198 evidence requirements instead of moving host-owned secrets into shared code | Shared artifacts require vector parity, p95 evidence, redaction review, artifact manifest, `abi_version`, facade stability notes, and rollback before adoption |
 
@@ -601,10 +601,12 @@ Security and privacy review issue handling:
   invalidation and Matrix cross-user device / key-backup negative vectors.
 - #181 closes the media header-safety gap by requiring unsafe filename download
   variants to fail before `Content-Disposition` is emitted.
-- #182 remains an independent P2 spec gap so outbound egress controls do not
-  block media header safety.
-- Do not create implementation-repository adoption issues for those gaps until
-  the corresponding contract and vector changes land in `houra-spec`.
+- #182 closes the outbound egress gap by requiring federation discovery and push
+  gateway destinations to reject unsafe internal ranges, redirect-to-private,
+  and DNS rebinding before sending traffic.
+- Do not create implementation-repository adoption issues for future security
+  review gaps until the corresponding contract and vector changes land in
+  `houra-spec`.
 - If a later review finds only implementation-owned configuration or storage
   policy, record it in the implementation repository; do not turn it into a
   normative `houra-spec` contract unless public behavior is ambiguous.

@@ -1,0 +1,103 @@
+{
+  "name": "matrix-push-gateway-destination-controls",
+  "contract": "SPEC-060",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3pushersset",
+    "iana_sources": [
+      "https://www.iana.org/assignments/iana-ipv4-special-registry",
+      "https://www.iana.org/assignments/iana-ipv6-special-registry"
+    ],
+    "checked_at": "2026-05-13T20:05:00+09:00",
+    "allowed_public_case": {
+      "pusher_url": "https://push.example.test/_matrix/push/v1/notify",
+      "resolved_addresses": [
+        "203.0.113.30"
+      ],
+      "destination_allowed": true,
+      "notification_sent": true
+    },
+    "unsafe_cases": [
+      {
+        "id": "non-https-scheme",
+        "pusher_url": "http://push.example.test/_matrix/push/v1/notify",
+        "expected_blocked": true,
+        "expected_classification": "non_https_scheme",
+        "notification_sent": false
+      },
+      {
+        "id": "loopback-ip-literal",
+        "pusher_url": "https://127.0.0.1/_matrix/push/v1/notify",
+        "resolved_addresses": [
+          "127.0.0.1"
+        ],
+        "expected_blocked": true,
+        "expected_classification": "loopback",
+        "notification_sent": false
+      },
+      {
+        "id": "link-local-address-record",
+        "pusher_url": "https://push-link-local.example.test/_matrix/push/v1/notify",
+        "resolved_addresses": [
+          "169.254.169.254"
+        ],
+        "expected_blocked": true,
+        "expected_classification": "link_local",
+        "notification_sent": false
+      },
+      {
+        "id": "private-address-record",
+        "pusher_url": "https://push-private.example.test/_matrix/push/v1/notify",
+        "resolved_addresses": [
+          "192.168.1.20"
+        ],
+        "expected_blocked": true,
+        "expected_classification": "private_use",
+        "notification_sent": false
+      },
+      {
+        "id": "redirect-to-private",
+        "pusher_url": "https://push.example.test/_matrix/push/v1/notify",
+        "redirect_location": "https://10.0.0.9/_matrix/push/v1/notify",
+        "resolved_addresses": [
+          "10.0.0.9"
+        ],
+        "expected_blocked": true,
+        "expected_classification": "redirect_to_unsafe_destination",
+        "notification_sent": false
+      },
+      {
+        "id": "dns-rebinding-before-connect",
+        "pusher_url": "https://push-rebind.example.test/_matrix/push/v1/notify",
+        "initial_resolved_addresses": [
+          "203.0.113.40"
+        ],
+        "connect_resolved_addresses": [
+          "10.0.0.10"
+        ],
+        "expected_blocked": true,
+        "expected_classification": "dns_rebinding_to_private_use",
+        "notification_sent": false
+      }
+    ],
+    "controls": {
+      "https_required": true,
+      "exact_notify_path_required": true,
+      "userinfo_forbidden": true,
+      "fragment_forbidden": true,
+      "redirect_revalidation_required": true,
+      "dns_revalidation_before_connect": true,
+      "max_redirects": 5,
+      "connect_timeout_ms_max": 5000,
+      "read_timeout_ms_max": 15000,
+      "response_body_bytes_max": 65536,
+      "pushkeys_redacted_in_diagnostics": true
+    }
+  },
+  "expected": {
+    "legitimate_public_push_gateway_allowed": true,
+    "unsafe_gateway_url_rejected": true,
+    "notification_sent_to_unsafe_destination": false,
+    "versions_advertisement_widened": false
+  }
+}
