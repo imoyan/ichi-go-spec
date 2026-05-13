@@ -1,0 +1,69 @@
+{
+  "name": "matrix-device-delete-owner-scope",
+  "contract": "SPEC-034",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#delete_matrixclientv3devicesdeviceid",
+    "checked_at": "2026-05-10T10:32:23+09:00",
+    "authenticated_user_id": "@alice:example.test",
+    "protected_user_id": "@bob:example.test",
+    "protected_device_id": "BOBDEVICE1",
+    "steps": [
+      {
+        "id": "delete-other-user-device",
+        "method": "DELETE",
+        "path": "/_matrix/client/v3/devices/BOBDEVICE1",
+        "access_token": "token-alice-device1",
+        "body": {
+          "auth": {
+            "type": "m.login.password",
+            "session": "device-del-session-1",
+            "identifier": {
+              "type": "m.id.user",
+              "user": "alice"
+            },
+            "password": "correct horse battery staple"
+          }
+        },
+        "expected_status": 404,
+        "expected_error": {
+          "errcode": "M_NOT_FOUND",
+          "error": "Device not found."
+        },
+        "must_not_delete_protected_device": true,
+        "protected_access_token_must_remain_valid": true
+      },
+      {
+        "id": "bulk-delete-other-user-device",
+        "method": "POST",
+        "path": "/_matrix/client/v3/delete_devices",
+        "access_token": "token-alice-device1",
+        "body": {
+          "devices": [
+            "BOBDEVICE1"
+          ],
+          "auth": {
+            "type": "m.login.password",
+            "session": "device-del-session-2",
+            "identifier": {
+              "type": "m.id.user",
+              "user": "alice"
+            },
+            "password": "correct horse battery staple"
+          }
+        },
+        "expected_status": 404,
+        "expected_error": {
+          "errcode": "M_NOT_FOUND",
+          "error": "Device not found."
+        },
+        "must_not_delete_protected_device": true,
+        "protected_access_token_must_remain_valid": true
+      }
+    ]
+  },
+  "expected": {
+    "owner_scope_enforced": true,
+    "protected_access_token_remains_valid": true
+  }
+}

@@ -90,6 +90,7 @@ void main() {
   if (profileMap.isNotEmpty) {
     checkVectors(contracts, profileMap, failures);
   }
+  checkHouraLoginSession(contracts, failures);
   checkMatrixFoundation(contracts, failures);
   checkMatrixAuthSession(contracts, failures);
   checkMatrixRegistration(contracts, failures);
@@ -684,6 +685,62 @@ void checkMatrixFoundation(
   }
 }
 
+void checkHouraLoginSession(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-004')) {
+    failures.add('Houra login/session contract SPEC-004 is required.');
+  }
+  final file = File('test-vectors/auth/logout-token-invalid-after-logout.json');
+  if (!file.existsSync()) {
+    failures.add('Missing Houra logout invalidation vector: ${relative(file)}');
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  validateHouraLogoutTokenInvalidAfterLogout(file, json, failures);
+}
+
+void validateHouraLogoutTokenInvalidAfterLogout(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final given = vector['given'];
+  final previous = given is Map ? given['previous_request'] : null;
+  final previousMap = previous is Map ? previous.cast<String, Object?>() : null;
+  final request = vector['request'];
+  final requestMap = request is Map ? request.cast<String, Object?>() : null;
+  final expected = vector['expected'];
+  final expectedMap = expected is Map ? expected.cast<String, Object?>() : null;
+  if (previousMap == null ||
+      previousMap['method'] != 'POST' ||
+      previousMap['path'] != '/_houra/client/logout' ||
+      previousMap['access_token'] is! String) {
+    failures.add('${relative(file)} previous request must log out a token.');
+  }
+  if (requestMap == null ||
+      requestMap['method'] != 'GET' ||
+      requestMap['path'] != '/_houra/client/account/whoami' ||
+      requestMap['access_token'] != previousMap?['access_token']) {
+    failures.add(
+      '${relative(file)} must retry whoami with the logged-out token.',
+    );
+  }
+  final body = expectedMap?['body_contains'];
+  if (expectedMap == null ||
+      expectedMap['status'] != 401 ||
+      body is! Map ||
+      body['code'] != 'HOURA_UNAUTHORIZED') {
+    failures.add(
+      '${relative(file)} must expect HOURA_UNAUTHORIZED after logout.',
+    );
+  }
+}
+
 void checkMatrixAuthSession(
   Map<String, String> contracts,
   List<String> failures,
@@ -742,11 +799,98 @@ void checkMatrixDevices(Map<String, String> contracts, List<String> failures) {
     'test-vectors/auth/matrix-devices-delete-bulk-uia-required.json',
     'test-vectors/auth/matrix-devices-delete-bulk-basic.json',
     'test-vectors/auth/matrix-device-token-invalid-after-delete.json',
+    'test-vectors/auth/matrix-device-delete-owner-scope.json',
     'test-vectors/auth/matrix-devices-missing-token.json',
   ]) {
     if (!File(path).existsSync()) {
       failures.add('Missing Matrix devices/session vector: $path');
     }
+  }
+  final ownerScopeFile = File(
+    'test-vectors/auth/matrix-device-delete-owner-scope.json',
+  );
+  if (ownerScopeFile.existsSync()) {
+    final json = readJsonObject(ownerScopeFile, failures);
+    if (json != null) {
+      validateMatrixDeviceDeleteOwnerScope(ownerScopeFile, json, failures);
+    }
+  }
+}
+
+void validateMatrixDeviceDeleteOwnerScope(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final source = eventMap['matrix_spec_source'];
+  if (source is! String ||
+      !source.startsWith('https://spec.matrix.org/v1.18/client-server-api/#')) {
+    failures.add('${relative(file)} matrix_spec_source is invalid.');
+  }
+  if (eventMap['authenticated_user_id'] != '@alice:example.test' ||
+      eventMap['protected_user_id'] != '@bob:example.test' ||
+      eventMap['protected_device_id'] != 'BOBDEVICE1') {
+    failures.add('${relative(file)} owner-scope actors are invalid.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = [
+    'delete-other-user-device',
+    'bulk-delete-other-user-device',
+  ];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      failures.add('${relative(file)} owner-scope step must be an object.');
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    if (step['access_token'] != 'token-alice-device1') {
+      failures.add('${relative(file)} owner-scope step must use Alice token.');
+    }
+    validateMatrixStepError(file, step, 404, 'M_NOT_FOUND', failures);
+    if (step['must_not_delete_protected_device'] != true ||
+        step['protected_access_token_must_remain_valid'] != true) {
+      failures.add(
+        '${relative(file)} owner-scope step must preserve Bob device/token.',
+      );
+    }
+    final body = step['body'];
+    final auth = body is Map ? body['auth'] : null;
+    final identifier = auth is Map ? auth['identifier'] : null;
+    if (identifier is! Map || identifier['user'] != 'alice') {
+      failures.add('${relative(file)} UIA auth must belong to Alice.');
+    }
+    if (id == 'delete-other-user-device') {
+      if (step['method'] != 'DELETE' ||
+          step['path'] != '/_matrix/client/v3/devices/BOBDEVICE1') {
+        failures.add('${relative(file)} single-device owner path invalid.');
+      }
+    } else if (id == 'bulk-delete-other-user-device') {
+      final devices = body is Map ? body['devices'] : null;
+      if (step['method'] != 'POST' ||
+          step['path'] != '/_matrix/client/v3/delete_devices' ||
+          devices is! List ||
+          !devices.contains('BOBDEVICE1')) {
+        failures.add('${relative(file)} bulk owner-scope request invalid.');
+      }
+    }
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['owner_scope_enforced'] != true ||
+      expectedResult['protected_access_token_remains_valid'] != true) {
+    failures.add('${relative(file)} owner-scope expectation invalid.');
   }
 }
 
@@ -2928,6 +3072,21 @@ void requireExpectedErrcode(
   }
 }
 
+void validateMatrixStepError(
+  File file,
+  Map<String, Object?> step,
+  int status,
+  String errcode,
+  List<String> failures,
+) {
+  final error = step['expected_error'];
+  if (step['expected_status'] != status ||
+      error is! Map ||
+      error['errcode'] != errcode) {
+    failures.add('${relative(file)} step must expect $status with $errcode.');
+  }
+}
+
 void checkMatrixReceiptsTypingReadMarkers(
   Map<String, String> contracts,
   List<String> failures,
@@ -4938,6 +5097,7 @@ void checkMatrixKeyBackupRestoreGate(
     'test-vectors/messaging/matrix-key-backup-wrong-version.json',
     'test-vectors/messaging/matrix-key-backup-restore-missing-session.json',
     'test-vectors/messaging/matrix-key-backup-logout-relogin-recovery-gate.json',
+    'test-vectors/messaging/matrix-key-backup-owner-scope.json',
   ];
   for (final path in paths) {
     final file = File(path);
@@ -4977,6 +5137,8 @@ void checkMatrixKeyBackupRestoreGate(
         status: 404,
         errcode: 'M_NOT_FOUND',
       );
+    } else if (path.contains('owner-scope')) {
+      validateMatrixKeyBackupOwnerScope(file, json, failures);
     } else {
       validateMatrixKeyBackupLogoutReloginGate(file, json, failures);
     }
@@ -5171,6 +5333,93 @@ void validateMatrixKeyBackupVersionBody(
   final authData = value['auth_data'] as Map;
   if (authData['public_key'] is! String || authData['signatures'] is! Map) {
     failures.add('${relative(file)} key backup auth_data invalid.');
+  }
+}
+
+void validateMatrixKeyBackupOwnerScope(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixE2eeReference(file, eventMap, failures);
+  if (eventMap['backup_owner_user_id'] != '@alice:example.test' ||
+      eventMap['request_user_id'] != '@bob:example.test' ||
+      eventMap['backup_version'] != '1' ||
+      eventMap['room_id'] != '!encrypted:example.test' ||
+      eventMap['session_id'] != 'megolm-session-1') {
+    failures.add('${relative(file)} key backup owner-scope actors invalid.');
+  }
+  final steps = requireMatrixSteps(file, eventMap, failures);
+  if (steps == null) {
+    return;
+  }
+  const expected = [
+    'read-other-user-backup-version',
+    'overwrite-other-user-backup-version',
+    'restore-other-user-room-key-session',
+    'overwrite-other-user-room-key-session',
+  ];
+  validateStepOrder(file, steps, expected, failures);
+  for (final item in steps) {
+    if (item is! Map) {
+      failures.add(
+        '${relative(file)} key backup owner step must be an object.',
+      );
+      continue;
+    }
+    final step = item.cast<String, Object?>();
+    final id = step['id'];
+    if (step['access_token'] != 'token-bob-device1') {
+      failures.add('${relative(file)} owner-scope step must use Bob token.');
+    }
+    validateMatrixStepError(file, step, 404, 'M_NOT_FOUND', failures);
+    if (id == 'read-other-user-backup-version') {
+      if (step['method'] != 'GET' ||
+          step['path'] != '/_matrix/client/v3/room_keys/version/1' ||
+          step['must_not_disclose_protected_backup'] != true) {
+        failures.add('${relative(file)} read owner-scope step invalid.');
+      }
+    } else if (id == 'overwrite-other-user-backup-version') {
+      if (step['method'] != 'PUT' ||
+          step['path'] != '/_matrix/client/v3/room_keys/version/1' ||
+          step['must_not_mutate_protected_backup'] != true) {
+        failures.add('${relative(file)} update owner-scope step invalid.');
+      }
+      validateMatrixKeyBackupVersionBody(file, step['body'], failures);
+    } else {
+      if (step['path'] !=
+          '/_matrix/client/v3/room_keys/keys/!encrypted:example.test/'
+              'megolm-session-1') {
+        failures.add('${relative(file)} room key owner-scope path invalid.');
+      }
+      final query = step['query'];
+      if (query is! Map || query['version'] != '1') {
+        failures.add('${relative(file)} room key owner-scope query invalid.');
+      }
+      if (id == 'restore-other-user-room-key-session') {
+        if (step['method'] != 'GET' ||
+            step['must_not_disclose_protected_backup'] != true) {
+          failures.add('${relative(file)} restore owner-scope step invalid.');
+        }
+      } else if (id == 'overwrite-other-user-room-key-session') {
+        if (step['method'] != 'PUT' ||
+            step['must_not_mutate_protected_backup'] != true ||
+            step['server_must_not_decrypt'] != true) {
+          failures.add('${relative(file)} upload owner-scope step invalid.');
+        }
+        validateMatrixKeyBackupData(file, step['body'], failures);
+      }
+    }
+  }
+  final expectedResult = vector['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['owner_scope_enforced'] != true ||
+      expectedResult['protected_backup_unchanged'] != true) {
+    failures.add('${relative(file)} owner-scope expectation invalid.');
   }
 }
 
@@ -5554,7 +5803,8 @@ void validateMatrixCrossSigningMissingToken(
   final expectedResult = vector['expected'];
   if (expectedResult is! Map ||
       expectedResult['protected_key_operations_require_token'] != true ||
-      expectedResult['semantic_errors_suppressed_until_authenticated'] != true ||
+      expectedResult['semantic_errors_suppressed_until_authenticated'] !=
+          true ||
       expectedResult['versions_advertisement_widened'] != false) {
     failures.add('${relative(file)} missing-token expectation invalid.');
   }

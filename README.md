@@ -585,7 +585,7 @@ keys, push provider credentials, or unredacted release artifacts.
 
 | Review area | Contract coverage | Current follow-up | Adoption rule |
 |---|---|---|---|
-| Auth/session lifecycle and owner scope | `SPEC-004`, `SPEC-032`, `SPEC-034`, `SPEC-053` cover bearer-token attachment, Matrix logout invalidation, device APIs, and key-backup surfaces | #180 tracks missing Houra logout invalidation, Matrix device owner scope, and key-backup owner scope vectors | Do not record implementation adoption until stale-token and cross-user negative vectors pass |
+| Auth/session lifecycle and owner scope | `SPEC-004`, `SPEC-032`, `SPEC-034`, `SPEC-053` cover bearer-token attachment, logout invalidation, device APIs, and key-backup surfaces | #180 closes the missing Houra stale-token logout vector plus Matrix device and key-backup owner-scope negative vectors | Do not record implementation adoption unless stale-token and cross-user negative vectors pass |
 | Protected key and verification operations | `SPEC-050`, `SPEC-054`, `SPEC-069` keep crypto operations adapter-owned and define parser-facing device-key / verification surfaces | #179 tracked the original `SPEC-054` auth precondition mismatch; `SPEC-054` now requires auth before signature or query semantics | Protected key operations must fail authentication before semantic signature errors are evaluated |
 | Media filename and download metadata | `SPEC-020`, `SPEC-038`, `SPEC-071`, `SPEC-072` cover MVP media, Matrix media, deferred range/thumbnail behavior, and encrypted-media boundaries | #181 tracks `Content-Disposition` filename safety for CR/LF, control characters, separators, and quoting/encoding | Download metadata must not permit header injection or unsafe path-shaped filenames as canonical behavior |
 | Federation and push outbound destinations | `SPEC-055`, `SPEC-060`, and `SPEC-061` define federation bootstrap, push gateway, and federation smoke boundaries | #182 tracks SSRF-oriented destination controls for well-known redirects, DNS rebinding, private ranges, and push gateway URLs | Outbound request contracts must fail closed on unsafe internal destinations while preserving legitimate public federation and push gateway paths |
@@ -597,9 +597,10 @@ Security and privacy review issue handling:
 - #179 closed the highest-priority protected-key auth-precedence gap by adding
   authenticated positive vectors and missing-token negative coverage to
   `SPEC-054`.
-- #180, #181, and #182 are independent P2 spec gaps and should stay separate so
-  auth owner scope, media header safety, and outbound egress controls do not
-  block each other.
+- #180 closes the auth owner-scope gap by adding Houra logout-token
+  invalidation and Matrix cross-user device / key-backup negative vectors.
+- #181 and #182 remain independent P2 spec gaps so media header safety and
+  outbound egress controls do not block each other.
 - Do not create implementation-repository adoption issues for those gaps until
   the corresponding contract and vector changes land in `houra-spec`.
 - If a later review finds only implementation-owned configuration or storage

@@ -1,0 +1,96 @@
+{
+  "name": "matrix-key-backup-owner-scope",
+  "contract": "SPEC-053",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#server-side-key-backups",
+    "checked_at": "2026-05-10T20:52:18+09:00",
+    "backup_owner_user_id": "@alice:example.test",
+    "request_user_id": "@bob:example.test",
+    "backup_version": "1",
+    "room_id": "!encrypted:example.test",
+    "session_id": "megolm-session-1",
+    "steps": [
+      {
+        "id": "read-other-user-backup-version",
+        "method": "GET",
+        "path": "/_matrix/client/v3/room_keys/version/1",
+        "access_token": "token-bob-device1",
+        "expected_status": 404,
+        "expected_error": {
+          "errcode": "M_NOT_FOUND",
+          "error": "Backup version not found."
+        },
+        "must_not_disclose_protected_backup": true
+      },
+      {
+        "id": "overwrite-other-user-backup-version",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/room_keys/version/1",
+        "access_token": "token-bob-device1",
+        "body": {
+          "algorithm": "m.megolm_backup.v1.curve25519-aes-sha2",
+          "auth_data": {
+            "public_key": "bob-backup-public-key",
+            "signatures": {
+              "@bob:example.test": {
+                "ed25519:BOBDEVICE1": "signature-bob-backup"
+              }
+            }
+          }
+        },
+        "expected_status": 404,
+        "expected_error": {
+          "errcode": "M_NOT_FOUND",
+          "error": "Backup version not found."
+        },
+        "must_not_mutate_protected_backup": true
+      },
+      {
+        "id": "restore-other-user-room-key-session",
+        "method": "GET",
+        "path": "/_matrix/client/v3/room_keys/keys/!encrypted:example.test/megolm-session-1",
+        "query": {
+          "version": "1"
+        },
+        "access_token": "token-bob-device1",
+        "expected_status": 404,
+        "expected_error": {
+          "errcode": "M_NOT_FOUND",
+          "error": "Room key backup session not found."
+        },
+        "must_not_disclose_protected_backup": true
+      },
+      {
+        "id": "overwrite-other-user-room-key-session",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/room_keys/keys/!encrypted:example.test/megolm-session-1",
+        "query": {
+          "version": "1"
+        },
+        "access_token": "token-bob-device1",
+        "body": {
+          "first_message_index": 1,
+          "forwarded_count": 0,
+          "is_verified": true,
+          "session_data": {
+            "ephemeral": "bob-backup-ephemeral-key",
+            "ciphertext": "bob-backup-ciphertext",
+            "mac": "bob-backup-mac"
+          }
+        },
+        "expected_status": 404,
+        "expected_error": {
+          "errcode": "M_NOT_FOUND",
+          "error": "Room key backup session not found."
+        },
+        "must_not_mutate_protected_backup": true,
+        "server_must_not_decrypt": true
+      }
+    ]
+  },
+  "expected": {
+    "owner_scope_enforced": true,
+    "protected_backup_unchanged": true
+  }
+}

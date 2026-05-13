@@ -55,6 +55,12 @@ present, must be a non-negative integer timestamp in milliseconds.
 Servers may omit `last_seen_ip` and `last_seen_ts` when the information is not
 available or is intentionally withheld.
 
+Device identifiers are scoped to the authenticated user. A `device_id` that
+belongs to another user must be treated the same as a missing device for the
+current user; servers must return `404` with `M_NOT_FOUND` and must not read,
+update, delete, or invalidate the other user's device or associated access
+tokens.
+
 ## List devices
 
 ```text
@@ -164,6 +170,10 @@ object when the device is removed or was already removed:
 Deleting a device must invalidate any access token associated with that device.
 After deletion, using that token must fail with `M_UNKNOWN_TOKEN`.
 
+Deleting a device owned by another user must return `404` with `M_NOT_FOUND`.
+Servers must not delete the other user's device and must not invalidate the
+other user's access token.
+
 OAuth-aware clients must not use this endpoint when the server supports the
 Matrix OAuth 2.0 API; they must use the account-management URL flow defined by
 `SPEC-068`.
@@ -196,6 +206,10 @@ Authorization: Bearer token-1
 `devices` must be present and contain non-empty device IDs. User-interactive
 authentication semantics match single-device deletion. A successful deletion
 returns `200` with an empty JSON object.
+
+If any requested device identifier belongs to another user, the server must
+fail the request with `404` and `M_NOT_FOUND` for the authenticated user scope.
+The other user's device and access token must remain valid.
 
 ## Authentication errors
 

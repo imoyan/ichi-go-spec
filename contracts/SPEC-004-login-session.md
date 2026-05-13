@@ -105,7 +105,11 @@ POST /_houra/client/logout
 Authorization: Bearer token-1
 ```
 
-The response body is not significant for clients.
+The response body is not significant for clients. A successful logout
+invalidates the bearer token presented on that logout request. After logout,
+using the same token for `/_houra/client/account/whoami` or any other
+authenticated `/_houra/client/**` request must fail with `401` and
+`HOURA_UNAUTHORIZED`.
 
 ## Client expectations
 
