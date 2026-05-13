@@ -1,0 +1,199 @@
+{
+  "name": "matrix-push-gateway-full-breadth-gap-inventory",
+  "contract": "SPEC-077",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/push-gateway-api/",
+    "client_server_push_source": "https://spec.matrix.org/v1.18/client-server-api/#push-notifications",
+    "checked_at": "2026-05-14T08:25:29+09:00",
+    "parent_issue": "imoyan/houra-server#139",
+    "current_release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-14",
+    "release_scope_decision": {
+      "domain": "Push Gateway API",
+      "decision": "out-of-scope-for-current-release-candidate",
+      "issue": "imoyan/houra-server#139",
+      "advertisement_allowed": false
+    },
+    "covered_subset_contracts": [
+      "SPEC-060",
+      "SPEC-062",
+      "SPEC-064",
+      "SPEC-065",
+      "SPEC-066"
+    ],
+    "required_gap_lanes": [
+      {
+        "id": "notify-payload-gateway-endpoint-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "POST /_matrix/push/v1/notify",
+          "full notification content, counts, devices, priority, room, sender, and type",
+          "count-only update",
+          "duplicate event suppression",
+          "200 rejected response",
+          "404 and 405 M_UNRECOGNIZED handling"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "pusher-configuration-outbound-destination-safety-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "GET /_matrix/client/v3/pushers",
+          "POST /_matrix/client/v3/pushers/set",
+          "HTTPS /_matrix/push/v1/notify data.url",
+          "redirect and DNS rebinding checks",
+          "unsafe address class rejection",
+          "pusher removal and pushkey rotation"
+        ],
+        "owner_repos": [
+          "houra-server",
+          "houra-client"
+        ],
+        "related_domains": [
+          "Client-Server API"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "push-rule-evaluation-sync-visibility-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "GET /_matrix/client/v3/pushrules/",
+          "PUT /_matrix/client/v3/pushrules/global/{kind}/{ruleId}",
+          "DELETE /_matrix/client/v3/pushrules/global/{kind}/{ruleId}",
+          "PUT /_matrix/client/v3/pushrules/global/{kind}/{ruleId}/actions",
+          "PUT /_matrix/client/v3/pushrules/global/{kind}/{ruleId}/enabled",
+          "m.push_rules account data and /sync unread notification counts"
+        ],
+        "owner_repos": [
+          "houra-server",
+          "houra-client"
+        ],
+        "related_domains": [
+          "Client-Server API"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "delivery-retry-rejected-pushkey-lifecycle-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "gateway HTTP error retry",
+          "exponential backoff and retry expiry",
+          "connect and read timeout",
+          "rejected pushkey pusher removal",
+          "duplicate suppression by event_id"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "privacy-payload-minimization-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "event_id_only pusher data format",
+          "count-only payloads",
+          "message content omission",
+          "encrypted room notification privacy",
+          "redacted event and invite notification privacy"
+        ],
+        "owner_repos": [
+          "houra-server",
+          "houra-client"
+        ],
+        "related_domains": [
+          "Olm & Megolm"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "vendor-provider-credential-gateway-operation-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "APNS credentials",
+          "FCM and GCM credentials",
+          "Web Push credentials",
+          "gateway-side provider token storage",
+          "provider error and rate-limit handling",
+          "provider secret redaction"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "client-permission-rendering-background-scheduling-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "OS notification permission prompt",
+          "notification rendering and localization",
+          "deep links and action buttons",
+          "background scheduling",
+          "unread badge reconciliation"
+        ],
+        "owner_repos": [
+          "houra-client"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "security-observability-redaction-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "gateway URL redaction",
+          "pushkey and vendor token redaction",
+          "retry and rejected-pushkey metrics",
+          "unsafe destination diagnostics",
+          "message content and local path redaction"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "release-evidence-non-advertisement-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "domain coverage artifact",
+          "Matrix version advertisement decision",
+          "release notes exclusions",
+          "provider credential exclusion",
+          "permission UI and rendering exclusion"
+        ],
+        "owner_repos": [
+          "houra-server",
+          "houra-client"
+        ],
+        "related_contracts": [
+          "SPEC-062",
+          "SPEC-064",
+          "SPEC-065",
+          "SPEC-066"
+        ],
+        "advertisement_allowed": false
+      }
+    ],
+    "release_evidence_rules": {
+      "representative_subset_is_not_full_breadth": true,
+      "push_gateway_full_breadth_claim_requires_lane_evidence": true,
+      "explicit_exclusion_required_when_lane_not_included": true,
+      "failure_issue_ref_must_remain_open_until_resolved": true,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "push_gateway_full_breadth_decomposed": true,
+    "release_scope_issue_ref": "imoyan/houra-server#139",
+    "support_claim_not_widened": true,
+    "versions_advertisement_widened": false,
+    "follow_up_required": true
+  }
+}

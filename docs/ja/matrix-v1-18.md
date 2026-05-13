@@ -77,6 +77,14 @@ Identity Service API や external provider operation の実装完了ではなく
 `SPEC-059` の代表 boundary と full Identity Service claim を分けるための
 fail-closed 記録です。
 
+`SPEC-077` は、`houra-server#139` の Push Gateway full-breadth gap を
+notify payload、pusher configuration、push rule evaluation、delivery retry、
+privacy payload minimization、vendor provider credentials、client permission /
+rendering、security / redaction、release evidence の lane に分ける inventory です。
+これは Push Gateway API や production push provider / client notification support の
+実装完了ではなく、`SPEC-060` の代表 boundary と full Push Gateway claim を分けるための
+fail-closed 記録です。
+
 ## 広告してよいこと
 
 Matrix version や domain support は、contract、test vector、implementation evidence、
