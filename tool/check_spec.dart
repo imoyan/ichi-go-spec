@@ -671,15 +671,24 @@ void checkMatrixOAuthAccountManagement(
       ? fallbackExpected['client_redirect']
       : null;
   final fallbackUri = fallbackRedirect is Map ? fallbackRedirect['uri'] : null;
+  final fallbackAccountManagementUri = fallbackMetadata is Map
+      ? fallbackMetadata['account_management_uri']
+      : null;
+  if (fallbackAccountManagementUri is! String ||
+      !fallbackAccountManagementUri.startsWith('https://')) {
+    failures.add(
+      'Matrix OAuth generic account-management fallback metadata URI must be HTTPS.',
+    );
+  }
   if (fallbackMetadata is Map) {
     final actions = fallbackMetadata['account_management_actions_supported'];
-    if (actions is List && actions.isNotEmpty) {
+    if (actions != null && (actions is! List || actions.isNotEmpty)) {
       failures.add(
-        'Matrix OAuth generic account-management fallback must not advertise actions.',
+        'Matrix OAuth generic account-management fallback must omit actions or use an empty action list.',
       );
     }
   }
-  if (fallbackUri != 'https://account.example.test/manage') {
+  if (fallbackUri != fallbackAccountManagementUri) {
     failures.add(
       'Matrix OAuth generic account-management fallback must use the bare account_management_uri.',
     );
