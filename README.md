@@ -132,6 +132,7 @@ The maintained repository names are:
 - `contracts/SPEC-070-product-mvp-account-recovery-idp-boundary.md`
 - `contracts/SPEC-071-product-mvp-media-transfer-boundary.md`
 - `contracts/SPEC-072-product-mvp-encrypted-media-boundary.md`
+- `contracts/SPEC-073-matrix-client-server-full-breadth-gap-inventory.md`
 
 ## Shared Design Inputs
 
@@ -767,6 +768,10 @@ Matrix v1.18 roadmap close-out snapshot:
   by fail-closed Matrix version advertisement; `GET /_matrix/client/versions`
   still returns no Matrix versions and no publishable Matrix support claim is
   allowed.
+- `SPEC-073` decomposes `houra-server#135` Client-Server full-breadth gaps into
+  discovery/support, auth refresh, event history, room breadth, sync extension,
+  media breadth, and E2EE Client-Server lanes. It is a fail-closed gap
+  inventory only; it does not widen Matrix version advertisement.
 - #97 through #101 should not be closed merely because their spec-side
   checklists are complete or because the current release candidate excludes the
   domain from advertisement. Close them only when #95 links current pass/fail
@@ -1330,6 +1335,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-070 | Product MVP account recovery and IdP login fail-closed boundary | `test-vectors/auth/product-mvp-account-recovery-idp-deferred.json` |
 | SPEC-071 | Product MVP thumbnails, range request, and resumable download fail-closed boundary | `test-vectors/media/product-mvp-media-transfer-deferred.json` |
 | SPEC-072 | Product MVP encrypted media attachment fail-closed boundary | `test-vectors/media/product-mvp-encrypted-media-deferred.json` |
+| SPEC-073 | Matrix Client-Server full-breadth gap inventory | `test-vectors/core/matrix-client-server-full-breadth-gap-inventory.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this

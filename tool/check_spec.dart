@@ -112,6 +112,7 @@ void main() {
   checkMatrixFiltersPresenceCapabilities(contracts, failures);
   checkMatrixRoomDirectoryAliasesInvites(contracts, failures);
   checkMatrixModerationReportingAdminControls(contracts, failures);
+  checkMatrixClientServerFullBreadthGapInventory(contracts, failures);
   checkMatrixCryptoAdapterBoundary(contracts, failures);
   checkMatrixDeviceOneTimeFallbackKeys(contracts, failures);
   checkMatrixToDeviceEncryptedRoomGate(contracts, failures);
@@ -544,6 +545,8 @@ void checkJapaneseDocs(List<String> failures) {
     '#142',
     'release-scope decision',
     'fail-closed',
+    'SPEC-073',
+    'houra-server#135',
     'release-ready',
   ]) {
     if (!matrixSource.contains(phrase)) {
@@ -4548,6 +4551,135 @@ void validateMatrixAdminModerationSteps(
         (step['expected_status'] != 200 || step['expected_body'] is! Map)) {
       failures.add('${relative(file)} admin GET expectation is invalid.');
     }
+  }
+}
+
+void checkMatrixClientServerFullBreadthGapInventory(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-073')) {
+    failures.add(
+      'Matrix Client-Server full-breadth gap inventory SPEC-073 is required.',
+    );
+  }
+  const path =
+      'test-vectors/core/matrix-client-server-full-breadth-gap-inventory.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix Client-Server full-breadth gap vector: $path');
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-073') {
+    failures.add('${relative(file)} must reference SPEC-073.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18' ||
+      eventMap['matrix_spec_source'] !=
+          'https://spec.matrix.org/v1.18/client-server-api/' ||
+      eventMap['parent_issue'] != 'imoyan/houra-server#135') {
+    failures.add('${relative(file)} Matrix reference or parent issue invalid.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String || !checkedAt.contains('+09:00')) {
+    failures.add('${relative(file)} checked_at must be a dated JST snapshot.');
+  }
+
+  final releaseScopeDecision = eventMap['release_scope_decision'];
+  if (releaseScopeDecision is! Map ||
+      releaseScopeDecision['domain'] != 'Client-Server API' ||
+      releaseScopeDecision['decision'] !=
+          'out-of-scope-for-current-release-candidate' ||
+      releaseScopeDecision['issue'] != 'imoyan/houra-server#135' ||
+      releaseScopeDecision['advertisement_allowed'] != false) {
+    failures.add('${relative(file)} release scope decision invalid.');
+  }
+
+  requireStringListIncludes(file, eventMap, 'covered_subset_contracts', {
+    'SPEC-030',
+    'SPEC-031',
+    'SPEC-032',
+    'SPEC-033',
+    'SPEC-034',
+    'SPEC-035',
+    'SPEC-036',
+    'SPEC-037',
+    'SPEC-038',
+    'SPEC-039',
+    'SPEC-045',
+    'SPEC-046',
+    'SPEC-047',
+    'SPEC-048',
+    'SPEC-049',
+    'SPEC-068',
+    'SPEC-069',
+  }, failures);
+
+  const expectedLaneIds = {
+    'discovery-support-policy-well-known',
+    'auth-refresh-fallback-account-lifecycle',
+    'event-retrieval-membership-history-deprecated-compatibility',
+    'room-lifecycle-state-relations-user-visible-breadth',
+    'sync-breadth-extensions',
+    'media-repository-breadth',
+    'e2ee-keys-backup-verification-cross-signing-breadth',
+  };
+  final lanes = eventMap['required_gap_lanes'];
+  if (lanes is! List || lanes.length < expectedLaneIds.length) {
+    failures.add('${relative(file)} gap lanes are incomplete.');
+  } else {
+    final seenLaneIds = <String>{};
+    for (final lane in lanes) {
+      if (lane is! Map ||
+          lane['id'] is! String ||
+          lane['status'] !=
+              'requires-follow-up-contract-or-implementation-issue' ||
+          lane['endpoint_examples'] is! List ||
+          lane['owner_repos'] is! List ||
+          lane['advertisement_allowed'] != false) {
+        failures.add('${relative(file)} gap lane shape invalid.');
+        continue;
+      }
+      final laneId = lane['id'] as String;
+      final endpointExamples = lane['endpoint_examples'] as List;
+      final ownerRepos = lane['owner_repos'] as List;
+      if (!expectedLaneIds.contains(laneId) ||
+          endpointExamples.isEmpty ||
+          ownerRepos.isEmpty ||
+          !ownerRepos.contains('houra-server')) {
+        failures.add('${relative(file)} gap lane content invalid.');
+      }
+      seenLaneIds.add(laneId);
+    }
+    if (!seenLaneIds.containsAll(expectedLaneIds)) {
+      failures.add('${relative(file)} gap lane ids incomplete.');
+    }
+  }
+
+  final rules = eventMap['release_evidence_rules'];
+  if (rules is! Map ||
+      rules['representative_subset_is_not_full_breadth'] != true ||
+      rules['full_breadth_claim_requires_lane_evidence'] != true ||
+      rules['explicit_exclusion_required_when_lane_not_included'] != true ||
+      rules['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} release evidence rules invalid.');
+  }
+
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['client_server_full_breadth_decomposed'] != true ||
+      expected['release_scope_issue_ref'] != 'imoyan/houra-server#135' ||
+      expected['support_claim_not_widened'] != true ||
+      expected['versions_advertisement_widened'] != false ||
+      expected['follow_up_required'] != true) {
+    failures.add('${relative(file)} expected gap inventory invalid.');
   }
 }
 

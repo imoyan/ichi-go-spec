@@ -49,6 +49,12 @@ release-scope decisions をリンク済みです。ただし `GET /_matrix/clien
 Matrix support claim と domain evidence が揃うまで release-ready として読ませないで
 ください。
 
+`SPEC-073` は、`houra-server#135` の Client-Server full-breadth gap を
+discovery / auth refresh / event history / room breadth / sync extensions /
+media breadth / E2EE Client-Server breadth の lane に分ける inventory です。
+これは実装完了や広告開始ではなく、current release candidate で Client-Server API を
+広告対象外にする理由を issue-sized に保つための記録です。
+
 ## 広告してよいこと
 
 Matrix version や domain support は、contract、test vector、implementation evidence、
