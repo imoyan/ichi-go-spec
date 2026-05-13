@@ -7,7 +7,7 @@
     "checked_at": "2026-05-10T15:52:00+09:00",
     "request": {
       "method": "POST",
-      "path": "/_matrix/client/v3/rooms/!oldRoom0000000000000000000000000000001/upgrade",
+      "path": "/_matrix/client/v3/rooms/!oldRoom0000000000000000000000000000001:example.test/upgrade",
       "body": {
         "new_version": "12"
       },

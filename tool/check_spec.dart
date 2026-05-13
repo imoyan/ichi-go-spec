@@ -3067,6 +3067,11 @@ void validateMatrixRoomUpgradeRepresentative(
   if (eventMap['new_version'] != '12') {
     failures.add('${relative(file)} new_version must be 12.');
   }
+  final request = eventMap['request'];
+  if (request is! Map ||
+      request['path'] != '/_matrix/client/v3/rooms/$oldRoomId/upgrade') {
+    failures.add('${relative(file)} request path must target the old room ID.');
+  }
   final createContent = eventMap['replacement_create_content'];
   final tombstone = eventMap['old_room_tombstone'];
   if (createContent is! Map || tombstone is! Map) {
