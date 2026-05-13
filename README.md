@@ -724,7 +724,7 @@ Canonical release evidence example bundle:
 
 Matrix v1.18 roadmap close-out snapshot:
 
-- Snapshot checked at: 2026-05-13T21:55:00+09:00.
+- Snapshot checked at: 2026-05-13T23:50:37+09:00.
 - #95 remains the parent Matrix v1.18 roadmap. #189 is the close-out snapshot
   lane for keeping #95, domain issues, implementation adoption refs, and
   release evidence in sync.
