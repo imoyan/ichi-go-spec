@@ -130,6 +130,7 @@ void main() {
   checkMatrixReleaseNotesEvidenceTemplate(contracts, failures);
   checkMatrixV118ReleaseReadinessGate(contracts, failures);
   checkMatrixV118ReleaseEvidenceExampleBundle(contracts, failures);
+  checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(contracts, failures);
   checkMatrixV118ReleaseEvidenceBundleNegativeFixtures(failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
@@ -413,6 +414,8 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     '#200',
     '#201',
     '#202',
+    'matrix-v1-18-release-evidence-current-blocked-bundle.json',
+    'stale_or_mismatched_refs_block_release',
     'Implementation Adoption Reports',
     'Language: [English](#english) | [日本語](#日本語)',
     '## 日本語',
@@ -9516,6 +9519,155 @@ void checkMatrixV118ReleaseEvidenceExampleBundle(
       expectedResult['readiness_requires_all_bundle_parts'] != true ||
       expectedResult['versions_advertisement_allowed'] != true) {
     failures.add('${relative(file)} bundle expectation invalid.');
+  }
+}
+
+void checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  const path =
+      'test-vectors/core/matrix-v1-18-release-evidence-current-blocked-bundle.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix current release evidence bundle: $path');
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-066') {
+    failures.add('${relative(file)} must use SPEC-066 as its readiness gate.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  validateMatrixReleaseReadinessReference(file, eventMap, failures);
+  for (final id in const {
+    'SPEC-062',
+    'SPEC-063',
+    'SPEC-064',
+    'SPEC-065',
+    'SPEC-066',
+  }) {
+    if (!contracts.containsKey(id)) {
+      failures.add('${relative(file)} references missing contract: $id');
+    }
+  }
+
+  final refs = eventMap['candidate_refs'];
+  if (refs is! Map ||
+      refs['release_candidate'] !=
+          'houra-matrix-v1.18-current-blocked-2026-05-13' ||
+      refs['houra_spec_ref'] != '8319122b8dabe806222f70da1f5177fb2fb56aaf' ||
+      refs['houra_server_ref'] != 'bb8cf30ce6f4b4de2f761cc9e1f7499406379b4b' ||
+      refs['houra_client_ref'] != '838a23106e53e5b5620cffbd0c36cf74c9580433') {
+    failures.add('${relative(file)} current candidate refs invalid.');
+  }
+
+  final evidenceSources = eventMap['evidence_sources'];
+  final server = evidenceSources is Map ? evidenceSources['server'] : null;
+  final client = evidenceSources is Map ? evidenceSources['client'] : null;
+  if (server is! Map ||
+      server['repo'] != 'houra-server' ||
+      server['issue'] != 'imoyan/houra-server#108' ||
+      server['pull_request'] != 'imoyan/houra-server#114' ||
+      server['spec_ref_under_test'] ==
+          (refs is Map ? refs['houra_spec_ref'] : null) ||
+      server['support_claim_decision'] != 'not-advertised') {
+    failures.add('${relative(file)} server evidence source invalid.');
+  }
+  if (client is! Map ||
+      client['repo'] != 'houra-client' ||
+      client['issue'] != 'imoyan/houra-client#97' ||
+      client['pull_request'] != 'imoyan/houra-client#105' ||
+      client['spec_ref_under_test'] ==
+          (refs is Map ? refs['houra_spec_ref'] : null) ||
+      client['support_claim_decision'] != 'not-advertised') {
+    failures.add('${relative(file)} client evidence source invalid.');
+  }
+
+  final domainResults = eventMap['domain_results'];
+  if (domainResults is! List || domainResults.length != 8) {
+    failures.add('${relative(file)} current bundle domain results invalid.');
+  } else {
+    for (final result in domainResults) {
+      if (result is! Map ||
+          result['domain'] is! String ||
+          result['contract_gate'] != 'pass' ||
+          result['advertisement_allowed'] != false ||
+          result['blocker_issue_refs'] is! List) {
+        failures.add('${relative(file)} current domain result invalid.');
+      }
+    }
+  }
+
+  final advertisement = eventMap['advertisement_decision'];
+  final versionsResponse = advertisement is Map
+      ? advertisement['versions_response']
+      : null;
+  final versions = versionsResponse is Map
+      ? versionsResponse['versions']
+      : null;
+  final advertisedDomains = advertisement is Map
+      ? advertisement['advertised_domains']
+      : null;
+  final excludedDomains = advertisement is Map
+      ? advertisement['excluded_domains']
+      : null;
+  if (advertisement is! Map ||
+      advertisement['contract'] != 'SPEC-064' ||
+      versions is! List ||
+      versions.isNotEmpty ||
+      advertisedDomains is! List ||
+      advertisedDomains.isNotEmpty ||
+      excludedDomains is! List ||
+      excludedDomains.length != 8 ||
+      advertisement['decision'] != 'blocked-no-matrix-support-claim') {
+    failures.add('${relative(file)} current advertisement decision invalid.');
+  }
+
+  final readiness = eventMap['readiness_checklist'];
+  if (readiness is! Map ||
+      readiness['contract'] != 'SPEC-066' ||
+      readiness['same_checked_refs'] != false ||
+      readiness['ready_to_publish'] != false ||
+      readiness['artifacts_secret_redacted'] != true ||
+      readiness['release_candidate_ref_mismatch_blocks_publish'] != true) {
+    failures.add('${relative(file)} current readiness checklist invalid.');
+  }
+
+  final blockers = eventMap['blockers'];
+  if (blockers is! List ||
+      !blockers.any(
+        (item) => item is Map && item['id'] == 'same-candidate-ref-mismatch',
+      ) ||
+      !blockers.any(
+        (item) => item is Map && item['id'] == 'no-matrix-advertisement',
+      )) {
+    failures.add('${relative(file)} current bundle blockers invalid.');
+  }
+
+  final serialized = jsonEncode(json);
+  for (final forbidden in const ['/Users', '/tmp', 'access_token', 'token-']) {
+    if (serialized.contains(forbidden)) {
+      failures.add(
+        '${relative(file)} leaks forbidden evidence text: $forbidden',
+      );
+    }
+  }
+
+  final expectedResult = json['expected'];
+  if (expectedResult is! Map ||
+      expectedResult['real_implementation_refs_recorded'] != true ||
+      expectedResult['example_bundle_separate'] != true ||
+      expectedResult['same_release_candidate_ref'] != false ||
+      expectedResult['stale_or_mismatched_refs_block_release'] != true ||
+      expectedResult['versions_advertisement_allowed'] != false ||
+      expectedResult['ready_to_publish'] != false) {
+    failures.add('${relative(file)} current bundle expectation invalid.');
   }
 }
 

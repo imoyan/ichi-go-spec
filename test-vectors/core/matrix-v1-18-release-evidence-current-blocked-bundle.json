@@ -1,0 +1,185 @@
+{
+  "name": "matrix-v1-18-release-evidence-current-blocked-bundle",
+  "contract": "SPEC-066",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/",
+    "matrix_release_source": "https://matrix.org/blog/2026/03/26/matrix-v1.18-release/",
+    "checked_at": "2026-05-13T20:12:48+09:00",
+    "bundle_contracts": [
+      "SPEC-062",
+      "SPEC-063",
+      "SPEC-064",
+      "SPEC-065",
+      "SPEC-066"
+    ],
+    "candidate_refs": {
+      "release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-13",
+      "houra_spec_ref": "8319122b8dabe806222f70da1f5177fb2fb56aaf",
+      "houra_server_ref": "bb8cf30ce6f4b4de2f761cc9e1f7499406379b4b",
+      "houra_client_ref": "838a23106e53e5b5620cffbd0c36cf74c9580433"
+    },
+    "evidence_sources": {
+      "server": {
+        "repo": "houra-server",
+        "issue": "imoyan/houra-server#108",
+        "pull_request": "imoyan/houra-server#114",
+        "merge_commit": "6d8bc34318ac77ffa4dcddd5c1234636b926b425",
+        "head_under_test": "926d5324e066b76915c5794401647662e36fbc62",
+        "spec_ref_under_test": "f6281fd7e715a0ef37204e9bd3b3f2a65f5643eb",
+        "checks": [
+          "GitHub Actions CI / test pass",
+          "GitHub Actions Enable auto-merge / enable-auto-merge pass"
+        ],
+        "support_claim_decision": "not-advertised",
+        "versions_response": {
+          "versions": []
+        }
+      },
+      "client": {
+        "repo": "houra-client",
+        "issue": "imoyan/houra-client#97",
+        "pull_request": "imoyan/houra-client#105",
+        "merge_commit": "f3e35952aad56211c0934e098df5e4bec23e1a1a",
+        "head_under_test": "9ddf5040d5760775bdd41e3d87f790274c1e23eb",
+        "spec_ref_under_test": "33abacbd46474be0e6ae3539f62e7aaeb142091e",
+        "checks": [
+          "GitHub Actions test pass",
+          "GitHub Actions e2e pass"
+        ],
+        "support_claim_decision": "not-advertised",
+        "publishable_matrix_support_claim": false
+      }
+    },
+    "domain_results": [
+      {
+        "domain": "Client-Server API",
+        "contract_gate": "pass",
+        "implementation_gate": "blocked-by-same-ref-check",
+        "blocker_issue_refs": [
+          "imoyan/houra-spec#200"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Server-Server API",
+        "contract_gate": "pass",
+        "implementation_gate": "blocked-by-server-gap",
+        "blocker_issue_refs": [
+          "imoyan/houra-server#59",
+          "imoyan/houra-server#60",
+          "imoyan/houra-server#61",
+          "imoyan/houra-server#65"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Application Service API",
+        "contract_gate": "pass",
+        "implementation_gate": "excluded",
+        "blocker_issue_refs": [
+          "imoyan/houra-spec#200"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Identity Service API",
+        "contract_gate": "pass",
+        "implementation_gate": "excluded",
+        "blocker_issue_refs": [
+          "imoyan/houra-spec#201"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Push Gateway API",
+        "contract_gate": "pass",
+        "implementation_gate": "excluded",
+        "blocker_issue_refs": [
+          "imoyan/houra-spec#200"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Room Versions",
+        "contract_gate": "pass",
+        "implementation_gate": "blocked-by-same-ref-check",
+        "blocker_issue_refs": [
+          "imoyan/houra-spec#200"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Olm & Megolm",
+        "contract_gate": "pass",
+        "implementation_gate": "blocked-by-e2ee-claim-check",
+        "blocker_issue_refs": [
+          "imoyan/houra-spec#202"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Appendices/common rules",
+        "contract_gate": "pass",
+        "implementation_gate": "blocked-by-same-ref-check",
+        "blocker_issue_refs": [
+          "imoyan/houra-spec#200"
+        ],
+        "advertisement_allowed": false
+      }
+    ],
+    "advertisement_decision": {
+      "contract": "SPEC-064",
+      "versions_response": {
+        "versions": [],
+        "unstable_features": {}
+      },
+      "advertised_domains": [],
+      "excluded_domains": [
+        "Client-Server API",
+        "Server-Server API",
+        "Application Service API",
+        "Identity Service API",
+        "Push Gateway API",
+        "Room Versions",
+        "Olm & Megolm",
+        "Appendices/common rules"
+      ],
+      "release_tag_allowed": false,
+      "decision": "blocked-no-matrix-support-claim"
+    },
+    "readiness_checklist": {
+      "contract": "SPEC-066",
+      "same_checked_refs": false,
+      "coverage_report_present": true,
+      "complement_report_present": true,
+      "advertisement_decision_present": true,
+      "release_notes_evidence_present": true,
+      "supported_domain_gates_pass": false,
+      "excluded_domains_have_gap_issue_or_reason": true,
+      "artifacts_secret_redacted": true,
+      "release_candidate_ref_mismatch_blocks_publish": true,
+      "ready_to_publish": false
+    },
+    "blockers": [
+      {
+        "id": "same-candidate-ref-mismatch",
+        "issue": "imoyan/houra-spec#200",
+        "reason": "server and client evidence were generated against older houra-spec refs, not the current candidate ref"
+      },
+      {
+        "id": "no-matrix-advertisement",
+        "issue": "imoyan/houra-spec#95",
+        "reason": "GET /_matrix/client/versions remains fail-closed with no Matrix versions advertised"
+      }
+    ]
+  },
+  "expected": {
+    "real_implementation_refs_recorded": true,
+    "example_bundle_separate": true,
+    "same_release_candidate_ref": false,
+    "stale_or_mismatched_refs_block_release": true,
+    "versions_advertisement_allowed": false,
+    "ready_to_publish": false
+  }
+}
