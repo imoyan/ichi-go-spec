@@ -1,0 +1,92 @@
+{
+  "name": "product-mvp-encrypted-media-deferred",
+  "contract": "SPEC-072",
+  "event": {
+    "target": "Product MVP encrypted media attachment",
+    "decision": "defer",
+    "implemented_by_this_contract": false,
+    "product_mvp_next_step": true,
+    "matrix_full_compliance_claim": false,
+    "encrypted_room_support_claim": false,
+    "complete_e2ee_support_claim": false,
+    "current_product_mvp_ui_surface_changes": false,
+    "media_transfer_scope": false,
+    "fail_closed_client_behavior": [
+      "do_not_render_encrypted_attachment_actions",
+      "do_not_export_encrypted_attachment_sdk_methods_without_followup_contract",
+      "do_not_infer_support_from_m_room_encrypted_or_crypto_stack_selection",
+      "do_not_treat_media_upload_download_support_as_encrypted_attachment_support"
+    ],
+    "future_lanes": [
+      "encrypted_attachment_metadata_parser",
+      "encrypted_attachment_transfer_descriptors",
+      "crypto_adapter_media_key_handling",
+      "host_secure_storage_and_deletion_policy",
+      "preview_share_export_ui_surface",
+      "release_evidence_and_advertisement_wording"
+    ],
+    "sdk_core_may_own_after_followup_contract": [
+      "encrypted_attachment_metadata_parser",
+      "request_descriptors",
+      "response_parsers",
+      "matrix_content_uri_validation",
+      "opaque_encrypted_content_descriptor_parsing",
+      "public_error_envelope_mapping"
+    ],
+    "crypto_adapter_owned": [
+      "encryption",
+      "decryption",
+      "media_key_generation",
+      "media_key_import_export_validation",
+      "authenticated_encryption_algorithm_selection",
+      "integrity_verification",
+      "maintained_matrix_crypto_stack_integration"
+    ],
+    "host_owned": [
+      "filesystem_paths",
+      "cache_policy",
+      "storage_quota",
+      "eviction_policy",
+      "secure_deletion",
+      "native_secure_storage_selection",
+      "plaintext_byte_lifecycle",
+      "preview_rendering",
+      "image_video_decoding",
+      "share_export_policy",
+      "background_task_policy",
+      "user_facing_warning_progress_retry_copy"
+    ],
+    "server_must_not_decrypt": [
+      "encrypted_attachment_content",
+      "media_keys",
+      "recovery_keys",
+      "room_keys",
+      "plaintext_media_bytes"
+    ],
+    "must_not_log_or_record": [
+      "bearer_tokens",
+      "media_keys",
+      "recovery_keys",
+      "room_keys",
+      "plaintext_media_bytes",
+      "decrypted_thumbnails",
+      "local_filesystem_paths",
+      "signed_or_credentialed_urls",
+      "cache_filenames_exposing_user_data"
+    ],
+    "existing_contracts_unchanged": [
+      "SPEC-020",
+      "SPEC-038",
+      "SPEC-050",
+      "SPEC-052",
+      "SPEC-071"
+    ],
+    "required_before_implementation": [
+      "followup_contract",
+      "test_vectors",
+      "ui_surface_update_when_ui_changes",
+      "crypto_security_evidence_requirements",
+      "implementation_adoption_gate"
+    ]
+  }
+}
