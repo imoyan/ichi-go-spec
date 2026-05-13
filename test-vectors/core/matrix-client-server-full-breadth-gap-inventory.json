@@ -1,0 +1,188 @@
+{
+  "name": "matrix-client-server-full-breadth-gap-inventory",
+  "contract": "SPEC-073",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/",
+    "checked_at": "2026-05-14T07:36:37+09:00",
+    "parent_issue": "imoyan/houra-server#135",
+    "current_release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-14",
+    "release_scope_decision": {
+      "domain": "Client-Server API",
+      "decision": "out-of-scope-for-current-release-candidate",
+      "issue": "imoyan/houra-server#135",
+      "advertisement_allowed": false
+    },
+    "covered_subset_contracts": [
+      "SPEC-030",
+      "SPEC-031",
+      "SPEC-032",
+      "SPEC-033",
+      "SPEC-034",
+      "SPEC-035",
+      "SPEC-036",
+      "SPEC-037",
+      "SPEC-038",
+      "SPEC-039",
+      "SPEC-045",
+      "SPEC-046",
+      "SPEC-047",
+      "SPEC-048",
+      "SPEC-049",
+      "SPEC-068",
+      "SPEC-069"
+    ],
+    "required_gap_lanes": [
+      {
+        "id": "discovery-support-policy-well-known",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "GET /.well-known/matrix/client",
+          "GET /.well-known/matrix/support",
+          "GET /.well-known/matrix/policy_server"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "auth-refresh-fallback-account-lifecycle",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "POST /_matrix/client/v1/login/get_token",
+          "POST /_matrix/client/v3/refresh",
+          "fallback login",
+          "account deactivation"
+        ],
+        "owner_repos": [
+          "houra-server",
+          "houra-client"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "event-retrieval-membership-history-deprecated-compatibility",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "GET /_matrix/client/v3/events",
+          "GET /_matrix/client/v3/events/{eventId}",
+          "GET /_matrix/client/v3/initialSync",
+          "GET /_matrix/client/v3/rooms/{roomId}/initialSync",
+          "GET /_matrix/client/v3/rooms/{roomId}/event/{eventId}",
+          "GET /_matrix/client/v3/rooms/{roomId}/joined_members",
+          "GET /_matrix/client/v3/rooms/{roomId}/members",
+          "GET /_matrix/client/v1/rooms/{roomId}/timestamp_to_event"
+        ],
+        "owner_repos": [
+          "houra-server",
+          "houra-client"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "room-lifecycle-state-relations-user-visible-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "PUT /_matrix/client/v3/rooms/{roomId}/state/{eventType}/{stateKey}",
+          "GET /_matrix/client/v3/joined_rooms",
+          "relations",
+          "edits",
+          "threads",
+          "reactions",
+          "knocks",
+          "restricted joins"
+        ],
+        "owner_repos": [
+          "houra-server",
+          "houra-client"
+        ],
+        "related_domains": [
+          "Room Versions"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "sync-breadth-extensions",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "GET /_matrix/client/v3/sync?full_state=true",
+          "GET /_matrix/client/v3/sync?filter={filterId}",
+          "GET /_matrix/client/v3/sync?set_presence=online",
+          "GET /_matrix/client/v3/sync?use_state_after=true",
+          "to-device sync",
+          "device-list sync",
+          "lazy-loading membership"
+        ],
+        "owner_repos": [
+          "houra-server",
+          "houra-client"
+        ],
+        "related_domains": [
+          "Olm & Megolm"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "media-repository-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "GET /_matrix/client/v1/media/config",
+          "GET /_matrix/client/v1/media/preview_url",
+          "GET /_matrix/client/v1/media/thumbnail/{serverName}/{mediaId}",
+          "POST /_matrix/media/v1/create",
+          "POST /_matrix/media/v3/upload",
+          "PUT /_matrix/media/v3/upload/{serverName}/{mediaId}",
+          "deprecated /_matrix/media/v3/* compatibility",
+          "remote media"
+        ],
+        "owner_repos": [
+          "houra-server",
+          "houra-client"
+        ],
+        "related_contracts": [
+          "SPEC-071",
+          "SPEC-072"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "e2ee-keys-backup-verification-cross-signing-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "POST /_matrix/client/v3/keys/upload",
+          "POST /_matrix/client/v3/keys/claim",
+          "PUT /_matrix/client/v3/sendToDevice/{eventType}/{txnId}",
+          "GET /_matrix/client/v3/room_keys/keys",
+          "PUT /_matrix/client/v3/room_keys/keys",
+          "POST /_matrix/client/v3/keys/device_signing/upload",
+          "POST /_matrix/client/v3/keys/signatures/upload"
+        ],
+        "owner_repos": [
+          "houra-server",
+          "houra-client"
+        ],
+        "related_domains": [
+          "Olm & Megolm"
+        ],
+        "related_issues": [
+          "imoyan/houra-server#141"
+        ],
+        "advertisement_allowed": false
+      }
+    ],
+    "release_evidence_rules": {
+      "representative_subset_is_not_full_breadth": true,
+      "full_breadth_claim_requires_lane_evidence": true,
+      "explicit_exclusion_required_when_lane_not_included": true,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "client_server_full_breadth_decomposed": true,
+    "release_scope_issue_ref": "imoyan/houra-server#135",
+    "support_claim_not_widened": true,
+    "versions_advertisement_widened": false,
+    "follow_up_required": true
+  }
+}
