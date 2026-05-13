@@ -152,11 +152,17 @@ maintained crypto adapter boundary in `SPEC-050`.
 Missing bearer tokens must return `401` with `M_MISSING_TOKEN`. Invalid bearer
 tokens must return `401` with `M_UNKNOWN_TOKEN`.
 
-Malformed JSON objects, missing `device_keys`, non-object `device_keys`,
-non-array device ID selections, non-string device IDs, non-integer `timeout`,
-or non-string `token` must return a Matrix `M_*` error envelope appropriate to
-the failure (`M_BAD_JSON`, `M_NOT_JSON`, `M_MISSING_PARAM`, or
-`M_INVALID_PARAM`).
+Malformed `/keys/query` request shapes must return the matching Matrix `M_*`
+error envelope:
+
+- request body is not a JSON object: `400` with `M_NOT_JSON`;
+- missing `device_keys`: `400` with `M_MISSING_PARAM`;
+- non-object `device_keys`, non-array device ID selections, non-string device
+  IDs, non-integer `timeout`, or non-string `token`: `400` with
+  `M_INVALID_PARAM`.
+
+Malformed request vectors cover each of those request-shape failures so
+implementations can fail closed before key lookup.
 
 Servers must not return private key material in success or error responses.
 

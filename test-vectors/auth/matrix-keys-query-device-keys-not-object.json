@@ -1,0 +1,19 @@
+{
+  "name": "matrix-keys-query-device-keys-not-object",
+  "contract": "SPEC-069",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/keys/query",
+    "access_token": "token-bob-device1",
+    "body": {
+      "device_keys": []
+    }
+  },
+  "expected": {
+    "status": 400,
+    "error": {
+      "errcode": "M_INVALID_PARAM",
+      "error": "device_keys must be an object."
+    }
+  }
+}

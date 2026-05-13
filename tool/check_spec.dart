@@ -859,6 +859,12 @@ void checkMatrixDeviceKeyQuery(
     'test-vectors/auth/matrix-keys-query-unknown-device-omitted.json',
     'test-vectors/auth/matrix-keys-query-missing-token.json',
     'test-vectors/auth/matrix-keys-query-missing-device-keys.json',
+    'test-vectors/auth/matrix-keys-query-body-not-object.json',
+    'test-vectors/auth/matrix-keys-query-device-keys-not-object.json',
+    'test-vectors/auth/matrix-keys-query-device-selection-not-array.json',
+    'test-vectors/auth/matrix-keys-query-device-id-not-string.json',
+    'test-vectors/auth/matrix-keys-query-timeout-not-integer.json',
+    'test-vectors/auth/matrix-keys-query-token-not-string.json',
   ];
   for (final path in paths) {
     final file = File(path);
@@ -892,6 +898,29 @@ void checkMatrixDeviceKeyQuery(
         pathPrefix: '/_matrix/client/v3/keys/query',
         status: 400,
         errcode: 'M_MISSING_PARAM',
+      );
+    } else if (path.contains('body-not-object')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'POST',
+        pathPrefix: '/_matrix/client/v3/keys/query',
+        status: 400,
+        errcode: 'M_NOT_JSON',
+      );
+    } else if (path.contains('not-object') ||
+        path.contains('not-array') ||
+        path.contains('not-string') ||
+        path.contains('not-integer')) {
+      validateMatrixSimpleRequestVector(
+        file,
+        json,
+        failures,
+        method: 'POST',
+        pathPrefix: '/_matrix/client/v3/keys/query',
+        status: 400,
+        errcode: 'M_INVALID_PARAM',
       );
     } else {
       validateMatrixKeysQueryVector(file, json, failures);
