@@ -16,6 +16,7 @@
         "id": "upload-cross-signing-keys",
         "method": "POST",
         "path": "/_matrix/client/v3/keys/device_signing/upload",
+        "access_token": "token-alice-device1",
         "expected_status": 200,
         "body": {
           "master_key": {
@@ -66,6 +67,7 @@
         "id": "query-cross-signing-keys",
         "method": "POST",
         "path": "/_matrix/client/v3/keys/query",
+        "access_token": "token-alice-device1",
         "expected_status": 200,
         "body": {
           "device_keys": {
@@ -100,6 +102,7 @@
         "id": "upload-device-signature",
         "method": "POST",
         "path": "/_matrix/client/v3/keys/signatures/upload",
+        "access_token": "token-alice-device1",
         "expected_status": 200,
         "body": {
           "@alice:example.test": {
