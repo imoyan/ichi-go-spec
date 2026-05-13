@@ -2,6 +2,10 @@
 
 Canonical behavior is defined by this repository only.
 
+Codex-facing repository instructions live in `AGENTS.md`. This document is a
+supporting human reference for source-of-truth boundaries and must stay aligned
+with `AGENTS.md`.
+
 After this root is published as a standalone repository, the contracts, test
 vectors, shared design tokens, and platform-neutral UI surface definitions here
 remain the only canonical source for the covered Houra public client-server
