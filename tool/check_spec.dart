@@ -427,6 +427,7 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     'parse/normalize/validate/authorize logic',
     'affected representative vector batch',
     'next-touch rule',
+    'planned adoption gate',
   ]) {
     if (!agents.contains(phrase)) {
       failures.add('AGENTS.md must document $phrase.');
