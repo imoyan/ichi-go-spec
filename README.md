@@ -743,9 +743,11 @@ Matrix v1.18 roadmap close-out snapshot:
   imoyan/houra-labs#74 and imoyan/houra-labs#75 are closed. These open labs
   issues do not block Matrix version advertisement unless a release candidate
   includes shared-core artifacts as evidence.
-- #200 is the remaining release blocker for a real Matrix v1.18 release
-  evidence bundle with implementation refs. #201 and #202 remain narrow
-  boundary/adoption close-out items and must be closed or explicitly marked
+- #200 now records the current blocked release evidence bundle with real
+  implementation refs and keeps Matrix version advertisement fail-closed.
+  #201 records the `SPEC-068` OAuth account-management adoption boundary and
+  keeps full Matrix OAuth 2.0 support out of scope. #202 remains a narrow
+  boundary/adoption close-out item and must be closed or explicitly marked
   non-blocking before #95 is presented as release-ready.
 - #97 through #101 should not be closed merely because their spec-side
   checklists are complete. Close them only when #95 links current pass/fail

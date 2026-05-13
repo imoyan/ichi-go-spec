@@ -25,6 +25,33 @@ screens. It only defines the account-management discovery and redirect behavior
 that OAuth-aware clients must use instead of legacy UIA account/device endpoints
 when the homeserver supports the Matrix OAuth 2.0 API.
 
+## Adoption boundary
+
+`SPEC-068` is an additive adoption boundary between the legacy Matrix auth
+contracts and later OAuth work. A homeserver may adopt the account-management
+metadata and redirect behavior in this contract without claiming full Matrix
+OAuth 2.0 login support.
+
+Adopting this contract does not replace the non-OAuth behavior covered by:
+
+- `SPEC-032` password login, whoami, and logout.
+- `SPEC-033` registration and registration UIA.
+- `SPEC-034` device listing, metadata updates, and legacy UIA device deletion
+  for non-OAuth-authenticated sessions.
+
+Servers that do not implement Matrix OAuth account-management metadata must fail
+closed. They must omit `account_management_uri` or return a Matrix error
+envelope for unsupported metadata behavior; they must not advertise OAuth login
+flows, full OAuth support, or wider `GET /_matrix/client/versions` support just
+because this contract exists.
+
+Client SDK or core code may discover metadata, validate the HTTPS
+`account_management_uri`, construct action URLs, and run post-return
+reconciliation. The host application owns browser presentation, deep-link
+routing, cancellation UI, local session recovery, and bearer-token persistence.
+Opening or returning from an account-management URL is not proof that the
+requested action completed.
+
 ## Matrix reference
 
 - Matrix specification version: `v1.18`
@@ -147,6 +174,9 @@ Missing bearer tokens during post-return reconciliation must return `401` with
   itself widen `GET /_matrix/client/versions` advertisement beyond the evidence
   gate in `SPEC-030`, `SPEC-031`, and release gates `SPEC-062` through
   `SPEC-066`.
-- After this spec PR is merged, create adoption issues for `houra-server` and
-  `houra-client`. Create an `houra-labs` issue only if parser-only shared-core
-  adoption is useful for account-management metadata or URL construction.
+- Adoption follow-up is split by implementation repository:
+  `imoyan/houra-server#106` tracks server fail-closed metadata behavior and
+  `imoyan/houra-client#95` tracks client URL construction and host-owned
+  browser/deep-link handling. Create an `houra-labs` issue only if parser-only
+  shared-core adoption is useful for account-management metadata or URL
+  construction.
