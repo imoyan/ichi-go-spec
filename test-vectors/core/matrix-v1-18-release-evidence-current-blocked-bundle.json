@@ -5,7 +5,7 @@
     "matrix_spec_version": "v1.18",
     "matrix_spec_source": "https://spec.matrix.org/v1.18/",
     "matrix_release_source": "https://matrix.org/blog/2026/03/26/matrix-v1.18-release/",
-    "checked_at": "2026-05-14T06:54:13+09:00",
+    "checked_at": "2026-05-14T07:15:04+09:00",
     "bundle_contracts": [
       "SPEC-062",
       "SPEC-063",
@@ -15,18 +15,18 @@
     ],
     "candidate_refs": {
       "release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-14",
-      "houra_spec_ref": "22dab9242223934271e7f99e5ee044197296be20",
-      "houra_server_ref": "660bea2b60b0c2459c864856f7bb6db2d08b4060",
+      "houra_spec_ref": "ce587f202de77dade3eebb07b63a0a6b4908743b",
+      "houra_server_ref": "3fa134955c9e0804adc9e4b54e6d90fb24631f77",
       "houra_client_ref": "0f330a14ad86d69ad4f147c7a5b6d1852c9c78f2"
     },
     "evidence_sources": {
       "server": {
         "repo": "houra-server",
         "issue": "imoyan/houra-server#108",
-        "pull_request": "imoyan/houra-server#134",
-        "merge_commit": "660bea2b60b0c2459c864856f7bb6db2d08b4060",
-        "head_under_test": "660bea2b60b0c2459c864856f7bb6db2d08b4060",
-        "spec_ref_under_test": "22dab9242223934271e7f99e5ee044197296be20",
+        "pull_request": "imoyan/houra-server#145",
+        "merge_commit": "3fa134955c9e0804adc9e4b54e6d90fb24631f77",
+        "head_under_test": "3fa134955c9e0804adc9e4b54e6d90fb24631f77",
+        "spec_ref_under_test": "ce587f202de77dade3eebb07b63a0a6b4908743b",
         "checks": [
           "GitHub Actions CI / test pass"
         ],
@@ -41,7 +41,7 @@
         "pull_request": "imoyan/houra-client#116",
         "merge_commit": "0f330a14ad86d69ad4f147c7a5b6d1852c9c78f2",
         "head_under_test": "0f330a14ad86d69ad4f147c7a5b6d1852c9c78f2",
-        "spec_ref_under_test": "22dab9242223934271e7f99e5ee044197296be20",
+        "spec_ref_under_test": "ce587f202de77dade3eebb07b63a0a6b4908743b",
         "checks": [
           "GitHub Actions test pass",
           "GitHub Actions e2e pass"
@@ -59,41 +59,48 @@
           "imoyan/houra-spec#97",
           "imoyan/houra-spec#99"
         ],
+        "scope_decision_refs": [
+          "imoyan/houra-server#135"
+        ],
         "advertisement_allowed": false
       },
       {
         "domain": "Server-Server API",
         "contract_gate": "pass",
-        "implementation_gate": "blocked-by-complement-breadth",
-        "blocker_issue_refs": [
-          "imoyan/houra-server#133"
+        "implementation_gate": "excluded-by-release-scope",
+        "blocker_issue_refs": [],
+        "scope_decision_refs": [
+          "imoyan/houra-server#136"
         ],
         "advertisement_allowed": false
       },
       {
         "domain": "Application Service API",
         "contract_gate": "pass",
-        "implementation_gate": "excluded",
-        "blocker_issue_refs": [
-          "imoyan/houra-spec#101"
+        "implementation_gate": "excluded-by-release-scope",
+        "blocker_issue_refs": [],
+        "scope_decision_refs": [
+          "imoyan/houra-server#137"
         ],
         "advertisement_allowed": false
       },
       {
         "domain": "Identity Service API",
         "contract_gate": "pass",
-        "implementation_gate": "excluded",
-        "blocker_issue_refs": [
-          "imoyan/houra-spec#101"
+        "implementation_gate": "excluded-by-release-scope",
+        "blocker_issue_refs": [],
+        "scope_decision_refs": [
+          "imoyan/houra-server#138"
         ],
         "advertisement_allowed": false
       },
       {
         "domain": "Push Gateway API",
         "contract_gate": "pass",
-        "implementation_gate": "excluded",
-        "blocker_issue_refs": [
-          "imoyan/houra-spec#101"
+        "implementation_gate": "excluded-by-release-scope",
+        "blocker_issue_refs": [],
+        "scope_decision_refs": [
+          "imoyan/houra-server#139"
         ],
         "advertisement_allowed": false
       },
@@ -104,14 +111,18 @@
         "blocker_issue_refs": [
           "imoyan/houra-spec#98"
         ],
+        "scope_decision_refs": [
+          "imoyan/houra-server#140"
+        ],
         "advertisement_allowed": false
       },
       {
         "domain": "Olm & Megolm",
         "contract_gate": "pass",
-        "implementation_gate": "blocked-by-e2ee-domain-evidence",
-        "blocker_issue_refs": [
-          "imoyan/houra-spec#100"
+        "implementation_gate": "excluded-by-release-scope",
+        "blocker_issue_refs": [],
+        "scope_decision_refs": [
+          "imoyan/houra-server#141"
         ],
         "advertisement_allowed": false
       },
@@ -121,6 +132,9 @@
         "implementation_gate": "pass-adopted-subset",
         "blocker_issue_refs": [
           "imoyan/houra-spec#95"
+        ],
+        "scope_decision_refs": [
+          "imoyan/houra-server#142"
         ],
         "advertisement_allowed": false
       }
@@ -145,6 +159,64 @@
       "release_tag_allowed": false,
       "decision": "blocked-no-matrix-support-claim"
     },
+    "release_scope_decisions": [
+      {
+        "domain": "Appendices/common rules",
+        "decision": "out-of-scope-for-current-release-candidate",
+        "issue": "imoyan/houra-server#142",
+        "reason": "not independently claimed as a full Matrix domain",
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Client-Server API",
+        "decision": "out-of-scope-for-current-release-candidate",
+        "issue": "imoyan/houra-server#135",
+        "reason": "adopted subset evidence exists, but Client-Server breadth outside adopted contracts remains excluded",
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Server-Server API",
+        "decision": "out-of-scope-for-current-release-candidate",
+        "issue": "imoyan/houra-server#136",
+        "reason": "federation bootstrap, transaction/join/invite, representative backfill/event_auth/state_ids, and SPEC-061 interop smoke evidence exists, but full Matrix federation breadth remains excluded",
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Application Service API",
+        "decision": "out-of-scope-for-current-release-candidate",
+        "issue": "imoyan/houra-server#137",
+        "reason": "representative appservice registration, namespace, transaction, and query evidence exists, but third-party network APIs, ping, and bridge protocol behavior remain excluded",
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Identity Service API",
+        "decision": "out-of-scope-for-current-release-candidate",
+        "issue": "imoyan/houra-server#138",
+        "reason": "representative identity-service token, terms, lookup, validation, bind, unbind, and privacy failure evidence exists, but invitation storage, ephemeral invitation signing, provider delivery, and consent UI remain excluded",
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Push Gateway API",
+        "decision": "out-of-scope-for-current-release-candidate",
+        "issue": "imoyan/houra-server#139",
+        "reason": "Push Gateway boundary evidence exists, but vendor push provider credentials, device permission UI, notification rendering, and background scheduling remain excluded",
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Room Versions",
+        "decision": "out-of-scope-for-current-release-candidate",
+        "issue": "imoyan/houra-server#140",
+        "reason": "full room-version algorithms and domain-wide advertisement remain excluded",
+        "advertisement_allowed": false
+      },
+      {
+        "domain": "Olm & Megolm",
+        "decision": "out-of-scope-for-current-release-candidate",
+        "issue": "imoyan/houra-server#141",
+        "reason": "local Olm/Megolm cryptography and full E2EE support are not implemented",
+        "advertisement_allowed": false
+      }
+    ],
     "readiness_checklist": {
       "contract": "SPEC-066",
       "same_checked_refs": true,
@@ -155,6 +227,17 @@
       "supported_domain_gates_pass": true,
       "excluded_domains_have_gap_issue_or_reason": true,
       "artifacts_secret_redacted": true,
+      "explicit_out_of_scope_decisions_present": true,
+      "scope_decision_issue_refs": [
+        "imoyan/houra-server#142",
+        "imoyan/houra-server#135",
+        "imoyan/houra-server#136",
+        "imoyan/houra-server#137",
+        "imoyan/houra-server#138",
+        "imoyan/houra-server#139",
+        "imoyan/houra-server#140",
+        "imoyan/houra-server#141"
+      ],
       "release_candidate_ref_mismatch_blocks_publish": false,
       "ready_to_publish": false
     },
@@ -163,16 +246,6 @@
         "id": "no-matrix-advertisement",
         "issue": "imoyan/houra-spec#95",
         "reason": "GET /_matrix/client/versions remains fail-closed with no Matrix versions advertised"
-      },
-      {
-        "id": "complement-full-breadth-blocked",
-        "issue": "imoyan/houra-server#133",
-        "reason": "Complement full-breadth evidence remains blocked, so Matrix Server-Server breadth is not release-ready"
-      },
-      {
-        "id": "e2ee-domain-evidence-excluded",
-        "issue": "imoyan/houra-spec#100",
-        "reason": "SPEC-069 is query-only; Olm & Megolm advertisement remains excluded until E2EE implementation evidence passes"
       }
     ]
   },
