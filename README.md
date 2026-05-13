@@ -297,6 +297,33 @@ unless a later `SPEC-*` contract defines public behavior. Those parts differ
 too much across Vue, Next, Node.js, Expo, Flutter native, Flutter web, and
 server runtimes to force into a single core without harming flexibility.
 
+### Current shared-core status
+
+The current shared-core work is still pre-adoption. `houra-labs` contains the
+first Rust protocol-core prototype, a `wasm-bindgen` wrapper prototype, and a
+TypeScript WASM facade prototype for parser and validation experiments through
+the Matrix Client-Server MVP gate. Those artifacts are implementation
+experiments, not public contracts, published packages, or required dependencies
+for `houra-client` or `houra-server`.
+
+The next shared-core sequence is:
+
+1. Keep `houra-spec` contracts and vectors as the source of truth.
+2. Stabilize the Rust crate manifest and ABI/version gate in `houra-labs`.
+3. Add parity and performance evidence for representative vector batches.
+4. Prepare publish readiness for the Rust crate and TypeScript WASM facade.
+5. Adopt the shared core from implementation repositories only after the
+   relevant area reaches `rust-adopted` status with the required evidence.
+
+Until those steps are complete, implementation repositories should keep local
+parser or validator code unless a focused adoption issue explicitly wires the
+shared artifact into that repository.
+
+日本語メモ: Rust 共通化は `houra-labs` で prototype が進んでいる段階であり、
+`houra-spec` 上の現在地は `rust-candidate` です。manifest / ABI/version gate、
+parity / performance evidence、公開 package 化、実装 repo への採用が揃うまでは
+`rust-adopted` として扱いません。
+
 ### Coupling and dependency policy
 
 Shared code should be deliberately small, but it should not avoid mainstream
