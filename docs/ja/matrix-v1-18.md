@@ -31,9 +31,12 @@ refs 不一致による fail-closed 判定を記録します。
 これらは release candidate が shared-core artifact を evidence に含めない限り、
 Matrix version advertisement の blocker ではありません。
 
-#200、#201、#202 が残る間は、#95 を release-ready として読ませないでください。
-#97 から #101 も、pass/fail evidence または blocked / out-of-scope の判断が #95 に
-リンクされるまでは、単なる spec checklist 完了だけで close しません。
+#200 は current blocked bundle として、実 implementation refs と fail-closed の判断を
+記録しました。#201 は `SPEC-068` の OAuth account-management adoption boundary を
+記録し、full Matrix OAuth 2.0 support claim とは分けます。#202 が残る間は、#95 を
+release-ready として読ませないでください。#97 から #101 も、pass/fail evidence
+または blocked / out-of-scope の判断が #95 にリンクされるまでは、単なる spec
+checklist 完了だけで close しません。
 
 ## 広告してよいこと
 

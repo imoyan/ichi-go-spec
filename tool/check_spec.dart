@@ -933,6 +933,7 @@ void checkMatrixOAuthAccountManagement(
     'test-vectors/auth/matrix-oauth-device-delete-return-refresh-complete.json',
     'test-vectors/auth/matrix-oauth-current-device-deleted-token-invalid.json',
     'test-vectors/auth/matrix-oauth-account-deactivate-account-management-link.json',
+    'test-vectors/auth/matrix-oauth-adoption-boundary.json',
   ];
   for (final path in required) {
     final file = File(path);
@@ -1028,6 +1029,118 @@ void checkMatrixOAuthAccountManagement(
     failures.add(
       'Matrix OAuth generic account-management fallback must not include action parameters.',
     );
+  }
+
+  final adoptionBoundaryFile = File(
+    'test-vectors/auth/matrix-oauth-adoption-boundary.json',
+  );
+  validateMatrixOAuthAdoptionBoundary(
+    adoptionBoundaryFile,
+    readJsonObject(adoptionBoundaryFile, failures),
+    failures,
+  );
+}
+
+void validateMatrixOAuthAdoptionBoundary(
+  File file,
+  Map<String, Object?>? vector,
+  List<String> failures,
+) {
+  if (vector == null) {
+    return;
+  }
+  final event = vector['event'];
+  if (event is! Map) {
+    failures.add('${relative(file)} event must be an object.');
+    return;
+  }
+  final eventMap = event.cast<String, Object?>();
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} Matrix spec version must be v1.18.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String || !checkedAt.contains('+09:00')) {
+    failures.add('${relative(file)} checked_at must be a dated JST snapshot.');
+  }
+  final boundaryContracts = eventMap['boundary_contracts'];
+  const requiredBoundaryContracts = {
+    'SPEC-032',
+    'SPEC-033',
+    'SPEC-034',
+    'SPEC-068',
+  };
+  if (boundaryContracts is! List ||
+      !boundaryContracts.toSet().containsAll(requiredBoundaryContracts)) {
+    failures.add(
+      '${relative(file)} boundary_contracts must include SPEC-032, SPEC-033, SPEC-034, and SPEC-068.',
+    );
+  }
+
+  final tracking = eventMap['repo_adoption_tracking'];
+  final trackingMap = tracking is Map ? tracking.cast<String, Object?>() : null;
+  final serverTracking = trackingMap?['server'];
+  final clientTracking = trackingMap?['client'];
+  final labsTracking = trackingMap?['labs'];
+  if (serverTracking is! Map ||
+      serverTracking['issue'] != 'imoyan/houra-server#106') {
+    failures.add('${relative(file)} must track server adoption issue #106.');
+  }
+  if (clientTracking is! Map ||
+      clientTracking['issue'] != 'imoyan/houra-client#95') {
+    failures.add('${relative(file)} must track client adoption issue #95.');
+  }
+  if (labsTracking is! Map || labsTracking['issue_required'] != false) {
+    failures.add(
+      '${relative(file)} must keep labs adoption optional unless parser-only shared-core is needed.',
+    );
+  }
+
+  final server = eventMap['server_boundary'];
+  final serverMap = server is Map ? server.cast<String, Object?>() : null;
+  if (serverMap == null ||
+      serverMap['full_oauth_claim_allowed'] != false ||
+      serverMap['legacy_password_login_preserved'] != true ||
+      serverMap['legacy_registration_preserved'] != true ||
+      serverMap['legacy_device_uia_preserved_for_non_oauth_sessions'] != true) {
+    failures.add('${relative(file)} server adoption boundary is invalid.');
+  }
+  final unsupported = serverMap?['unsupported_behavior'];
+  final unsupportedMap = unsupported is Map
+      ? unsupported.cast<String, Object?>()
+      : null;
+  if (unsupportedMap == null ||
+      unsupportedMap['auth_metadata_account_management_uri_present'] != false ||
+      unsupportedMap['oauth_login_flow_advertised'] != false ||
+      unsupportedMap['versions_advertisement_widened'] != false ||
+      unsupportedMap['matrix_error_envelope_required_for_errors'] != true) {
+    failures.add(
+      '${relative(file)} unsupported server behavior must fail closed.',
+    );
+  }
+
+  final client = eventMap['client_boundary'];
+  final clientMap = client is Map ? client.cast<String, Object?>() : null;
+  if (clientMap == null ||
+      clientMap['sdk_constructs_account_management_url'] != true ||
+      clientMap['host_owns_browser_presentation'] != true ||
+      clientMap['host_owns_deep_link_routing'] != true ||
+      clientMap['host_owns_cancellation_ui'] != true ||
+      clientMap['host_owns_bearer_token_storage'] != true ||
+      clientMap['account_management_url_is_not_completion_proof'] != true ||
+      clientMap['post_return_reconciliation_required'] != true) {
+    failures.add('${relative(file)} client adoption boundary is invalid.');
+  }
+
+  final expected = vector['expected'];
+  final expectedMap = expected is Map ? expected.cast<String, Object?>() : null;
+  if (expectedMap == null ||
+      expectedMap['full_oauth_claimed'] != false ||
+      expectedMap['legacy_auth_contracts_preserved'] != true ||
+      expectedMap['host_browser_policy_owned_by_host'] != true ||
+      expectedMap['server_fail_closed_when_unsupported'] != true ||
+      expectedMap['versions_advertisement_widened'] != false ||
+      expectedMap['implementation_follow_up_split_by_repo'] != true) {
+    failures.add('${relative(file)} expected adoption boundary is invalid.');
   }
 }
 

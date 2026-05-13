@@ -1,0 +1,62 @@
+{
+  "name": "matrix-oauth-adoption-boundary",
+  "contract": "SPEC-068",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#oauth-20-aware-clients",
+    "checked_at": "2026-05-13T21:20:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "boundary_contracts": [
+      "SPEC-032",
+      "SPEC-033",
+      "SPEC-034",
+      "SPEC-068"
+    ],
+    "repo_adoption_tracking": {
+      "server": {
+        "repo": "houra-server",
+        "issue": "imoyan/houra-server#106",
+        "scope": "fail-closed Matrix OAuth account-management metadata and no full OAuth advertisement"
+      },
+      "client": {
+        "repo": "houra-client",
+        "issue": "imoyan/houra-client#95",
+        "scope": "account-management URL construction, validation, and host-owned browser/deep-link handling"
+      },
+      "labs": {
+        "issue_required": false,
+        "reason": "parser-only shared-core adoption is not required by the current boundary"
+      }
+    },
+    "server_boundary": {
+      "full_oauth_claim_allowed": false,
+      "auth_metadata_endpoint_allowed": true,
+      "legacy_password_login_preserved": true,
+      "legacy_registration_preserved": true,
+      "legacy_device_uia_preserved_for_non_oauth_sessions": true,
+      "unsupported_behavior": {
+        "auth_metadata_account_management_uri_present": false,
+        "oauth_login_flow_advertised": false,
+        "versions_advertisement_widened": false,
+        "matrix_error_envelope_required_for_errors": true
+      }
+    },
+    "client_boundary": {
+      "sdk_constructs_account_management_url": true,
+      "host_owns_browser_presentation": true,
+      "host_owns_deep_link_routing": true,
+      "host_owns_cancellation_ui": true,
+      "host_owns_bearer_token_storage": true,
+      "account_management_url_is_not_completion_proof": true,
+      "post_return_reconciliation_required": true
+    }
+  },
+  "expected": {
+    "full_oauth_claimed": false,
+    "legacy_auth_contracts_preserved": true,
+    "host_browser_policy_owned_by_host": true,
+    "server_fail_closed_when_unsupported": true,
+    "versions_advertisement_widened": false,
+    "implementation_follow_up_split_by_repo": true
+  }
+}
