@@ -344,10 +344,19 @@ dependency. Record the area as `spec-only`, `adapter-owned`,
 `split-by-language`, or `avoid-shared` until parity, security, packaging, and
 performance evidence supports a wider adoption.
 
+Existing implementations should not be migrated into shared code as a broad
+cleanup by default. Use a next-touch rule for narrow maintenance: when a change
+already modifies protocol parsing, normalization, validation, authorization, or
+advertisement behavior, decide whether the touched boundary can move into the
+shared path without widening the issue. If the migration would change the
+feature scope, hot-path cost, packaging model, or security boundary, leave the
+local implementation in place and create a planned adoption gate instead.
+
 日本語メモ: 共通化は「危険な境界を一度だけ通す」ために使います。入力の
 parse / normalize / validate / authorize は共通化候補ですが、token 保管、
 secure storage、transport、retry、UI state、deployment policy は実装側の責務に
-残します。証拠が揃わない機能は advertise せず fail-closed にします。
+残します。証拠が揃わない機能は advertise せず fail-closed にします。既存実装は
+一括移行せず、触った箇所で小さく判断し、大きい移行は adoption gate として分けます。
 
 ### Current shared-core status
 
