@@ -320,8 +320,8 @@ parser or validator code unless a focused adoption issue explicitly wires the
 shared artifact into that repository.
 
 日本語メモ: Rust 共通化は `houra-labs` で prototype が進んでいる段階であり、
-`houra-spec` 上の現在地は `rust-candidate` です。公開 package 化、ABI /
-manifest gate、parity / performance evidence、実装 repo への採用が揃うまでは
+`houra-spec` 上の現在地は `rust-candidate` です。manifest / ABI/version gate、
+parity / performance evidence、公開 package 化、実装 repo への採用が揃うまでは
 `rust-adopted` として扱いません。
 
 ### Coupling and dependency policy
