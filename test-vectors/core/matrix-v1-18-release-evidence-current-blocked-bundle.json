@@ -57,7 +57,8 @@
         "contract_gate": "pass",
         "implementation_gate": "blocked-by-same-ref-check",
         "blocker_issue_refs": [
-          "imoyan/houra-spec#97"
+          "imoyan/houra-spec#97",
+          "imoyan/houra-spec#99"
         ],
         "advertisement_allowed": false
       },
