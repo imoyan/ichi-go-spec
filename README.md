@@ -311,9 +311,9 @@ The next shared-core sequence is:
 1. Keep `houra-spec` contracts and vectors as the source of truth.
 2. Stabilize the Rust crate manifest and ABI/version gate in `houra-labs`.
 3. Add parity and performance evidence for representative vector batches.
-4. Prepare publish readiness for the Rust crate and TypeScript/WASM facade.
+4. Prepare publish readiness for the Rust crate and TypeScript WASM facade.
 5. Adopt the shared core from implementation repositories only after the
-   relevant area reaches `rust-adopted` evidence.
+   relevant area reaches `rust-adopted` status with the required evidence.
 
 Until those steps are complete, implementation repositories should keep local
 parser or validator code unless a focused adoption issue explicitly wires the
