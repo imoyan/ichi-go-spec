@@ -135,6 +135,7 @@ The maintained repository names are:
 - `contracts/SPEC-073-matrix-client-server-full-breadth-gap-inventory.md`
 - `contracts/SPEC-074-matrix-server-server-full-breadth-gap-inventory.md`
 - `contracts/SPEC-075-matrix-application-service-full-breadth-gap-inventory.md`
+- `contracts/SPEC-076-matrix-identity-service-full-breadth-gap-inventory.md`
 
 ## Shared Design Inputs
 
@@ -641,7 +642,7 @@ Matrix compliance must be tracked by API domain, not as a single vague label:
 | Client-Server API | `/_matrix/client/*`, media, auth, sync, rooms, user data, devices, reporting, admin capabilities | Product MVP covers a small `/_houra/client/*` subset; `SPEC-030` through `SPEC-038` add Matrix versions, auth/session, registration, devices, room create/join/leave/state, send event/messages, sync, and media upload/download contracts; `SPEC-039` defines the integrated live e2e adoption gate; `SPEC-045` starts Client-Server breadth with profile, account data, and room tags; `SPEC-046` adds receipts, typing, and read markers; `SPEC-047` adds filters, presence, and capabilities; `SPEC-048` adds room directory, aliases, and invites; `SPEC-049` adds moderation, reporting, and admin controls | Matrix-compatible endpoint namespace, response shapes, error codes, representative conformance vectors, and live server/client MVP smoke pass |
 | Server-Server API | federation discovery, signed transactions, PDUs/EDUs, event auth, joins/leaves, invites, backfill, key APIs, policy servers | Not implemented; `SPEC-055` adds server discovery, delegated well-known, signing-key publication/query, and destination resolution failure contracts; `SPEC-056` adds transaction send/receive, make/send join, and v2 invite contracts; `SPEC-057` adds backfill, event_auth, state_ids, and representative state-resolution interop gates; `SPEC-061` adds two-Houra and reference-homeserver smoke evidence gates | A second homeserver can federate, exchange signed room events, validate auth, and recover state across restart |
 | Application Service API | appservice registration, namespace ownership, transactions, sender localpart, bridge-style event delivery | Not implemented; `SPEC-058` adds registration shape, namespace ownership, homeserver-to-appservice transactions, user queries, and room-alias queries; `SPEC-075` keeps the full-breadth Application Service API, third-party network, ping, Client-Server extension, and bridge behavior gaps explicit and non-advertised for the current release candidate | A registered appservice receives transactions and can puppet/send events within its declared namespaces |
-| Identity Service API | third-party identifier validation and lookup | Not implemented; `SPEC-059` adds the separate service boundary, identity token scope, hash lookup, validation session, bind, unbind, and privacy/auth failure gate | Either explicitly out of supported deployment scope or implemented as a separate identity component with conformance evidence |
+| Identity Service API | third-party identifier validation and lookup | Not implemented; `SPEC-059` adds the separate service boundary, identity token scope, hash lookup, validation session, bind, unbind, and privacy/auth failure gate; `SPEC-076` keeps invitation storage, ephemeral invitation signing, provider delivery, consent UI, and full Identity Service API gaps explicit and non-advertised for the current release candidate | Either explicitly out of supported deployment scope or implemented as a separate identity component with conformance evidence |
 | Push Gateway API | push notification gateway contracts | Not implemented; `SPEC-060` adds the separate push gateway boundary, notify payload, `event_id_only` privacy shape, pusher/push-rule setup, rejected pushkey, and delivery failure gate | Either explicitly out of supported deployment scope or implemented with privacy-aware notification payload tests |
 | Room Versions | room version algorithms, event authorization rules, state resolution, room upgrade behavior | MVP rooms do not implement Matrix room versions or event DAG auth; `SPEC-040` adds the first Matrix event DAG and auth-event reference contract, `SPEC-041` adds state snapshot / representative state-resolution vectors, `SPEC-042` defines the stable room versions 1-12 / default 12 gate, `SPEC-043` adds representative membership, power-level, and redaction auth vectors, and `SPEC-044` adds alias / upgrade / restart persistence gates without full room-version auth completeness | Supported room versions are listed, default room version is declared, and auth/state-resolution tests pass |
 | Olm & Megolm | E2EE primitives, one-time keys, device keys, encrypted room messaging, key backup, verification, cross-signing | Not implemented; `SPEC-050` defines the adapter ownership boundary and forbids local Olm/Megolm implementation; `SPEC-069` isolates the first client/parser-facing device-key query contract; `SPEC-051` adds device key, one-time key, and fallback key publication/claim contracts; `SPEC-052` adds to-device and encrypted-room send/receive gates; `SPEC-053` adds server-side key backup and logout/relogin restore gates; `SPEC-054` adds SAS verification, cross-signing, and wrong-device failure gates | Use a mainstream Matrix crypto stack; encrypted rooms, device trust, key backup, restore, verification, and wrong-device failure flows pass |
@@ -784,6 +785,12 @@ Matrix v1.18 roadmap close-out snapshot:
   third-party network directories, ping/liveness, Client-Server extension, and
   bridge evidence lanes. It is a fail-closed gap inventory only; it does not
   claim full Application Service API or bridge protocol support.
+- `SPEC-076` decomposes `houra-server#138` Identity Service full-breadth gaps
+  into service/account/terms, key/signature, lookup/privacy, validation/provider
+  delivery, bind/unbind lifecycle, invitation storage, ephemeral signing,
+  consent UI, and release-evidence lanes. It is a fail-closed gap inventory
+  only; it does not claim full Identity Service API or external provider
+  operation.
 - #97 through #101 should not be closed merely because their spec-side
   checklists are complete or because the current release candidate excludes the
   domain from advertisement. Close them only when #95 links current pass/fail
@@ -1096,6 +1103,10 @@ Matrix Identity Service boundary gate:
 - Passing this gate does not claim invitation storage, ephemeral invitation
   signing, email/SMS provider infrastructure, user-facing consent UI, push
   gateway behavior, or Matrix v1.18 full ecosystem compliance.
+- `SPEC-076` records those excluded Identity Service API lanes as the
+  `houra-server#138` full-breadth gap inventory for the current blocked release
+  candidate. It preserves the non-advertisement decision until each lane has
+  passing evidence or an explicit release exclusion.
 - After `SPEC-059` merges, create adoption issues for `houra-server` and
   `houra-client`. Create an `houra-labs` issue only if parser-only helpers for
   3PID, token redaction, or signed association validation are intentionally
@@ -1354,6 +1365,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-073 | Matrix Client-Server full-breadth gap inventory | `test-vectors/core/matrix-client-server-full-breadth-gap-inventory.json` |
 | SPEC-074 | Matrix Server-Server full-breadth gap inventory | `test-vectors/core/matrix-server-server-full-breadth-gap-inventory.json` |
 | SPEC-075 | Matrix Application Service full-breadth gap inventory | `test-vectors/core/matrix-application-service-full-breadth-gap-inventory.json` |
+| SPEC-076 | Matrix Identity Service full-breadth gap inventory | `test-vectors/core/matrix-identity-service-full-breadth-gap-inventory.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
