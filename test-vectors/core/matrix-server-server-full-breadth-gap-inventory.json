@@ -1,0 +1,192 @@
+{
+  "name": "matrix-server-server-full-breadth-gap-inventory",
+  "contract": "SPEC-074",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/server-server-api/",
+    "checked_at": "2026-05-14T07:36:37+09:00",
+    "parent_issue": "imoyan/houra-server#136",
+    "current_release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-14",
+    "release_scope_decision": {
+      "domain": "Server-Server API",
+      "decision": "out-of-scope-for-current-release-candidate",
+      "issue": "imoyan/houra-server#136",
+      "advertisement_allowed": false
+    },
+    "covered_subset_contracts": [
+      "SPEC-055",
+      "SPEC-056",
+      "SPEC-057",
+      "SPEC-061",
+      "SPEC-063"
+    ],
+    "required_gap_lanes": [
+      {
+        "id": "federation-discovery-version-key-lifecycle-request-auth-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "GET /_matrix/federation/v1/version",
+          "POST /_matrix/key/v2/query",
+          "GET /_matrix/key/v2/query/{serverName}",
+          "key rotation and old key validity",
+          "request and response authentication edge cases",
+          "TLS/SNI and unsupported endpoint handling"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "transaction-pdu-edu-event-validation-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "PUT /_matrix/federation/v1/send/{txnId}",
+          "PDU auth checks",
+          "rejection and soft failure",
+          "event hash and signature validation",
+          "typing, receipt, presence, device-list, and to-device EDUs"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "related_domains": [
+          "Room Versions",
+          "Olm & Megolm"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "event-retrieval-missing-events-backfill-state-response-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "GET /_matrix/federation/v1/event/{eventId}",
+          "POST /_matrix/federation/v1/get_missing_events/{roomId}",
+          "GET /_matrix/federation/v1/backfill/{roomId}",
+          "GET /_matrix/federation/v1/state/{roomId}",
+          "GET /_matrix/federation/v1/state_ids/{roomId}",
+          "GET /_matrix/federation/v1/timestamp_to_event/{roomId}"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "related_domains": [
+          "Room Versions"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "join-knock-leave-invite-third-party-invite-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "GET /_matrix/federation/v1/make_join/{roomId}/{userId}",
+          "PUT /_matrix/federation/v2/send_join/{roomId}/{eventId}",
+          "GET /_matrix/federation/v1/make_knock/{roomId}/{userId}",
+          "PUT /_matrix/federation/v1/send_knock/{roomId}/{eventId}",
+          "GET /_matrix/federation/v1/make_leave/{roomId}/{userId}",
+          "PUT /_matrix/federation/v2/send_leave/{roomId}/{eventId}",
+          "PUT /_matrix/federation/v1/3pid/onbind",
+          "PUT /_matrix/federation/v1/exchange_third_party_invite/{roomId}"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "related_domains": [
+          "Room Versions",
+          "Identity Service API"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "directory-spaces-query-openid-profile-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "GET /_matrix/federation/v1/publicRooms",
+          "POST /_matrix/federation/v1/publicRooms",
+          "GET /_matrix/federation/v1/hierarchy/{roomId}",
+          "GET /_matrix/federation/v1/query/directory",
+          "GET /_matrix/federation/v1/query/profile",
+          "GET /_matrix/federation/v1/query/{queryType}",
+          "GET /_matrix/federation/v1/openid/userinfo"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "federation-e2ee-device-send-to-device-media-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "GET /_matrix/federation/v1/user/devices/{userId}",
+          "POST /_matrix/federation/v1/user/keys/claim",
+          "POST /_matrix/federation/v1/user/keys/query",
+          "federation send-to-device delivery",
+          "GET /_matrix/federation/v1/media/download/{mediaId}",
+          "GET /_matrix/federation/v1/media/thumbnail/{mediaId}"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "related_domains": [
+          "Olm & Megolm"
+        ],
+        "related_issues": [
+          "imoyan/houra-server#141"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "server-acl-policy-server-event-signing-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "Server ACL protected endpoints",
+          "policy-server room state integration",
+          "POST /_matrix/policy/v1/sign",
+          "event hash calculation",
+          "event signature validation",
+          "policy-server signature validation"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "complement-full-breadth-reference-interop-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "stable-spec-only Complement report",
+          "reference homeserver interop artifacts",
+          "failure issue refs for unsupported federation tests",
+          "secret and local-path redaction",
+          "release bundle linkage"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "related_contracts": [
+          "SPEC-063",
+          "SPEC-064",
+          "SPEC-065",
+          "SPEC-066"
+        ],
+        "advertisement_allowed": false
+      }
+    ],
+    "release_evidence_rules": {
+      "representative_subset_is_not_full_breadth": true,
+      "complement_full_breadth_claim_requires_lane_evidence": true,
+      "explicit_exclusion_required_when_lane_not_included": true,
+      "failure_issue_ref_must_remain_open_until_resolved": true,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "server_server_full_breadth_decomposed": true,
+    "release_scope_issue_ref": "imoyan/houra-server#136",
+    "support_claim_not_widened": true,
+    "versions_advertisement_widened": false,
+    "follow_up_required": true
+  }
+}
