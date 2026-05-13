@@ -744,6 +744,7 @@ void checkMatrixOAuthAccountManagement(
   final required = [
     'test-vectors/auth/matrix-oauth-auth-metadata-account-management-basic.json',
     'test-vectors/auth/matrix-oauth-device-delete-account-management-link.json',
+    'test-vectors/auth/matrix-oauth-generic-account-management-fallback.json',
     'test-vectors/auth/matrix-oauth-device-delete-return-refresh-complete.json',
     'test-vectors/auth/matrix-oauth-current-device-deleted-token-invalid.json',
     'test-vectors/auth/matrix-oauth-account-deactivate-account-management-link.json',
@@ -786,6 +787,7 @@ void checkMatrixOAuthAccountManagement(
   for (final path in [
     'test-vectors/auth/matrix-oauth-device-delete-account-management-link.json',
     'test-vectors/auth/matrix-oauth-account-deactivate-account-management-link.json',
+    'test-vectors/auth/matrix-oauth-generic-account-management-fallback.json',
   ]) {
     final json = readJsonObject(File(path), failures);
     final expected = json?['expected'];
@@ -797,6 +799,50 @@ void checkMatrixOAuthAccountManagement(
     if (uri is String && uri.contains('access_token')) {
       failures.add('$path client_redirect.uri must not include access_token.');
     }
+  }
+
+  final fallback = readJsonObject(
+    File(
+      'test-vectors/auth/matrix-oauth-generic-account-management-fallback.json',
+    ),
+    failures,
+  );
+  final fallbackContext = fallback?['client_context'];
+  final fallbackMetadata = fallbackContext is Map
+      ? fallbackContext['auth_metadata']
+      : null;
+  final fallbackExpected = fallback?['expected'];
+  final fallbackRedirect = fallbackExpected is Map
+      ? fallbackExpected['client_redirect']
+      : null;
+  final fallbackUri = fallbackRedirect is Map ? fallbackRedirect['uri'] : null;
+  final fallbackAccountManagementUri = fallbackMetadata is Map
+      ? fallbackMetadata['account_management_uri']
+      : null;
+  if (fallbackAccountManagementUri is! String ||
+      !fallbackAccountManagementUri.startsWith('https://')) {
+    failures.add(
+      'Matrix OAuth generic account-management fallback metadata URI must be HTTPS.',
+    );
+  }
+  if (fallbackMetadata is Map) {
+    final actions = fallbackMetadata['account_management_actions_supported'];
+    if (actions != null && (actions is! List || actions.isNotEmpty)) {
+      failures.add(
+        'Matrix OAuth generic account-management fallback must omit actions or use an empty action list.',
+      );
+    }
+  }
+  if (fallbackUri != fallbackAccountManagementUri) {
+    failures.add(
+      'Matrix OAuth generic account-management fallback must use the bare account_management_uri.',
+    );
+  }
+  if (fallbackUri is String &&
+      (fallbackUri.contains('action=') || fallbackUri.contains('device_id='))) {
+    failures.add(
+      'Matrix OAuth generic account-management fallback must not include action parameters.',
+    );
   }
 }
 
