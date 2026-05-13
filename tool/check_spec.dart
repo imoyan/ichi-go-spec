@@ -126,6 +126,7 @@ void main() {
   checkMatrixIdentityServiceBoundary(contracts, failures);
   checkMatrixIdentityServiceFullBreadthGapInventory(contracts, failures);
   checkMatrixPushGatewayBoundary(contracts, failures);
+  checkMatrixPushGatewayFullBreadthGapInventory(contracts, failures);
   checkMatrixFederationInteropSmoke(contracts, failures);
   checkMatrixServerServerFullBreadthGapInventory(contracts, failures);
   checkMatrixDomainCoverageReport(contracts, failures);
@@ -556,6 +557,8 @@ void checkJapaneseDocs(List<String> failures) {
     'houra-server#137',
     'SPEC-076',
     'houra-server#138',
+    'SPEC-077',
+    'houra-server#139',
     'release-ready',
   ]) {
     if (!matrixSource.contains(phrase)) {
@@ -8890,6 +8893,138 @@ void validateMatrixPushReference(
             'https://spec.matrix.org/v1.18/client-server-api/#',
           ))) {
     failures.add('${relative(file)} matrix_spec_source is invalid.');
+  }
+}
+
+void checkMatrixPushGatewayFullBreadthGapInventory(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-077')) {
+    failures.add(
+      'Matrix Push Gateway full-breadth gap inventory SPEC-077 is required.',
+    );
+  }
+  const path =
+      'test-vectors/core/matrix-push-gateway-full-breadth-gap-inventory.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix Push Gateway full-breadth gap vector: $path');
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-077') {
+    failures.add('${relative(file)} must reference SPEC-077.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18' ||
+      eventMap['matrix_spec_source'] !=
+          'https://spec.matrix.org/v1.18/push-gateway-api/' ||
+      eventMap['client_server_push_source'] !=
+          'https://spec.matrix.org/v1.18/client-server-api/#push-notifications' ||
+      eventMap['parent_issue'] != 'imoyan/houra-server#139') {
+    failures.add('${relative(file)} Matrix reference or parent issue invalid.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String || !checkedAt.contains('+09:00')) {
+    failures.add('${relative(file)} checked_at must be a dated JST snapshot.');
+  }
+
+  final releaseScopeDecision = eventMap['release_scope_decision'];
+  if (releaseScopeDecision is! Map ||
+      releaseScopeDecision['domain'] != 'Push Gateway API' ||
+      releaseScopeDecision['decision'] !=
+          'out-of-scope-for-current-release-candidate' ||
+      releaseScopeDecision['issue'] != 'imoyan/houra-server#139' ||
+      releaseScopeDecision['advertisement_allowed'] != false) {
+    failures.add('${relative(file)} release scope decision invalid.');
+  }
+
+  requireStringListIncludes(file, eventMap, 'covered_subset_contracts', {
+    'SPEC-060',
+    'SPEC-062',
+    'SPEC-064',
+    'SPEC-065',
+    'SPEC-066',
+  }, failures);
+
+  const expectedLaneIds = {
+    'notify-payload-gateway-endpoint-breadth',
+    'pusher-configuration-outbound-destination-safety-breadth',
+    'push-rule-evaluation-sync-visibility-breadth',
+    'delivery-retry-rejected-pushkey-lifecycle-breadth',
+    'privacy-payload-minimization-breadth',
+    'vendor-provider-credential-gateway-operation-breadth',
+    'client-permission-rendering-background-scheduling-breadth',
+    'security-observability-redaction-breadth',
+    'release-evidence-non-advertisement-breadth',
+  };
+  final lanes = eventMap['required_gap_lanes'];
+  if (lanes is! List || lanes.length < expectedLaneIds.length) {
+    failures.add('${relative(file)} Push Gateway gap lanes are incomplete.');
+  } else {
+    final seenLaneIds = <String>{};
+    for (final lane in lanes) {
+      if (lane is! Map ||
+          lane['id'] is! String ||
+          lane['status'] !=
+              'requires-follow-up-contract-or-implementation-issue' ||
+          lane['endpoint_examples'] is! List ||
+          lane['owner_repos'] is! List ||
+          lane['advertisement_allowed'] != false) {
+        failures.add('${relative(file)} Push Gateway gap lane shape invalid.');
+        continue;
+      }
+      final laneId = lane['id'] as String;
+      final endpointExamples = lane['endpoint_examples'] as List;
+      final ownerRepos = lane['owner_repos'] as List;
+      final expectedOwner =
+          laneId == 'client-permission-rendering-background-scheduling-breadth'
+          ? 'houra-client'
+          : 'houra-server';
+      if (!expectedLaneIds.contains(laneId) ||
+          endpointExamples.isEmpty ||
+          ownerRepos.isEmpty ||
+          !ownerRepos.any((repo) => repo == expectedOwner)) {
+        failures.add(
+          '${relative(file)} Push Gateway gap lane content invalid.',
+        );
+      }
+      seenLaneIds.add(laneId);
+    }
+    if (!seenLaneIds.containsAll(expectedLaneIds)) {
+      failures.add('${relative(file)} Push Gateway gap lane ids incomplete.');
+    }
+  }
+
+  final rules = eventMap['release_evidence_rules'];
+  if (rules is! Map ||
+      rules['representative_subset_is_not_full_breadth'] != true ||
+      rules['push_gateway_full_breadth_claim_requires_lane_evidence'] != true ||
+      rules['explicit_exclusion_required_when_lane_not_included'] != true ||
+      rules['failure_issue_ref_must_remain_open_until_resolved'] != true ||
+      rules['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} Push Gateway release evidence rules invalid.',
+    );
+  }
+
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['push_gateway_full_breadth_decomposed'] != true ||
+      expected['release_scope_issue_ref'] != 'imoyan/houra-server#139' ||
+      expected['support_claim_not_widened'] != true ||
+      expected['versions_advertisement_widened'] != false ||
+      expected['follow_up_required'] != true) {
+    failures.add(
+      '${relative(file)} expected Push Gateway gap inventory invalid.',
+    );
   }
 }
 
