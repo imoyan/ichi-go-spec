@@ -714,6 +714,13 @@ Canonical release evidence example bundle:
 - The bundle is illustrative evidence wiring only. It does not replace the
   individual contract vectors, add endpoint behavior, or widen Matrix version
   advertisement beyond the listed domains with passing evidence.
+- `test-vectors/core/matrix-v1-18-release-evidence-current-blocked-bundle.json`
+  is the current #200 blocked bundle. It records real implementation refs from
+  the latest `houra-server` and `houra-client` evidence, keeps the example
+  bundle separate, and intentionally sets
+  `stale_or_mismatched_refs_block_release: true`,
+  `versions_advertisement_allowed: false`, and `ready_to_publish: false` until
+  a same-candidate ref set passes.
 
 Matrix v1.18 roadmap close-out snapshot:
 

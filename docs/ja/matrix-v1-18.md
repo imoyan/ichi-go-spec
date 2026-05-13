@@ -22,6 +22,9 @@ release evidence の対応関係を読むための整理 lane です。
 #97 から #101 の spec 側 contract / vector / gate 子 issue は完了済みとして扱えます。
 ただし、それだけでは release support claim にはなりません。実 release candidate の
 implementation refs と evidence bundle は #200 で追跡します。
+`test-vectors/core/matrix-v1-18-release-evidence-current-blocked-bundle.json`
+は現在の blocked bundle で、example bundle とは分けて実 implementation refs と
+refs 不一致による fail-closed 判定を記録します。
 
 `houra-server` と `houra-client` の #189 で列挙された adoption refs は閉じています。
 一方で `houra-labs` の parser / shared-core 探索 issue は一部 open のままです。
