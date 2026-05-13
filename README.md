@@ -715,6 +715,35 @@ Canonical release evidence example bundle:
   individual contract vectors, add endpoint behavior, or widen Matrix version
   advertisement beyond the listed domains with passing evidence.
 
+Matrix v1.18 roadmap close-out snapshot:
+
+- Snapshot checked at: 2026-05-13T20:12:48+09:00.
+- #95 remains the parent Matrix v1.18 roadmap. #189 is the close-out snapshot
+  lane for keeping #95, domain issues, implementation adoption refs, and
+  release evidence in sync.
+- The `houra-spec` domain issue checklists for #97 through #101 have completed
+  their contract/vector/gate children. That is contract coverage, not a release
+  support claim.
+- `houra-server` adoption refs named by #189 are closed:
+  imoyan/houra-server#59 through imoyan/houra-server#69 and
+  imoyan/houra-server#106 through imoyan/houra-server#108.
+- `houra-client` adoption refs named by #189 are closed:
+  imoyan/houra-client#55 through imoyan/houra-client#66 and
+  imoyan/houra-client#95 through imoyan/houra-client#97.
+- `houra-labs` remains an optional shared-core/parser exploration lane:
+  imoyan/houra-labs#56 through imoyan/houra-labs#73 and
+  imoyan/houra-labs#76 through imoyan/houra-labs#77 are still open, while
+  imoyan/houra-labs#74 and imoyan/houra-labs#75 are closed. These open labs
+  issues do not block Matrix version advertisement unless a release candidate
+  includes shared-core artifacts as evidence.
+- #200 is the remaining release blocker for a real Matrix v1.18 release
+  evidence bundle with implementation refs. #201 and #202 remain narrow
+  boundary/adoption close-out items and must be closed or explicitly marked
+  non-blocking before #95 is presented as release-ready.
+- #97 through #101 should not be closed merely because their spec-side
+  checklists are complete. Close them only when #95 links current pass/fail
+  evidence or names the domain as blocked / out of scope for the release.
+
 Matrix compliance phases:
 
 1. **Audit and contract map**: add Matrix-domain coverage metadata to this

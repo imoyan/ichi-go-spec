@@ -394,6 +394,7 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     'matrix_reference_snapshot',
     'Matrix reference',
     'Matrix v1.18 Compliance Matrix',
+    'Matrix v1.18 roadmap close-out snapshot',
     'Matrix compliance advertisement gate',
     'Shared Implementation Strategy',
     'External reference snapshot',
@@ -406,6 +407,12 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     'Auth/session lifecycle and owner scope',
     'Federation and push outbound destinations',
     'redacted artifacts only',
+    'houra-server#59',
+    'houra-client#55',
+    'houra-labs#56',
+    '#200',
+    '#201',
+    '#202',
     'Implementation Adoption Reports',
     'Language: [English](#english) | [日本語](#日本語)',
     '## 日本語',
@@ -520,6 +527,19 @@ void checkJapaneseDocs(List<String> failures) {
   ]) {
     if (!adoptionSource.contains(phrase)) {
       failures.add('docs/ja/adoption-guide.md must document $phrase.');
+    }
+  }
+  final matrixGuide = File('docs/ja/matrix-v1-18.md');
+  final matrixSource = matrixGuide.readAsStringSync();
+  for (final phrase in [
+    'close-out snapshot',
+    '#95',
+    '#189',
+    '#200',
+    'release-ready',
+  ]) {
+    if (!matrixSource.contains(phrase)) {
+      failures.add('docs/ja/matrix-v1-18.md must document $phrase.');
     }
   }
 }
