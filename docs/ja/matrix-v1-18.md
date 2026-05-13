@@ -62,6 +62,13 @@ signing、Complement breadth の lane に分ける inventory です。これは 
 対応や Complement 全 pass の完了ではなく、代表的な federation smoke evidence と
 full Matrix federation claim を分けるための記録です。
 
+`SPEC-075` は、`houra-server#137` の Application Service full-breadth gap を
+registration / token lifecycle、transaction delivery、user / room query、
+third-party network directory、ping / liveness、Client-Server extension、
+bridge evidence の lane に分ける inventory です。これは Application Service API や
+bridge protocol behavior の実装完了ではなく、`SPEC-058` の代表 subset と full
+Application Service claim を分けるための fail-closed 記録です。
+
 ## 広告してよいこと
 
 Matrix version や domain support は、contract、test vector、implementation evidence、

@@ -1,0 +1,179 @@
+{
+  "name": "matrix-application-service-full-breadth-gap-inventory",
+  "contract": "SPEC-075",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/application-service-api/",
+    "checked_at": "2026-05-14T08:08:07+09:00",
+    "parent_issue": "imoyan/houra-server#137",
+    "current_release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-14",
+    "release_scope_decision": {
+      "domain": "Application Service API",
+      "decision": "out-of-scope-for-current-release-candidate",
+      "issue": "imoyan/houra-server#137",
+      "advertisement_allowed": false
+    },
+    "covered_subset_contracts": [
+      "SPEC-058",
+      "SPEC-062",
+      "SPEC-064",
+      "SPEC-065",
+      "SPEC-066"
+    ],
+    "required_gap_lanes": [
+      {
+        "id": "registration-namespace-token-lifecycle-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "registration YAML configuration",
+          "unique application service id and as_token",
+          "hs_token and as_token boundaries",
+          "namespace regex validation",
+          "sender_localpart and url parsing",
+          "receive_ephemeral and protocols registration fields"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "transaction-event-delivery-legacy-unknown-route-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "PUT /_matrix/app/v1/transactions/{txnId}",
+          "transaction retry and backoff",
+          "duplicate transaction idempotency",
+          "ephemeral typing, receipt, and presence payloads",
+          "legacy appservice route fallback",
+          "404 and 405 M_UNRECOGNIZED handling"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "query-user-room-alias-namespace-ownership-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "GET /_matrix/app/v1/users/{userId}",
+          "GET /_matrix/app/v1/rooms/{roomAlias}",
+          "exclusive namespace ownership",
+          "namespace miss handling",
+          "401, 403, and 404 query outcomes"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "third-party-network-directory-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "GET /_matrix/app/v1/thirdparty/location",
+          "GET /_matrix/app/v1/thirdparty/location/{protocol}",
+          "GET /_matrix/app/v1/thirdparty/protocol/{protocol}",
+          "GET /_matrix/app/v1/thirdparty/user",
+          "GET /_matrix/app/v1/thirdparty/user/{protocol}",
+          "protocol metadata and legacy fallback"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "ping-health-liveness-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "POST /_matrix/app/v1/ping",
+          "POST /_matrix/client/v1/appservice/{appserviceId}/ping",
+          "transaction_id passthrough",
+          "duration_ms reporting",
+          "M_URL_NOT_SET, M_BAD_STATUS, M_CONNECTION_FAILED, and M_CONNECTION_TIMEOUT"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "client-server-extension-masquerade-timestamp-admin-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "as_token Client-Server identity assertion",
+          "user_id masquerading",
+          "device_id masquerading",
+          "ts timestamp massaging on send and state endpoints",
+          "m.login.application_service registration",
+          "m.login.application_service legacy login"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "related_domains": [
+          "Client-Server API",
+          "Room Versions"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "client-server-extension-sync-directory-device-cross-signing-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "/sync and /events with virtual users",
+          "PUT /_matrix/client/v3/directory/list/appservice/{networkId}/{roomId}",
+          "PUT /_matrix/client/v3/devices/{deviceId}",
+          "DELETE /_matrix/client/v3/devices/{deviceId}",
+          "POST /_matrix/client/v3/delete_devices",
+          "POST /_matrix/client/v3/keys/device_signing/upload"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "related_domains": [
+          "Client-Server API",
+          "Olm & Megolm"
+        ],
+        "advertisement_allowed": false
+      },
+      {
+        "id": "bridge-external-url-security-observability-release-evidence-breadth",
+        "status": "requires-follow-up-contract-or-implementation-issue",
+        "endpoint_examples": [
+          "external_url bridge message metadata",
+          "http and https URL scheme safety",
+          "token and registration redaction",
+          "metrics, audit logs, and trace IDs",
+          "release bundle linkage"
+        ],
+        "owner_repos": [
+          "houra-server"
+        ],
+        "related_contracts": [
+          "SPEC-062",
+          "SPEC-064",
+          "SPEC-065",
+          "SPEC-066"
+        ],
+        "advertisement_allowed": false
+      }
+    ],
+    "release_evidence_rules": {
+      "representative_subset_is_not_full_breadth": true,
+      "application_service_full_breadth_claim_requires_lane_evidence": true,
+      "explicit_exclusion_required_when_lane_not_included": true,
+      "failure_issue_ref_must_remain_open_until_resolved": true,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "application_service_full_breadth_decomposed": true,
+    "release_scope_issue_ref": "imoyan/houra-server#137",
+    "support_claim_not_widened": true,
+    "versions_advertisement_widened": false,
+    "follow_up_required": true
+  }
+}
