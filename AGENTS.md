@@ -72,6 +72,11 @@ here before changing an implementation.
 - Prefer common boundaries only when they reduce protocol drift, repeated
   validation, or security ambiguity without adding hidden I/O, secret handling,
   rebuild cost, or cross-language boundary overhead to hot paths.
+- Do not turn existing implementation cleanup into a broad shared-code
+  migration by default. Apply the next-touch rule: when a task already changes
+  parsing, normalization, validation, authorization, or advertisement behavior,
+  either keep the common-boundary move narrow in the same issue or split it into
+  a planned adoption gate.
 - Record implementation adoption evidence in `README.md` when another Houra
   repository adopts a spec change; implementation repositories remain
   non-canonical.
