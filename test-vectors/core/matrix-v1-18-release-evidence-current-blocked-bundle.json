@@ -5,7 +5,7 @@
     "matrix_spec_version": "v1.18",
     "matrix_spec_source": "https://spec.matrix.org/v1.18/",
     "matrix_release_source": "https://matrix.org/blog/2026/03/26/matrix-v1.18-release/",
-    "checked_at": "2026-05-13T23:50:37+09:00",
+    "checked_at": "2026-05-14T06:30:38+09:00",
     "bundle_contracts": [
       "SPEC-062",
       "SPEC-063",
@@ -14,22 +14,21 @@
       "SPEC-066"
     ],
     "candidate_refs": {
-      "release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-13",
-      "houra_spec_ref": "af8272dad6e5f72d0126842d51c8cac7ffd424c3",
-      "houra_server_ref": "bb8cf30ce6f4b4de2f761cc9e1f7499406379b4b",
-      "houra_client_ref": "838a23106e53e5b5620cffbd0c36cf74c9580433"
+      "release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-14",
+      "houra_spec_ref": "12fe1e8e2148b582d20047f198fe49b233f5fdeb",
+      "houra_server_ref": "a98d12979029cf6dcf6f066af233a4d5911ffb78",
+      "houra_client_ref": "0f330a14ad86d69ad4f147c7a5b6d1852c9c78f2"
     },
     "evidence_sources": {
       "server": {
         "repo": "houra-server",
         "issue": "imoyan/houra-server#108",
-        "pull_request": "imoyan/houra-server#114",
-        "merge_commit": "6d8bc34318ac77ffa4dcddd5c1234636b926b425",
-        "head_under_test": "926d5324e066b76915c5794401647662e36fbc62",
-        "spec_ref_under_test": "f6281fd7e715a0ef37204e9bd3b3f2a65f5643eb",
+        "pull_request": "imoyan/houra-server#129",
+        "merge_commit": "a98d12979029cf6dcf6f066af233a4d5911ffb78",
+        "head_under_test": "a98d12979029cf6dcf6f066af233a4d5911ffb78",
+        "spec_ref_under_test": "12fe1e8e2148b582d20047f198fe49b233f5fdeb",
         "checks": [
-          "GitHub Actions CI / test pass",
-          "GitHub Actions Enable auto-merge / enable-auto-merge pass"
+          "GitHub Actions CI / test pass"
         ],
         "support_claim_decision": "not-advertised",
         "versions_response": {
@@ -39,10 +38,10 @@
       "client": {
         "repo": "houra-client",
         "issue": "imoyan/houra-client#97",
-        "pull_request": "imoyan/houra-client#105",
-        "merge_commit": "f3e35952aad56211c0934e098df5e4bec23e1a1a",
-        "head_under_test": "9ddf5040d5760775bdd41e3d87f790274c1e23eb",
-        "spec_ref_under_test": "33abacbd46474be0e6ae3539f62e7aaeb142091e",
+        "pull_request": "imoyan/houra-client#116",
+        "merge_commit": "0f330a14ad86d69ad4f147c7a5b6d1852c9c78f2",
+        "head_under_test": "0f330a14ad86d69ad4f147c7a5b6d1852c9c78f2",
+        "spec_ref_under_test": "12fe1e8e2148b582d20047f198fe49b233f5fdeb",
         "checks": [
           "GitHub Actions test pass",
           "GitHub Actions e2e pass"
@@ -55,7 +54,7 @@
       {
         "domain": "Client-Server API",
         "contract_gate": "pass",
-        "implementation_gate": "blocked-by-same-ref-check",
+        "implementation_gate": "pass-adopted-subset",
         "blocker_issue_refs": [
           "imoyan/houra-spec#97",
           "imoyan/houra-spec#99"
@@ -65,9 +64,9 @@
       {
         "domain": "Server-Server API",
         "contract_gate": "pass",
-        "implementation_gate": "blocked-by-same-ref-check",
+        "implementation_gate": "blocked-by-complement-breadth",
         "blocker_issue_refs": [
-          "imoyan/houra-spec#101"
+          "imoyan/houra-server#66"
         ],
         "advertisement_allowed": false
       },
@@ -101,7 +100,7 @@
       {
         "domain": "Room Versions",
         "contract_gate": "pass",
-        "implementation_gate": "blocked-by-same-ref-check",
+        "implementation_gate": "pass-adopted-subset",
         "blocker_issue_refs": [
           "imoyan/houra-spec#98"
         ],
@@ -119,7 +118,7 @@
       {
         "domain": "Appendices/common rules",
         "contract_gate": "pass",
-        "implementation_gate": "blocked-by-same-ref-check",
+        "implementation_gate": "pass-adopted-subset",
         "blocker_issue_refs": [
           "imoyan/houra-spec#95"
         ],
@@ -148,27 +147,27 @@
     },
     "readiness_checklist": {
       "contract": "SPEC-066",
-      "same_checked_refs": false,
+      "same_checked_refs": true,
       "coverage_report_present": true,
       "complement_report_present": true,
       "advertisement_decision_present": true,
       "release_notes_evidence_present": true,
-      "supported_domain_gates_pass": false,
+      "supported_domain_gates_pass": true,
       "excluded_domains_have_gap_issue_or_reason": true,
       "artifacts_secret_redacted": true,
-      "release_candidate_ref_mismatch_blocks_publish": true,
+      "release_candidate_ref_mismatch_blocks_publish": false,
       "ready_to_publish": false
     },
     "blockers": [
       {
-        "id": "same-candidate-ref-mismatch",
-        "issue": "imoyan/houra-spec#95",
-        "reason": "server and client evidence were generated against older houra-spec refs, not the current candidate ref; domain issue refs remain active until #95 links refreshed same-candidate evidence"
-      },
-      {
         "id": "no-matrix-advertisement",
         "issue": "imoyan/houra-spec#95",
         "reason": "GET /_matrix/client/versions remains fail-closed with no Matrix versions advertised"
+      },
+      {
+        "id": "complement-full-breadth-blocked",
+        "issue": "imoyan/houra-server#66",
+        "reason": "Complement full-breadth evidence remains blocked, so Matrix Server-Server breadth is not release-ready"
       },
       {
         "id": "e2ee-domain-evidence-excluded",
@@ -180,8 +179,8 @@
   "expected": {
     "real_implementation_refs_recorded": true,
     "example_bundle_separate": true,
-    "same_release_candidate_ref": false,
-    "stale_or_mismatched_refs_block_release": true,
+    "same_release_candidate_ref": true,
+    "stale_or_mismatched_refs_block_release": false,
     "versions_advertisement_allowed": false,
     "ready_to_publish": false
   }
