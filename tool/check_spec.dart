@@ -403,17 +403,15 @@ void checkJapaneseDocs(List<String> failures) {
     }
   }
   final adoptionGuide = File('docs/ja/adoption-guide.md');
-  if (adoptionGuide.existsSync()) {
-    final adoptionSource = adoptionGuide.readAsStringSync();
-    for (final phrase in [
-      'implementation metrics',
-      'Codex usage',
-      'unavailable',
-      'contracts/SPEC-030-matrix-client-versions.md',
-    ]) {
-      if (!adoptionSource.contains(phrase)) {
-        failures.add('docs/ja/adoption-guide.md must document $phrase.');
-      }
+  final adoptionSource = adoptionGuide.readAsStringSync();
+  for (final phrase in [
+    'implementation metrics',
+    'Codex usage',
+    'unavailable',
+    'contracts/SPEC-030-matrix-client-versions.md',
+  ]) {
+    if (!adoptionSource.contains(phrase)) {
+      failures.add('docs/ja/adoption-guide.md must document $phrase.');
     }
   }
 }

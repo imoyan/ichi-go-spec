@@ -969,8 +969,8 @@ Implementation metrics recording locations:
 Required fields:
 
 - Spec input: `houra-spec` commit or tag consumed.
-- Implementation target: repository, branch, pull request or issue, and head
-  commit.
+- Implementation target: repository, branch, implementation issue, pull request
+  when available, and head commit.
 - Scope: feature profiles, contracts, vectors, design token files, and UI
   surface files consumed or changed.
 - Matrix reference citation: the Matrix snapshot anchor in this README and
@@ -1020,7 +1020,7 @@ Minimum implementation metrics schema:
 | `repo` | yes | Implementation repository name, such as `houra-server` or `houra-client`. |
 | `branch` | yes | Implementation branch used for the work. |
 | `issue` | yes | Implementation issue URL or number. |
-| `pr` | no | Pull request URL or number, or `null` before publication. |
+| `pr` | no | Pull request URL or number. Before publication, omit the field or set it to `null` when a stable key set is useful. |
 | `spec_ref` | yes | Consumed `houra-spec` tag or commit. |
 | `implementation_commit` | yes | Head commit verified, or `null` while blocked before commit. |
 | `profiles` | yes | Feature profiles affected or adopted. Use `[]` when the work is release/process only. |
