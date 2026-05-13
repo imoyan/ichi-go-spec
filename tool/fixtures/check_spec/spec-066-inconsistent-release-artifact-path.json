@@ -1,0 +1,6 @@
+{
+  "name": "spec-066-inconsistent-release-artifact-path",
+  "base": "test-vectors/core/matrix-v1-18-release-evidence-example-bundle.json",
+  "mutation": "set one SPEC-065 implementation_evidence artifact to artifacts/release/matrix-v1.18-rc.2",
+  "expected_failure_contains": "artifact release paths inconsistent"
+}
