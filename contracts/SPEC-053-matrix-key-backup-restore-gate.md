@@ -65,6 +65,11 @@ PUT /_matrix/client/v3/room_keys/version/{version}
 Only `auth_data` can be modified by the update endpoint, and the algorithm must
 match the backup version's algorithm.
 
+Backup versions are scoped to the authenticated user. Version identifiers are
+not global capability handles. A token for another user must not read or update
+a backup version owned by the original user; servers must return `404` with
+`M_NOT_FOUND` and must not mutate the original user's backup metadata.
+
 ## Key upload and restore
 
 Clients upload encrypted Megolm session backup data with:
@@ -94,6 +99,11 @@ Successful restore returns the stored backup data for the room/session. If a
 new upload replaces an existing session, implementations should keep the better
 backup according to Matrix ordering: prefer verified sessions, then lower
 `first_message_index`, then lower `forwarded_count`.
+
+Room key backup sessions are also scoped to the authenticated user and backup
+version owner. A token for another user must not restore or overwrite a room key
+session from the original user's backup version; servers must return `404` with
+`M_NOT_FOUND` and must leave the original encrypted backup payload unchanged.
 
 ## Logout/relogin recovery gate
 

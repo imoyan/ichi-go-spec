@@ -1,0 +1,23 @@
+{
+  "name": "logout-token-invalid-after-logout",
+  "contract": "SPEC-004",
+  "given": {
+    "previous_request": {
+      "method": "POST",
+      "path": "/_houra/client/logout",
+      "access_token": "token-1"
+    }
+  },
+  "request": {
+    "method": "GET",
+    "path": "/_houra/client/account/whoami",
+    "access_token": "token-1"
+  },
+  "expected": {
+    "status": 401,
+    "body_contains": {
+      "code": "HOURA_UNAUTHORIZED",
+      "message": "Invalid access token."
+    }
+  }
+}
