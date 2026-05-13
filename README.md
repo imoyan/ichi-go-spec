@@ -137,6 +137,7 @@ The maintained repository names are:
 - `contracts/SPEC-075-matrix-application-service-full-breadth-gap-inventory.md`
 - `contracts/SPEC-076-matrix-identity-service-full-breadth-gap-inventory.md`
 - `contracts/SPEC-077-matrix-push-gateway-full-breadth-gap-inventory.md`
+- `contracts/SPEC-078-matrix-room-versions-full-algorithm-gap-inventory.md`
 
 ## Shared Design Inputs
 
@@ -645,7 +646,7 @@ Matrix compliance must be tracked by API domain, not as a single vague label:
 | Application Service API | appservice registration, namespace ownership, transactions, sender localpart, bridge-style event delivery | Not implemented; `SPEC-058` adds registration shape, namespace ownership, homeserver-to-appservice transactions, user queries, and room-alias queries; `SPEC-075` keeps the full-breadth Application Service API, third-party network, ping, Client-Server extension, and bridge behavior gaps explicit and non-advertised for the current release candidate | A registered appservice receives transactions and can puppet/send events within its declared namespaces |
 | Identity Service API | third-party identifier validation and lookup | Not implemented; `SPEC-059` adds the separate service boundary, identity token scope, hash lookup, validation session, bind, unbind, and privacy/auth failure gate; `SPEC-076` keeps invitation storage, ephemeral invitation signing, provider delivery, consent UI, and full Identity Service API gaps explicit and non-advertised for the current release candidate | Either explicitly out of supported deployment scope or implemented as a separate identity component with conformance evidence |
 | Push Gateway API | push notification gateway contracts | Not implemented; `SPEC-060` adds the separate push gateway boundary, notify payload, `event_id_only` privacy shape, pusher/push-rule setup, rejected pushkey, and delivery failure gate; `SPEC-077` keeps vendor provider credentials, device permission UI, notification rendering, background scheduling, and full Push Gateway API gaps explicit and non-advertised for the current release candidate | Either explicitly out of supported deployment scope or implemented with privacy-aware notification payload tests |
-| Room Versions | room version algorithms, event authorization rules, state resolution, room upgrade behavior | MVP rooms do not implement Matrix room versions or event DAG auth; `SPEC-040` adds the first Matrix event DAG and auth-event reference contract, `SPEC-041` adds state snapshot / representative state-resolution vectors, `SPEC-042` defines the stable room versions 1-12 / default 12 gate, `SPEC-043` adds representative membership, power-level, and redaction auth vectors, and `SPEC-044` adds alias / upgrade / restart persistence gates without full room-version auth completeness | Supported room versions are listed, default room version is declared, and auth/state-resolution tests pass |
+| Room Versions | room version algorithms, event authorization rules, state resolution, room upgrade behavior | MVP rooms do not implement Matrix room versions or event DAG auth; `SPEC-040` adds the first Matrix event DAG and auth-event reference contract, `SPEC-041` adds state snapshot / representative state-resolution vectors, `SPEC-042` defines the stable room versions 1-12 / default 12 gate, `SPEC-043` adds representative membership, power-level, and redaction auth vectors, `SPEC-044` adds alias / upgrade / restart persistence gates without full room-version auth completeness, and `SPEC-078` keeps full room-version algorithm and domain-wide advertisement gaps explicit and non-advertised for the current release candidate | Supported room versions are listed, default room version is declared, and auth/state-resolution tests pass |
 | Olm & Megolm | E2EE primitives, one-time keys, device keys, encrypted room messaging, key backup, verification, cross-signing | Not implemented; `SPEC-050` defines the adapter ownership boundary and forbids local Olm/Megolm implementation; `SPEC-069` isolates the first client/parser-facing device-key query contract; `SPEC-051` adds device key, one-time key, and fallback key publication/claim contracts; `SPEC-052` adds to-device and encrypted-room send/receive gates; `SPEC-053` adds server-side key backup and logout/relogin restore gates; `SPEC-054` adds SAS verification, cross-signing, and wrong-device failure gates | Use a mainstream Matrix crypto stack; encrypted rooms, device trust, key backup, restore, verification, and wrong-device failure flows pass |
 | Appendices/common rules | identifiers, timestamps, namespacing, error vocabulary, deprecation behavior | Partially aligned only where MVP contracts copied the concept | Shared parser and validation tests enforce Matrix grammar and compatibility claims |
 
@@ -798,6 +799,11 @@ Matrix v1.18 roadmap close-out snapshot:
   and rendering, security/redaction, and release-evidence lanes. It is a
   fail-closed gap inventory only; it does not claim production push provider or
   client notification support.
+- `SPEC-078` decomposes `houra-server#140` Room Versions full-algorithm gaps
+  into stable-version metadata, event format, auth rules, state resolution,
+  event acceptance/rejection, room upgrades, federation, shared helpers, and
+  release-evidence lanes. It is a fail-closed gap inventory only; it does not
+  claim full room-version algorithms or domain-wide room-version advertisement.
 - #97 through #101 should not be closed merely because their spec-side
   checklists are complete or because the current release candidate excludes the
   domain from advertisement. Close them only when #95 links current pass/fail
@@ -1180,6 +1186,11 @@ Matrix room alias, upgrade, and restart persistence gate:
   and upgrade records.
 - Passing this gate does not claim full room directory, full room upgrade,
   federation upgrade interop, or Matrix v1.18 full compliance.
+- `SPEC-078` records the remaining full-algorithm Room Versions lanes as the
+  `houra-server#140` gap inventory for the current blocked release candidate.
+  It keeps full auth/state-resolution algorithms and room-version advertisement
+  out of the support claim until passing evidence or explicit release exclusion
+  exists.
 
 ## Implementation Follow-Up Checklist
 
@@ -1378,6 +1389,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-075 | Matrix Application Service full-breadth gap inventory | `test-vectors/core/matrix-application-service-full-breadth-gap-inventory.json` |
 | SPEC-076 | Matrix Identity Service full-breadth gap inventory | `test-vectors/core/matrix-identity-service-full-breadth-gap-inventory.json` |
 | SPEC-077 | Matrix Push Gateway full-breadth gap inventory | `test-vectors/core/matrix-push-gateway-full-breadth-gap-inventory.json` |
+| SPEC-078 | Matrix Room Versions full-algorithm gap inventory | `test-vectors/rooms/matrix-room-versions-full-algorithm-gap-inventory.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
