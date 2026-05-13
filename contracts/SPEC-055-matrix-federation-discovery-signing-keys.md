@@ -31,7 +31,10 @@ make/send join, invites, backfill, event authorization, or state resolution.
 - Source: <https://spec.matrix.org/v1.18/server-server-api/#get_matrixkeyv2server>
 - Source: <https://spec.matrix.org/v1.18/server-server-api/#post_matrixkeyv2query>
 - Source: <https://spec.matrix.org/v1.18/server-server-api/#get_matrixkeyv2queryserverkeyid>
+- Source: <https://www.iana.org/assignments/iana-ipv4-special-registry>
+- Source: <https://www.iana.org/assignments/iana-ipv6-special-registry>
 - Checked at: 2026-05-10T20:00:21+09:00
+- IANA address registry checked at: 2026-05-13T20:05:00+09:00
 - Timezone: Asia/Tokyo
 
 ## Server-name discovery
@@ -64,6 +67,33 @@ resolution fallback order: `_matrix-fed._tcp` SRV, deprecated `_matrix._tcp`
 SRV, then CNAME/AAAA/A records with port 8448. This contract records that
 fallback order but does not require a production DNS resolver implementation in
 `houra-spec`.
+
+## Outbound destination controls
+
+Federation discovery and signing-key fetches are outbound network operations.
+Implementations must validate the destination before each outbound HTTP request,
+after every well-known redirect, after parsing `m.server`, after SRV/CNAME
+resolution, and immediately before opening a connection. A destination that
+starts as public but resolves to an unsafe address later in the flow must fail
+closed and must not receive a signed federation request.
+
+The default unsafe destination set includes loopback, link-local, private-use,
+shared-address, unique-local, unspecified, multicast, and otherwise
+non-globally-routable address space. Representative blocked ranges include
+`127.0.0.0/8`, `::1/128`, `169.254.0.0/16`, `fe80::/10`, `10.0.0.0/8`,
+`172.16.0.0/12`, `192.168.0.0/16`, `100.64.0.0/10`, `0.0.0.0/8`, and
+`fc00::/7`.
+
+Allowed public federation destinations must remain possible: a valid Matrix
+server name that resolves to a public destination, survives redirect
+revalidation, and passes the final pre-connect check may proceed according to
+Matrix server-name resolution rules.
+
+Well-known redirects must use `https`, must be bounded by a small redirect
+limit, and must be revalidated after each hop. Discovery and key-fetch requests
+must use bounded connect/read timeouts and response body size limits. Diagnostic
+evidence for unsafe destinations must record the rejected stage and redacted
+destination classification, not raw signed request material or private keys.
 
 ## Signing-key publication
 
@@ -114,6 +144,12 @@ federation request to an unverified destination. The failure gate records:
 - cache or backoff decision for the failed destination;
 - no signed federation request being emitted;
 - Matrix-compatible error evidence for operator-facing diagnostics.
+
+A passing implementation must also demonstrate that unsafe outbound
+destinations do not result in federation traffic. The unsafe-destination gate
+records loopback, link-local, private range, redirect-to-private, and DNS
+rebinding examples, plus a legitimate public federation example that remains
+allowed.
 
 ## Authentication and errors
 

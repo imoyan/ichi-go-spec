@@ -33,7 +33,10 @@ Identity Service behavior.
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#put_matrixclientv3pushrulesglobalkindruleid>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3pushers>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3pushersset>
+- Source: <https://www.iana.org/assignments/iana-ipv4-special-registry>
+- Source: <https://www.iana.org/assignments/iana-ipv6-special-registry>
 - Checked at: 2026-05-10T21:53:00+09:00
+- IANA address registry checked at: 2026-05-13T20:05:00+09:00
 - Timezone: Asia/Tokyo
 
 ## Service boundary
@@ -54,6 +57,20 @@ POST /_matrix/client/v3/pushers/set
 For HTTP pushers, `data.url` must be an HTTPS URL whose path is
 `/_matrix/push/v1/notify`. The homeserver forwards pusher `data` to the push
 gateway without the `url` key.
+
+The configured push gateway URL is an outbound destination. The homeserver must
+reject or disable HTTP pushers whose `data.url` uses a non-HTTPS scheme,
+userinfo, fragment, the wrong path, or an unsafe destination. Unsafe
+destinations use the same default blocked address classes as `SPEC-055`,
+including loopback, link-local, private-use, shared-address, unique-local,
+unspecified, multicast, and otherwise non-globally-routable address space.
+
+Homeservers must revalidate gateway destinations after redirects, after DNS
+resolution, and immediately before opening a connection. A gateway URL that
+starts as public but redirects or rebinds to an unsafe address must fail closed
+before notification delivery. Legitimate public HTTPS push gateways whose host
+resolves to public addresses and whose path is `/_matrix/push/v1/notify` remain
+valid.
 
 Clients configure push rules through:
 
@@ -100,6 +117,10 @@ If the push gateway returns an HTTP error, the homeserver should retry for a
 reasonable time using exponential backoff. Retry evidence must not contain raw
 pushkeys, vendor tokens, or message content beyond what the vector explicitly
 allows.
+
+Outbound delivery attempts must use bounded connect/read timeouts, a redirect
+limit, and response body size limits. Unsafe-destination diagnostics must redact
+pushkeys, vendor tokens, gateway credentials, and message content.
 
 ## Privacy boundary
 
