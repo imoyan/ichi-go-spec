@@ -1,0 +1,67 @@
+{
+  "name": "product-mvp-account-recovery-idp-deferred",
+  "contract": "SPEC-070",
+  "event": {
+    "target": "Product MVP next step",
+    "decision": "defer",
+    "implemented_by_this_contract": false,
+    "product_mvp_next_step": true,
+    "matrix_full_compliance_claim": false,
+    "current_product_mvp_ui_surface_changes": false,
+    "fail_closed_client_behavior": [
+      "do_not_render_email_verification_action",
+      "do_not_render_password_reset_action",
+      "do_not_render_identity_provider_login_action",
+      "do_not_export_recovery_or_idp_sdk_methods_without_followup_contract"
+    ],
+    "future_lanes": [
+      "email_verification",
+      "password_reset",
+      "identity_provider_login",
+      "token_refresh",
+      "native_account_management_ui"
+    ],
+    "sdk_core_may_own_after_followup_contract": [
+      "request_descriptors",
+      "response_parsers",
+      "capability_discovery_parser_output",
+      "redirect_descriptor_construction",
+      "post_return_reconciliation_helpers",
+      "public_error_envelope_parsing"
+    ],
+    "host_owned": [
+      "browser_policy",
+      "deep_link_routing",
+      "callback_url_handling",
+      "cancellation_retry_ux",
+      "token_storage",
+      "password_storage_policy",
+      "reset_token_handling",
+      "authorization_code_handling",
+      "native_secure_storage",
+      "user_prompts"
+    ],
+    "must_not_log_or_record": [
+      "passwords",
+      "bearer_tokens",
+      "refresh_tokens",
+      "reset_tokens",
+      "email_verification_tokens",
+      "authorization_codes",
+      "callback_url_query_values",
+      "idp_session_identifiers"
+    ],
+    "existing_contracts_unchanged": [
+      "SPEC-032",
+      "SPEC-033",
+      "SPEC-068"
+    ],
+    "required_before_implementation": [
+      "followup_contract",
+      "test_vectors",
+      "ui_surface_update_when_ui_changes",
+      "security_evidence_requirements",
+      "implementation_adoption_gate"
+    ]
+  }
+}
