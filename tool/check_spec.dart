@@ -125,6 +125,7 @@ void main() {
   checkMatrixIdentityServiceBoundary(contracts, failures);
   checkMatrixPushGatewayBoundary(contracts, failures);
   checkMatrixFederationInteropSmoke(contracts, failures);
+  checkMatrixServerServerFullBreadthGapInventory(contracts, failures);
   checkMatrixDomainCoverageReport(contracts, failures);
   checkMatrixComplementCiLane(contracts, failures);
   checkMatrixVersionAdvertisementGate(contracts, failures);
@@ -547,6 +548,8 @@ void checkJapaneseDocs(List<String> failures) {
     'fail-closed',
     'SPEC-073',
     'houra-server#135',
+    'SPEC-074',
+    'houra-server#136',
     'release-ready',
   ]) {
     if (!matrixSource.contains(phrase)) {
@@ -8894,6 +8897,131 @@ void validateMatrixFederationInteropReference(
       eventMap['complement_source'] !=
           'https://github.com/matrix-org/complement') {
     failures.add('${relative(file)} complement source is invalid.');
+  }
+}
+
+void checkMatrixServerServerFullBreadthGapInventory(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-074')) {
+    failures.add(
+      'Matrix Server-Server full-breadth gap inventory SPEC-074 is required.',
+    );
+  }
+  const path =
+      'test-vectors/core/matrix-server-server-full-breadth-gap-inventory.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix Server-Server full-breadth gap vector: $path');
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-074') {
+    failures.add('${relative(file)} must reference SPEC-074.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18' ||
+      eventMap['matrix_spec_source'] !=
+          'https://spec.matrix.org/v1.18/server-server-api/' ||
+      eventMap['parent_issue'] != 'imoyan/houra-server#136') {
+    failures.add('${relative(file)} Matrix reference or parent issue invalid.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String || !checkedAt.contains('+09:00')) {
+    failures.add('${relative(file)} checked_at must be a dated JST snapshot.');
+  }
+
+  final releaseScopeDecision = eventMap['release_scope_decision'];
+  if (releaseScopeDecision is! Map ||
+      releaseScopeDecision['domain'] != 'Server-Server API' ||
+      releaseScopeDecision['decision'] !=
+          'out-of-scope-for-current-release-candidate' ||
+      releaseScopeDecision['issue'] != 'imoyan/houra-server#136' ||
+      releaseScopeDecision['advertisement_allowed'] != false) {
+    failures.add('${relative(file)} release scope decision invalid.');
+  }
+
+  requireStringListIncludes(file, eventMap, 'covered_subset_contracts', {
+    'SPEC-055',
+    'SPEC-056',
+    'SPEC-057',
+    'SPEC-061',
+    'SPEC-063',
+  }, failures);
+
+  const expectedLaneIds = {
+    'federation-discovery-version-key-lifecycle-request-auth-breadth',
+    'transaction-pdu-edu-event-validation-breadth',
+    'event-retrieval-missing-events-backfill-state-response-breadth',
+    'join-knock-leave-invite-third-party-invite-breadth',
+    'directory-spaces-query-openid-profile-breadth',
+    'federation-e2ee-device-send-to-device-media-breadth',
+    'server-acl-policy-server-event-signing-breadth',
+    'complement-full-breadth-reference-interop-breadth',
+  };
+  final lanes = eventMap['required_gap_lanes'];
+  if (lanes is! List || lanes.length < expectedLaneIds.length) {
+    failures.add('${relative(file)} Server-Server gap lanes are incomplete.');
+  } else {
+    final seenLaneIds = <String>{};
+    for (final lane in lanes) {
+      if (lane is! Map ||
+          lane['id'] is! String ||
+          lane['status'] !=
+              'requires-follow-up-contract-or-implementation-issue' ||
+          lane['endpoint_examples'] is! List ||
+          lane['owner_repos'] is! List ||
+          lane['advertisement_allowed'] != false) {
+        failures.add('${relative(file)} Server-Server gap lane shape invalid.');
+        continue;
+      }
+      final laneId = lane['id'] as String;
+      final endpointExamples = lane['endpoint_examples'] as List;
+      final ownerRepos = lane['owner_repos'] as List;
+      if (!expectedLaneIds.contains(laneId) ||
+          endpointExamples.isEmpty ||
+          ownerRepos.isEmpty ||
+          !ownerRepos.contains('houra-server')) {
+        failures.add(
+          '${relative(file)} Server-Server gap lane content invalid.',
+        );
+      }
+      seenLaneIds.add(laneId);
+    }
+    if (!seenLaneIds.containsAll(expectedLaneIds)) {
+      failures.add('${relative(file)} Server-Server gap lane ids incomplete.');
+    }
+  }
+
+  final rules = eventMap['release_evidence_rules'];
+  if (rules is! Map ||
+      rules['representative_subset_is_not_full_breadth'] != true ||
+      rules['complement_full_breadth_claim_requires_lane_evidence'] != true ||
+      rules['explicit_exclusion_required_when_lane_not_included'] != true ||
+      rules['failure_issue_ref_must_remain_open_until_resolved'] != true ||
+      rules['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} Server-Server release evidence rules invalid.',
+    );
+  }
+
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['server_server_full_breadth_decomposed'] != true ||
+      expected['release_scope_issue_ref'] != 'imoyan/houra-server#136' ||
+      expected['support_claim_not_widened'] != true ||
+      expected['versions_advertisement_widened'] != false ||
+      expected['follow_up_required'] != true) {
+    failures.add(
+      '${relative(file)} expected Server-Server gap inventory invalid.',
+    );
   }
 }
 
