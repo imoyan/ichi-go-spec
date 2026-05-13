@@ -718,13 +718,13 @@ Canonical release evidence example bundle:
   is the current #200 blocked bundle. It records real implementation refs from
   the latest `houra-server` and `houra-client` evidence, keeps the example
   bundle separate, and intentionally sets
-  `stale_or_mismatched_refs_block_release: true`,
+  `stale_or_mismatched_refs_block_release: false`,
   `versions_advertisement_allowed: false`, and `ready_to_publish: false` until
-  a same-candidate ref set passes.
+  a publishable Matrix support claim is allowed.
 
 Matrix v1.18 roadmap close-out snapshot:
 
-- Snapshot checked at: 2026-05-13T23:50:37+09:00.
+- Snapshot checked at: 2026-05-14T06:30:38+09:00.
 - #95 remains the parent Matrix v1.18 roadmap. #189 is the close-out snapshot
   lane for keeping #95, domain issues, implementation adoption refs, and
   release evidence in sync.
@@ -749,14 +749,18 @@ Matrix v1.18 roadmap close-out snapshot:
   keeps full Matrix OAuth 2.0 support out of scope. #202 records the `SPEC-069`
   device-key query-only adoption boundary and keeps full E2EE / Olm-Megolm
   support out of scope. #95 must still not be presented as release-ready until
-  #97 through #101 link current pass/fail evidence or explicit blocked /
-  out-of-scope decisions for the release candidate.
+  #97 through #101 link current pass/fail evidence and #95 records a
+  publishable Matrix support claim or explicit blocked / out-of-scope decisions
+  for the release candidate.
 - The current blocked bundle now points active domain blockers at #97 through
   #101 instead of the closed #200 through #202 record issues. Client-Server API
   references both #97 and #99 because the MVP-equivalent slice and breadth slice
   share the same Matrix domain. Those domain issues remain open until #95 links
   refreshed same-candidate evidence or an explicit blocked / out-of-scope
-  decision for the release candidate.
+  decision for the release candidate. The current same-candidate evidence now
+  records merged server/client refs, but release readiness remains blocked by
+  fail-closed Matrix version advertisement and
+  imoyan/houra-server#66 Complement breadth evidence.
 - #97 through #101 should not be closed merely because their spec-side
   checklists are complete. Close them only when #95 links current pass/fail
   evidence or names the domain as blocked / out of scope for the release.

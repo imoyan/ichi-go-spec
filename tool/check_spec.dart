@@ -9790,10 +9790,10 @@ void checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(
   final refs = eventMap['candidate_refs'];
   if (refs is! Map ||
       refs['release_candidate'] !=
-          'houra-matrix-v1.18-current-blocked-2026-05-13' ||
-      refs['houra_spec_ref'] != 'af8272dad6e5f72d0126842d51c8cac7ffd424c3' ||
-      refs['houra_server_ref'] != 'bb8cf30ce6f4b4de2f761cc9e1f7499406379b4b' ||
-      refs['houra_client_ref'] != '838a23106e53e5b5620cffbd0c36cf74c9580433') {
+          'houra-matrix-v1.18-current-blocked-2026-05-14' ||
+      refs['houra_spec_ref'] != '12fe1e8e2148b582d20047f198fe49b233f5fdeb' ||
+      refs['houra_server_ref'] != 'a98d12979029cf6dcf6f066af233a4d5911ffb78' ||
+      refs['houra_client_ref'] != '0f330a14ad86d69ad4f147c7a5b6d1852c9c78f2') {
     failures.add('${relative(file)} current candidate refs invalid.');
   }
 
@@ -9803,8 +9803,12 @@ void checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(
   if (server is! Map ||
       server['repo'] != 'houra-server' ||
       server['issue'] != 'imoyan/houra-server#108' ||
-      server['pull_request'] != 'imoyan/houra-server#114' ||
-      server['spec_ref_under_test'] ==
+      server['pull_request'] != 'imoyan/houra-server#129' ||
+      server['merge_commit'] !=
+          (refs is Map ? refs['houra_server_ref'] : null) ||
+      server['head_under_test'] !=
+          (refs is Map ? refs['houra_server_ref'] : null) ||
+      server['spec_ref_under_test'] !=
           (refs is Map ? refs['houra_spec_ref'] : null) ||
       server['support_claim_decision'] != 'not-advertised') {
     failures.add('${relative(file)} server evidence source invalid.');
@@ -9812,8 +9816,12 @@ void checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(
   if (client is! Map ||
       client['repo'] != 'houra-client' ||
       client['issue'] != 'imoyan/houra-client#97' ||
-      client['pull_request'] != 'imoyan/houra-client#105' ||
-      client['spec_ref_under_test'] ==
+      client['pull_request'] != 'imoyan/houra-client#116' ||
+      client['merge_commit'] !=
+          (refs is Map ? refs['houra_client_ref'] : null) ||
+      client['head_under_test'] !=
+          (refs is Map ? refs['houra_client_ref'] : null) ||
+      client['spec_ref_under_test'] !=
           (refs is Map ? refs['houra_spec_ref'] : null) ||
       client['support_claim_decision'] != 'not-advertised') {
     failures.add('${relative(file)} client evidence source invalid.');
@@ -9862,20 +9870,22 @@ void checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(
   final readiness = eventMap['readiness_checklist'];
   if (readiness is! Map ||
       readiness['contract'] != 'SPEC-066' ||
-      readiness['same_checked_refs'] != false ||
+      readiness['same_checked_refs'] != true ||
+      readiness['supported_domain_gates_pass'] != true ||
       readiness['ready_to_publish'] != false ||
       readiness['artifacts_secret_redacted'] != true ||
-      readiness['release_candidate_ref_mismatch_blocks_publish'] != true) {
+      readiness['release_candidate_ref_mismatch_blocks_publish'] != false) {
     failures.add('${relative(file)} current readiness checklist invalid.');
   }
 
   final blockers = eventMap['blockers'];
   if (blockers is! List ||
       !blockers.any(
-        (item) => item is Map && item['id'] == 'same-candidate-ref-mismatch',
+        (item) => item is Map && item['id'] == 'no-matrix-advertisement',
       ) ||
       !blockers.any(
-        (item) => item is Map && item['id'] == 'no-matrix-advertisement',
+        (item) =>
+            item is Map && item['id'] == 'complement-full-breadth-blocked',
       )) {
     failures.add('${relative(file)} current bundle blockers invalid.');
   }
@@ -9893,8 +9903,8 @@ void checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(
   if (expectedResult is! Map ||
       expectedResult['real_implementation_refs_recorded'] != true ||
       expectedResult['example_bundle_separate'] != true ||
-      expectedResult['same_release_candidate_ref'] != false ||
-      expectedResult['stale_or_mismatched_refs_block_release'] != true ||
+      expectedResult['same_release_candidate_ref'] != true ||
+      expectedResult['stale_or_mismatched_refs_block_release'] != false ||
       expectedResult['versions_advertisement_allowed'] != false ||
       expectedResult['ready_to_publish'] != false) {
     failures.add('${relative(file)} current bundle expectation invalid.');
