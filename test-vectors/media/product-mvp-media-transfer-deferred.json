@@ -1,0 +1,77 @@
+{
+  "name": "product-mvp-media-transfer-deferred",
+  "contract": "SPEC-071",
+  "event": {
+    "target": "Product MVP next-step media transfer",
+    "decision": "defer",
+    "implemented_by_this_contract": false,
+    "product_mvp_next_step": true,
+    "matrix_full_compliance_claim": false,
+    "current_product_mvp_ui_surface_changes": false,
+    "encrypted_attachment_scope": false,
+    "fail_closed_client_behavior": [
+      "do_not_render_thumbnail_preview_action",
+      "do_not_render_download_progress_or_resume_action",
+      "do_not_export_thumbnail_or_range_sdk_methods_without_followup_contract",
+      "do_not_infer_support_from_http_headers_or_cdn_behavior"
+    ],
+    "future_lanes": [
+      "thumbnail_descriptor",
+      "range_request_partial_content",
+      "resumable_download_state",
+      "download_progress_ui_surface",
+      "remote_or_federated_media"
+    ],
+    "sdk_core_may_own_after_followup_contract": [
+      "request_descriptors",
+      "response_parsers",
+      "matrix_content_uri_validation",
+      "media_descriptor_parsing",
+      "content_header_parsing",
+      "public_error_envelope_mapping"
+    ],
+    "host_owned": [
+      "filesystem_paths",
+      "cache_policy",
+      "storage_quota",
+      "eviction_policy",
+      "retry_resume_scheduling",
+      "background_download_policy",
+      "preview_rendering",
+      "image_decoding",
+      "network_reachability_policy",
+      "secure_deletion",
+      "user_facing_progress_and_retry_copy"
+    ],
+    "must_define_before_implementation": [
+      "missing_media_metadata",
+      "missing_binary_content",
+      "unsupported_range_requests",
+      "invalid_or_unsatisfied_range_requests",
+      "stale_etag_if_range_validators",
+      "partial_content_metadata_mismatch",
+      "interruption_resume_failure",
+      "protected_media_authentication_failure"
+    ],
+    "must_not_log_or_record": [
+      "bearer_tokens",
+      "signed_or_credentialed_urls",
+      "local_filesystem_paths",
+      "plaintext_media_bytes",
+      "media_keys",
+      "recovery_keys",
+      "cache_filenames_exposing_user_data"
+    ],
+    "existing_contracts_unchanged": [
+      "SPEC-020",
+      "SPEC-038"
+    ],
+    "required_before_implementation": [
+      "followup_contract",
+      "test_vectors",
+      "ui_surface_update_when_ui_changes",
+      "security_evidence_requirements",
+      "implementation_adoption_gate"
+    ]
+  }
+}
