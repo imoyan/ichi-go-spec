@@ -1161,12 +1161,144 @@ void checkMatrixMediaMvp(Map<String, String> contracts, List<String> failures) {
     'test-vectors/media/matrix-media-upload-too-large.json',
     'test-vectors/media/matrix-media-download-basic.json',
     'test-vectors/media/matrix-media-download-with-filename-basic.json',
+    'test-vectors/media/matrix-media-download-filename-safety-negative.json',
     'test-vectors/media/matrix-media-download-missing-token.json',
     'test-vectors/media/matrix-media-download-not-found.json',
   ]) {
-    if (!File(path).existsSync()) {
+    final file = File(path);
+    if (!file.existsSync()) {
       failures.add('Missing Matrix media MVP vector: $path');
+      continue;
     }
+    final json = readJsonObject(file, failures);
+    if (json == null) {
+      continue;
+    }
+    if (path.contains('download-with-filename-basic')) {
+      validateMatrixMediaFilenameBasic(file, json, failures);
+    } else if (path.contains('filename-safety-negative')) {
+      validateMatrixMediaFilenameSafetyNegative(file, json, failures);
+    }
+  }
+}
+
+void validateMatrixMediaFilenameBasic(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  if (request is! Map) {
+    failures.add('${relative(file)} request must be an object.');
+    return;
+  }
+  final requestMap = request.cast<String, Object?>();
+  if (requestMap['method'] != 'GET' ||
+      requestMap['path'] !=
+          '/_matrix/client/v1/media/download/example.test/media1/avatar.png' ||
+      requestMap['access_token'] != 'token-1') {
+    failures.add('${relative(file)} filename download request invalid.');
+  }
+  final expected = vector['expected'];
+  final headers = expected is Map ? expected['headers'] : null;
+  final contentDisposition = headers is Map
+      ? headers['content-disposition']
+      : null;
+  if (expected is! Map ||
+      expected['status'] != 200 ||
+      contentDisposition != 'inline; filename="avatar.png"' ||
+      (contentDisposition is String &&
+          (contentDisposition.contains('\r') ||
+              contentDisposition.contains('\n')))) {
+    failures.add(
+      '${relative(file)} filename download Content-Disposition invalid.',
+    );
+  }
+}
+
+void validateMatrixMediaFilenameSafetyNegative(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} matrix_spec_version must be v1.18.');
+  }
+  final source = eventMap['matrix_spec_source'];
+  if (source is! String ||
+      !source.startsWith('https://spec.matrix.org/v1.18/client-server-api/#')) {
+    failures.add('${relative(file)} matrix_spec_source is invalid.');
+  }
+  final rfcSources = readStringList(eventMap['rfc_sources']);
+  for (final rfcSource in const [
+    'https://www.rfc-editor.org/rfc/rfc6266',
+    'https://www.rfc-editor.org/rfc/rfc5987',
+    'https://www.rfc-editor.org/rfc/rfc8187',
+  ]) {
+    if (rfcSources == null || !rfcSources.contains(rfcSource)) {
+      failures.add('${relative(file)} rfc_sources must include $rfcSource.');
+    }
+  }
+  final cases = eventMap['invalid_cases'];
+  if (cases is! List || cases.length < 5) {
+    failures.add('${relative(file)} invalid_cases must cover filename risks.');
+    return;
+  }
+  final seenViolations = <String>{};
+  for (final item in cases) {
+    if (item is! Map) {
+      failures.add('${relative(file)} invalid case must be an object.');
+      continue;
+    }
+    final testCase = item.cast<String, Object?>();
+    final id = testCase['id'];
+    if (id is! String || id.isEmpty) {
+      failures.add('${relative(file)} invalid case id is required.');
+      continue;
+    }
+    final request = testCase['request'];
+    checkRequest(
+      file,
+      request,
+      failures,
+      pathPrefix: 'event.invalid_cases.$id.request',
+    );
+    final requestMap = request is Map ? request.cast<String, Object?>() : null;
+    final path = requestMap?['path'];
+    if (requestMap?['method'] != 'GET' ||
+        requestMap?['access_token'] != 'token-1' ||
+        path is! String ||
+        !path.startsWith(
+          '/_matrix/client/v1/media/download/example.test/media1/',
+        )) {
+      failures.add('${relative(file)} invalid case $id request invalid.');
+    }
+    validateMatrixStepError(file, testCase, 400, 'M_INVALID_PARAM', failures);
+    final violation = testCase['expected_violation'];
+    if (violation is! String || violation.isEmpty) {
+      failures.add('${relative(file)} invalid case $id violation missing.');
+    } else {
+      seenViolations.add(violation);
+    }
+  }
+  for (final violation in const {
+    'crlf_or_control_character',
+    'path_separator_or_traversal',
+    'unsupported_quoted_string_escape',
+  }) {
+    if (!seenViolations.contains(violation)) {
+      failures.add('${relative(file)} missing filename violation: $violation.');
+    }
+  }
+  final expected = vector['expected'];
+  if (expected is! Map ||
+      expected['filename_rejected_before_content_disposition'] != true ||
+      expected['content_disposition_header_not_emitted'] != true) {
+    failures.add('${relative(file)} filename safety expectation invalid.');
   }
 }
 

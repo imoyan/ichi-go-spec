@@ -1,0 +1,90 @@
+{
+  "name": "matrix-media-download-filename-safety-negative",
+  "contract": "SPEC-038",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv1mediadownloadservernamemediaidfilename",
+    "rfc_sources": [
+      "https://www.rfc-editor.org/rfc/rfc6266",
+      "https://www.rfc-editor.org/rfc/rfc5987",
+      "https://www.rfc-editor.org/rfc/rfc8187"
+    ],
+    "checked_at": "2026-05-13T19:55:00+09:00",
+    "invalid_cases": [
+      {
+        "id": "crlf-header-injection",
+        "request": {
+          "method": "GET",
+          "path": "/_matrix/client/v1/media/download/example.test/media1/avatar%0D%0AX-Injected:%20yes.png",
+          "access_token": "token-1"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM",
+          "error": "Unsafe filename."
+        },
+        "expected_violation": "crlf_or_control_character"
+      },
+      {
+        "id": "control-character",
+        "request": {
+          "method": "GET",
+          "path": "/_matrix/client/v1/media/download/example.test/media1/avatar%1F.png",
+          "access_token": "token-1"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM",
+          "error": "Unsafe filename."
+        },
+        "expected_violation": "crlf_or_control_character"
+      },
+      {
+        "id": "path-separator",
+        "request": {
+          "method": "GET",
+          "path": "/_matrix/client/v1/media/download/example.test/media1/..%2Fsecret.png",
+          "access_token": "token-1"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM",
+          "error": "Unsafe filename."
+        },
+        "expected_violation": "path_separator_or_traversal"
+      },
+      {
+        "id": "backslash-separator",
+        "request": {
+          "method": "GET",
+          "path": "/_matrix/client/v1/media/download/example.test/media1/..%5Csecret.png",
+          "access_token": "token-1"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM",
+          "error": "Unsafe filename."
+        },
+        "expected_violation": "path_separator_or_traversal"
+      },
+      {
+        "id": "quote-requires-escaping",
+        "request": {
+          "method": "GET",
+          "path": "/_matrix/client/v1/media/download/example.test/media1/avatar%22.png",
+          "access_token": "token-1"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM",
+          "error": "Unsafe filename."
+        },
+        "expected_violation": "unsupported_quoted_string_escape"
+      }
+    ]
+  },
+  "expected": {
+    "filename_rejected_before_content_disposition": true,
+    "content_disposition_header_not_emitted": true
+  }
+}

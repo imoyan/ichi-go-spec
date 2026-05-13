@@ -30,7 +30,11 @@ deprecated media download behavior.
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv1mediadownloadservernamemediaid>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv1mediadownloadservernamemediaidfilename>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#matrix-content-mxc-uris>
-- Checked at: 2026-05-10T13:13:59+09:00
+- Source: <https://www.rfc-editor.org/rfc/rfc6266>
+- Source: <https://www.rfc-editor.org/rfc/rfc5987>
+- Source: <https://www.rfc-editor.org/rfc/rfc8187>
+- Matrix checked at: 2026-05-10T13:13:59+09:00
+- HTTP header sources checked at: 2026-05-13T19:55:00+09:00
 - Timezone: Asia/Tokyo
 
 ## Upload request
@@ -80,6 +84,29 @@ Authorization: Bearer token-1
 returns the same bytes but must use the supplied path filename in
 `Content-Disposition`.
 
+The filename path component is download metadata only. It must not select the
+stored media object, local filesystem path, or server storage key. Servers must
+decode the filename path component as a single UTF-8 path segment before
+building `Content-Disposition`. The decoded filename must be a non-empty
+basename and must not be `.` or `..`.
+
+Servers must reject the filename variant with `400` and `M_INVALID_PARAM`
+before emitting `Content-Disposition` when the decoded filename contains:
+
+- carriage return, line feed, any C0 control character, or DEL;
+- `/` or `\`;
+- traversal-like path components such as `.` or `..`;
+- `"` characters that would require quoted-string escaping in the MVP header
+  policy.
+
+For accepted MVP filenames, `Content-Disposition` must follow RFC 6266
+quoted-string syntax as `inline; filename="<safe-basename>"` or `attachment;
+filename="<safe-basename>"`. Servers must not concatenate the path filename into
+the header without validation and quoting. This contract does not require
+accepting non-ASCII filenames or filenames that require RFC 5987 / RFC 8187
+`filename*` extended encoding; until a follow-up vector defines that behavior,
+such filenames must fail closed with `M_INVALID_PARAM`.
+
 `timeout_ms`, when present, is the maximum number of milliseconds the client is
 willing to wait for media that is not yet available. The MVP vectors do not
 exercise delayed media availability.
@@ -105,7 +132,9 @@ tokens must return `401` with `M_UNKNOWN_TOKEN`.
 
 Missing media must return `404` with `M_NOT_FOUND`. Uploads rejected by server
 policy must return `403` with `M_FORBIDDEN`. Uploads larger than the configured
-server limit must return `413` with `M_TOO_LARGE`.
+server limit must return `413` with `M_TOO_LARGE`. Unsafe filename download
+variants must return `400` with `M_INVALID_PARAM` and must not emit a
+`Content-Disposition` header derived from the unsafe value.
 
 ## Compatibility boundaries
 
