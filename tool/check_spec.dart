@@ -9786,7 +9786,7 @@ void checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(
   if (refs is! Map ||
       refs['release_candidate'] !=
           'houra-matrix-v1.18-current-blocked-2026-05-13' ||
-      refs['houra_spec_ref'] != '8319122b8dabe806222f70da1f5177fb2fb56aaf' ||
+      refs['houra_spec_ref'] != 'af8272dad6e5f72d0126842d51c8cac7ffd424c3' ||
       refs['houra_server_ref'] != 'bb8cf30ce6f4b4de2f761cc9e1f7499406379b4b' ||
       refs['houra_client_ref'] != '838a23106e53e5b5620cffbd0c36cf74c9580433') {
     failures.add('${relative(file)} current candidate refs invalid.');
