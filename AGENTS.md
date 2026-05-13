@@ -62,7 +62,7 @@ here before changing an implementation.
   `test-vectors/` and design schema or UI surface files when the contract
   change affects them.
 - Keep broad Matrix work split into issue-sized gates. Do not mix unrelated
-  Matrix domains, product-MVP work, and release-readiness work in one change.
+  Matrix domains, Product MVP work, and release-readiness work in one change.
 - If the goal could mean either Houra Product MVP or broad Matrix compliance,
   make the target explicit before widening scope.
 - Record implementation adoption evidence in `README.md` when another Houra
@@ -78,7 +78,7 @@ here before changing an implementation.
   timeless current facts.
 - Do not encode server storage design, client internals, or SDK convenience
   behavior as contract behavior unless the public Houra contract requires it.
-- When compatibility evidence is incomplete, prefer a failing-closed contract
+- When compatibility evidence is incomplete, prefer a fail-closed contract
   or advertisement gate over claiming support without evidence.
 
 ## Verification
