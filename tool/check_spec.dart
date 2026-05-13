@@ -124,6 +124,7 @@ void main() {
   checkMatrixApplicationServiceRegistrationTransaction(contracts, failures);
   checkMatrixApplicationServiceFullBreadthGapInventory(contracts, failures);
   checkMatrixIdentityServiceBoundary(contracts, failures);
+  checkMatrixIdentityServiceFullBreadthGapInventory(contracts, failures);
   checkMatrixPushGatewayBoundary(contracts, failures);
   checkMatrixFederationInteropSmoke(contracts, failures);
   checkMatrixServerServerFullBreadthGapInventory(contracts, failures);
@@ -553,6 +554,8 @@ void checkJapaneseDocs(List<String> failures) {
     'houra-server#136',
     'SPEC-075',
     'houra-server#137',
+    'SPEC-076',
+    'houra-server#138',
     'release-ready',
   ]) {
     if (!matrixSource.contains(phrase)) {
@@ -8312,6 +8315,141 @@ void validateMatrixIdentitySecrets(
 ) {
   if (eventMap['secrets_redacted'] != true) {
     failures.add('${relative(file)} identity secrets must be redacted.');
+  }
+}
+
+void checkMatrixIdentityServiceFullBreadthGapInventory(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-076')) {
+    failures.add(
+      'Matrix Identity Service full-breadth gap inventory SPEC-076 is required.',
+    );
+  }
+  const path =
+      'test-vectors/core/matrix-identity-service-full-breadth-gap-inventory.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add(
+      'Missing Matrix Identity Service full-breadth gap vector: $path',
+    );
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-076') {
+    failures.add('${relative(file)} must reference SPEC-076.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18' ||
+      eventMap['matrix_spec_source'] !=
+          'https://spec.matrix.org/v1.18/identity-service-api/' ||
+      eventMap['parent_issue'] != 'imoyan/houra-server#138') {
+    failures.add('${relative(file)} Matrix reference or parent issue invalid.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String || !checkedAt.contains('+09:00')) {
+    failures.add('${relative(file)} checked_at must be a dated JST snapshot.');
+  }
+
+  final releaseScopeDecision = eventMap['release_scope_decision'];
+  if (releaseScopeDecision is! Map ||
+      releaseScopeDecision['domain'] != 'Identity Service API' ||
+      releaseScopeDecision['decision'] !=
+          'out-of-scope-for-current-release-candidate' ||
+      releaseScopeDecision['issue'] != 'imoyan/houra-server#138' ||
+      releaseScopeDecision['advertisement_allowed'] != false) {
+    failures.add('${relative(file)} release scope decision invalid.');
+  }
+
+  requireStringListIncludes(file, eventMap, 'covered_subset_contracts', {
+    'SPEC-059',
+    'SPEC-062',
+    'SPEC-064',
+    'SPEC-065',
+    'SPEC-066',
+  }, failures);
+
+  const expectedLaneIds = {
+    'service-discovery-authentication-account-terms-breadth',
+    'public-key-ephemeral-key-signed-association-breadth',
+    'lookup-hash-details-pepper-privacy-breadth',
+    'validation-session-provider-delivery-breadth',
+    'bind-validated-3pid-unbind-association-lifecycle-breadth',
+    'invitation-storage-breadth',
+    'ephemeral-invitation-signing-breadth',
+    'consent-ui-provider-operations-client-handoff-breadth',
+    'release-evidence-non-advertisement-breadth',
+  };
+  final lanes = eventMap['required_gap_lanes'];
+  if (lanes is! List || lanes.length < expectedLaneIds.length) {
+    failures.add(
+      '${relative(file)} Identity Service gap lanes are incomplete.',
+    );
+  } else {
+    final seenLaneIds = <String>{};
+    for (final lane in lanes) {
+      if (lane is! Map ||
+          lane['id'] is! String ||
+          lane['status'] !=
+              'requires-follow-up-contract-or-implementation-issue' ||
+          lane['endpoint_examples'] is! List ||
+          lane['owner_repos'] is! List ||
+          lane['advertisement_allowed'] != false) {
+        failures.add(
+          '${relative(file)} Identity Service gap lane shape invalid.',
+        );
+        continue;
+      }
+      final laneId = lane['id'] as String;
+      final endpointExamples = lane['endpoint_examples'] as List;
+      final ownerRepos = lane['owner_repos'] as List;
+      if (!expectedLaneIds.contains(laneId) ||
+          endpointExamples.isEmpty ||
+          ownerRepos.isEmpty ||
+          !ownerRepos.contains('houra-server')) {
+        failures.add(
+          '${relative(file)} Identity Service gap lane content invalid.',
+        );
+      }
+      seenLaneIds.add(laneId);
+    }
+    if (!seenLaneIds.containsAll(expectedLaneIds)) {
+      failures.add(
+        '${relative(file)} Identity Service gap lane ids incomplete.',
+      );
+    }
+  }
+
+  final rules = eventMap['release_evidence_rules'];
+  if (rules is! Map ||
+      rules['representative_subset_is_not_full_breadth'] != true ||
+      rules['identity_service_full_breadth_claim_requires_lane_evidence'] !=
+          true ||
+      rules['explicit_exclusion_required_when_lane_not_included'] != true ||
+      rules['failure_issue_ref_must_remain_open_until_resolved'] != true ||
+      rules['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} Identity Service release evidence rules invalid.',
+    );
+  }
+
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['identity_service_full_breadth_decomposed'] != true ||
+      expected['release_scope_issue_ref'] != 'imoyan/houra-server#138' ||
+      expected['support_claim_not_widened'] != true ||
+      expected['versions_advertisement_widened'] != false ||
+      expected['follow_up_required'] != true) {
+    failures.add(
+      '${relative(file)} expected Identity Service gap inventory invalid.',
+    );
   }
 }
 

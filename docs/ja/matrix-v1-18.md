@@ -69,6 +69,14 @@ bridge evidence の lane に分ける inventory です。これは Application S
 bridge protocol behavior の実装完了ではなく、`SPEC-058` の代表 subset と full
 Application Service claim を分けるための fail-closed 記録です。
 
+`SPEC-076` は、`houra-server#138` の Identity Service full-breadth gap を
+service / account / terms、key / signature、lookup / privacy、validation /
+provider delivery、bind / unbind lifecycle、invitation storage、ephemeral
+signing、consent UI、release evidence の lane に分ける inventory です。これは
+Identity Service API や external provider operation の実装完了ではなく、
+`SPEC-059` の代表 boundary と full Identity Service claim を分けるための
+fail-closed 記録です。
+
 ## 広告してよいこと
 
 Matrix version や domain support は、contract、test vector、implementation evidence、
