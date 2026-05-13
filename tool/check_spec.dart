@@ -20,6 +20,7 @@ const matrixDomains = {
   'Client-Server API; Room Versions',
   'Identity Service API',
   'Push Gateway API',
+  'Room Versions',
   'Server-Server API',
 };
 
@@ -107,6 +108,7 @@ void main() {
   checkMatrixRoomVersionsGate(contracts, failures);
   checkMatrixRoomAuthRepresentativeVectors(contracts, failures);
   checkMatrixRoomAliasUpgradePersistenceGate(contracts, failures);
+  checkMatrixRoomVersionsFullAlgorithmGapInventory(contracts, failures);
   checkMatrixProfileAccountDataTags(contracts, failures);
   checkMatrixReceiptsTypingReadMarkers(contracts, failures);
   checkMatrixFiltersPresenceCapabilities(contracts, failures);
@@ -559,6 +561,8 @@ void checkJapaneseDocs(List<String> failures) {
     'houra-server#138',
     'SPEC-077',
     'houra-server#139',
+    'SPEC-078',
+    'houra-server#140',
     'release-ready',
   ]) {
     if (!matrixSource.contains(phrase)) {
@@ -3149,6 +3153,139 @@ void validateMatrixRoomRestartPersistenceGate(
     if (!sameJsonValue(before[key], after[key])) {
       failures.add('${relative(file)} restart records differ for $key.');
     }
+  }
+}
+
+void checkMatrixRoomVersionsFullAlgorithmGapInventory(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-078')) {
+    failures.add(
+      'Matrix Room Versions full algorithm gap inventory SPEC-078 is required.',
+    );
+  }
+  const path =
+      'test-vectors/rooms/matrix-room-versions-full-algorithm-gap-inventory.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix Room Versions full algorithm vector: $path');
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-078') {
+    failures.add('${relative(file)} must reference SPEC-078.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18' ||
+      eventMap['matrix_spec_source'] !=
+          'https://spec.matrix.org/v1.18/rooms/' ||
+      eventMap['room_version_12_source'] !=
+          'https://spec.matrix.org/v1.18/rooms/v12/' ||
+      eventMap['parent_issue'] != 'imoyan/houra-server#140') {
+    failures.add('${relative(file)} Matrix reference or parent issue invalid.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String || !checkedAt.contains('+09:00')) {
+    failures.add('${relative(file)} checked_at must be a dated JST snapshot.');
+  }
+
+  final releaseScopeDecision = eventMap['release_scope_decision'];
+  if (releaseScopeDecision is! Map ||
+      releaseScopeDecision['domain'] != 'Room Versions' ||
+      releaseScopeDecision['decision'] !=
+          'out-of-scope-for-current-release-candidate' ||
+      releaseScopeDecision['issue'] != 'imoyan/houra-server#140' ||
+      releaseScopeDecision['advertisement_allowed'] != false) {
+    failures.add('${relative(file)} release scope decision invalid.');
+  }
+
+  requireStringListIncludes(file, eventMap, 'covered_subset_contracts', {
+    'SPEC-040',
+    'SPEC-041',
+    'SPEC-042',
+    'SPEC-043',
+    'SPEC-044',
+    'SPEC-062',
+    'SPEC-064',
+    'SPEC-065',
+    'SPEC-066',
+  }, failures);
+
+  const expectedLaneIds = {
+    'stable-version-set-grammar-default-capabilities-breadth',
+    'per-version-event-format-id-hash-signature-limit-breadth',
+    'authorization-rules-breadth',
+    'state-resolution-algorithm-breadth',
+    'event-acceptance-rejection-soft-fail-visibility-breadth',
+    'room-upgrade-migration-breadth',
+    'federation-cross-domain-room-version-breadth',
+    'shared-parser-helper-test-harness-breadth',
+    'release-evidence-non-advertisement-breadth',
+  };
+  final lanes = eventMap['required_gap_lanes'];
+  if (lanes is! List || lanes.length < expectedLaneIds.length) {
+    failures.add('${relative(file)} Room Versions gap lanes are incomplete.');
+  } else {
+    final seenLaneIds = <String>{};
+    for (final lane in lanes) {
+      if (lane is! Map ||
+          lane['id'] is! String ||
+          lane['status'] !=
+              'requires-follow-up-contract-or-implementation-issue' ||
+          lane['endpoint_examples'] is! List ||
+          lane['owner_repos'] is! List ||
+          lane['advertisement_allowed'] != false) {
+        failures.add('${relative(file)} Room Versions gap lane shape invalid.');
+        continue;
+      }
+      final laneId = lane['id'] as String;
+      final endpointExamples = lane['endpoint_examples'] as List;
+      final ownerRepos = lane['owner_repos'] as List;
+      if (!expectedLaneIds.contains(laneId) ||
+          endpointExamples.isEmpty ||
+          ownerRepos.isEmpty ||
+          !ownerRepos.any((repo) => repo == 'houra-server')) {
+        failures.add(
+          '${relative(file)} Room Versions gap lane content invalid.',
+        );
+      }
+      seenLaneIds.add(laneId);
+    }
+    if (!seenLaneIds.containsAll(expectedLaneIds)) {
+      failures.add('${relative(file)} Room Versions gap lane ids incomplete.');
+    }
+  }
+
+  final rules = eventMap['release_evidence_rules'];
+  if (rules is! Map ||
+      rules['representative_subset_is_not_full_breadth'] != true ||
+      rules['room_versions_full_algorithm_claim_requires_lane_evidence'] !=
+          true ||
+      rules['explicit_exclusion_required_when_lane_not_included'] != true ||
+      rules['failure_issue_ref_must_remain_open_until_resolved'] != true ||
+      rules['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} Room Versions release evidence rules invalid.',
+    );
+  }
+
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['room_versions_full_algorithm_decomposed'] != true ||
+      expected['release_scope_issue_ref'] != 'imoyan/houra-server#140' ||
+      expected['support_claim_not_widened'] != true ||
+      expected['versions_advertisement_widened'] != false ||
+      expected['follow_up_required'] != true) {
+    failures.add(
+      '${relative(file)} expected Room Versions gap inventory invalid.',
+    );
   }
 }
 

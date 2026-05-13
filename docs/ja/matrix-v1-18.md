@@ -85,6 +85,14 @@ rendering、security / redaction、release evidence の lane に分ける invent
 実装完了ではなく、`SPEC-060` の代表 boundary と full Push Gateway claim を分けるための
 fail-closed 記録です。
 
+`SPEC-078` は、`houra-server#140` の Room Versions full-algorithm gap を
+stable-version metadata、event format、auth rules、state resolution、event
+acceptance / rejection、room upgrade、federation、shared helpers、release evidence
+の lane に分ける inventory です。これは full room-version algorithms や
+domain-wide room-version advertisement の実装完了ではなく、`SPEC-040` から
+`SPEC-044` の代表 subset と full Room Versions claim を分けるための fail-closed
+記録です。
+
 ## 広告してよいこと
 
 Matrix version や domain support は、contract、test vector、implementation evidence、
