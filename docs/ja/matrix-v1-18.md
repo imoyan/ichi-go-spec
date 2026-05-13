@@ -15,7 +15,7 @@ Push Gateway API、Room Versions、Olm & Megolm、Appendices/common rules は別
 
 ## close-out snapshot
 
-2026-05-13 時点では、#95 が Matrix v1.18 roadmap の親 issue です。#189 は
+2026-05-14 時点では、#95 が Matrix v1.18 roadmap の親 issue です。#189 は
 README の close-out snapshot を通じて、domain issue、implementation adoption refs、
 release evidence の対応関係を読むための整理 lane です。
 
@@ -25,10 +25,16 @@ implementation refs と evidence bundle は #200 で追跡します。
 `test-vectors/core/matrix-v1-18-release-evidence-current-blocked-bundle.json`
 は現在の blocked bundle で、example bundle とは分けて実 implementation refs と
 refs 不一致による fail-closed 判定を記録します。
-この bundle の active blocker refs は #97 から #101 の domain issue と #95 に寄せ、
-closed 済みの #200 から #202 は evidence / boundary record として扱います。
+この bundle は `houra-spec` ce587f202de77dade3eebb07b63a0a6b4908743b、
+`houra-server` 3fa134955c9e0804adc9e4b54e6d90fb24631f77、
+`houra-client` 0f330a14ad86d69ad4f147c7a5b6d1852c9c78f2 の same-candidate refs を
+記録します。closed 済みの #200 から #202 は evidence / boundary record として扱います。
 
 `houra-server` と `houra-client` の #189 で列挙された adoption refs は閉じています。
+`houra-server#145` は、#133 を active blocker ではなく parent tracker として閉じ、
+current release candidate では #135 から #142 を domain ごとの
+release-scope decision として残しました。これにより、full-breadth gaps は未記録の
+blocker ではなく、広告対象外の explicit current-candidate exclusion として読めます。
 一方で `houra-labs` の parser / shared-core 探索 issue は一部 open のままです。
 これらは release candidate が shared-core artifact を evidence に含めない限り、
 Matrix version advertisement の blocker ではありません。
@@ -37,9 +43,11 @@ Matrix version advertisement の blocker ではありません。
 記録しました。#201 は `SPEC-068` の OAuth account-management adoption boundary を
 記録し、full Matrix OAuth 2.0 support claim とは分けます。#202 は `SPEC-069` の
 device-key query-only adoption boundary を記録し、full E2EE / Olm-Megolm support
-claim とは分けます。#95 は、#97 から #101 が current pass/fail evidence または
-release candidate に対する explicit blocked / out-of-scope の判断をリンクするまで、
-release-ready として読ませないでください。
+claim とは分けます。#235 後の current blocked bundle は、#135 から #142 の
+release-scope decisions をリンク済みです。ただし `GET /_matrix/client/versions` は
+引き続き空の Matrix versions を返す fail-closed 状態です。#95 は、publishable な
+Matrix support claim と domain evidence が揃うまで release-ready として読ませないで
+ください。
 
 ## 広告してよいこと
 

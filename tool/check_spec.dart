@@ -539,6 +539,11 @@ void checkJapaneseDocs(List<String> failures) {
     '#95',
     '#189',
     '#200',
+    '#235',
+    '#135',
+    '#142',
+    'release-scope decision',
+    'fail-closed',
     'release-ready',
   ]) {
     if (!matrixSource.contains(phrase)) {
