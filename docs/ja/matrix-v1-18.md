@@ -25,6 +25,8 @@ implementation refs と evidence bundle は #200 で追跡します。
 `test-vectors/core/matrix-v1-18-release-evidence-current-blocked-bundle.json`
 は現在の blocked bundle で、example bundle とは分けて実 implementation refs と
 refs 不一致による fail-closed 判定を記録します。
+この bundle の active blocker refs は #97 から #101 の domain issue と #95 に寄せ、
+closed 済みの #200 から #202 は evidence / boundary record として扱います。
 
 `houra-server` と `houra-client` の #189 で列挙された adoption refs は閉じています。
 一方で `houra-labs` の parser / shared-core 探索 issue は一部 open のままです。

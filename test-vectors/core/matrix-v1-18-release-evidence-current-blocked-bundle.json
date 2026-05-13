@@ -5,7 +5,7 @@
     "matrix_spec_version": "v1.18",
     "matrix_spec_source": "https://spec.matrix.org/v1.18/",
     "matrix_release_source": "https://matrix.org/blog/2026/03/26/matrix-v1.18-release/",
-    "checked_at": "2026-05-13T20:12:48+09:00",
+    "checked_at": "2026-05-13T21:55:00+09:00",
     "bundle_contracts": [
       "SPEC-062",
       "SPEC-063",
@@ -57,19 +57,16 @@
         "contract_gate": "pass",
         "implementation_gate": "blocked-by-same-ref-check",
         "blocker_issue_refs": [
-          "imoyan/houra-spec#200"
+          "imoyan/houra-spec#97"
         ],
         "advertisement_allowed": false
       },
       {
         "domain": "Server-Server API",
         "contract_gate": "pass",
-        "implementation_gate": "blocked-by-server-gap",
+        "implementation_gate": "blocked-by-same-ref-check",
         "blocker_issue_refs": [
-          "imoyan/houra-server#59",
-          "imoyan/houra-server#60",
-          "imoyan/houra-server#61",
-          "imoyan/houra-server#65"
+          "imoyan/houra-spec#101"
         ],
         "advertisement_allowed": false
       },
@@ -78,7 +75,7 @@
         "contract_gate": "pass",
         "implementation_gate": "excluded",
         "blocker_issue_refs": [
-          "imoyan/houra-spec#200"
+          "imoyan/houra-spec#101"
         ],
         "advertisement_allowed": false
       },
@@ -87,7 +84,7 @@
         "contract_gate": "pass",
         "implementation_gate": "excluded",
         "blocker_issue_refs": [
-          "imoyan/houra-spec#201"
+          "imoyan/houra-spec#101"
         ],
         "advertisement_allowed": false
       },
@@ -96,7 +93,7 @@
         "contract_gate": "pass",
         "implementation_gate": "excluded",
         "blocker_issue_refs": [
-          "imoyan/houra-spec#200"
+          "imoyan/houra-spec#101"
         ],
         "advertisement_allowed": false
       },
@@ -105,7 +102,7 @@
         "contract_gate": "pass",
         "implementation_gate": "blocked-by-same-ref-check",
         "blocker_issue_refs": [
-          "imoyan/houra-spec#200"
+          "imoyan/houra-spec#98"
         ],
         "advertisement_allowed": false
       },
@@ -123,7 +120,7 @@
         "contract_gate": "pass",
         "implementation_gate": "blocked-by-same-ref-check",
         "blocker_issue_refs": [
-          "imoyan/houra-spec#200"
+          "imoyan/houra-spec#95"
         ],
         "advertisement_allowed": false
       }
@@ -164,8 +161,8 @@
     "blockers": [
       {
         "id": "same-candidate-ref-mismatch",
-        "issue": "imoyan/houra-spec#200",
-        "reason": "server and client evidence were generated against older houra-spec refs, not the current candidate ref"
+        "issue": "imoyan/houra-spec#95",
+        "reason": "server and client evidence were generated against older houra-spec refs, not the current candidate ref; domain issue refs remain active until #95 links refreshed same-candidate evidence"
       },
       {
         "id": "no-matrix-advertisement",
