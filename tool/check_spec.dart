@@ -401,6 +401,10 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     'Language: [English](#english) | [日本語](#日本語)',
     '## 日本語',
     'docs/ja/',
+    'Shared boundary and risk rule',
+    'fail-closed capability',
+    'version advertisement',
+    'parse / normalize / validate / authorize',
   ]) {
     if (!readme.contains(phrase)) {
       failures.add('README.md must document $phrase.');
@@ -418,6 +422,8 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     'Contract Update Rules',
     'Verification',
     'MCP',
+    'parse/normalize/validate/authorize logic',
+    'affected representative vector batch',
   ]) {
     if (!agents.contains(phrase)) {
       failures.add('AGENTS.md must document $phrase.');

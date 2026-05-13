@@ -309,6 +309,46 @@ unless a later `SPEC-*` contract defines public behavior. Those parts differ
 too much across Vue, Next, Node.js, Expo, Flutter native, Flutter web, and
 server runtimes to force into a single core without harming flexibility.
 
+### Shared boundary and risk rule
+
+Shared implementation should start at dangerous or drift-prone protocol
+boundaries, not at broad application architecture. The preferred shape is:
+
+1. parse the external payload;
+2. normalize only contract-visible values;
+3. validate identifiers, payload shape, limits, and feature gates;
+4. authorize against adapter-provided context; and
+5. execute through host-owned transport, storage, crypto, UI, and lifecycle
+   code.
+
+After this boundary, downstream code should receive a structured result and
+should not re-parse or re-validate the same payload unless the contract requires
+a separate phase. Validators and parsers should be compiled or initialized once
+where possible, batch representative vector payloads across FFI, WASM, or
+N-API boundaries, and avoid hidden network, disk, storage, logging, or crypto
+work inside the pure shared path. Caches must have explicit size, lifetime, and
+invalidation policy owned by the adapter.
+
+Security-sensitive handling should be shared only when it reduces ambiguity at
+the public protocol boundary. Good candidates include identifier grammar,
+content URI grammar, error-envelope mapping, protocol payload validation,
+redaction of diagnostic fields, and fail-closed capability or version
+advertisement. Token persistence, secure key storage, transport retry,
+permission prompts, UI trust state, and deployment policy remain host-owned
+unless a public Houra contract says otherwise.
+
+If compatibility, security, or performance evidence is incomplete, the shared
+boundary must fail closed: do not advertise support, do not widen feature
+profiles, and do not turn a local implementation into a required shared
+dependency. Record the area as `spec-only`, `adapter-owned`,
+`split-by-language`, or `avoid-shared` until parity, security, packaging, and
+performance evidence supports a wider adoption.
+
+日本語メモ: 共通化は「危険な境界を一度だけ通す」ために使います。入力の
+parse / normalize / validate / authorize は共通化候補ですが、token 保管、
+secure storage、transport、retry、UI state、deployment policy は実装側の責務に
+残します。証拠が揃わない機能は advertise せず fail-closed にします。
+
 ### Current shared-core status
 
 The current shared-core work is still pre-adoption. `houra-labs` contains the
