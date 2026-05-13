@@ -752,9 +752,11 @@ Matrix v1.18 roadmap close-out snapshot:
   #97 through #101 link current pass/fail evidence or explicit blocked /
   out-of-scope decisions for the release candidate.
 - The current blocked bundle now points active domain blockers at #97 through
-  #101 instead of the closed #200 through #202 record issues. Those domain
-  issues remain open until #95 links refreshed same-candidate evidence or an
-  explicit blocked / out-of-scope decision for the release candidate.
+  #101 instead of the closed #200 through #202 record issues. Client-Server API
+  references both #97 and #99 because the MVP-equivalent slice and breadth slice
+  share the same Matrix domain. Those domain issues remain open until #95 links
+  refreshed same-candidate evidence or an explicit blocked / out-of-scope
+  decision for the release candidate.
 - #97 through #101 should not be closed merely because their spec-side
   checklists are complete. Close them only when #95 links current pass/fail
   evidence or names the domain as blocked / out of scope for the release.
