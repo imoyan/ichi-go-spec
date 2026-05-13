@@ -1163,6 +1163,7 @@ void checkMatrixDeviceKeyQuery(
     'test-vectors/auth/matrix-keys-query-device-id-not-string.json',
     'test-vectors/auth/matrix-keys-query-timeout-not-integer.json',
     'test-vectors/auth/matrix-keys-query-token-not-string.json',
+    'test-vectors/auth/matrix-keys-query-adoption-boundary.json',
   ];
   for (final path in paths) {
     final file = File(path);
@@ -1177,7 +1178,9 @@ void checkMatrixDeviceKeyQuery(
     if (json['contract'] != 'SPEC-069') {
       failures.add('${relative(file)} must reference SPEC-069.');
     }
-    if (path.contains('missing-token')) {
+    if (path.contains('adoption-boundary')) {
+      validateMatrixKeysQueryAdoptionBoundary(file, json, failures);
+    } else if (path.contains('missing-token')) {
       validateMatrixSimpleRequestVector(
         file,
         json,
@@ -1223,6 +1226,115 @@ void checkMatrixDeviceKeyQuery(
     } else {
       validateMatrixKeysQueryVector(file, json, failures);
     }
+  }
+}
+
+void validateMatrixKeysQueryAdoptionBoundary(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final eventMap = requireMatrixEventMap(file, vector, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18') {
+    failures.add('${relative(file)} Matrix spec version must be v1.18.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String || !checkedAt.contains('+09:00')) {
+    failures.add('${relative(file)} checked_at must be a dated JST snapshot.');
+  }
+  requireStringListIncludes(file, eventMap, 'boundary_contracts', {
+    'SPEC-034',
+    'SPEC-050',
+    'SPEC-051',
+    'SPEC-052',
+    'SPEC-053',
+    'SPEC-054',
+    'SPEC-069',
+  }, failures);
+
+  final tracking = eventMap['repo_adoption_tracking'];
+  final trackingMap = tracking is Map ? tracking.cast<String, Object?>() : null;
+  final serverTracking = trackingMap?['server'];
+  final clientTracking = trackingMap?['client'];
+  final labsTracking = trackingMap?['labs'];
+  if (serverTracking is! Map ||
+      serverTracking['issue'] != 'imoyan/houra-server#107') {
+    failures.add('${relative(file)} must track server adoption issue #107.');
+  }
+  if (clientTracking is! Map ||
+      clientTracking['issue'] != 'imoyan/houra-client#96') {
+    failures.add('${relative(file)} must track client adoption issue #96.');
+  }
+  if (labsTracking is! Map ||
+      labsTracking['issue'] != 'imoyan/houra-labs#65' ||
+      labsTracking['crypto_primitives_allowed'] != false) {
+    failures.add(
+      '${relative(file)} must keep labs adoption parser-only and crypto-free.',
+    );
+  }
+
+  final queryOnly = eventMap['query_only_boundary'];
+  final queryOnlyMap = queryOnly is Map
+      ? queryOnly.cast<String, Object?>()
+      : null;
+  if (queryOnlyMap == null ||
+      queryOnlyMap['endpoint'] != '/_matrix/client/v3/keys/query' ||
+      queryOnlyMap['full_e2ee_claim_allowed'] != false ||
+      queryOnlyMap['crypto_stack_selection_required'] != false ||
+      queryOnlyMap['versions_advertisement_widened'] != false ||
+      queryOnlyMap['release_notes_e2ee_claim_allowed'] != false) {
+    failures.add('${relative(file)} query-only boundary is invalid.');
+  }
+
+  final server = eventMap['server_boundary'];
+  final serverMap = server is Map ? server.cast<String, Object?>() : null;
+  if (serverMap == null ||
+      serverMap['public_device_key_response_allowed'] != true ||
+      serverMap['unknown_users_or_devices_omitted'] != true ||
+      serverMap['private_key_material_returned'] != false ||
+      serverMap['key_upload_required'] != false ||
+      serverMap['one_time_key_claim_required'] != false ||
+      serverMap['encrypted_room_required'] != false ||
+      serverMap['verification_required'] != false) {
+    failures.add('${relative(file)} server query-only boundary is invalid.');
+  }
+
+  final client = eventMap['client_shared_core_boundary'];
+  final clientMap = client is Map ? client.cast<String, Object?>() : null;
+  if (clientMap == null ||
+      clientMap['request_descriptor_allowed'] != true ||
+      clientMap['public_response_parser_allowed'] != true ||
+      clientMap['timeout_validation_allowed'] != true ||
+      clientMap['signature_verification_owned_by_crypto_adapter'] != true ||
+      clientMap['token_storage_owned_by_host'] != true ||
+      clientMap['transport_retry_owned_by_host'] != true ||
+      clientMap['trust_ui_owned_by_host'] != true) {
+    failures.add('${relative(file)} client/shared-core boundary is invalid.');
+  }
+
+  requireStringListIncludes(file, eventMap, 'out_of_scope', {
+    'Olm/Megolm implementation',
+    'secure storage',
+    'verification UX',
+    'encrypted-room behavior',
+    'key backup',
+    'cross-signing',
+    'Matrix E2EE support advertisement',
+  }, failures);
+
+  final expected = vector['expected'];
+  final expectedMap = expected is Map ? expected.cast<String, Object?>() : null;
+  if (expectedMap == null ||
+      expectedMap['query_only_gate'] != true ||
+      expectedMap['full_e2ee_claimed'] != false ||
+      expectedMap['parser_only_shared_core_allowed'] != true ||
+      expectedMap['crypto_primitives_in_labs_allowed'] != false ||
+      expectedMap['versions_advertisement_widened'] != false ||
+      expectedMap['implementation_follow_up_split_by_repo'] != true) {
+    failures.add('${relative(file)} expected query-only boundary is invalid.');
   }
 }
 

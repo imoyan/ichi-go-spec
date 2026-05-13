@@ -1,0 +1,79 @@
+{
+  "name": "matrix-keys-query-adoption-boundary",
+  "contract": "SPEC-069",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3keysquery",
+    "checked_at": "2026-05-13T21:45:00+09:00",
+    "timezone": "Asia/Tokyo",
+    "boundary_contracts": [
+      "SPEC-034",
+      "SPEC-050",
+      "SPEC-051",
+      "SPEC-052",
+      "SPEC-053",
+      "SPEC-054",
+      "SPEC-069"
+    ],
+    "repo_adoption_tracking": {
+      "server": {
+        "repo": "houra-server",
+        "issue": "imoyan/houra-server#107",
+        "scope": "authenticated keys/query endpoint, public response shape, omission semantics, and Matrix error envelopes"
+      },
+      "client": {
+        "repo": "houra-client",
+        "issue": "imoyan/houra-client#96",
+        "scope": "keys/query request descriptors, public response parsing, timeout validation, and malformed-shape handling"
+      },
+      "labs": {
+        "repo": "houra-labs",
+        "issue": "imoyan/houra-labs#65",
+        "scope": "parser-only shared-core helper for SPEC-069 public request/response shapes",
+        "crypto_primitives_allowed": false
+      }
+    },
+    "query_only_boundary": {
+      "endpoint": "/_matrix/client/v3/keys/query",
+      "full_e2ee_claim_allowed": false,
+      "crypto_stack_selection_required": false,
+      "versions_advertisement_widened": false,
+      "release_notes_e2ee_claim_allowed": false
+    },
+    "server_boundary": {
+      "public_device_key_response_allowed": true,
+      "unknown_users_or_devices_omitted": true,
+      "private_key_material_returned": false,
+      "key_upload_required": false,
+      "one_time_key_claim_required": false,
+      "encrypted_room_required": false,
+      "verification_required": false
+    },
+    "client_shared_core_boundary": {
+      "request_descriptor_allowed": true,
+      "public_response_parser_allowed": true,
+      "timeout_validation_allowed": true,
+      "signature_verification_owned_by_crypto_adapter": true,
+      "token_storage_owned_by_host": true,
+      "transport_retry_owned_by_host": true,
+      "trust_ui_owned_by_host": true
+    },
+    "out_of_scope": [
+      "Olm/Megolm implementation",
+      "secure storage",
+      "verification UX",
+      "encrypted-room behavior",
+      "key backup",
+      "cross-signing",
+      "Matrix E2EE support advertisement"
+    ]
+  },
+  "expected": {
+    "query_only_gate": true,
+    "full_e2ee_claimed": false,
+    "parser_only_shared_core_allowed": true,
+    "crypto_primitives_in_labs_allowed": false,
+    "versions_advertisement_widened": false,
+    "implementation_follow_up_split_by_repo": true
+  }
+}

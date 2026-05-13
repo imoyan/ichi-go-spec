@@ -112,9 +112,9 @@
       {
         "domain": "Olm & Megolm",
         "contract_gate": "pass",
-        "implementation_gate": "blocked-by-e2ee-claim-check",
+        "implementation_gate": "blocked-by-e2ee-domain-evidence",
         "blocker_issue_refs": [
-          "imoyan/houra-spec#202"
+          "imoyan/houra-spec#100"
         ],
         "advertisement_allowed": false
       },
@@ -171,6 +171,11 @@
         "id": "no-matrix-advertisement",
         "issue": "imoyan/houra-spec#95",
         "reason": "GET /_matrix/client/versions remains fail-closed with no Matrix versions advertised"
+      },
+      {
+        "id": "e2ee-domain-evidence-excluded",
+        "issue": "imoyan/houra-spec#100",
+        "reason": "SPEC-069 is query-only; Olm & Megolm advertisement remains excluded until E2EE implementation evidence passes"
       }
     ]
   },
