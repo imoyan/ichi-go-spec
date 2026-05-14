@@ -139,6 +139,7 @@ The maintained repository names are:
 - `contracts/SPEC-077-matrix-push-gateway-full-breadth-gap-inventory.md`
 - `contracts/SPEC-078-matrix-room-versions-full-algorithm-gap-inventory.md`
 - `contracts/SPEC-079-matrix-olm-megolm-full-e2ee-gap-inventory.md`
+- `contracts/SPEC-081-matrix-maintained-crypto-storage-ownership-boundary.md`
 
 ## Shared Design Inputs
 
@@ -811,6 +812,10 @@ Matrix v1.18 roadmap close-out snapshot:
   cross-signing, encrypted media, cross-domain interaction, and release-evidence
   lanes. It is a fail-closed gap inventory only; it does not claim full E2EE or
   local Olm/Megolm support.
+- `SPEC-081` is the first `SPEC-079` child contract. It records the maintained
+  Matrix crypto stack evidence gate and keeps secure storage, recovery keys,
+  backup secrets, local deletion, and recovery UX host-owned. It does not select
+  a crypto package, add endpoints, or widen Matrix version advertisement.
 - #97 through #101 should not be closed merely because their spec-side
   checklists are complete or because the current release candidate excludes the
   domain from advertisement. Close them only when #95 links current pass/fail
@@ -1403,6 +1408,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-077 | Matrix Push Gateway full-breadth gap inventory | `test-vectors/core/matrix-push-gateway-full-breadth-gap-inventory.json` |
 | SPEC-078 | Matrix Room Versions full-algorithm gap inventory | `test-vectors/rooms/matrix-room-versions-full-algorithm-gap-inventory.json` |
 | SPEC-079 | Matrix Olm & Megolm full E2EE gap inventory | `test-vectors/messaging/matrix-olm-megolm-full-e2ee-gap-inventory.json` |
+| SPEC-081 | Matrix maintained crypto stack and storage ownership boundary | `test-vectors/messaging/matrix-maintained-crypto-storage-ownership-boundary.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
