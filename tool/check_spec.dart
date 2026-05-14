@@ -1594,6 +1594,101 @@ void checkMatrixClientServerMvpLiveE2eGate(
     failures.add(
       'Missing Matrix Client-Server MVP live e2e gate vector: $path',
     );
+    return;
+  }
+  final file = File(path);
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-039') {
+    failures.add('${relative(file)} must reference SPEC-039.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  requireStringListIncludes(file, eventMap, 'required_contracts', {
+    'SPEC-030',
+    'SPEC-031',
+    'SPEC-032',
+    'SPEC-033',
+    'SPEC-034',
+    'SPEC-035',
+    'SPEC-036',
+    'SPEC-037',
+    'SPEC-038',
+  }, failures);
+  requireStringListIncludes(file, eventMap, 'required_evidence_fields', {
+    'houra_spec_ref',
+    'houra_server_ref',
+    'houra_client_ref',
+    'commands',
+    'scenario_step_results',
+    'versions_advertisement',
+    'known_exclusions',
+    'clean_room_confirmed',
+  }, failures);
+  final evidenceClasses = eventMap['evidence_classes'];
+  if (evidenceClasses is! List || evidenceClasses.length < 2) {
+    failures.add('${relative(file)} evidence classes are incomplete.');
+  } else {
+    final seen = <String>{};
+    for (final item in evidenceClasses) {
+      if (item is! Map ||
+          item['id'] is! String ||
+          item['purpose'] is! String ||
+          item['required_inputs'] is! List ||
+          item['required_checks'] is! List ||
+          item['not_evidence_for'] is! List) {
+        failures.add('${relative(file)} evidence class shape invalid.');
+        continue;
+      }
+      seen.add(item['id'] as String);
+    }
+    if (!seen.contains('product-mvp-happy-path') ||
+        !seen.contains('docker-compose-deploy-smoke')) {
+      failures.add('${relative(file)} evidence class ids incomplete.');
+    }
+  }
+  final separationRules = eventMap['evidence_separation_rules'];
+  if (separationRules is! Map ||
+      separationRules['must_label_evidence_class'] != true ||
+      separationRules['mixed_check_rows_must_split_or_label_parts'] != true ||
+      separationRules['deploy_smoke_success_is_not_product_mvp_happy_path'] !=
+          true ||
+      separationRules['product_mvp_happy_path_success_is_not_deploy_smoke'] !=
+          true ||
+      separationRules['matrix_full_compliance_not_claimed'] != true) {
+    failures.add('${relative(file)} evidence separation rules invalid.');
+  }
+  final redactionPolicy = eventMap['redaction_policy'];
+  if (redactionPolicy is! Map ||
+      redactionPolicy['forbidden_release_evidence_fields'] is! List ||
+      redactionPolicy['allow_redacted_env_shape'] != true) {
+    failures.add('${relative(file)} redaction policy invalid.');
+  } else {
+    final forbidden =
+        redactionPolicy['forbidden_release_evidence_fields'] as List;
+    for (final required in [
+      'raw bearer token',
+      'refresh token',
+      'database URL',
+      'private local path',
+      'image registry credential',
+      'machine-specific environment value',
+    ]) {
+      if (!forbidden.contains(required)) {
+        failures.add('${relative(file)} redaction policy missing $required.');
+      }
+    }
+  }
+  final adoptionIssuePolicy = eventMap['adoption_issue_policy'];
+  if (adoptionIssuePolicy is! Map ||
+      adoptionIssuePolicy['houra-server'] is! String ||
+      adoptionIssuePolicy['houra-client'] is! String ||
+      adoptionIssuePolicy['houra-server-deploy-smoke'] is! String) {
+    failures.add('${relative(file)} adoption issue policy invalid.');
   }
 }
 

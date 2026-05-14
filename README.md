@@ -887,6 +887,13 @@ Matrix Client-Server MVP live e2e gate:
 - A pass record must name the `houra-spec` ref, `houra-server` ref,
   `houra-client` ref, commands, per-step pass/fail results, `/versions`
   advertisement result, known exclusions, and clean-room confirmation.
+- Product MVP happy path evidence and Docker Compose deploy smoke evidence are
+  separate evidence classes. Happy path evidence covers contract/vector/UI
+  behavior and server-client interaction; deploy smoke evidence covers startup,
+  migration, health, connectivity, persistence/auth smoke, and redaction.
+- Follow-up adoption tracking is split as `imoyan/houra-server#227` for Docker
+  Compose deploy smoke evidence and `imoyan/houra-client#121` for Product MVP
+  happy path evidence.
 - After `SPEC-039` merges, create adoption issues for `houra-server` and
   `houra-client`. Create an `houra-labs` issue only when the gate adopts or
   changes a shared parser, identifier helper, URI helper, or binding facade.
@@ -1489,7 +1496,7 @@ Observed checks:
 | `houra-server` local `npm run build` | pass | TypeScript build |
 | `houra-server` local `HOURA_SPEC_ROOT=../houra-spec npm test` | pass | 46 passed, 1 skipped; includes `SPEC-030` vector |
 | `houra-server` local `npm run test:postgres` | skipped | `HOURA_TEST_DATABASE_URL` was not set |
-| `houra-server` local `npm run test:ops` | pass | Docker Compose deploy, migration, backup/restore, restart persistence smoke |
+| `houra-server` local `npm run test:ops` | pass | Deploy smoke only: Docker Compose startup, migration, backup/restore, and restart persistence smoke; this row is not Product MVP happy path evidence |
 | `houra-server` GitHub Actions `CI / test` | pass | PR #22, includes vector and ops smoke |
 
 No implementation repository was used as a behavior source. This record only
@@ -1555,7 +1562,7 @@ Observed checks:
 | `houra-client` local `npm run build` | pass | TypeScript build |
 | `houra-client` local `HOURA_SPEC_ROOT=../houra-spec npm test` | pass | 52 passed, 1 live e2e skipped by default; includes `SPEC-030` vector |
 | `houra-client` local Expo config/export | pass | `npx expo config --type public` and iOS export to `/tmp/houra-client-expo-export` |
-| `houra-client` local live e2e | pass | Docker Compose `houra-server` v0.2.0-pre.14 at `http://127.0.0.1:3000` |
+| `houra-client` local live e2e | pass | Product MVP behavior evidence against Docker Compose `houra-server` v0.2.0-pre.14; Compose startup itself is deploy smoke evidence |
 | `houra-client` GitHub Actions `CI / test` | pass | PR #34, includes `SPEC-030` vector |
 | `houra-client` GitHub Actions `CI / e2e` | pass | PR #34, pinned `houra-server` v0.2.0-pre.14 |
 
