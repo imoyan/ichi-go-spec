@@ -350,6 +350,33 @@
       ]
     }
   ],
+  "release_evidence": {
+    "evidence_class": "product-mvp-ui-surface-adoption",
+    "target_release_candidate": "next-product-mvp-release-candidate",
+    "consumer_repos": ["houra-client"],
+    "required_checks": [
+      "record houra-spec ref and design/ui-surfaces/product-mvp.json ref",
+      "record consumer repo ref and app target",
+      "map every screen id to implementation screen semantics",
+      "map every action id to availability, pending state, and disabled conditions",
+      "confirm duplicate-submit prevention for actions with disabled_when pending.any",
+      "confirm recoverable error visibility for every action error_expectation",
+      "run or manually record product-mvp-happy-path acceptance flow coverage",
+      "record accessibility pass or explicit blocker for form labels, buttons, status, and focus order"
+    ],
+    "redaction_policy": [
+      "do not record raw bearer tokens or refresh tokens",
+      "do not record database URLs or private local paths",
+      "do not record machine-specific environment values",
+      "record redacted server base URL shape only when needed"
+    ],
+    "adoption_boundaries": [
+      "Expo React Native, Flutter, Web, or native component hierarchy remains adapter-owned",
+      "UI-free core evidence does not satisfy manual UI acceptance by itself",
+      "Docker Compose deploy smoke is separate from UI surface adoption evidence",
+      "Matrix full compliance is not claimed by this surface"
+    ]
+  },
   "limitations": [
     "This surface does not define marketing pages or onboarding copy outside the Product MVP operation flow.",
     "This surface does not define framework-specific navigation, component hierarchy, animations, or persistence APIs.",

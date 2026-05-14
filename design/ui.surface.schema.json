@@ -14,6 +14,7 @@
     "states",
     "text_keys",
     "acceptance_flows",
+    "release_evidence",
     "limitations"
   ],
   "additionalProperties": false,
@@ -107,6 +108,9 @@
       "items": {
         "$ref": "#/$defs/acceptanceFlow"
       }
+    },
+    "release_evidence": {
+      "$ref": "#/$defs/releaseEvidence"
     },
     "limitations": {
       "type": "array",
@@ -276,6 +280,59 @@
         "expectation": {
           "type": "string",
           "minLength": 1
+        }
+      }
+    },
+    "releaseEvidence": {
+      "type": "object",
+      "required": [
+        "evidence_class",
+        "target_release_candidate",
+        "consumer_repos",
+        "required_checks",
+        "redaction_policy",
+        "adoption_boundaries"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "evidence_class": {
+          "const": "product-mvp-ui-surface-adoption"
+        },
+        "target_release_candidate": {
+          "type": "string",
+          "minLength": 1
+        },
+        "consumer_repos": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required_checks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "redaction_policy": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "adoption_boundaries": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },

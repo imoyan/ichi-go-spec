@@ -255,6 +255,11 @@ Implementation repositories should treat this file as read-only conformance
 input. A client may arrange native layouts differently, but it should preserve
 the screen semantics, action availability, duplicate-submit prevention,
 recoverable error visibility, and `product-mvp-happy-path` acceptance coverage.
+For the next Product MVP release candidate, UI readiness evidence must also
+record the consumed `houra-spec` ref, consumer repo/app ref, screen/action
+mapping, duplicate-submit prevention, recoverable error display, accessibility
+result or blocker, and manual or automated acceptance coverage. The current
+client follow-up is tracked by `imoyan/houra-client#122`.
 
 Server repositories do not consume UI surfaces directly. Server behavior remains
 defined by `contracts/SPEC-*.md` and `test-vectors/**/*.json`.
@@ -275,7 +280,9 @@ The MVP subset may be called 100% ready when all of these are true:
 - At least one implementation adoption report is recorded from a repository
   consuming this spec as read-only input.
 - Conformance and server-alignment guidance names the current vector scope.
-- Product MVP UI readiness names the current UI surface scope.
+- Product MVP UI readiness names the current UI surface scope, target release
+  candidate, consumer repo ref, acceptance evidence, accessibility result or
+  blocker, and redaction policy.
 - A pre-1.0 release tag and GitHub Release record the changed profiles,
   contracts, vectors, compatibility classification, and implementation
   follow-up.
@@ -1444,6 +1451,15 @@ changes. It owns draft contract profiles, canonical vectors, and
 platform-neutral theme and UI surface files. Client and server repositories
 should add native adapters, server behavior, and package metadata only after
 this repository passes its local checks.
+
+Product MVP UI surface adoption evidence for the next release candidate is
+tracked separately from Docker Compose deploy smoke. The canonical surface is
+`design/ui-surfaces/product-mvp.json`; the current client adoption follow-up is
+`imoyan/houra-client#122`. Evidence should cite the spec ref, consumer repo ref,
+screen/action mapping, duplicate-submit prevention, recoverable error display,
+accessibility result or blocker, `product-mvp-happy-path` coverage, and
+redaction of tokens, database URLs, private local paths, and machine-specific
+environment values.
 
 ## Implementation Adoption Reports
 

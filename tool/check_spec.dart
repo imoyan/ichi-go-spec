@@ -50,6 +50,7 @@ const uiSurfaceTopLevelKeys = {
   'states',
   'text_keys',
   'acceptance_flows',
+  'release_evidence',
   'limitations',
 };
 const uiBoundaryKeys = {
@@ -80,6 +81,14 @@ const uiActionKeys = {
 const uiStateKeys = {'id', 'kind', 'description'};
 const uiAcceptanceFlowKeys = {'id', 'description', 'steps'};
 const uiAcceptanceStepKeys = {'id', 'screen', 'action', 'expectation'};
+const uiReleaseEvidenceKeys = {
+  'evidence_class',
+  'target_release_candidate',
+  'consumer_repos',
+  'required_checks',
+  'redaction_policy',
+  'adoption_boundaries',
+};
 
 void main() {
   final failures = <String>[];
@@ -12003,6 +12012,7 @@ void checkUiSurfaces(Map<String, String> contracts, List<String> failures) {
         'states',
         'text_keys',
         'acceptance_flows',
+        'release_evidence',
       }.every(required.contains)) {
     failures.add(
       'design/ui.surface.schema.json must require the core UI surface fields.',
@@ -12059,6 +12069,7 @@ void checkUiSurfaces(Map<String, String> contracts, List<String> failures) {
       actionIds,
       failures,
     );
+    checkUiReleaseEvidence(file, json['release_evidence'], failures);
     checkUiThemeRefs(file, json['theme_refs'], failures);
     checkUiLimitations(file, json['limitations'], failures);
   }
@@ -12372,6 +12383,91 @@ void checkUiTextKey(
 ) {
   if (value is! String || !textKeys.contains(value)) {
     failures.add('${relative(file)} $label must reference text_keys.');
+  }
+}
+
+void checkUiReleaseEvidence(File file, Object? value, List<String> failures) {
+  if (value is! Map) {
+    failures.add('${relative(file)} release_evidence must be an object.');
+    return;
+  }
+  final evidence = value.cast<String, Object?>();
+  checkAllowedKeys(
+    file,
+    evidence,
+    uiReleaseEvidenceKeys,
+    'release_evidence',
+    failures,
+  );
+  if (evidence['evidence_class'] != 'product-mvp-ui-surface-adoption') {
+    failures.add(
+      '${relative(file)} release_evidence.evidence_class is invalid.',
+    );
+  }
+  if (evidence['target_release_candidate'] is! String ||
+      (evidence['target_release_candidate'] as String).isEmpty) {
+    failures.add(
+      '${relative(file)} release_evidence.target_release_candidate is required.',
+    );
+  }
+  for (final key in [
+    'consumer_repos',
+    'required_checks',
+    'redaction_policy',
+    'adoption_boundaries',
+  ]) {
+    final list = evidence[key];
+    if (list is! List ||
+        list.isEmpty ||
+        list.any((item) => item is! String || item.isEmpty)) {
+      failures.add(
+        '${relative(file)} release_evidence.$key must be non-empty strings.',
+      );
+    }
+  }
+  final checks = evidence['required_checks'];
+  if (checks is List) {
+    for (final required in [
+      'screen id',
+      'action id',
+      'duplicate-submit',
+      'recoverable error',
+      'product-mvp-happy-path',
+      'accessibility',
+    ]) {
+      if (!checks.any((item) => item is String && item.contains(required))) {
+        failures.add(
+          '${relative(file)} release_evidence.required_checks missing $required.',
+        );
+      }
+    }
+  }
+  final redaction = evidence['redaction_policy'];
+  if (redaction is List) {
+    for (final required in ['tokens', 'database URLs', 'private local paths']) {
+      if (!redaction.any((item) => item is String && item.contains(required))) {
+        failures.add(
+          '${relative(file)} release_evidence.redaction_policy missing $required.',
+        );
+      }
+    }
+  }
+  final boundaries = evidence['adoption_boundaries'];
+  if (boundaries is List) {
+    for (final required in [
+      'component hierarchy',
+      'UI-free core',
+      'Docker Compose deploy smoke',
+      'Matrix full compliance',
+    ]) {
+      if (!boundaries.any(
+        (item) => item is String && item.contains(required),
+      )) {
+        failures.add(
+          '${relative(file)} release_evidence.adoption_boundaries missing $required.',
+        );
+      }
+    }
   }
 }
 

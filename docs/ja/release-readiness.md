@@ -20,6 +20,9 @@ checklist です。
 - 変更された `contracts/SPEC-*.md` が README または `docs/ja/` から辿れる
 - 変更された `test-vectors/` の意味が日本語 guide から誤解なく読める
 - `design/` の UI surface または theme 変更が、必要なら日本語 guide に反映されている
+- Product MVP UI surface adoption evidence は、対象 `houra-spec` ref、consumer repo ref、
+  screen / action mapping、duplicate-submit prevention、recoverable error display、
+  accessibility 結果または blocker、acceptance flow coverage、redaction 方針を持つ
 - README の `Implementation Adoption Reports` と日本語説明が矛盾していない
 - Matrix version、外部仕様、互換性 claim は source と `checked_at` を持つ snapshot として扱われている
 - 未反映の日本語 drift がある場合は、release blocker、PR の未解決事項、または follow-up issue として明示されている
