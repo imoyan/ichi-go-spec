@@ -1,0 +1,81 @@
+{
+  "name": "matrix-maintained-crypto-storage-ownership-boundary",
+  "contract": "SPEC-081",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/olm-megolm/",
+    "client_server_e2ee_source": "https://spec.matrix.org/v1.18/client-server-api/#end-to-end-encryption",
+    "key_backup_source": "https://spec.matrix.org/v1.18/client-server-api/#server-side-key-backups",
+    "checked_at": "2026-05-14T20:30:56+09:00",
+    "parent_contract": "SPEC-079",
+    "parent_issue": "imoyan/houra-server#141",
+    "parent_lane": "maintained-crypto-stack-local-state-ownership-breadth",
+    "child_order": 1,
+    "maintained_crypto_stack_gate": {
+      "selection_required_before_e2ee_claim": true,
+      "required_evidence": [
+        "package_name",
+        "package_version",
+        "runtime_platform_support",
+        "license_compatibility",
+        "active_maintenance",
+        "security_update_policy",
+        "olm_megolm_algorithm_coverage",
+        "interop_or_vector_evidence",
+        "rollback_or_disablement_path"
+      ],
+      "local_crypto_implementation_allowed": false
+    },
+    "host_owned_secure_storage": [
+      "access_tokens",
+      "refresh_tokens",
+      "private_identity_keys",
+      "recovery_keys",
+      "recovery_passphrases",
+      "backup_secrets",
+      "secret_storage_key_material",
+      "platform_keychain_selection",
+      "logout_local_data_deletion",
+      "recovery_prompt_ux",
+      "local_path_redaction"
+    ],
+    "crypto_adapter_owned": [
+      "olm_session_crypto",
+      "megolm_group_session_crypto",
+      "sas_calculation",
+      "cross_signing_crypto",
+      "key_backup_crypto",
+      "secret_storage_crypto",
+      "encrypted_media_crypto",
+      "key_import_export_validation"
+    ],
+    "server_must_not_own": [
+      "plaintext_room_content",
+      "room_keys",
+      "megolm_session_keys",
+      "private_identity_keys",
+      "private_cross_signing_keys",
+      "recovery_keys",
+      "recovery_passphrases",
+      "backup_secrets",
+      "secret_storage_key_material",
+      "platform_secure_storage_handles",
+      "local_secret_filesystem_paths"
+    ],
+    "release_artifact_rules": {
+      "redacted_artifacts_only": true,
+      "may_record_crypto_stack_name_version": true,
+      "may_record_platform_support": true,
+      "must_not_record_secret_material": true,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "first_child_of_spec_079": true,
+    "host_owns_secure_storage_and_recovery_secrets": true,
+    "maintained_crypto_stack_required": true,
+    "local_crypto_implementation_allowed": false,
+    "server_secret_ownership_allowed": false,
+    "versions_advertisement_widened": false
+  }
+}
