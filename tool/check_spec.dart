@@ -95,6 +95,7 @@ void main() {
   checkBoundary(failures);
   checkNamespaceConsistency(failures);
   checkPre10CompatibilityPolicy(failures);
+  checkSpecHealthChecklist(failures);
   final contracts = readContracts(failures);
 
   checkDocs(contracts, failures);
@@ -11892,6 +11893,115 @@ void checkPre10CompatibilityPolicy(List<String> failures) {
       expected['implementation_follow_up_traceable'] != true ||
       expected['product_mvp_and_matrix_claims_separate'] != true) {
     failures.add('${relative(file)} expected policy result invalid.');
+  }
+}
+
+void checkSpecHealthChecklist(List<String> failures) {
+  const path =
+      'test-vectors/core/spec-health-conformance-health-checklist.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing spec health checklist vector: $path');
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-066') {
+    failures.add('${relative(file)} must reference SPEC-066.');
+  }
+  final event = json['event'];
+  if (event is! Map ||
+      event['source_doc'] != 'README.md' ||
+      event['current_follow_up_state'] != 'closed' ||
+      event['current_untracked_gap_state'] != 'none-recorded') {
+    failures.add('${relative(file)} spec health checklist metadata invalid.');
+    return;
+  }
+  requireStringListIncludes(
+    file,
+    event.cast<String, Object?>(),
+    'periodic_review_triggers',
+    {
+      'before milestone release',
+      'after broad Matrix roadmap changes',
+      'after Product MVP release-candidate evidence changes',
+      'after design schema or UI surface changes',
+      'after implementation conformance failure that might indicate spec ambiguity',
+    },
+    failures,
+  );
+  requireStringListIncludes(
+    file,
+    event.cast<String, Object?>(),
+    'required_health_surfaces',
+    {
+      'contracts/SPEC-*.md',
+      'CONTRACT_MODULE_MAP.md',
+      'FEATURE_PROFILES.md',
+      'MODULE_DEPENDENCIES.md',
+      'README.md profile and domain coverage sections',
+      'test-vectors/**/*.json',
+      'design/theme.schema.json',
+      'design/themes/*.json',
+      'design/ui.surface.schema.json',
+      'design/ui-surfaces/*.json',
+      'tool/check_spec.dart',
+      'docs/ja/**',
+    },
+    failures,
+  );
+  requireStringListIncludes(
+    file,
+    event.cast<String, Object?>(),
+    'coverage_dimensions',
+    {
+      'contract mapped to profile and domain',
+      'contract has representative vector coverage or explicit non-vector rationale',
+      'positive vector coverage',
+      'negative vector coverage for parser or failure behavior',
+      'stateful vector given metadata remains implementation-neutral',
+      'design inputs validate against committed schemas',
+      'release readiness and advertisement gates validate stale or mismatched refs',
+      'implementation adoption evidence does not contradict contract or vector state',
+    },
+    failures,
+  );
+  requireStringListIncludes(
+    file,
+    event.cast<String, Object?>(),
+    'gap_disposition',
+    {
+      'fix in current PR when small and local',
+      'split to focused spec issue when behavior or release scope changes',
+      'split to implementation adoption issue when spec is clear but adoption evidence is missing',
+      'record no untracked gap when the sweep finds no missing coverage or validation hole',
+    },
+    failures,
+  );
+  requireStringListIncludes(
+    file,
+    event.cast<String, Object?>(),
+    'current_follow_up_refs',
+    {'imoyan/houra-spec#198', 'imoyan/houra-spec#202', 'imoyan/houra-spec#204'},
+    failures,
+  );
+  requireStringListIncludes(
+    file,
+    event.cast<String, Object?>(),
+    'required_commands',
+    {'dart tool/check_spec.dart', 'git diff --check'},
+    failures,
+  );
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['health_surfaces_defined'] != true ||
+      expected['coverage_dimensions_defined'] != true ||
+      expected['gap_disposition_defined'] != true ||
+      expected['current_follow_up_refs_recorded'] != true ||
+      expected['current_untracked_gap_state_recorded'] != true) {
+    failures.add('${relative(file)} expected spec health result invalid.');
   }
 }
 

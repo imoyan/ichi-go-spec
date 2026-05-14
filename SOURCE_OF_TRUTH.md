@@ -163,3 +163,15 @@ API coverage.
 The structural parts of readiness are checked by `dart tool/check_spec.dart`.
 Workflow evidence such as implementation adoption reports and GitHub Releases
 must be recorded in repository issues, pull requests, or releases.
+
+## Spec Health Sweeps
+
+Spec health sweeps are release and roadmap hygiene checks, not behavior-change
+requests. They inspect whether contracts, vectors, design inputs, supporting
+docs, and `tool/check_spec.dart` still agree with this repository's role as
+read-only conformance input.
+
+If a sweep finds a coverage or validation gap, either fix it in the current PR
+when it is small and local, or split it to a focused spec issue or implementation
+adoption issue. If no gap is found, record the checked ref and the absence of
+untracked gaps instead of leaving the sweep implicit.

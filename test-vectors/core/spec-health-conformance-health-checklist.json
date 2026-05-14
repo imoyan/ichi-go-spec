@@ -1,0 +1,64 @@
+{
+  "name": "spec-health-conformance-health-checklist",
+  "contract": "SPEC-066",
+  "event": {
+    "health_scope": "houra-spec structural and conformance-input health",
+    "source_doc": "README.md",
+    "checked_ref_policy": "record the houra-spec commit or tag used for each health sweep",
+    "periodic_review_triggers": [
+      "before milestone release",
+      "after broad Matrix roadmap changes",
+      "after Product MVP release-candidate evidence changes",
+      "after design schema or UI surface changes",
+      "after implementation conformance failure that might indicate spec ambiguity"
+    ],
+    "required_health_surfaces": [
+      "contracts/SPEC-*.md",
+      "CONTRACT_MODULE_MAP.md",
+      "FEATURE_PROFILES.md",
+      "MODULE_DEPENDENCIES.md",
+      "README.md profile and domain coverage sections",
+      "test-vectors/**/*.json",
+      "design/theme.schema.json",
+      "design/themes/*.json",
+      "design/ui.surface.schema.json",
+      "design/ui-surfaces/*.json",
+      "tool/check_spec.dart",
+      "docs/ja/**"
+    ],
+    "coverage_dimensions": [
+      "contract mapped to profile and domain",
+      "contract has representative vector coverage or explicit non-vector rationale",
+      "positive vector coverage",
+      "negative vector coverage for parser or failure behavior",
+      "stateful vector given metadata remains implementation-neutral",
+      "design inputs validate against committed schemas",
+      "release readiness and advertisement gates validate stale or mismatched refs",
+      "implementation adoption evidence does not contradict contract or vector state"
+    ],
+    "gap_disposition": [
+      "fix in current PR when small and local",
+      "split to focused spec issue when behavior or release scope changes",
+      "split to implementation adoption issue when spec is clear but adoption evidence is missing",
+      "record no untracked gap when the sweep finds no missing coverage or validation hole"
+    ],
+    "current_follow_up_refs": [
+      "imoyan/houra-spec#198",
+      "imoyan/houra-spec#202",
+      "imoyan/houra-spec#204"
+    ],
+    "current_follow_up_state": "closed",
+    "current_untracked_gap_state": "none-recorded",
+    "required_commands": [
+      "dart tool/check_spec.dart",
+      "git diff --check"
+    ]
+  },
+  "expected": {
+    "health_surfaces_defined": true,
+    "coverage_dimensions_defined": true,
+    "gap_disposition_defined": true,
+    "current_follow_up_refs_recorded": true,
+    "current_untracked_gap_state_recorded": true
+  }
+}
