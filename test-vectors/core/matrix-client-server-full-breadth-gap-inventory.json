@@ -171,6 +171,113 @@
         "advertisement_allowed": false
       }
     ],
+    "release_exclusion_promotion_plan": [
+      {
+        "order": 1,
+        "id": "sync-query-semantics",
+        "source_issues": [
+          "imoyan/houra-server#178"
+        ],
+        "target_lane": "sync-breadth-extensions",
+        "contract_or_vector_scope": [
+          "filter",
+          "full_state",
+          "set_presence",
+          "use_state_after",
+          "request validation",
+          "authorization",
+          "response shape",
+          "unsupported-parameter failure mode"
+        ],
+        "server_adoption_issue_condition": "Open after the contract states whether each query parameter is adopted or explicitly excluded for the target release.",
+        "product_mvp_boundary": "May remain Product MVP-compatible only without claiming Matrix Client-Server breadth.",
+        "advertisement_allowed": false
+      },
+      {
+        "order": 2,
+        "id": "sync-delivery-semantics",
+        "source_issues": [
+          "imoyan/houra-server#181"
+        ],
+        "target_lane": "sync-breadth-extensions",
+        "contract_or_vector_scope": [
+          "token ordering",
+          "long-poll timeout",
+          "retry",
+          "idempotency",
+          "restart persistence",
+          "expired or invalid token failure mode"
+        ],
+        "server_adoption_issue_condition": "Open after storage boundary and hot-path cost are recorded.",
+        "product_mvp_boundary": "Must preserve existing MVP sync behavior unless a separate deprecation contract changes it.",
+        "advertisement_allowed": false
+      },
+      {
+        "order": 3,
+        "id": "sync-section-completeness",
+        "source_issues": [
+          "imoyan/houra-server#179",
+          "imoyan/houra-server#180",
+          "imoyan/houra-server#182"
+        ],
+        "target_lane": "sync-breadth-extensions",
+        "contract_or_vector_scope": [
+          "join invite leave knock room sections",
+          "device_lists",
+          "to_device",
+          "device one-time key counts",
+          "presence fanout",
+          "receipt fanout",
+          "typing fanout",
+          "account-data fanout"
+        ],
+        "server_adoption_issue_condition": "Open room-section and fanout work only after Product MVP compatibility is preserved; open E2EE/device-section work only with SPEC-050 through SPEC-054, SPEC-079, and imoyan/houra-server#141 alignment.",
+        "product_mvp_boundary": "Room-section and fanout adoption may be narrower than full Matrix compatibility; E2EE readiness remains excluded without crypto evidence.",
+        "advertisement_allowed": false
+      },
+      {
+        "order": 4,
+        "id": "membership-listing-breadth",
+        "source_issues": [
+          "imoyan/houra-server#183"
+        ],
+        "target_lane": "event-retrieval-membership-history-deprecated-compatibility",
+        "contract_or_vector_scope": [
+          "joined_rooms",
+          "joined_members",
+          "members",
+          "joined case",
+          "left case",
+          "banned case",
+          "knocked case",
+          "forbidden case",
+          "ordering or pagination"
+        ],
+        "server_adoption_issue_condition": "Open after membership visibility and ordering or pagination expectations are defined.",
+        "product_mvp_boundary": "Adoption does not imply full membership-history compatibility.",
+        "advertisement_allowed": false
+      },
+      {
+        "order": 5,
+        "id": "room-state-event-breadth",
+        "source_issues": [
+          "imoyan/houra-server#184"
+        ],
+        "target_lane": "room-lifecycle-state-relations-user-visible-breadth",
+        "contract_or_vector_scope": [
+          "adopted state event type",
+          "custom or unsupported state event type",
+          "state_key",
+          "malformed content",
+          "sender",
+          "membership",
+          "power-level authorization"
+        ],
+        "server_adoption_issue_condition": "Open after Client-Server request validation is separated from Room Versions auth and state-resolution algorithm work.",
+        "product_mvp_boundary": "Representative room-state adoption remains narrower than full Matrix room-state breadth.",
+        "advertisement_allowed": false
+      }
+    ],
     "release_evidence_rules": {
       "representative_subset_is_not_full_breadth": true,
       "full_breadth_claim_requires_lane_evidence": true,

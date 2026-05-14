@@ -173,6 +173,67 @@ gates:
 This lane remains tied to `imoyan/houra-server#141` and must use a maintained
 Matrix crypto stack where cryptographic behavior is required.
 
+## Release-exclusion promotion plan
+
+Closed release-exclusion trackers `imoyan/houra-server#178` through
+`imoyan/houra-server#184` are evidence that the current release candidate is
+blocked, not evidence that runtime compatibility widened. Promote them in this
+order before any server implementation broadens Client-Server behavior:
+
+1. Sync query semantics: split `imoyan/houra-server#178` into a focused
+   `SPEC-037` follow-up or new sync-breadth contract for `filter`, `full_state`,
+   `set_presence`, and `use_state_after`. Required vectors: request validation,
+   authorization, response shape, and unsupported-parameter failure mode. Server
+   adoption issue condition: open only after the contract states whether each
+   parameter is adopted or explicitly excluded for the target release.
+2. Sync delivery semantics: split `imoyan/houra-server#181` into token,
+   long-poll, timeout, retry, idempotency, and restart-persistence vectors.
+   Server adoption issue condition: open only after storage boundary and hot-path
+   cost are recorded, because polling and token ordering can affect every sync
+   request.
+3. Sync section completeness: split `imoyan/houra-server#179`,
+   `imoyan/houra-server#180`, and `imoyan/houra-server#182` into separate
+   room-section, E2EE/device-section, and fan-out contracts or vector batches.
+   Server adoption issue condition: open the room-section and fan-out issues
+   only after Product MVP compatibility is preserved; open E2EE/device-section
+   issues only with `SPEC-050` through `SPEC-054`, `SPEC-079`, and
+   `imoyan/houra-server#141` alignment.
+4. Membership listing breadth: split `imoyan/houra-server#183` into
+   `joined_rooms`, `joined_members`, and `members` vectors covering joined,
+   left, banned, knocked, and forbidden cases. Server adoption issue condition:
+   open after membership visibility and ordering/pagination expectations are
+   defined.
+5. Room state event breadth: split `imoyan/houra-server#184` into adopted state
+   event type, custom/unsupported event type, `state_key`, malformed content,
+   sender, membership, and power-level authorization vectors. Server adoption
+   issue condition: open after the contract separates Client-Server request
+   validation from Room Versions auth/state-resolution algorithm work.
+
+For every promoted lane:
+
+- keep `advertisement_allowed=false` until all vectors for the included slice
+  pass in the server and matching release evidence is recorded;
+- keep unsupported endpoints in the release evidence as explicit exclusions
+  rather than treating the closed tracker as completed compatibility;
+- create `houra-client` work only when request descriptors, response parsers,
+  UI-visible behavior, or SDK surface must change;
+- create `houra-labs` work only when a shared parser, validator, fixture
+  adapter, or domain primitive will be reused across implementations.
+
+Product MVP may adopt a narrower behavior from this plan only when it remains
+under the existing Product MVP contract surface and does not claim Matrix
+Client-Server breadth. Full Matrix compatibility requires every included lane to
+have contract text, vectors, server pass/fail evidence, release notes evidence,
+and a non-empty Matrix `/versions` advertisement decision owned by `SPEC-064`
+through `SPEC-066`.
+
+## Japanese reader note
+
+`houra-server#178` から `houra-server#184` は「未対応範囲を release evidence
+として除外した」記録であり、runtime 互換を広げた記録ではない。今後は上記の順で
+contract / vector / server test に昇格し、Product MVP の狭い採用と full Matrix
+compatibility claim を分けて扱う。
+
 ## Adoption decision checklist
 
 After this contract merges:

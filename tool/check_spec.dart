@@ -4983,6 +4983,70 @@ void checkMatrixClientServerFullBreadthGapInventory(
     }
   }
 
+  const expectedPromotionPlan = {
+    1: {
+      'id': 'sync-query-semantics',
+      'issue': 'imoyan/houra-server#178',
+      'lane': 'sync-breadth-extensions',
+    },
+    2: {
+      'id': 'sync-delivery-semantics',
+      'issue': 'imoyan/houra-server#181',
+      'lane': 'sync-breadth-extensions',
+    },
+    3: {
+      'id': 'sync-section-completeness',
+      'issue': 'imoyan/houra-server#180',
+      'lane': 'sync-breadth-extensions',
+    },
+    4: {
+      'id': 'membership-listing-breadth',
+      'issue': 'imoyan/houra-server#183',
+      'lane': 'event-retrieval-membership-history-deprecated-compatibility',
+    },
+    5: {
+      'id': 'room-state-event-breadth',
+      'issue': 'imoyan/houra-server#184',
+      'lane': 'room-lifecycle-state-relations-user-visible-breadth',
+    },
+  };
+  final promotionPlan = eventMap['release_exclusion_promotion_plan'];
+  if (promotionPlan is! List ||
+      promotionPlan.length != expectedPromotionPlan.length) {
+    failures.add('${relative(file)} release exclusion promotion plan invalid.');
+  } else {
+    final seenOrders = <int>{};
+    for (final item in promotionPlan) {
+      if (item is! Map ||
+          item['order'] is! int ||
+          item['id'] is! String ||
+          item['source_issues'] is! List ||
+          item['target_lane'] is! String ||
+          item['contract_or_vector_scope'] is! List ||
+          item['server_adoption_issue_condition'] is! String ||
+          item['product_mvp_boundary'] is! String ||
+          item['advertisement_allowed'] != false) {
+        failures.add('${relative(file)} promotion plan item shape invalid.');
+        continue;
+      }
+      final order = item['order'] as int;
+      final expected = expectedPromotionPlan[order];
+      final sourceIssues = item['source_issues'] as List;
+      final scope = item['contract_or_vector_scope'] as List;
+      if (expected == null ||
+          item['id'] != expected['id'] ||
+          item['target_lane'] != expected['lane'] ||
+          !sourceIssues.contains(expected['issue']) ||
+          scope.isEmpty) {
+        failures.add('${relative(file)} promotion plan item content invalid.');
+      }
+      seenOrders.add(order);
+    }
+    if (!seenOrders.containsAll(expectedPromotionPlan.keys)) {
+      failures.add('${relative(file)} promotion plan ordering incomplete.');
+    }
+  }
+
   final rules = eventMap['release_evidence_rules'];
   if (rules is! Map ||
       rules['representative_subset_is_not_full_breadth'] != true ||

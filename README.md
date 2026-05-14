@@ -779,7 +779,10 @@ Matrix v1.18 roadmap close-out snapshot:
 - `SPEC-073` decomposes `houra-server#135` Client-Server full-breadth gaps into
   discovery/support, auth refresh, event history, room breadth, sync extension,
   media breadth, and E2EE Client-Server lanes. It is a fail-closed gap
-  inventory only; it does not widen Matrix version advertisement.
+  inventory only; it does not widen Matrix version advertisement. It also
+  orders the closed `houra-server#178` through `houra-server#184` release
+  exclusions into contract/vector/server-gate promotion lanes so runtime
+  compatibility is not inferred from closed exclusion trackers.
 - `SPEC-074` decomposes `houra-server#136` Server-Server full-breadth gaps into
   discovery/key/auth, transaction/PDU/EDU, event retrieval, join/knock/leave,
   directory/query, federation E2EE/media, policy/ACL/signing, and Complement
