@@ -154,6 +154,7 @@ void main() {
   checkMatrixV118ReleaseEvidenceExampleBundle(contracts, failures);
   checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(contracts, failures);
   checkMatrixV118ReleaseEvidenceBundleNegativeFixtures(failures);
+  checkProductMvpReleaseCandidatePlan(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -12002,6 +12003,133 @@ void checkSpecHealthChecklist(List<String> failures) {
       expected['current_follow_up_refs_recorded'] != true ||
       expected['current_untracked_gap_state_recorded'] != true) {
     failures.add('${relative(file)} expected spec health result invalid.');
+  }
+}
+
+void checkProductMvpReleaseCandidatePlan(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-039')) {
+    failures.add('Product MVP release candidate plan requires SPEC-039.');
+  }
+  const path = 'test-vectors/core/product-mvp-release-candidate-plan.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Product MVP release candidate plan vector: $path');
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-039') {
+    failures.add('${relative(file)} must reference SPEC-039.');
+  }
+  final event = json['event'];
+  if (event is! Map ||
+      event['source_doc'] != 'README.md' ||
+      event['tracked_issue'] != 'imoyan/houra-spec#190' ||
+      event['release_candidate'] != 'next-product-mvp-release-candidate' ||
+      event['matrix_full_compliance_claimed'] != false) {
+    failures.add('${relative(file)} Product MVP RC metadata invalid.');
+    return;
+  }
+  final eventMap = event.cast<String, Object?>();
+  final repoEntries = eventMap['required_repositories'];
+  if (repoEntries is! List || repoEntries.length != 3) {
+    failures.add('${relative(file)} required repositories invalid.');
+  } else {
+    final repos = <String>{};
+    for (final item in repoEntries) {
+      if (item is! Map ||
+          item['repo'] is! String ||
+          item['role'] is! String ||
+          item['required_ref'] is! String) {
+        failures.add('${relative(file)} required repository shape invalid.');
+        continue;
+      }
+      repos.add(item['repo'] as String);
+    }
+    if (!repos.containsAll({
+      'imoyan/houra-spec',
+      'imoyan/houra-server',
+      'imoyan/houra-client',
+    })) {
+      failures.add('${relative(file)} required repositories incomplete.');
+    }
+  }
+  final lanes = eventMap['evidence_lanes'];
+  if (lanes is! List || lanes.length != 4) {
+    failures.add('${relative(file)} evidence lanes invalid.');
+  } else {
+    final laneIds = <String>{};
+    final laneRefs = <String>{};
+    for (final item in lanes) {
+      if (item is! Map ||
+          item['id'] is! String ||
+          item['owner_repo'] is! String ||
+          item['tracking_ref'] is! String ||
+          item['status'] is! String ||
+          item['required_inputs'] is! List) {
+        failures.add('${relative(file)} evidence lane shape invalid.');
+        continue;
+      }
+      final requiredInputs = item['required_inputs'] as List;
+      if (requiredInputs.isEmpty ||
+          requiredInputs.any((input) => input is! String || input.isEmpty)) {
+        failures.add('${relative(file)} evidence lane inputs invalid.');
+      }
+      laneIds.add(item['id'] as String);
+      laneRefs.add(item['tracking_ref'] as String);
+    }
+    if (!laneIds.containsAll({
+      'product-mvp-happy-path',
+      'ui-surface-adoption',
+      'docker-compose-deploy-smoke',
+      'implementation-adoption-report',
+    })) {
+      failures.add('${relative(file)} evidence lane ids incomplete.');
+    }
+    if (!laneRefs.containsAll({
+      'imoyan/houra-client#121',
+      'imoyan/houra-client#122',
+      'imoyan/houra-server#227',
+      'imoyan/houra-spec#204',
+    })) {
+      failures.add('${relative(file)} evidence lane refs incomplete.');
+    }
+  }
+  requireStringListIncludes(file, eventMap, 'release_blockers', {
+    'imoyan/houra-client#121',
+    'imoyan/houra-client#122',
+    'imoyan/houra-server#227',
+  }, failures);
+  requireStringListIncludes(file, eventMap, 'completed_supporting_refs', {
+    'imoyan/houra-spec#199',
+    'imoyan/houra-spec#200',
+    'imoyan/houra-spec#203',
+    'imoyan/houra-spec#204',
+  }, failures);
+  requireStringListIncludes(file, eventMap, 'required_commands', {
+    'dart tool/check_spec.dart',
+    'git diff --check',
+    'implementation repo Product MVP happy path command recorded by imoyan/houra-client#121',
+    'implementation repo UI surface adoption command recorded by imoyan/houra-client#122',
+    'implementation repo Docker Compose deploy smoke command recorded by imoyan/houra-server#227',
+  }, failures);
+  final tagPolicy = eventMap['rc_tag_policy'];
+  if (tagPolicy is! String || !tagPolicy.contains('blocking evidence lanes')) {
+    failures.add('${relative(file)} RC tag policy invalid.');
+  }
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['required_repositories_traceable'] != true ||
+      expected['evidence_lanes_split'] != true ||
+      expected['implementation_follow_ups_traceable'] != true ||
+      expected['matrix_full_compliance_not_claimed'] != true ||
+      expected['rc_tag_blocked_until_evidence_complete'] != true) {
+    failures.add('${relative(file)} expected Product MVP RC result invalid.');
   }
 }
 

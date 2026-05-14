@@ -42,6 +42,10 @@ checklist です。
   adoption evidence の確認として扱い、Matrix v1.18 release candidate は
   `/_matrix/**` の domain evidence、advertisement gate、release notes evidence の
   確認として扱う
+- Product MVP release candidate は `imoyan/houra-spec#190` と
+  `test-vectors/core/product-mvp-release-candidate-plan.json` を確認し、
+  `imoyan/houra-client#121`、`imoyan/houra-client#122`、`imoyan/houra-server#227`
+  が対象 ref、commands、結果、blocker、claim boundary を記録するまで tag を切らない
 - Houra Product MVP claim と Matrix compatibility claim は別々に扱われ、片方の
   evidence だけで他方の support claim を広げていない
 - 未反映の日本語 drift がある場合は、release blocker、PR の未解決事項、または follow-up issue として明示されている
