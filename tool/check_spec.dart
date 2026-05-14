@@ -123,6 +123,7 @@ void main() {
   checkMatrixKeyBackupRestoreGate(contracts, failures);
   checkMatrixVerificationCrossSigningGate(contracts, failures);
   checkMatrixOlmMegolmFullE2eeGapInventory(contracts, failures);
+  checkMatrixMaintainedCryptoStorageOwnershipBoundary(contracts, failures);
   checkMatrixFederationDiscoverySigningKeys(contracts, failures);
   checkMatrixFederationTransactionJoinInvite(contracts, failures);
   checkMatrixFederationBackfillAuthState(contracts, failures);
@@ -6926,6 +6927,138 @@ void checkMatrixOlmMegolmFullE2eeGapInventory(
       expected['follow_up_required'] != true) {
     failures.add(
       '${relative(file)} expected Olm & Megolm gap inventory invalid.',
+    );
+  }
+}
+
+void checkMatrixMaintainedCryptoStorageOwnershipBoundary(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-081')) {
+    failures.add(
+      'Matrix maintained crypto storage ownership boundary SPEC-081 is required.',
+    );
+  }
+  const path =
+      'test-vectors/messaging/matrix-maintained-crypto-storage-ownership-boundary.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix maintained crypto storage vector: $path');
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-081') {
+    failures.add('${relative(file)} must reference SPEC-081.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18' ||
+      eventMap['matrix_spec_source'] !=
+          'https://spec.matrix.org/v1.18/olm-megolm/' ||
+      eventMap['client_server_e2ee_source'] !=
+          'https://spec.matrix.org/v1.18/client-server-api/#end-to-end-encryption' ||
+      eventMap['key_backup_source'] !=
+          'https://spec.matrix.org/v1.18/client-server-api/#server-side-key-backups' ||
+      eventMap['parent_contract'] != 'SPEC-079' ||
+      eventMap['parent_issue'] != 'imoyan/houra-server#141' ||
+      eventMap['parent_lane'] !=
+          'maintained-crypto-stack-local-state-ownership-breadth' ||
+      eventMap['child_order'] != 1) {
+    failures.add('${relative(file)} Matrix reference or parent link invalid.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String || !checkedAt.contains('+09:00')) {
+    failures.add('${relative(file)} checked_at must be a dated JST snapshot.');
+  }
+
+  final gate = eventMap['maintained_crypto_stack_gate'];
+  if (gate is! Map ||
+      gate['selection_required_before_e2ee_claim'] != true ||
+      gate['local_crypto_implementation_allowed'] != false) {
+    failures.add('${relative(file)} maintained crypto stack gate invalid.');
+  } else {
+    requireStringListIncludes(
+      file,
+      gate.cast<String, Object?>(),
+      'required_evidence',
+      {
+        'package_name',
+        'package_version',
+        'runtime_platform_support',
+        'license_compatibility',
+        'active_maintenance',
+        'security_update_policy',
+        'olm_megolm_algorithm_coverage',
+        'interop_or_vector_evidence',
+        'rollback_or_disablement_path',
+      },
+      failures,
+    );
+  }
+
+  requireStringListIncludes(file, eventMap, 'host_owned_secure_storage', {
+    'access_tokens',
+    'refresh_tokens',
+    'private_identity_keys',
+    'recovery_keys',
+    'recovery_passphrases',
+    'backup_secrets',
+    'secret_storage_key_material',
+    'platform_keychain_selection',
+    'logout_local_data_deletion',
+    'recovery_prompt_ux',
+    'local_path_redaction',
+  }, failures);
+  requireStringListIncludes(file, eventMap, 'crypto_adapter_owned', {
+    'olm_session_crypto',
+    'megolm_group_session_crypto',
+    'sas_calculation',
+    'cross_signing_crypto',
+    'key_backup_crypto',
+    'secret_storage_crypto',
+    'encrypted_media_crypto',
+    'key_import_export_validation',
+  }, failures);
+  requireStringListIncludes(file, eventMap, 'server_must_not_own', {
+    'plaintext_room_content',
+    'room_keys',
+    'megolm_session_keys',
+    'private_identity_keys',
+    'private_cross_signing_keys',
+    'recovery_keys',
+    'recovery_passphrases',
+    'backup_secrets',
+    'secret_storage_key_material',
+    'platform_secure_storage_handles',
+    'local_secret_filesystem_paths',
+  }, failures);
+
+  final artifactRules = eventMap['release_artifact_rules'];
+  if (artifactRules is! Map ||
+      artifactRules['redacted_artifacts_only'] != true ||
+      artifactRules['may_record_crypto_stack_name_version'] != true ||
+      artifactRules['may_record_platform_support'] != true ||
+      artifactRules['must_not_record_secret_material'] != true ||
+      artifactRules['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} release artifact rules invalid.');
+  }
+
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['first_child_of_spec_079'] != true ||
+      expected['host_owns_secure_storage_and_recovery_secrets'] != true ||
+      expected['maintained_crypto_stack_required'] != true ||
+      expected['local_crypto_implementation_allowed'] != false ||
+      expected['server_secret_ownership_allowed'] != false ||
+      expected['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} expected maintained crypto storage boundary invalid.',
     );
   }
 }
