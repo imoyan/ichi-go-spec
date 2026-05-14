@@ -305,6 +305,29 @@ The MVP subset may be called 100% ready when all of these are true:
 criteria. Adoption reports, implementation conformance runs, and release
 publication remain workflow evidence.
 
+## Spec Health
+
+Spec health sweeps keep this repository usable as read-only conformance input.
+Run them before milestone releases, after broad Matrix roadmap changes, after
+Product MVP release-candidate evidence changes, after design schema or UI
+surface changes, and after any implementation conformance failure that might
+indicate spec ambiguity.
+
+Each sweep should record the checked `houra-spec` ref and inspect
+`contracts/SPEC-*.md`, `CONTRACT_MODULE_MAP.md`, `FEATURE_PROFILES.md`,
+`MODULE_DEPENDENCIES.md`, README profile/domain coverage, `test-vectors/**/*.json`,
+design schemas and inputs, `tool/check_spec.dart`, and `docs/ja/**`.
+The current health checklist is
+`test-vectors/core/spec-health-conformance-health-checklist.json`.
+
+Health gaps should be handled in one of four ways: fix a small local issue in
+the current PR, split behavior or release-scope changes to a focused spec issue,
+split missing adoption evidence to an implementation issue, or record that the
+sweep found no untracked coverage or validation gap. The current follow-up refs
+from the first sweep, `imoyan/houra-spec#198`, `imoyan/houra-spec#202`, and
+`imoyan/houra-spec#204`, are closed; no untracked spec-health gap is recorded at
+this ref.
+
 ## Shared Implementation Strategy
 
 This section is non-normative implementation guidance for readers evaluating
