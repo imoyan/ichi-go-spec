@@ -19,6 +19,7 @@ const matrixDomains = {
   'Client-Server API',
   'Client-Server API; Room Versions',
   'Identity Service API',
+  'Olm & Megolm',
   'Push Gateway API',
   'Room Versions',
   'Server-Server API',
@@ -120,6 +121,7 @@ void main() {
   checkMatrixToDeviceEncryptedRoomGate(contracts, failures);
   checkMatrixKeyBackupRestoreGate(contracts, failures);
   checkMatrixVerificationCrossSigningGate(contracts, failures);
+  checkMatrixOlmMegolmFullE2eeGapInventory(contracts, failures);
   checkMatrixFederationDiscoverySigningKeys(contracts, failures);
   checkMatrixFederationTransactionJoinInvite(contracts, failures);
   checkMatrixFederationBackfillAuthState(contracts, failures);
@@ -563,6 +565,8 @@ void checkJapaneseDocs(List<String> failures) {
     'houra-server#139',
     'SPEC-078',
     'houra-server#140',
+    'SPEC-079',
+    'houra-server#141',
     'release-ready',
   ]) {
     if (!matrixSource.contains(phrase)) {
@@ -6615,6 +6619,148 @@ void validateMatrixIdentitySnapshot(
       value['master_key'] is! String ||
       value['device_key'] is! String) {
     failures.add('${relative(file)} identity snapshot invalid.');
+  }
+}
+
+void checkMatrixOlmMegolmFullE2eeGapInventory(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-079')) {
+    failures.add(
+      'Matrix Olm & Megolm full E2EE gap inventory SPEC-079 is required.',
+    );
+  }
+  const path =
+      'test-vectors/messaging/matrix-olm-megolm-full-e2ee-gap-inventory.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix Olm & Megolm full E2EE vector: $path');
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-079') {
+    failures.add('${relative(file)} must reference SPEC-079.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18' ||
+      eventMap['matrix_spec_source'] !=
+          'https://spec.matrix.org/v1.18/olm-megolm/' ||
+      eventMap['olm_source'] !=
+          'https://spec.matrix.org/v1.18/olm-megolm/olm/' ||
+      eventMap['megolm_source'] !=
+          'https://spec.matrix.org/v1.18/olm-megolm/megolm/' ||
+      eventMap['client_server_e2ee_source'] !=
+          'https://spec.matrix.org/v1.18/client-server-api/#end-to-end-encryption' ||
+      eventMap['parent_issue'] != 'imoyan/houra-server#141') {
+    failures.add('${relative(file)} Matrix reference or parent issue invalid.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String || !checkedAt.contains('+09:00')) {
+    failures.add('${relative(file)} checked_at must be a dated JST snapshot.');
+  }
+
+  final releaseScopeDecision = eventMap['release_scope_decision'];
+  if (releaseScopeDecision is! Map ||
+      releaseScopeDecision['domain'] != 'Olm & Megolm' ||
+      releaseScopeDecision['decision'] !=
+          'out-of-scope-for-current-release-candidate' ||
+      releaseScopeDecision['issue'] != 'imoyan/houra-server#141' ||
+      releaseScopeDecision['advertisement_allowed'] != false) {
+    failures.add('${relative(file)} release scope decision invalid.');
+  }
+
+  requireStringListIncludes(file, eventMap, 'covered_subset_contracts', {
+    'SPEC-050',
+    'SPEC-051',
+    'SPEC-052',
+    'SPEC-053',
+    'SPEC-054',
+    'SPEC-069',
+    'SPEC-072',
+    'SPEC-062',
+    'SPEC-064',
+    'SPEC-065',
+    'SPEC-066',
+  }, failures);
+
+  const expectedLaneIds = {
+    'maintained-crypto-stack-local-state-ownership-breadth',
+    'device-keys-one-time-fallback-device-list-breadth',
+    'olm-session-to-device-withheld-key-breadth',
+    'megolm-room-session-encrypted-room-event-breadth',
+    'server-side-key-backup-recovery-secret-storage-breadth',
+    'verification-cross-signing-trust-wrong-device-breadth',
+    'encrypted-media-attachment-breadth',
+    'federation-room-version-push-interaction-breadth',
+    'shared-parser-artifacts-security-release-evidence-breadth',
+  };
+  final lanes = eventMap['required_gap_lanes'];
+  if (lanes is! List || lanes.length < expectedLaneIds.length) {
+    failures.add('${relative(file)} Olm & Megolm gap lanes are incomplete.');
+  } else {
+    final seenLaneIds = <String>{};
+    for (final lane in lanes) {
+      if (lane is! Map ||
+          lane['id'] is! String ||
+          lane['status'] !=
+              'requires-follow-up-contract-or-implementation-issue' ||
+          lane['endpoint_examples'] is! List ||
+          lane['owner_repos'] is! List ||
+          lane['advertisement_allowed'] != false) {
+        failures.add('${relative(file)} Olm & Megolm gap lane shape invalid.');
+        continue;
+      }
+      final laneId = lane['id'] as String;
+      final endpointExamples = lane['endpoint_examples'] as List;
+      final ownerRepos = lane['owner_repos'] as List;
+      final expectedOwner =
+          laneId == 'maintained-crypto-stack-local-state-ownership-breadth'
+          ? 'houra-client'
+          : 'houra-server';
+      if (!expectedLaneIds.contains(laneId) ||
+          endpointExamples.isEmpty ||
+          ownerRepos.isEmpty ||
+          !ownerRepos.any((repo) => repo == expectedOwner)) {
+        failures.add(
+          '${relative(file)} Olm & Megolm gap lane content invalid.',
+        );
+      }
+      seenLaneIds.add(laneId);
+    }
+    if (!seenLaneIds.containsAll(expectedLaneIds)) {
+      failures.add('${relative(file)} Olm & Megolm gap lane ids incomplete.');
+    }
+  }
+
+  final rules = eventMap['release_evidence_rules'];
+  if (rules is! Map ||
+      rules['representative_subset_is_not_full_breadth'] != true ||
+      rules['olm_megolm_full_e2ee_claim_requires_lane_evidence'] != true ||
+      rules['explicit_exclusion_required_when_lane_not_included'] != true ||
+      rules['failure_issue_ref_must_remain_open_until_resolved'] != true ||
+      rules['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} Olm & Megolm release evidence rules invalid.',
+    );
+  }
+
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['olm_megolm_full_e2ee_decomposed'] != true ||
+      expected['release_scope_issue_ref'] != 'imoyan/houra-server#141' ||
+      expected['support_claim_not_widened'] != true ||
+      expected['versions_advertisement_widened'] != false ||
+      expected['follow_up_required'] != true) {
+    failures.add(
+      '${relative(file)} expected Olm & Megolm gap inventory invalid.',
+    );
   }
 }
 
