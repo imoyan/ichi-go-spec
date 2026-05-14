@@ -1,0 +1,66 @@
+{
+  "name": "matrix-room-versions-capabilities-advertisement-boundary",
+  "contract": "SPEC-080",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_capabilities_source": "https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3capabilities",
+    "matrix_room_versions_source": "https://spec.matrix.org/v1.18/rooms/",
+    "room_version_12_source": "https://spec.matrix.org/v1.18/rooms/v12/",
+    "checked_at": "2026-05-14T09:08:00+09:00",
+    "parent_contract": "SPEC-078",
+    "boundary": "m.room_versions-capabilities-advertisement",
+    "representative_subset_contracts": [
+      "SPEC-042",
+      "SPEC-043"
+    ],
+    "stable_room_versions_registry": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12"
+    ],
+    "advertised_capability": {
+      "default": "12",
+      "available": {
+        "12": "stable"
+      }
+    },
+    "non_advertised_stable_versions": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11"
+    ],
+    "release_evidence_rules": {
+      "available_is_evidence_list_not_registry": true,
+      "default_must_be_available": true,
+      "representative_subset_is_not_full_claim": true,
+      "missing_evidence_removes_available_entry": true,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "default_room_version": "12",
+    "available_room_versions": [
+      "12"
+    ],
+    "full_stable_registry_advertised": false,
+    "support_claim_not_widened": true,
+    "versions_advertisement_widened": false
+  }
+}

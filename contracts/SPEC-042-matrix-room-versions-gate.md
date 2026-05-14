@@ -26,7 +26,7 @@ The contract covers:
 - room-version grammar and opaque identifier treatment
 - `POST /_matrix/client/v3/createRoom` default room-version behavior
 - `POST /_matrix/client/v3/createRoom` unsupported room-version error behavior
-- advertisement rules for future capabilities support
+- room-version capability advertisement handoff to `SPEC-080`
 
 This contract does not implement per-version auth rules, state resolution
 completeness, room upgrades, federation joins, redactions, or full room-version
@@ -90,10 +90,9 @@ capabilities surface when that endpoint family is added. Until that later
 contract exists, this repository's vectors and adoption evidence are the only
 room-version support record.
 
-When capabilities support is added, `m.room_versions.default` must be `12` and
-`m.room_versions.available` must contain only versions with passing evidence.
-Stable versions without implementation evidence must not be advertised as
-available merely because they are listed in this contract.
+`m.room_versions.default` and `m.room_versions.available` advertisement is
+defined by `SPEC-080`. Stable versions without implementation evidence must not
+be advertised as available merely because they are listed in this contract.
 
 ## Adoption issue creation
 
