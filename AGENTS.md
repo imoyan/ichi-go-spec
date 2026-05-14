@@ -112,9 +112,10 @@ here before changing an implementation.
   SaaS API documentation is needed.
 - Use the OpenAI developer documentation MCP server for OpenAI API, ChatGPT
   Apps SDK, Codex, or other OpenAI product guidance.
-- Use spec-workflow MCP for medium or large multi-file spec design, API
-  surface changes, schema changes, or state-machine work. Skip it for typo
-  fixes, one-file mechanical edits, and read-only reviews.
+- Do not use spec-workflow MCP unless it is explicitly reintroduced. It has
+  regenerated untracked `.spec-workflow/` directories in this repository.
+  Use focused GitHub issues, existing docs, this `AGENTS.md`, or short
+  Markdown plans for spec and task breakdown instead.
 - MCP output is supporting context only. Contracts, test vectors, design
   schemas, and adoption evidence in this repository remain the source of truth.
 
