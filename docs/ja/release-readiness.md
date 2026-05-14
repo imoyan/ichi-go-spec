@@ -17,6 +17,15 @@ checklist です。
 
 ## Checklist
 
+確認対象の日本語 reader surface:
+
+- [`README.md`](../../README.md) の日本語概要と release / adoption 関連説明
+- [`docs/ja/README.md`](README.md)
+- [`docs/ja/adoption-guide.md`](adoption-guide.md)
+- [`docs/ja/matrix-v1-18.md`](matrix-v1-18.md)
+- 変更した `contracts/SPEC-*.md` 内の短い Japanese reader note
+- 変更した `design/` の UI surface / theme に対応する README または `docs/ja/` の説明
+
 - 変更された `contracts/SPEC-*.md` が README または `docs/ja/` から辿れる
 - 変更された `test-vectors/` の意味が日本語 guide から誤解なく読める
 - `design/` の UI surface または theme 変更が、必要なら日本語 guide に反映されている
@@ -29,6 +38,10 @@ checklist です。
   `corrective` に分類され、breaking / deprecation の場合は replacement または
   out-of-scope 判断、migration note、affected implementation issue / PR、release
   notes evidence を持つ
+- Product MVP release candidate は `/_houra/client/**` と Product MVP UI surface /
+  adoption evidence の確認として扱い、Matrix v1.18 release candidate は
+  `/_matrix/**` の domain evidence、advertisement gate、release notes evidence の
+  確認として扱う
 - Houra Product MVP claim と Matrix compatibility claim は別々に扱われ、片方の
   evidence だけで他方の support claim を広げていない
 - 未反映の日本語 drift がある場合は、release blocker、PR の未解決事項、または follow-up issue として明示されている
@@ -40,4 +53,9 @@ checklist です。
 通常開発中の drift は許容します。ただし、release tag は英語正本と日本語 reader surface が
 同じ commit で固定されるため、release 前には未確認 drift を棚卸しします。
 
-drift が意図的な場合は、理由と次回確認先を release note または follow-up issue に残します。
+drift が意図的な場合は、理由、blocker / non-blocker 判断、次回確認先を PR body、
+release checklist、または follow-up issue に残します。記録先がない drift は release
+blocker として扱います。
+
+現時点では known untracked drift はありません。意図的に遅らせる日本語更新が出た場合は、
+該当 PR body または follow-up issue に明示してから handoff します。

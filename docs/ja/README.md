@@ -31,6 +31,12 @@
 adoption evidence、release note に対応する日本語説明を確認します。未確認のまま release する場合は、
 blocker、PR の未解決事項、または follow-up issue として明示します。
 
+Product MVP release candidate と Matrix v1.18 release candidate は確認観点を分けます。
+Product MVP は `/_houra/client/**`、Product MVP UI surface、adoption evidence を中心に
+確認します。Matrix v1.18 は `/_matrix/**` domain evidence、advertisement gate、
+release notes evidence を中心に確認します。片方の evidence だけで他方の support claim を
+広げません。
+
 ## 書き方
 
 日本語ページは、GitHub の表示で読みやすいように短い段落とリンク中心にします。
