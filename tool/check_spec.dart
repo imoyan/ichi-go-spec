@@ -533,12 +533,30 @@ void checkJapaneseDocs(List<String> failures) {
     '英語',
     '正本',
     'release',
+    'Product MVP release candidate',
+    'Matrix v1.18 release candidate',
+    'support claim',
     'adoption-guide.md',
     'release-readiness.md',
     'matrix-v1-18.md',
   ]) {
     if (!source.contains(phrase)) {
       failures.add('docs/ja/README.md must document $phrase.');
+    }
+  }
+  final readiness = File('docs/ja/release-readiness.md');
+  final readinessSource = readiness.readAsStringSync();
+  for (final phrase in [
+    '確認対象の日本語 reader surface',
+    'README.md',
+    'docs/ja/adoption-guide.md',
+    'Product MVP release candidate',
+    'Matrix v1.18 release candidate',
+    'blocker / non-blocker',
+    'known untracked drift',
+  ]) {
+    if (!readinessSource.contains(phrase)) {
+      failures.add('docs/ja/release-readiness.md must document $phrase.');
     }
   }
   final adoptionGuide = File('docs/ja/adoption-guide.md');
