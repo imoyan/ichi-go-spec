@@ -62,6 +62,20 @@ The maintained repository names are:
 - `houra-labs`: experiments, including Flutter client prototypes and alternate
   Go or Dart server prototypes.
 
+## Pre-1.0 Compatibility
+
+Published pre-1.0 tags are immutable. Contract, vector, design token, and UI
+surface changes must be classified as `breaking`, `additive`, or `corrective`
+before handoff. Breaking and deprecation changes must include the deprecated or
+changed behavior, replacement or out-of-scope decision, migration guidance,
+affected implementation issue or PR refs, release notes evidence, and whether
+the change affects Houra Product MVP, Matrix compatibility, both, or neither.
+
+Product MVP claims and Matrix compatibility claims stay separate. Product MVP
+evidence must not widen Matrix `/_matrix/**` support, and Matrix compatibility
+evidence must not imply `/_houra/client/**` Product MVP behavior unless the
+matching Product MVP contract/vector/design input also changed.
+
 ## Layout
 
 - `contracts/`: normative API behavior.
