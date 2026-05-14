@@ -53,7 +53,10 @@ Matrix support claim と domain evidence が揃うまで release-ready として
 discovery / auth refresh / event history / room breadth / sync extensions /
 media breadth / E2EE Client-Server breadth の lane に分ける inventory です。
 これは実装完了や広告開始ではなく、current release candidate で Client-Server API を
-広告対象外にする理由を issue-sized に保つための記録です。
+広告対象外にする理由を issue-sized に保つための記録です。`houra-server#178` から
+`houra-server#184` の closed tracker も runtime 対応完了ではなく release exclusion
+evidence として扱い、sync query、sync delivery、sync section、membership listing、
+room state event の順で contract / vector / server gate に昇格してから採用します。
 
 `SPEC-074` は、`houra-server#136` の Server-Server full-breadth gap を
 discovery / key / auth、transaction / PDU / EDU、event retrieval、join / knock /
