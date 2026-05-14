@@ -1,0 +1,61 @@
+{
+  "name": "pre-1-0-compatibility-change-policy",
+  "contract": "SPEC-065",
+  "event": {
+    "policy": "pre-1.0 compatibility change handling",
+    "source_doc": "SOURCE_OF_TRUTH.md",
+    "published_pre_1_0_tags_are_immutable": true,
+    "change_classifications": [
+      {
+        "id": "breaking",
+        "definition": "Changes expected public behavior, removes or narrows a field, changes an error, changes an advertised capability, changes an acceptance flow, or changes an adopted design input.",
+        "requires_release_note_label": true,
+        "requires_implementation_follow_up": true,
+        "requires_migration_guidance": true
+      },
+      {
+        "id": "additive",
+        "definition": "Adds behavior, fields, endpoints, UI surface elements, or evidence requirements without changing existing expectations.",
+        "requires_release_note_label": true,
+        "requires_implementation_follow_up": "when implementation adoption is needed",
+        "requires_migration_guidance": false
+      },
+      {
+        "id": "corrective",
+        "definition": "Fixes wording, links, examples, metadata, or evidence labels without changing expected public behavior.",
+        "requires_release_note_label": true,
+        "requires_implementation_follow_up": "only when downstream evidence or docs must change",
+        "requires_migration_guidance": false
+      }
+    ],
+    "deprecation_record_required_fields": [
+      "deprecated_behavior",
+      "replacement_behavior_or_out_of_scope_decision",
+      "migration_guidance",
+      "affected_implementation_repos",
+      "implementation_issue_or_pr_refs",
+      "claim_boundary",
+      "release_notes_evidence"
+    ],
+    "claim_boundaries": {
+      "houra_product_mvp": "tracked separately from Matrix compatibility",
+      "matrix_compatibility": "must not be inferred from Product MVP evidence",
+      "versions_advertisement_widened": false
+    },
+    "release_notes_required_fields": [
+      "changed_profiles",
+      "changed_contracts_vectors_or_design_inputs",
+      "compatibility_classification",
+      "implementation_follow_up",
+      "deprecation_or_replacement_note",
+      "claim_boundary"
+    ]
+  },
+  "expected": {
+    "pre_1_0_tags_immutable": true,
+    "breaking_additive_corrective_defined": true,
+    "deprecation_records_owned": true,
+    "implementation_follow_up_traceable": true,
+    "product_mvp_and_matrix_claims_separate": true
+  }
+}

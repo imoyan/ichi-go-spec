@@ -99,12 +99,40 @@ new tag and handled as follows:
   public behavior. They may skip vector changes only when the existing vectors
   already capture the intended behavior.
 
+Every pre-1.0 contract, vector, design token, or UI surface change must classify
+itself before handoff:
+
+- `breaking`: changes expected public behavior, removes or narrows a field,
+  changes an error, changes an advertised capability, changes an acceptance
+  flow, or changes a design input that an implementation has already adopted.
+- `additive`: adds a contract, vector, field, endpoint, UI surface element, or
+  evidence requirement without changing existing expectations.
+- `corrective`: fixes wording, links, examples, metadata, or evidence labels
+  without changing expected public behavior.
+
+Breaking and deprecation work must record all of the following before release:
+
+- the deprecated or changed behavior;
+- the replacement behavior, or an explicit out-of-scope decision;
+- migration guidance for affected implementation repositories;
+- affected implementation repository issue or PR references;
+- whether Houra Product MVP claims or Matrix compatibility claims are affected;
+- release notes evidence that names the compatibility classification.
+
+Deprecated behavior must not be left as an unowned TODO. If a replacement is not
+ready, the release notes must keep the behavior explicitly out of scope or keep
+the older behavior supported until a follow-up issue lands.
+
 Pre-1.0 release notes must identify:
 
 - Changed feature profiles.
 - Changed contracts, vectors, design tokens, or UI surfaces.
 - Whether the change is breaking, additive, or corrective.
 - Required implementation follow-up, or that none is required.
+- Deprecated behavior, replacement or out-of-scope decision, migration note,
+  and affected implementation issue or PR when applicable.
+- Whether the change affects Houra Product MVP, Matrix compatibility, both, or
+  neither. These claims must remain separate.
 
 ## Current Pre-1.0 Freeze Candidate
 

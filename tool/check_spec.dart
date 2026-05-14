@@ -94,6 +94,7 @@ void main() {
   final failures = <String>[];
   checkBoundary(failures);
   checkNamespaceConsistency(failures);
+  checkPre10CompatibilityPolicy(failures);
   final contracts = readContracts(failures);
 
   checkDocs(contracts, failures);
@@ -11784,6 +11785,95 @@ void checkGiven(File file, Object? value, List<String> failures) {
     failures.add(
       '${relative(file)} given.previous_event_id must be a non-empty string.',
     );
+  }
+}
+
+void checkPre10CompatibilityPolicy(List<String> failures) {
+  const path = 'test-vectors/core/pre-1-0-compatibility-change-policy.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing pre-1.0 compatibility policy vector: $path');
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-065') {
+    failures.add('${relative(file)} must reference SPEC-065.');
+  }
+  final event = json['event'];
+  if (event is! Map ||
+      event['source_doc'] != 'SOURCE_OF_TRUTH.md' ||
+      event['published_pre_1_0_tags_are_immutable'] != true) {
+    failures.add('${relative(file)} pre-1.0 immutability policy invalid.');
+    return;
+  }
+  final classifications = event['change_classifications'];
+  if (classifications is! List || classifications.length != 3) {
+    failures.add('${relative(file)} change classifications invalid.');
+  } else {
+    final seen = <String>{};
+    for (final item in classifications) {
+      if (item is! Map ||
+          item['id'] is! String ||
+          item['definition'] is! String ||
+          item['requires_release_note_label'] != true ||
+          !item.containsKey('requires_implementation_follow_up') ||
+          item['requires_migration_guidance'] == null) {
+        failures.add('${relative(file)} change classification shape invalid.');
+        continue;
+      }
+      seen.add(item['id'] as String);
+    }
+    if (!seen.containsAll({'breaking', 'additive', 'corrective'})) {
+      failures.add('${relative(file)} change classification ids incomplete.');
+    }
+  }
+  requireStringListIncludes(
+    file,
+    event.cast<String, Object?>(),
+    'deprecation_record_required_fields',
+    {
+      'deprecated_behavior',
+      'replacement_behavior_or_out_of_scope_decision',
+      'migration_guidance',
+      'affected_implementation_repos',
+      'implementation_issue_or_pr_refs',
+      'claim_boundary',
+      'release_notes_evidence',
+    },
+    failures,
+  );
+  requireStringListIncludes(
+    file,
+    event.cast<String, Object?>(),
+    'release_notes_required_fields',
+    {
+      'changed_profiles',
+      'changed_contracts_vectors_or_design_inputs',
+      'compatibility_classification',
+      'implementation_follow_up',
+      'deprecation_or_replacement_note',
+      'claim_boundary',
+    },
+    failures,
+  );
+  final claimBoundaries = event['claim_boundaries'];
+  if (claimBoundaries is! Map ||
+      claimBoundaries['houra_product_mvp'] is! String ||
+      claimBoundaries['matrix_compatibility'] is! String ||
+      claimBoundaries['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} claim boundaries invalid.');
+  }
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['pre_1_0_tags_immutable'] != true ||
+      expected['breaking_additive_corrective_defined'] != true ||
+      expected['deprecation_records_owned'] != true ||
+      expected['implementation_follow_up_traceable'] != true ||
+      expected['product_mvp_and_matrix_claims_separate'] != true) {
+    failures.add('${relative(file)} expected policy result invalid.');
   }
 }
 

@@ -25,6 +25,12 @@ checklist です。
   accessibility 結果または blocker、acceptance flow coverage、redaction 方針を持つ
 - README の `Implementation Adoption Reports` と日本語説明が矛盾していない
 - Matrix version、外部仕様、互換性 claim は source と `checked_at` を持つ snapshot として扱われている
+- pre-1.0 の contract / vector / design input 変更は `breaking` / `additive` /
+  `corrective` に分類され、breaking / deprecation の場合は replacement または
+  out-of-scope 判断、migration note、affected implementation issue / PR、release
+  notes evidence を持つ
+- Houra Product MVP claim と Matrix compatibility claim は別々に扱われ、片方の
+  evidence だけで他方の support claim を広げていない
 - 未反映の日本語 drift がある場合は、release blocker、PR の未解決事項、または follow-up issue として明示されている
 - `dart tool/check_spec.dart` が通る
 - `git diff --check` が通る
