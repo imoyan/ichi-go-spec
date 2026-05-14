@@ -305,6 +305,40 @@ The MVP subset may be called 100% ready when all of these are true:
 criteria. Adoption reports, implementation conformance runs, and release
 publication remain workflow evidence.
 
+## Product MVP Release Candidate Plan
+
+The next Product MVP release candidate is tracked by
+`test-vectors/core/product-mvp-release-candidate-plan.json` and
+`imoyan/houra-spec#190`. It is a Product MVP adoption and release evidence
+checkpoint, not a Matrix full-compliance release candidate.
+
+The release candidate must name the exact refs consumed from:
+
+- `imoyan/houra-spec`: canonical contracts, vectors, design inputs, UI surface,
+  and this release-candidate plan.
+- `imoyan/houra-server`: PostgreSQL-backed server behavior and Docker Compose
+  deploy smoke evidence.
+- `imoyan/houra-client`: Expo React Native app layer, Product MVP happy path
+  evidence, and Product MVP UI surface adoption evidence.
+
+Blocking evidence lanes for the candidate:
+
+- Product MVP happy path evidence is tracked by `imoyan/houra-client#121`.
+- Product MVP UI surface adoption evidence is tracked by
+  `imoyan/houra-client#122`.
+- Docker Compose deploy smoke evidence is tracked by `imoyan/houra-server#227`.
+
+The implementation metrics and adoption report schema follow-up
+`imoyan/houra-spec#204` is complete for the current schema. The Matrix release
+evidence bundle follow-up `imoyan/houra-spec#200` is also complete, but Matrix
+roadmap work remains separate under `imoyan/houra-spec#95`.
+
+Do not cut a Product MVP release-candidate tag until the blocking evidence
+lanes record the consumed refs, commands, pass/fail results, known blockers,
+redaction policy, and claim boundary. Passing the Product MVP evidence lanes
+does not widen `/versions`, Matrix v1.18 support, federation, E2EE, push,
+identity service, application service, or room-version compliance claims.
+
 ## Spec Health
 
 Spec health sweeps keep this repository usable as read-only conformance input.

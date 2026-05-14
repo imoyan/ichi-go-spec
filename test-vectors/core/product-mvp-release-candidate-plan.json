@@ -1,0 +1,121 @@
+{
+  "name": "product-mvp-release-candidate-plan",
+  "contract": "SPEC-039",
+  "event": {
+    "release_candidate": "next-product-mvp-release-candidate",
+    "source_doc": "README.md",
+    "tracked_issue": "imoyan/houra-spec#190",
+    "target_scope": "/_houra/client/** Product MVP behavior, Product MVP UI surface adoption, and implementation adoption evidence",
+    "matrix_full_compliance_claimed": false,
+    "matrix_roadmap_boundary": "imoyan/houra-spec#95 remains separate and does not block the Product MVP release candidate unless the release claims Matrix compatibility.",
+    "required_repositories": [
+      {
+        "repo": "imoyan/houra-spec",
+        "role": "canonical contracts, vectors, design inputs, UI surface, and release-candidate plan",
+        "required_ref": "the release-candidate spec commit or tag"
+      },
+      {
+        "repo": "imoyan/houra-server",
+        "role": "PostgreSQL-backed server behavior and Docker Compose deploy smoke evidence",
+        "required_ref": "the server commit, tag, or release consumed by the release candidate"
+      },
+      {
+        "repo": "imoyan/houra-client",
+        "role": "Expo React Native app layer, Product MVP happy path evidence, and UI surface adoption evidence",
+        "required_ref": "the client commit, tag, or release consumed by the release candidate"
+      }
+    ],
+    "evidence_lanes": [
+      {
+        "id": "product-mvp-happy-path",
+        "owner_repo": "imoyan/houra-client",
+        "tracking_ref": "imoyan/houra-client#121",
+        "status": "blocking-until-evidence-recorded",
+        "required_inputs": [
+          "houra-spec ref",
+          "houra-server ref",
+          "houra-client ref",
+          "commands",
+          "scenario step results",
+          "known exclusions",
+          "clean-room confirmation"
+        ]
+      },
+      {
+        "id": "ui-surface-adoption",
+        "owner_repo": "imoyan/houra-client",
+        "tracking_ref": "imoyan/houra-client#122",
+        "status": "blocking-until-evidence-recorded",
+        "required_inputs": [
+          "design/ui-surfaces/product-mvp.json ref",
+          "consumer app ref",
+          "screen/action mapping",
+          "duplicate-submit prevention result",
+          "recoverable error display result",
+          "accessibility result or blocker",
+          "product-mvp-happy-path coverage",
+          "redaction policy"
+        ]
+      },
+      {
+        "id": "docker-compose-deploy-smoke",
+        "owner_repo": "imoyan/houra-server",
+        "tracking_ref": "imoyan/houra-server#227",
+        "status": "blocking-until-evidence-recorded",
+        "required_inputs": [
+          "compose file ref or digest",
+          "server image or commit ref",
+          "redacted environment shape",
+          "migration or schema setup command",
+          "health check result",
+          "server-client connectivity result",
+          "secret and local path redaction result"
+        ]
+      },
+      {
+        "id": "implementation-adoption-report",
+        "owner_repo": "imoyan/houra-spec",
+        "tracking_ref": "imoyan/houra-spec#204",
+        "status": "complete-for-current-schema",
+        "required_inputs": [
+          "changed profiles",
+          "changed contracts, vectors, or design inputs",
+          "implementation repo refs",
+          "commands",
+          "known blockers",
+          "claim boundary"
+        ]
+      }
+    ],
+    "release_blockers": [
+      "imoyan/houra-client#121",
+      "imoyan/houra-client#122",
+      "imoyan/houra-server#227"
+    ],
+    "completed_supporting_refs": [
+      "imoyan/houra-spec#199",
+      "imoyan/houra-spec#200",
+      "imoyan/houra-spec#203",
+      "imoyan/houra-spec#204"
+    ],
+    "required_commands": [
+      "dart tool/check_spec.dart",
+      "git diff --check",
+      "implementation repo Product MVP happy path command recorded by imoyan/houra-client#121",
+      "implementation repo UI surface adoption command recorded by imoyan/houra-client#122",
+      "implementation repo Docker Compose deploy smoke command recorded by imoyan/houra-server#227"
+    ],
+    "redaction_policy": [
+      "Do not record raw bearer tokens, refresh tokens, database URLs, image registry credentials, private local paths, or machine-specific environment values.",
+      "Record only redacted environment shape and reproducible command names."
+    ],
+    "rc_tag_policy": "Do not cut a Product MVP release-candidate tag until all blocking evidence lanes name refs, commands, results, blockers, and claim boundaries."
+  },
+  "expected": {
+    "required_repositories_traceable": true,
+    "evidence_lanes_split": true,
+    "implementation_follow_ups_traceable": true,
+    "matrix_full_compliance_not_claimed": true,
+    "rc_tag_blocked_until_evidence_complete": true
+  }
+}

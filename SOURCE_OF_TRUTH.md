@@ -164,6 +164,19 @@ The structural parts of readiness are checked by `dart tool/check_spec.dart`.
 Workflow evidence such as implementation adoption reports and GitHub Releases
 must be recorded in repository issues, pull requests, or releases.
 
+## Product MVP Release Candidate Boundary
+
+The Product MVP release candidate plan is
+`test-vectors/core/product-mvp-release-candidate-plan.json`. It connects the
+canonical `houra-spec` ref with the current `houra-server` and `houra-client`
+implementation evidence lanes for Product MVP adoption.
+
+The candidate remains blocked until Product MVP happy path evidence, Product
+MVP UI surface adoption evidence, and Docker Compose deploy smoke evidence name
+their implementation refs, commands, results, blockers, and claim boundaries.
+This boundary does not imply Matrix v1.18 full compliance or widen Matrix
+advertisement.
+
 ## Spec Health Sweeps
 
 Spec health sweeps are release and roadmap hygiene checks, not behavior-change
