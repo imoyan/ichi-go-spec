@@ -9913,13 +9913,15 @@ void validateMatrixCoverageKnownGaps(
     }
     final scope = gap['scope'];
     final reason = gap['reason'];
-    if (scope is! String ||
-        scope.isEmpty ||
-        reason is! String ||
-        reason.isEmpty) {
+    if (scope is! String || scope.isEmpty) {
       failures.add('${relative(file)} matrix coverage known gap incomplete.');
     }
     final issue = gap['issue'];
+    final hasReason = reason is String && reason.isNotEmpty;
+    final hasIssue = issue is String && issue.isNotEmpty;
+    if (!hasReason && !hasIssue) {
+      failures.add('${relative(file)} matrix coverage known gap incomplete.');
+    }
     if (issue != null && (issue is! String || issue.isEmpty)) {
       failures.add(
         '${relative(file)} matrix coverage known gap issue invalid.',
