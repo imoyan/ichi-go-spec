@@ -110,6 +110,7 @@ void main() {
   checkMatrixRoomAuthRepresentativeVectors(contracts, failures);
   checkMatrixRoomAliasUpgradePersistenceGate(contracts, failures);
   checkMatrixRoomVersionsFullAlgorithmGapInventory(contracts, failures);
+  checkMatrixRoomVersionsCapabilitiesAdvertisementBoundary(contracts, failures);
   checkMatrixProfileAccountDataTags(contracts, failures);
   checkMatrixReceiptsTypingReadMarkers(contracts, failures);
   checkMatrixFiltersPresenceCapabilities(contracts, failures);
@@ -3294,6 +3295,167 @@ void checkMatrixRoomVersionsFullAlgorithmGapInventory(
   }
 }
 
+void checkMatrixRoomVersionsCapabilitiesAdvertisementBoundary(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-080')) {
+    failures.add(
+      'Matrix Room Versions capabilities advertisement SPEC-080 is required.',
+    );
+  }
+  const path =
+      'test-vectors/rooms/matrix-room-versions-capabilities-advertisement-boundary.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add(
+      'Missing Matrix Room Versions capabilities advertisement vector: $path',
+    );
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-080') {
+    failures.add('${relative(file)} must reference SPEC-080.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18' ||
+      eventMap['matrix_capabilities_source'] !=
+          'https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3capabilities' ||
+      eventMap['matrix_room_versions_source'] !=
+          'https://spec.matrix.org/v1.18/rooms/' ||
+      eventMap['room_version_12_source'] !=
+          'https://spec.matrix.org/v1.18/rooms/v12/' ||
+      eventMap['parent_contract'] != 'SPEC-078' ||
+      eventMap['boundary'] != 'm.room_versions-capabilities-advertisement') {
+    failures.add('${relative(file)} Matrix reference or boundary invalid.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String || !checkedAt.contains('+09:00')) {
+    failures.add('${relative(file)} checked_at must be a dated JST snapshot.');
+  }
+
+  requireStringListIncludes(file, eventMap, 'representative_subset_contracts', {
+    'SPEC-042',
+    'SPEC-043',
+  }, failures);
+  final stableRegistry = readStringList(
+    eventMap['stable_room_versions_registry'],
+  );
+  const expectedStable = [
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '10',
+    '11',
+    '12',
+  ];
+  if (stableRegistry == null ||
+      stableRegistry.length != expectedStable.length ||
+      !stableRegistry.asMap().entries.every(
+        (entry) => entry.value == expectedStable[entry.key],
+      )) {
+    failures.add('${relative(file)} stable room-version registry invalid.');
+  }
+
+  final advertised = eventMap['advertised_capability'];
+  if (advertised is! Map) {
+    failures.add('${relative(file)} advertised capability missing.');
+  } else {
+    validateRoomVersionsCapabilitySubset(
+      file,
+      advertised.cast<String, Object?>(),
+      failures,
+    );
+  }
+
+  final nonAdvertised = readStringList(
+    eventMap['non_advertised_stable_versions'],
+  );
+  const expectedNonAdvertised = {
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '10',
+    '11',
+  };
+  if (nonAdvertised == null ||
+      !sameStringSet(nonAdvertised.toSet(), expectedNonAdvertised)) {
+    failures.add('${relative(file)} non-advertised versions invalid.');
+  }
+
+  final rules = eventMap['release_evidence_rules'];
+  if (rules is! Map ||
+      rules['available_is_evidence_list_not_registry'] != true ||
+      rules['default_must_be_available'] != true ||
+      rules['representative_subset_is_not_full_claim'] != true ||
+      rules['missing_evidence_removes_available_entry'] != true ||
+      rules['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} room-version advertisement rules invalid.');
+  }
+
+  final expected = json['expected'];
+  final availableVersions = readStringList(
+    expected is Map ? expected['available_room_versions'] : null,
+  );
+  if (expected is! Map ||
+      expected['default_room_version'] != '12' ||
+      availableVersions == null ||
+      !sameStringSet(availableVersions.toSet(), {'12'}) ||
+      expected['full_stable_registry_advertised'] != false ||
+      expected['support_claim_not_widened'] != true ||
+      expected['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} expected room-version advertisement invalid.',
+    );
+  }
+}
+
+void validateRoomVersionsCapabilitySubset(
+  File file,
+  Map<String, Object?> roomVersions,
+  List<String> failures,
+) {
+  final available = roomVersions['available'];
+  if (roomVersions['default'] != '12' || available is! Map) {
+    failures.add('${relative(file)} m.room_versions capability is invalid.');
+    return;
+  }
+  if (!available.containsKey('12') || available['12'] != 'stable') {
+    failures.add(
+      '${relative(file)} m.room_versions.available must include 12: stable.',
+    );
+  }
+  final advertised = available.keys.whereType<String>().toSet();
+  if (!sameStringSet(advertised, {'12'})) {
+    failures.add(
+      '${relative(file)} m.room_versions.available must stay evidence-scoped.',
+    );
+  }
+  if (!advertised.contains(roomVersions['default'])) {
+    failures.add(
+      '${relative(file)} m.room_versions.default must be listed in available.',
+    );
+  }
+}
+
 void checkMatrixProfileAccountDataTags(
   Map<String, String> contracts,
   List<String> failures,
@@ -4135,10 +4297,14 @@ void validateMatrixCapabilitiesVector(
     return;
   }
   final roomVersions = capabilities['m.room_versions'];
-  if (roomVersions is! Map ||
-      roomVersions['default'] != '12' ||
-      roomVersions['available'] is! Map) {
+  if (roomVersions is! Map) {
     failures.add('${relative(file)} m.room_versions capability is invalid.');
+  } else {
+    validateRoomVersionsCapabilitySubset(
+      file,
+      roomVersions.cast<String, Object?>(),
+      failures,
+    );
   }
   final profileFields = capabilities['m.profile_fields'];
   if (profileFields is! Map || profileFields['enabled'] != true) {

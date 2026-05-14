@@ -139,6 +139,7 @@ The maintained repository names are:
 - `contracts/SPEC-077-matrix-push-gateway-full-breadth-gap-inventory.md`
 - `contracts/SPEC-078-matrix-room-versions-full-algorithm-gap-inventory.md`
 - `contracts/SPEC-079-matrix-olm-megolm-full-e2ee-gap-inventory.md`
+- `contracts/SPEC-080-matrix-room-versions-capabilities-advertisement-boundary.md`
 - `contracts/SPEC-081-matrix-maintained-crypto-storage-ownership-boundary.md`
 
 ## Shared Design Inputs
@@ -812,6 +813,11 @@ Matrix v1.18 roadmap close-out snapshot:
   cross-signing, encrypted media, cross-domain interaction, and release-evidence
   lanes. It is a fail-closed gap inventory only; it does not claim full E2EE or
   local Olm/Megolm support.
+- `SPEC-080` splits the `m.room_versions.default` /
+  `m.room_versions.available` capabilities advertisement boundary out of
+  `SPEC-078`. It keeps `available` as an implementation-evidence list, not a
+  copy of the Matrix v1.18 stable room-version registry, so the representative
+  room version 12 subset does not become a full Room Versions claim.
 - `SPEC-081` is the first `SPEC-079` child contract. It records the maintained
   Matrix crypto stack evidence gate and keeps secure storage, recovery keys,
   backup secrets, local deletion, and recovery UX host-owned. It does not select
@@ -1203,6 +1209,11 @@ Matrix room alias, upgrade, and restart persistence gate:
   It keeps full auth/state-resolution algorithms and room-version advertisement
   out of the support claim until passing evidence or explicit release exclusion
   exists.
+- `SPEC-080` records the independent capabilities advertisement boundary for
+  `m.room_versions.default` and `m.room_versions.available`. The current
+  representative subset may advertise only room version `12`; stable room
+  versions `1` through `11` stay non-advertised until each version has current
+  passing implementation evidence.
 - `SPEC-079` records the remaining full E2EE Olm & Megolm lanes as the
   `houra-server#141` gap inventory for the current blocked release candidate.
   It keeps full encrypted-room, local crypto, verification, cross-signing,
@@ -1408,6 +1419,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-077 | Matrix Push Gateway full-breadth gap inventory | `test-vectors/core/matrix-push-gateway-full-breadth-gap-inventory.json` |
 | SPEC-078 | Matrix Room Versions full-algorithm gap inventory | `test-vectors/rooms/matrix-room-versions-full-algorithm-gap-inventory.json` |
 | SPEC-079 | Matrix Olm & Megolm full E2EE gap inventory | `test-vectors/messaging/matrix-olm-megolm-full-e2ee-gap-inventory.json` |
+| SPEC-080 | Matrix room versions capabilities advertisement boundary | `test-vectors/rooms/matrix-room-versions-capabilities-advertisement-boundary.json` |
 | SPEC-081 | Matrix maintained crypto stack and storage ownership boundary | `test-vectors/messaging/matrix-maintained-crypto-storage-ownership-boundary.json` |
 
 If a server response differs from this repository, fix the server by default. If

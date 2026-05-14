@@ -96,8 +96,9 @@ Implementation-defined capabilities must use Java package naming convention.
 
 The representative response in this contract includes:
 
-- `m.room_versions` with stable room versions `1` through `12` and default
-  room version `12`, aligning with `SPEC-042`.
+- `m.room_versions` with default room version `12` and only the advertised
+  implementation-evidenced subset from `SPEC-080`. The stable room-version
+  registry from `SPEC-042` must not be copied into `available` by default.
 - `m.profile_fields` for profile write support from `SPEC-045`.
 - deprecated compatibility booleans `m.set_displayname` and
   `m.set_avatar_url` when profile fields allow those keys.
