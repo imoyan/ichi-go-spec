@@ -86,6 +86,53 @@ The adoption record must include:
 The README adoption report may summarize these fields, but must link or name
 the durable PR/check evidence.
 
+## Evidence boundary
+
+Product MVP happy path evidence and Docker Compose deploy smoke evidence are
+separate records even when they use the same local server instance.
+
+Product MVP happy path evidence proves public behavior:
+
+- the `SPEC-030` through `SPEC-038` contracts and vectors used as canonical
+  input;
+- the `design/ui-surfaces/product-mvp.json` `product-mvp-happy-path`
+  acceptance flow, when UI evidence is included;
+- server/client refs, package or image identifiers, and command lines used for
+  vector and live e2e checks;
+- pass/fail for registration, login, room creation, send/messages, sync,
+  media round trip, refresh, logout, and login-again behavior;
+- remaining Product MVP blockers and any explicitly excluded Matrix
+  Client-Server breadth.
+
+Docker Compose deploy smoke evidence proves operational readiness only:
+
+- container startup and dependency ordering;
+- migration or schema-setup completion;
+- health check and server/client connectivity;
+- PostgreSQL persistence and auth-hardening smoke when those are the target of
+  the deploy lane;
+- restart or backup/restore smoke only when the lane explicitly includes it;
+- secret, token, local path, database URL, image registry credential, and
+  environment redaction.
+
+Do not use Docker Compose startup success as a Product MVP happy path pass
+without the contract/vector/UI/server-client evidence above. Do not use Product
+MVP happy path success as Docker Compose deploy readiness without startup,
+migration, health, connectivity, persistence/auth, and redaction evidence.
+
+Release notes and README adoption reports must name the evidence class for each
+row. If a check mixes both classes, split the row or say which parts are Product
+MVP behavior evidence and which parts are deploy smoke evidence. Evidence must
+not include raw secrets, bearer tokens, refresh tokens, database URLs, private
+local paths, or machine-specific environment values.
+
+## Japanese reader note
+
+Product MVP happy path evidence は public behavior の証跡であり、Docker Compose
+deploy smoke は起動、migration、health check、connectivity、persistence/auth、
+redaction の運用証跡です。同じローカル server を使っていても別 evidence class
+として記録し、Compose 起動成功だけを Product MVP pass として扱わないでください。
+
 ## Adoption issue creation
 
 After this spec PR is merged:
@@ -97,6 +144,10 @@ After this spec PR is merged:
   against the pinned server target
 - create an `houra-labs` adoption issue only if the gate adopts or changes a
   shared parser, identifier helper, URI helper, or binding facade
+- create a separate `houra-server` deploy smoke issue when Docker Compose
+  startup, migration, health check, server/client connectivity, PostgreSQL
+  persistence/auth hardening, backup/restore, restart, or secret redaction is
+  part of the release candidate evidence
 
 Do not create implementation adoption issues before this contract is merged.
 

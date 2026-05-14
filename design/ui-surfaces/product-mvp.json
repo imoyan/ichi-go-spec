@@ -303,7 +303,7 @@
   "acceptance_flows": [
     {
       "id": "product-mvp-happy-path",
-      "description": "Manual UI flow that proves the Product MVP surface can operate against a Docker Compose Houra server.",
+      "description": "Manual UI flow that proves Product MVP behavior against a live Houra server; Docker Compose startup evidence is tracked separately as deploy smoke.",
       "steps": [
         {
           "id": "register",

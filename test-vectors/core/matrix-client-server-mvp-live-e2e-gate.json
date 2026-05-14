@@ -148,10 +148,82 @@
       "known_exclusions",
       "clean_room_confirmed"
     ],
+    "evidence_classes": [
+      {
+        "id": "product-mvp-happy-path",
+        "purpose": "Prove public Product MVP behavior from contracts, vectors, UI surface, and server-client interaction.",
+        "required_inputs": [
+          "SPEC-030 through SPEC-038",
+          "test-vectors for every scenario step",
+          "design/ui-surfaces/product-mvp.json acceptance flow when UI evidence is included",
+          "houra-server ref",
+          "houra-client ref"
+        ],
+        "required_checks": [
+          "server vector tests",
+          "client vector tests",
+          "live e2e scenario steps",
+          "UI acceptance flow when UI evidence is included"
+        ],
+        "not_evidence_for": [
+          "Docker Compose deploy readiness",
+          "PostgreSQL backup readiness",
+          "Matrix full compliance"
+        ]
+      },
+      {
+        "id": "docker-compose-deploy-smoke",
+        "purpose": "Prove local deployment startup and operational boundaries without widening Product MVP behavior claims.",
+        "required_inputs": [
+          "compose file ref or digest",
+          "service image or commit refs",
+          "redacted env shape",
+          "migration or schema setup command",
+          "health check endpoint"
+        ],
+        "required_checks": [
+          "container startup",
+          "migration completion",
+          "health check",
+          "server-client connectivity",
+          "secret and local path redaction"
+        ],
+        "optional_checks": [
+          "PostgreSQL persistence smoke",
+          "auth hardening smoke",
+          "restart smoke",
+          "backup and restore smoke"
+        ],
+        "not_evidence_for": [
+          "Product MVP happy path pass",
+          "Matrix Client-Server breadth",
+          "external deploy or image publish"
+        ]
+      }
+    ],
+    "evidence_separation_rules": {
+      "must_label_evidence_class": true,
+      "mixed_check_rows_must_split_or_label_parts": true,
+      "deploy_smoke_success_is_not_product_mvp_happy_path": true,
+      "product_mvp_happy_path_success_is_not_deploy_smoke": true,
+      "matrix_full_compliance_not_claimed": true
+    },
+    "redaction_policy": {
+      "forbidden_release_evidence_fields": [
+        "raw bearer token",
+        "refresh token",
+        "database URL",
+        "private local path",
+        "image registry credential",
+        "machine-specific environment value"
+      ],
+      "allow_redacted_env_shape": true
+    },
     "adoption_issue_policy": {
       "houra-server": "required after SPEC-039 merge",
       "houra-client": "required after SPEC-039 merge",
-      "houra-labs": "conditional on shared parser or binding adoption"
+      "houra-labs": "conditional on shared parser or binding adoption",
+      "houra-server-deploy-smoke": "separate issue when Docker Compose startup, migration, health, connectivity, persistence/auth, restart, backup/restore, or redaction evidence is part of the release candidate"
     }
   }
 }
