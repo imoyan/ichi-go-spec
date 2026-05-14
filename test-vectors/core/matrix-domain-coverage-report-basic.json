@@ -18,6 +18,7 @@
           "houra-client"
         ],
         "adoption_issue_refs": [],
+        "known_gap_refs": [],
         "contract_gate": {
           "command": "dart tool/check_spec.dart",
           "status": "pass",
@@ -54,6 +55,7 @@
           "houra-client"
         ],
         "adoption_issue_refs": [],
+        "known_gap_refs": [],
         "contract_gate": {
           "command": "dart tool/check_spec.dart",
           "status": "pass",
@@ -83,6 +85,12 @@
           "houra-server#61",
           "houra-server#65"
         ],
+        "known_gap_refs": [
+          {
+            "scope": "policy-servers",
+            "reason": "stable Matrix v1.18 policy server behavior is not covered by SPEC-055, SPEC-056, SPEC-057, or SPEC-061"
+          }
+        ],
         "contract_gate": {
           "command": "dart tool/check_spec.dart",
           "status": "pass",
@@ -106,6 +114,7 @@
         "adoption_issue_refs": [
           "houra-server#62"
         ],
+        "known_gap_refs": [],
         "contract_gate": {
           "command": "dart tool/check_spec.dart",
           "status": "pass",
@@ -131,6 +140,7 @@
           "houra-server#63",
           "houra-client#65"
         ],
+        "known_gap_refs": [],
         "contract_gate": {
           "command": "dart tool/check_spec.dart",
           "status": "pass",
@@ -156,6 +166,7 @@
           "houra-server#64",
           "houra-client#66"
         ],
+        "known_gap_refs": [],
         "contract_gate": {
           "command": "dart tool/check_spec.dart",
           "status": "pass",
@@ -181,6 +192,7 @@
           "houra-server"
         ],
         "adoption_issue_refs": [],
+        "known_gap_refs": [],
         "contract_gate": {
           "command": "dart tool/check_spec.dart",
           "status": "pass",
@@ -207,6 +219,7 @@
           "houra-client"
         ],
         "adoption_issue_refs": [],
+        "known_gap_refs": [],
         "contract_gate": {
           "command": "dart tool/check_spec.dart",
           "status": "pass",

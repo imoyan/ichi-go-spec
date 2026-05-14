@@ -9821,6 +9821,7 @@ void validateMatrixDomainCoverageRecord(
     'contract_refs',
     'implementation_repos',
     'adoption_issue_refs',
+    'known_gap_refs',
     'contract_gate',
     'implementation_gate',
     'advertisement_allowed',
@@ -9865,6 +9866,7 @@ void validateMatrixDomainCoverageRecord(
   }
   final contractGate = value['contract_gate'];
   final implementationGate = value['implementation_gate'];
+  validateMatrixCoverageKnownGaps(file, value, failures);
   validateMatrixCoverageGate(
     file,
     contractGate,
@@ -9890,6 +9892,44 @@ void validateMatrixDomainCoverageRecord(
           implementationGate['status'] == 'pass')) {
     failures.add(
       '${relative(file)} advertisement requires passing contract and implementation gates.',
+    );
+  }
+}
+
+void validateMatrixCoverageKnownGaps(
+  File file,
+  Map value,
+  List<String> failures,
+) {
+  final gaps = value['known_gap_refs'];
+  if (gaps is! List) {
+    failures.add('${relative(file)} matrix coverage known gaps invalid.');
+    return;
+  }
+  for (final gap in gaps) {
+    if (gap is! Map) {
+      failures.add('${relative(file)} matrix coverage known gap invalid.');
+      continue;
+    }
+    final scope = gap['scope'];
+    final reason = gap['reason'];
+    if (scope is! String ||
+        scope.isEmpty ||
+        reason is! String ||
+        reason.isEmpty) {
+      failures.add('${relative(file)} matrix coverage known gap incomplete.');
+    }
+    final issue = gap['issue'];
+    if (issue != null && (issue is! String || issue.isEmpty)) {
+      failures.add(
+        '${relative(file)} matrix coverage known gap issue invalid.',
+      );
+    }
+  }
+  if (value['domain'] == 'Server-Server API' &&
+      !gaps.any((gap) => gap is Map && gap['scope'] == 'policy-servers')) {
+    failures.add(
+      '${relative(file)} Server-Server API must list policy-servers gap.',
     );
   }
 }
@@ -10154,12 +10194,31 @@ void validateMatrixVersionAdvertisementBlocked(
   validateMatrixVersionAdvertisementReference(file, eventMap, failures);
   final candidate = eventMap['candidate'];
   final evidence = candidate is Map ? candidate['domain_evidence'] : null;
+  final advertised = candidate is Map
+      ? readStringList(candidate['advertised_domains'])
+      : null;
   if (candidate is! Map ||
       candidate['coverage_report_contract'] != 'SPEC-062' ||
       candidate['complement_lane_contract'] != 'SPEC-063' ||
+      advertised == null ||
+      advertised.isEmpty ||
       evidence is! List ||
-      evidence.length != 2) {
+      evidence.length != advertised.length) {
     failures.add('${relative(file)} advertisement blocked candidate invalid.');
+  } else {
+    final evidenceByDomain = readMatrixAdvertisementEvidence(
+      file,
+      evidence,
+      failures,
+      requirePassing: false,
+    );
+    for (final domain in advertised) {
+      if (!evidenceByDomain.containsKey(domain)) {
+        failures.add(
+          '${relative(file)} advertised domain lacks evidence: $domain.',
+        );
+      }
+    }
   }
   final gate = eventMap['gate_result'];
   final reasons = gate is Map ? gate['blocking_reasons'] : null;
@@ -10193,20 +10252,39 @@ void validateMatrixVersionAdvertisementAllowed(
   }
   validateMatrixVersionAdvertisementReference(file, eventMap, failures);
   final candidate = eventMap['candidate'];
-  final advertised = candidate is Map ? candidate['advertised_domains'] : null;
-  final excluded = candidate is Map ? candidate['excluded_domains'] : null;
+  final advertised = candidate is Map
+      ? readStringList(candidate['advertised_domains'])
+      : null;
+  final excluded = candidate is Map
+      ? readStringList(candidate['excluded_domains'])
+      : null;
   final evidence = candidate is Map ? candidate['domain_evidence'] : null;
   if (candidate is! Map ||
       candidate['coverage_report_contract'] != 'SPEC-062' ||
       candidate['complement_lane_contract'] != 'SPEC-063' ||
-      advertised is! List ||
+      advertised == null ||
+      advertised.isEmpty ||
       !advertised.contains('Client-Server API') ||
-      excluded is! List ||
+      excluded == null ||
       excluded.isEmpty ||
+      advertised.toSet().intersection(excluded.toSet()).isNotEmpty ||
       candidate['unstable_mscs_included'] != false ||
       evidence is! List ||
-      evidence.length != 1) {
+      evidence.length != advertised.length) {
     failures.add('${relative(file)} advertisement allowed candidate invalid.');
+  } else {
+    final evidenceByDomain = readMatrixAdvertisementEvidence(
+      file,
+      evidence,
+      failures,
+      requirePassing: true,
+    );
+    if (evidenceByDomain.length != advertised.length ||
+        !advertised.every(evidenceByDomain.containsKey)) {
+      failures.add(
+        '${relative(file)} advertised domains must match passing evidence.',
+      );
+    }
   }
   final gate = eventMap['gate_result'];
   if (gate is! Map ||
@@ -10225,6 +10303,54 @@ void validateMatrixVersionAdvertisementAllowed(
       '${relative(file)} advertisement allowed expectation invalid.',
     );
   }
+}
+
+Map<String, Map<String, Object?>> readMatrixAdvertisementEvidence(
+  File file,
+  List evidence,
+  List<String> failures, {
+  required bool requirePassing,
+}) {
+  final result = <String, Map<String, Object?>>{};
+  for (final item in evidence) {
+    if (item is! Map) {
+      failures.add('${relative(file)} advertisement evidence invalid.');
+      continue;
+    }
+    final evidenceMap = item.cast<String, Object?>();
+    final domain = evidenceMap['domain'];
+    if (domain is! String || domain.isEmpty) {
+      failures.add('${relative(file)} advertisement evidence domain invalid.');
+      continue;
+    }
+    if (result.containsKey(domain)) {
+      failures.add(
+        '${relative(file)} duplicate advertisement evidence domain.',
+      );
+      continue;
+    }
+    final contractGate = evidenceMap['contract_gate'];
+    final implementationGate = evidenceMap['implementation_gate'];
+    if (contractGate is! String || implementationGate is! String) {
+      failures.add('${relative(file)} advertisement evidence gate invalid.');
+    }
+    if (requirePassing &&
+        (contractGate != 'pass' || implementationGate != 'pass')) {
+      failures.add(
+        '${relative(file)} advertised domain evidence must pass: $domain.',
+      );
+    }
+    if ((requirePassing ||
+            (contractGate == 'pass' && implementationGate == 'pass')) &&
+        (evidenceMap['artifact'] is! String ||
+            (evidenceMap['artifact'] as String).isEmpty)) {
+      failures.add(
+        '${relative(file)} advertisement evidence artifact invalid.',
+      );
+    }
+    result[domain] = evidenceMap;
+  }
+  return result;
 }
 
 void validateMatrixVersionAdvertisementAdoption(
