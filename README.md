@@ -655,7 +655,7 @@ Matrix domain coverage evidence report:
 
 - `SPEC-062` defines the Matrix v1.18 stable-domain coverage report shape for
   contract refs, implementation repos, adoption issue refs, pass/fail evidence,
-  artifact paths, and advertisement decisions.
+  known stable-domain gaps, artifact paths, and advertisement decisions.
 - The report covers Client-Server API, Server-Server API, Application Service
   API, Identity Service API, Push Gateway API, Room Versions, Olm & Megolm, and
   Appendices/common rules.

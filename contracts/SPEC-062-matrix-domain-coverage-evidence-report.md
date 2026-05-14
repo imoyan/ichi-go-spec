@@ -64,6 +64,8 @@ Each domain record contains:
 - `contract_refs`, the Houra `SPEC-*` contracts covering that domain;
 - `implementation_repos`, the repos expected to produce adoption evidence;
 - `adoption_issue_refs`, GitHub issue refs created after spec PR merge;
+- `known_gap_refs`, stable-domain gaps that are intentionally not covered yet,
+  each with a scope label and issue ref or explicit reason;
 - `contract_gate`, with command, pass/fail status, and artifact path;
 - `implementation_gate`, with pass/fail status and artifact path; `artifact`
   may be `null` only when the gate status is `not-run` or `not-applicable`;
@@ -82,6 +84,8 @@ Each domain record contains:
 - the implementation gate is `not-run` or `fail`;
 - adoption issue references are missing for implementation repos that must
   produce evidence;
+- stable-domain gaps are not listed with a known-gap issue or explicit
+  out-of-scope reason;
 - the domain includes excluded unstable MSC behavior;
 - the evidence artifact contains raw secrets, tokens, signing keys, pushkeys,
   or personally identifying third-party identifiers.

@@ -19,19 +19,22 @@
         {
           "domain": "Client-Server API",
           "contract_gate": "pass",
-          "implementation_gate": "pass"
+          "implementation_gate": "pass",
+          "artifact": "artifacts/release/client-server.json"
         },
         {
           "domain": "Server-Server API",
           "contract_gate": "pass",
-          "implementation_gate": "not-run"
+          "implementation_gate": "not-run",
+          "artifact": null
         }
       ]
     },
     "gate_result": {
       "status": "blocked",
       "blocking_reasons": [
-        "Server-Server API implementation evidence is not-run"
+        "Server-Server API implementation evidence is not-run",
+        "Server-Server API artifact is missing"
       ],
       "versions_response_must_change": true,
       "release_tag_allowed": false
