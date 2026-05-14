@@ -93,6 +93,15 @@ domain-wide room-version advertisement の実装完了ではなく、`SPEC-040` 
 `SPEC-044` の代表 subset と full Room Versions claim を分けるための fail-closed
 記録です。
 
+`SPEC-079` は、`houra-server#141` の Olm & Megolm full E2EE gap を
+maintained crypto stack / local state ownership、device keys / device lists、
+Olm to-device、Megolm room sessions、key backup / secret storage、verification /
+cross-signing、encrypted media、cross-domain interaction、release evidence の lane
+に分ける inventory です。これは full E2EE、local Olm/Megolm、verification、
+cross-signing、secret-storage、key-backup、device trust support の実装完了ではなく、
+`SPEC-050` から `SPEC-054`、`SPEC-069`、`SPEC-072` の代表 boundary と full
+Olm & Megolm claim を分けるための fail-closed 記録です。
+
 ## 広告してよいこと
 
 Matrix version や domain support は、contract、test vector、implementation evidence、
