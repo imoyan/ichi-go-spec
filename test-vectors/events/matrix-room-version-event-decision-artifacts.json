@@ -1,0 +1,90 @@
+{
+  "name": "matrix-room-version-event-decision-artifacts",
+  "contract": "SPEC-083",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_room_version": "12",
+    "checked_at": "2026-05-15T22:58:00+09:00",
+    "parent_contract": "SPEC-078",
+    "boundary": "event-acceptance-rejection-soft-fail-visibility-breadth",
+    "resource_bounds": {
+      "max_canonical_event_bytes": 65536,
+      "max_auth_events": 10,
+      "max_prev_events": 20,
+      "max_state_entries": 64,
+      "max_batch_decisions": 32,
+      "recursive_graph_expansion": false,
+      "network_lookup_allowed": false,
+      "unbounded_database_scan_allowed": false
+    },
+    "decisions": [
+      {
+        "event_id": "$accepted:example.test",
+        "type": "m.room.message",
+        "outcome": "accepted",
+        "reason": "representative_auth_passed",
+        "visible_in": {
+          "timeline": true,
+          "state_at_event": false,
+          "backfill": true,
+          "get_missing_events": true
+        }
+      },
+      {
+        "event_id": "$rejected:example.test",
+        "type": "m.room.member",
+        "outcome": "rejected",
+        "reason": "representative_auth_rejected",
+        "visible_in": {
+          "timeline": false,
+          "state_at_event": false,
+          "backfill": false,
+          "get_missing_events": false
+        }
+      },
+      {
+        "event_id": "$softfailed:example.test",
+        "type": "m.room.message",
+        "outcome": "soft_failed",
+        "reason": "representative_auth_soft_failed",
+        "visible_in": {
+          "timeline": false,
+          "state_at_event": false,
+          "backfill": false,
+          "get_missing_events": false
+        }
+      },
+      {
+        "event_id": "$redacted:example.test",
+        "type": "m.room.message",
+        "outcome": "redacted",
+        "reason": "redaction_applied",
+        "redacts": "$accepted:example.test",
+        "visible_in": {
+          "timeline": true,
+          "state_at_event": false,
+          "backfill": true,
+          "get_missing_events": true
+        }
+      }
+    ],
+    "release_evidence_rules": {
+      "artifact_is_representative_only": true,
+      "versions_advertisement_widened": false,
+      "full_room_version_algorithm_claimed": false,
+      "federation_get_missing_events_claimed": false,
+      "resource_bounds_required": true
+    }
+  },
+  "expected": {
+    "room_version": "12",
+    "decision_count": 4,
+    "accepted_visible_in_timeline": true,
+    "rejected_hidden_from_all_views": true,
+    "soft_failed_hidden_from_timeline_and_state": true,
+    "redacted_does_not_expose_unredacted_content": true,
+    "max_batch_decisions": 32,
+    "versions_advertisement_widened": false,
+    "full_room_version_algorithm_claimed": false
+  }
+}
