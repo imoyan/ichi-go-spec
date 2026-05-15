@@ -1,21 +1,29 @@
-# Matrix アプリ拡張境界
+# Houra integration samples の Matrix アプリ拡張境界
 
-このページは、Houra が Matrix アプリ連携をどこまで homeserver の中で扱い、
-どこから外側に逃がすかを記録します。英語の正本は
+このページは、Houra 上にアプリ固有の意味を載せる sample 全体に
+適用する境界方針を記録します。英語の正本は
 [`../architecture/matrix-application-extension-boundary.md`](../architecture/matrix-application-extension-boundary.md)
 です。これは architecture guidance であり、まだ normative な
 `contracts/SPEC-*` contract ではありません。
 
 ## 結論
 
+この境界は、源内や GenAI のためだけのものではありません。
+Houra 上にアプリ固有の意味を載せるサンプル全体に適用します。
+
 Houra は homeserver をアプリ実行基盤へ拡張しない。
-アプリ固有の意味は、可能な限り標準 Matrix イベントと無視可能な namespaced
-metadata で表現する。
+アプリ固有の意味は、可能な限り標準 Matrix イベントと無視可能な
+namespaced metadata で表現する。
 その metadata は client extension、bot、bridge、外部 application server が
 解釈する。
 homeserver はそれを opaque な Matrix event content として保存・同期するだけに
 留める。
-そのため、源内、GenAI、MCP などの連携では Level 2 を既定境界とする。
+そのため、integration samples 全体では Level 2 を既定境界とします。
+源内、GenAI、MCP はその代表例であり、例外的な専用方針ではありません。
+
+業務 application adapter、承認フロー、通知フロー、地図 / 位置情報 sample、
+注文 / commerce workflow sample、evidence link / review history sample、
+外部 system handoff sample なども同じ境界の対象です。
 
 Level 1 は標準 Matrix イベントだけで足りる場合に優先します。
 Level 3 は Level 2 で表現できない場合だけ使います。
@@ -39,12 +47,29 @@ Houra が前提にする標準的な Matrix の形:
 ### Level 2: 標準 event type + namespaced metadata
 
 `m.room.message` などの標準 event type をそのまま使います。
-`body` は人間が読める内容にして、metadata を理解しない client でも意味が
-通じる状態を保ちます。
+`body` は人間が読める内容にして、metadata を理解しない client でも
+意味が通じる状態を保ちます。
 `content` の中に、application が解釈する namespaced metadata を任意で
 追加します。
 
-例:
+汎用例:
+
+```json
+{
+  "type": "m.room.message",
+  "content": {
+    "msgtype": "m.text",
+    "body": "この依頼をレビューして",
+    "dev.houra.app": {
+      "kind": "task.request",
+      "sample": "document-review",
+      "mode": "async"
+    }
+  }
+}
+```
+
+GenAI 系 sample 例:
 
 ```json
 {
@@ -70,15 +95,17 @@ Level 2 の決まり:
 - homeserver は metadata を解釈しない。
 - homeserver はその event を opaque な Matrix event content として
   保存・同期するだけ。
-- metadata を解釈するのは、client extension、bot、bridge、外部 application
-  server。
+- metadata を解釈するのは、client extension、bot、bridge、外部
+  application server。
 - 認可は metadata だけを信用しない。user / room / app / 操作内容を
   改めて policy 評価する。
 - Level 2 は homeserver 独自 route を追加しない。
 - Level 2 は homeserver 独自 DB 挙動を要求しない。
 - Level 2 は Matrix support の advertisement を広げない。
-- `dev.houra.genai` のような namespaced 名前は、`SPEC-*` への昇格が
-  決まるまで provisional とする。
+- `dev.houra.app` や `dev.houra.genai` のような namespaced 名前は、
+  `SPEC-*` への昇格が決まるまで provisional とする。
+- sample は demo のために provisional namespace を使ってよいが、
+  その namespace は Houra の canonical 動作を定義しない。
 
 Level 2 は client / application 層の拡張であり、homeserver の拡張では
 ありません。
@@ -87,7 +114,19 @@ Level 2 は client / application 層の拡張であり、homeserver の拡張で
 
 Level 2 では表現が苦しい場合だけ使います。
 
-例:
+汎用例:
+
+```json
+{
+  "type": "dev.houra.app.task.request",
+  "content": {
+    "sample": "document-review",
+    "input": "..."
+  }
+}
+```
+
+GenAI 系例:
 
 ```json
 {
@@ -113,16 +152,22 @@ Level 3 の決まり:
 
 ## なぜ Level 2 を既定にするか
 
-- Matrix event model が標準のままなので、federation・sync・一般 Matrix
-  client がそのまま動く。
-- `body` が意味を持つので、対応していない client でも message が
-  読める fallback になる。
-- homeserver は application 意味論を覚えなくて済み、Houra Core が小さく
-  保たれる。
-- application logic、policy、integration は homeserver の外側で持つので、
-  差し替え・scale が独立する。
-- `houra-spec` への昇格は、`SPEC-*` 1 本に閉じた変更にできる。
-  homeserver fork にはならない。
+Level 1 はもっとも安全で、標準 Matrix event で足りるなら優先します。
+ただし、Level 1 だけでは structured な application intent を載せにくい
+場面があります。
+
+Level 3 は機械可読性が高い反面、互換性 risk が増え、一般的な Matrix
+client では役に立たなくなります。
+
+Level 2 はその中間で、次の利点を同時に得られます:
+
+- 人間向けの fallback が残る (`body` が読める)。
+- 標準 Matrix event type のまま使える。
+- 未対応 client でも基本的に動く。
+- 対応 client は richer な application UI を出せる。
+- bot や bridge は structured な意図を読み取れる。
+- homeserver の挙動は変えなくて済む。
+- application 固有処理を homeserver の外に出せる。
 
 ## Server の境界
 
@@ -138,14 +183,17 @@ homeserver / Houra Core が担当してよい範囲:
 
 homeserver core に持ち込まない範囲:
 
+- sample 固有の homeserver route。
 - 源内固有の homeserver route。
 - MCP client の実行。
 - RAG 検索。
 - LLM gateway 的挙動。
 - AI job の実行。
+- 業務 workflow の実行。
 - 外部 policy の代わりとなる business 認可。
 - audit log of record。
 - application workflow 用の job queue / retry engine。
+- 外部 system への公式 handoff 実行。
 - 連携 sample に由来する source-of-truth 挙動。
 
 ## Client / bot / bridge / application server の責務
@@ -154,20 +202,59 @@ homeserver ではなくこれらの層が担うこと:
 
 - Level 2 event の namespaced metadata を解釈する。
 - Level 3 custom event type を、明示的に opt-in した場合だけ扱う。
-- application workflow を実行する。prompt 制御、tool 選択、再試行、
-  承認、scheduling など。
-- user / room / app / 操作内容と外部 policy を使って認可を再評価する。
-- audit log of record を homeserver の外側に記録する。
-- 源内、GenAI、MCP、RAG、LLM Gateway、audit logger、job runtime と
-  通信する。
+- 対応 client では rich な rendering を提供する。
+- 外部 application runtime を呼ぶ。
+- 既存業務 system を adapter 越しに呼ぶ。
+- 必要なら MCP server を呼ぶ。
+- 必要なら RAG や LLM Gateway を呼ぶ。
+- 進捗や結果を Matrix に書き戻すときは、可能な限り標準 Matrix event を
+  使う。
+- 認可・policy は homeserver の外で、user / room / app / 操作内容と
+  外部 policy を使って再評価する。
+- Matrix metadata を信頼できる authority として扱わない。
+- 後続の contract と security review で明示されない限り、credentials、
+  provider token、raw prompt、機微 runtime payload を event metadata に
+  載せない。
 
-## 源内 / GenAI / MCP の位置づけ
+## Application sample / integration sample の位置づけ
 
-源内、GenAI、MCP、RAG、LLM Gateway、audit logger、job runtime の連携は
-application integration です。
-homeserver の責務ではありません。
+application sample と integration sample は homeserver の責務ではあり
+ません。
+
+対象は次のものを含みますが、これに限りません:
+
+- 源内 / GenAI / AI app runner sample
+- MCP 連携
+- RAG 連携
+- LLM Gateway 連携
+- audit logger 連携
+- job runtime 連携
+- 既存業務 application adapter
+- Java MVC strangler sample
+- SPA 画面置き換え sample
+- 承認 workflow
+- 通知 workflow
+- 地図 / 位置情報 sample
+- 注文 / commerce workflow sample
+- evidence link / review history sample
+- 外部 system handoff sample
+
+これらの sample は、人間向けの会話・state・通知・承認・evidence の表面を
+Matrix event で表すことがあります。
+ただしその application 固有の意味を解釈するのは、client extension、bot、
+bridge、application server、または外部 system であり、homeserver core
+ではありません。
 
 既定の流れ:
+
+```text
+Matrix event
+  -> client extension or bot
+  -> bridge / application server
+  -> 外部 application runtime / 既存 system / MCP / RAG / LLM Gateway / audit logger
+```
+
+源内 / GenAI 系の例:
 
 ```text
 Matrix event
@@ -176,10 +263,29 @@ Matrix event
   -> 源内 AI app / MCP / RAG / LLM Gateway / audit logger
 ```
 
-連携 sample はこの流れを示すための例であり、Houra の正規の動作を定義する
-ものではありません。動く sample があっても、それ自体は contract ではありません。
+既存業務 application の例:
+
+```text
+Matrix event
+  -> client extension or bot
+  -> bridge / application server
+  -> 既存業務 application adapter / BFF / legacy system
+```
+
+地図 / 位置情報 workflow の例:
+
+```text
+Matrix event
+  -> client extension or bot
+  -> bridge / application server
+  -> 地図 provider / location service / 現場 workflow system
+```
 
 ## sample から公開 contract への昇格ルール
+
+sample は連携の形を示すための例であり、Houra の正規の動作を定義する
+ものではありません。動く sample があっても、それ自体は contract では
+ありません。
 
 ある連携形を Houra の公開動作にする場合 (adoption evidence で参照する、
 実装リポジトリが依存する、外部利用者に対して advertise するなど)、
@@ -189,32 +295,43 @@ Matrix event
 - `test-vectors/` に対応する request / response fixture。
 - 必要なら UI surface と design input の更新。
 
-昇格されるまでは、`dev.houra.genai` などの namespaced 名前、および Level 3
-の type 名は provisional のままです。互換性のための deprecation 期間なしに
-変更されることがあります。
+昇格されるまでは、`dev.houra.app` や `dev.houra.genai` などの sample
+metadata namespace、および Level 3 の type 名は provisional のままです。
+互換性のための deprecation 期間なしに変更されることがあります。
 
 ## 今回やらないこと
 
+- 新しい公開 `dev.houra.*` 互換 contract を定義しない。
 - 新しい `SPEC-*.md` contract を追加しない。
 - 新しい test vector を追加しない。
+- 源内 / MCP / RAG / LLM Gateway 連携を実装しない。
+- job runtime を実装しない。
+- 既存業務 application adapter を実装しない。
+- 地図 / 位置情報 workflow を実装しない。
 - homeserver route を追加・変更しない。
 - `GET /_matrix/client/versions` を含む Matrix support advertisement を
   広げない。
-- `dev.houra.genai` を公開 contract の安定名として固定しない。
-- 源内 / GenAI / MCP / RAG / LLM Gateway の実装挙動を追加しない。
+- server 側の AI 実行を追加しない。
+- server 側の業務 workflow 実行を追加しない。
+- server 側の業務認可を追加しない。
+- server 側の audit log を追加しない。
 - `houra-server` / `houra-client` / `houra-labs` /
   `houra-integration-samples` に変更を入れない。
+- Qiita 等の外部記事 draft を作らない。
 
 ## Security と policy
 
-- 認可判断は metadata だけを信用してはいけません。metadata は event を
-  送れる client なら誰でも書けます。
-- metadata を実行する layer で、user / room / app / 操作内容と policy を
-  改めて評価します。
+- namespaced metadata は authority ではありません。user が手で metadata
+  を書くことも可能です。
+- bridge と application server は、信頼できる user / room / app /
+  操作内容と外部 policy を使って認可を再評価します。
 - namespaced metadata は application 層では untrusted な外部入力として
   扱います。
-- token、password、reset code、authorization code、IdP session 識別子
-  などの secret を namespaced metadata に入れません。evidence や log と
-  同じ redaction 方針を適用します。
-- application の log と audit record of record は homeserver の外側で
-  保持します。
+- provider credential、access token、secret、private key、未加工の
+  規制対象データ、raw prompt、機微な runtime payload を sample metadata
+  に載せないでください。
+- audit log of record は Matrix の event history だけに依存せず、外部の
+  audit system に保持します。
+- Matrix room の membership を policy 入力にすることは可能ですが、
+  機微な業務操作の最終的な policy 根拠としては使いません。これを許す
+  場合は、別途 contract で明示的に境界を定義する必要があります。

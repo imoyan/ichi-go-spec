@@ -1,4 +1,4 @@
-# Matrix Application Extension Boundary
+# Matrix Application Extension Boundary for Houra Integration Samples
 
 - Status: Accepted
 - Scope: Architecture guidance
@@ -6,16 +6,27 @@
 
 ## Decision
 
-Houra keeps its Matrix integration inside Matrix. Houra Core and the Houra
-homeserver remain a Matrix-compatible event substrate; they are not extended
-into a generic application execution platform.
+Houra application samples and integration samples use **Level 2** as the
+default extension strategy.
 
-For application integrations such as Gennai, GenAI, MCP, RAG, LLM Gateway,
-audit logger, and job runtime, the default integration boundary is **Level 2:
-standard Matrix event types plus optional namespaced metadata inside event
-`content`**. Level 1 is preferred when standard Matrix events already cover
-the use case. Level 3 (namespaced custom event types or custom state events)
-is allowed only when Level 2 is not enough.
+Level 2 keeps Matrix event types standard and adds optional, namespaced
+metadata inside event `content`. Homeservers do not interpret this metadata.
+Clients, bots, bridges, or external application servers may interpret it.
+
+This preserves the Matrix server boundary while still allowing
+application-specific client surfaces such as task cards, approval buttons,
+evidence links, workflow status, external-system handoff status,
+map/location annotations, AI result cards, and integration status displays.
+
+This boundary applies to Houra integration samples in general. Gennai,
+GenAI, and MCP are examples; they are not the only scope. Business
+application adapters, approval flows, notification flows, map/location
+samples, order/commerce workflows, evidence-link and review-history
+samples, and external-system handoff samples are all in scope.
+
+Level 1 is preferred when standard Matrix events already cover the use
+case. Level 3 (namespaced custom event types or custom state events) is
+allowed only when Level 2 is not enough.
 
 Level 2 is a client / bot / bridge / application-server extension, not a
 homeserver extension. The homeserver does not interpret the metadata.
@@ -46,7 +57,24 @@ human-readable so unsupported clients still display a usable message. Inside
 `content`, add an optional, namespaced metadata object that application-aware
 clients, bots, bridges, or application servers may interpret.
 
-Example:
+General example:
+
+```json
+{
+  "type": "m.room.message",
+  "content": {
+    "msgtype": "m.text",
+    "body": "この依頼をレビューして",
+    "dev.houra.app": {
+      "kind": "task.request",
+      "sample": "document-review",
+      "mode": "async"
+    }
+  }
+}
+```
+
+GenAI-style sample example:
 
 ```json
 {
@@ -78,15 +106,29 @@ Level 2 rules:
 - Level 2 must not introduce custom homeserver routes.
 - Level 2 must not require custom homeserver database behavior.
 - Level 2 must not widen Matrix support advertisement.
-- Namespaced metadata names such as `dev.houra.genai` are provisional unless
-  later promoted to a public Houra contract.
+- Namespaced metadata names such as `dev.houra.app` and `dev.houra.genai`
+  are provisional unless later promoted to a public Houra contract.
+- Samples may use provisional namespaces for demonstration, but those
+  namespaces do not define canonical Houra behavior.
 
 ### Level 3: namespaced custom event types or custom state events
 
 Use a namespaced custom event type or a custom state event. This is only
 appropriate when Level 2 cannot express the integration cleanly.
 
-Example:
+General example:
+
+```json
+{
+  "type": "dev.houra.app.task.request",
+  "content": {
+    "sample": "document-review",
+    "input": "..."
+  }
+}
+```
+
+GenAI-style example:
 
 ```json
 {
@@ -112,18 +154,21 @@ Level 3 rules:
 
 ## Why Level 2 is the default
 
-Level 2 keeps the Matrix surface clean while leaving room for application
-behavior to grow at the client / bot / bridge / application-server layer:
+Level 1 is the safest choice and should be used when standard Matrix events
+are sufficient, but it often lacks structured application intent.
 
-- The Matrix event model stays standard, so federation, sync, and generic
-  Matrix clients continue to work.
-- Unsupported clients still render a usable message because `body` is
-  meaningful.
-- The homeserver stays small: it never has to learn application semantics.
-- Application logic, policy, and integrations are owned by code outside the
-  homeserver, where they can be replaced or scaled independently.
-- Promotion to a public Houra contract is a focused change in `houra-spec`,
-  not a homeserver fork.
+Level 3 is more machine-readable, but it raises compatibility risk and can
+make ordinary Matrix clients less useful.
+
+Level 2 is the preferred middle ground:
+
+- a human-readable fallback remains available;
+- standard Matrix event types remain in use;
+- unsupported clients still work at a basic level;
+- supported clients can render richer application UI;
+- bots and bridges can read structured intent;
+- homeserver behavior remains unchanged;
+- application-specific processing stays outside the homeserver.
 
 ## Server boundary
 
@@ -139,37 +184,78 @@ behavior to grow at the client / bot / bridge / application-server layer:
 
 ### Not allowed in homeserver core
 
+- Sample-specific homeserver routes.
 - Gennai-specific homeserver routes.
 - MCP client execution.
 - RAG search.
 - LLM gateway behavior.
 - AI job execution.
+- Business workflow execution.
 - Business authorization as a replacement for external policy.
 - Audit log of record.
 - Job queue or retry engine for application workflows.
+- Official external-system handoff execution.
 - Source-of-truth behavior derived from integration samples.
 
-## Client, bot, bridge, and application server responsibilities
+## Client / bot / bridge / application server responsibilities
 
 These layers, not the homeserver, own application semantics:
 
-- Interpret namespaced metadata inside Level 2 events.
+- Interpret optional namespaced metadata inside Level 2 events.
 - Recognize Level 3 custom event types when explicitly opted in.
-- Run application workflows: prompt orchestration, tool selection, retries,
-  approvals, scheduling.
-- Re-check authorization using full context: user, room, app, operation,
-  and external policy.
-- Record audit log of record outside the homeserver.
-- Talk to Gennai, GenAI, MCP, RAG, LLM Gateway, audit logger, and job
-  runtime backends.
+- Provide enhanced rendering when supported.
+- Call external application runtimes.
+- Call existing business systems through adapters.
+- Call MCP servers when appropriate.
+- Call RAG or LLM Gateway systems when appropriate.
+- Send progress or result messages back to Matrix using standard Matrix
+  events when possible.
+- Re-check authorization and policy outside the homeserver using full
+  context: user, room, app, operation, and external policy.
+- Avoid treating Matrix metadata as trusted authority.
+- Avoid placing secrets, provider tokens, raw prompts, or other sensitive
+  runtime data into event metadata unless explicitly covered by a later
+  contract and security review.
 
-## Gennai, GenAI, and MCP position
+## Application sample / integration sample position
 
-Gennai, GenAI, MCP, RAG, LLM Gateway, audit logger, and job runtime
-integrations are **application integrations**. They are not homeserver
+Application samples and integration samples are not homeserver
 responsibilities.
 
-The default integration shape is:
+This includes, but is not limited to:
+
+- Gennai / GenAI / AI app runner samples
+- MCP integrations
+- RAG integrations
+- LLM Gateway integrations
+- audit logger integrations
+- job runtime integrations
+- existing business application adapters
+- Java MVC strangler samples
+- SPA screen replacement samples
+- approval workflows
+- notification workflows
+- map / location samples
+- order / commerce workflow samples
+- evidence link / review history samples
+- external system handoff samples
+
+These samples may use Matrix events to expose human-facing conversation,
+state, notification, approval, and evidence surfaces. However, the
+application-specific meaning must be interpreted by client extensions,
+bots, bridges, application servers, or external systems — not by the
+homeserver core.
+
+Default integration shape:
+
+```text
+Matrix event
+  -> client extension or bot
+  -> bridge / application server
+  -> external application runtime / existing system / MCP / RAG / LLM Gateway / audit logger
+```
+
+Example for Gennai / GenAI:
 
 ```text
 Matrix event
@@ -178,47 +264,77 @@ Matrix event
   -> Gennai AI app / MCP / RAG / LLM Gateway / audit logger
 ```
 
-Integration samples may demonstrate this shape, but samples do not define
-canonical Houra behavior. A working sample is not a contract.
+Example for an existing business application:
+
+```text
+Matrix event
+  -> client extension or bot
+  -> bridge / application server
+  -> existing business application adapter / BFF / legacy system
+```
+
+Example for a map / location workflow:
+
+```text
+Matrix event
+  -> client extension or bot
+  -> bridge / application server
+  -> map provider / location service / field workflow system
+```
 
 ## Promotion rule from sample to public contract
 
+Samples may demonstrate integration shapes, but samples do not define
+canonical Houra behavior. A working sample is not a contract.
+
 If an integration shape becomes public Houra behavior — referenced by
-adoption evidence, depended on by implementation repositories, or advertised
-to external users — it must first be promoted into `houra-spec` with:
+adoption evidence, depended on by implementation repositories, or
+advertised to external users — it must first be promoted into `houra-spec`
+with:
 
 - a matching `SPEC-*` contract in `contracts/`;
 - the corresponding request and response fixtures in `test-vectors/`;
 - any required UI surface and design input updates.
 
-Until that promotion happens, namespaced metadata names such as
-`dev.houra.genai` and any Level 3 type names remain provisional and may
-change without a deprecation window.
+Until that promotion happens, sample metadata namespaces such as
+`dev.houra.app` and `dev.houra.genai`, and any Level 3 type names, remain
+provisional and may change without a deprecation window.
 
 ## Non-goals
 
 This document does not:
 
-- add a new `SPEC-*.md` contract;
+- define a new public `dev.houra.*` compatibility contract;
+- add a new `SPEC-*` contract;
 - add new test vectors;
-- add or change homeserver routes;
+- implement Gennai integration;
+- implement MCP integration;
+- implement RAG;
+- implement an LLM Gateway;
+- implement a job runtime;
+- add custom homeserver routes;
 - widen Matrix support advertisement, including
   `GET /_matrix/client/versions`;
-- elevate `dev.houra.genai` to a stable public contract name;
-- add Gennai, GenAI, MCP, RAG, or LLM Gateway implementation behavior;
+- add server-side AI execution;
+- add server-side business workflow execution;
+- add server-side business authorization;
+- add server-side audit logging;
 - modify `houra-server`, `houra-client`, `houra-labs`, or
-  `houra-integration-samples`.
+  `houra-integration-samples`;
+- draft or publish external articles.
 
 ## Security and policy notes
 
-- Authorization decisions must not trust metadata alone. The metadata can
-  be set by any client able to send the event.
-- Policy must be re-checked from user, room, app, and operation context at
-  the layer that acts on the metadata.
+- Namespaced metadata is not authority. A user may craft metadata manually.
+- Bridges and application servers must re-check policy using trusted user,
+  room, app, and operation context.
 - Treat namespaced metadata as untrusted external input at the application
   layer.
-- Do not place secret values (tokens, passwords, reset codes,
-  authorization codes, IdP session identifiers) inside namespaced metadata.
-  The same redaction rules that apply to evidence and logs apply here.
-- Application logs and audit records of record must live outside the
-  homeserver.
+- Do not place provider credentials, access tokens, secrets, private keys,
+  raw regulated data, raw prompts, or other sensitive runtime payloads
+  into sample metadata.
+- Audit logs of record should live in an external audit system, not in
+  Matrix event history alone.
+- Matrix room membership may be an input to policy, but it must not be the
+  final policy source for sensitive business operations unless a later
+  contract explicitly defines that boundary.
