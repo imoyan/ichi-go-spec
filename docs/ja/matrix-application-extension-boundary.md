@@ -41,8 +41,11 @@ Houra が前提にする標準的な Matrix の形:
   `m.notice`、および `m.image` / `m.file` / `m.audio` / `m.video` などの
   media msgtype)。
 - annotation を表す `m.reaction` event。
-- 上記 event の `content` に含める `m.in_reply_to` や `m.relates_to`
-  などの reply / relation 表現。
+- 上記 event の `content` 内に置く `m.relates_to` object による
+  reply / relation 表現。reply の場合は `m.relates_to` の中に
+  `m.in_reply_to` object をネストして親 event を参照します。その他の
+  relation は同じ `m.relates_to` の中で `rel_type` と `event_id` を
+  使います。
 
 ### Level 2: 標準 event type + namespaced metadata
 

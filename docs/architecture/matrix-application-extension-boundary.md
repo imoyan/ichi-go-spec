@@ -44,8 +44,11 @@ Standard Matrix shapes Houra builds on:
   `m.notice`, and media msgtypes such as `m.image`, `m.file`, `m.audio`,
   and `m.video`.
 - `m.reaction` events for annotations.
-- Reply and relation content fields such as `m.in_reply_to` and
-  `m.relates_to` inside the events above.
+- Reply and relation structure expressed through an `m.relates_to`
+  object inside event `content`. For replies, `m.relates_to` contains a
+  nested `m.in_reply_to` object referencing the parent event. Other
+  relations use `rel_type` and `event_id` inside the same `m.relates_to`
+  object.
 
 When ordinary chat, notifications, reactions, or file attachments are
 sufficient, prefer Level 1.
