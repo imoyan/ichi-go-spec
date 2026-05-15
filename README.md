@@ -1560,6 +1560,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-079 | Matrix Olm & Megolm full E2EE gap inventory | `test-vectors/messaging/matrix-olm-megolm-full-e2ee-gap-inventory.json` |
 | SPEC-080 | Matrix room versions capabilities advertisement boundary | `test-vectors/rooms/matrix-room-versions-capabilities-advertisement-boundary.json` |
 | SPEC-081 | Matrix maintained crypto stack and storage ownership boundary | `test-vectors/messaging/matrix-maintained-crypto-storage-ownership-boundary.json` |
+| SPEC-082 | Matrix client well-known discovery, support, and policy boundary | `test-vectors/core/matrix-client-well-known-discovery-support-policy.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
