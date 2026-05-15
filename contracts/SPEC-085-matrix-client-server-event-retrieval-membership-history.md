@@ -63,7 +63,9 @@ membership surfaces. Descriptors must keep route expansion typed and bounded:
     "roomId": "!room:example.test",
     "eventId": "$event:example.test"
   },
-  "requires_auth": true
+  "requires_auth": true,
+  "adopted_runtime_behavior": true,
+  "response_parser": "client_event"
 }
 ```
 

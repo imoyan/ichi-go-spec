@@ -58,6 +58,7 @@
           "eventId": "$event:example.test"
         },
         "requires_auth": true,
+        "adopted_runtime_behavior": true,
         "response_parser": "client_event"
       },
       {
@@ -68,6 +69,7 @@
           "roomId": "!room:example.test"
         },
         "requires_auth": true,
+        "adopted_runtime_behavior": true,
         "response_parser": "joined_members"
       },
       {
@@ -83,6 +85,7 @@
           "not_membership": "leave"
         },
         "requires_auth": true,
+        "adopted_runtime_behavior": true,
         "response_parser": "membership_chunk"
       },
       {
@@ -97,6 +100,7 @@
           "dir": "b"
         },
         "requires_auth": true,
+        "adopted_runtime_behavior": true,
         "response_parser": "timestamp_to_event"
       }
     ],
