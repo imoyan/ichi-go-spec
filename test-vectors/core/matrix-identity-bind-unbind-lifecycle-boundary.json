@@ -3,123 +3,153 @@
   "contract": "SPEC-092",
   "event": {
     "matrix_spec_version": "v1.18",
-    "matrix_spec_source": "https://spec.matrix.org/v1.18/identity-service-api/#post_matrixidentityv23pidunbind",
-    "checked_at": "2026-05-16T05:45:00+09:00",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/identity-service-api/#post_matrixidentityv23pidbind",
+      "https://spec.matrix.org/v1.18/identity-service-api/#get_matrixidentityv23pidgetvalidated3pid",
+      "https://spec.matrix.org/v1.18/identity-service-api/#post_matrixidentityv23pidunbind"
+    ],
+    "checked_at": "2026-05-16T05:58:00+09:00",
     "parent_contract": "SPEC-059",
     "gap_inventory_contract": "SPEC-076",
     "lane_id": "bind-validated-3pid-unbind-association-lifecycle-breadth",
     "resource_bounds": {
-      "max_canonical_case_bytes": 24576,
-      "max_case_count": 10,
-      "max_lifecycle_step_count": 12,
-      "max_failure_count": 6,
-      "validated_session_storage": "process",
-      "association_storage": "process",
-      "provider_delivery": false,
+      "max_canonical_case_bytes": 20480,
+      "max_case_count": 8,
+      "max_association_count": 4,
+      "max_signature_key_count_per_association": 2,
+      "replay_cache_scope": "process",
+      "replay_cache_max_entries": 128,
+      "provider_delivery_request_generation": false,
+      "network_lookup": false,
+      "raw_identity_token_evidence": false,
+      "raw_validation_token_evidence": false,
+      "raw_client_secret_evidence": false,
+      "raw_lookup_pepper_evidence": false,
       "raw_3pid_evidence": false,
-      "raw_token_evidence": false,
       "raw_signature_evidence": false,
       "versions_advertisement_widened": false
     },
     "cases": [
       {
-        "id": "validated-3pid-before-bind",
-        "kind": "validated_3pid_query",
+        "id": "validated-3pid-does-not-publish",
+        "kind": "validated_3pid",
         "request": {
           "method": "GET",
           "path": "/_matrix/identity/v2/3pid/getValidated3pid"
         },
         "status": 200,
-        "association_visible": false,
-        "lookup_removed": false,
+        "association_state": "not_published",
+        "auth_proof": "identity_token",
+        "redacted_fields": [
+          "identity_token",
+          "client_secret",
+          "full_3pid"
+        ],
         "result": "accepted"
       },
       {
         "id": "bind-publishes-association",
-        "kind": "bind_publication",
+        "kind": "bind_association",
         "request": {
           "method": "POST",
           "path": "/_matrix/identity/v2/3pid/bind"
         },
         "status": 200,
-        "association_visible": true,
-        "lookup_removed": false,
+        "association_state": "published",
+        "auth_proof": "validated_session",
+        "redacted_fields": [
+          "identity_token",
+          "client_secret",
+          "full_3pid",
+          "signature"
+        ],
         "result": "accepted"
       },
       {
-        "id": "session-based-unbind",
-        "kind": "session_unbind",
-        "request": {
-          "method": "POST",
-          "path": "/_matrix/identity/v2/3pid/unbind"
-        },
-        "status": 200,
-        "association_visible": false,
-        "lookup_removed": true,
-        "result": "accepted"
-      },
-      {
-        "id": "homeserver-signed-unbind",
+        "id": "homeserver-signed-unbind-removes-association",
         "kind": "homeserver_signed_unbind",
         "request": {
           "method": "POST",
           "path": "/_matrix/identity/v2/3pid/unbind"
         },
         "status": 200,
-        "association_visible": false,
-        "lookup_removed": true,
+        "association_state": "removed",
+        "auth_proof": "homeserver_signature",
+        "redacted_fields": [
+          "identity_token",
+          "full_3pid",
+          "signature"
+        ],
         "result": "accepted"
       },
       {
-        "id": "post-unbind-lookup",
+        "id": "session-based-unbind-removes-association",
+        "kind": "session_based_unbind",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/3pid/unbind"
+        },
+        "status": 200,
+        "association_state": "removed",
+        "auth_proof": "validated_session",
+        "redacted_fields": [
+          "identity_token",
+          "client_secret",
+          "full_3pid"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "stale-session-fails-closed",
+        "kind": "stale_session",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/3pid/unbind"
+        },
+        "status": 403,
+        "errcode": "M_FORBIDDEN",
+        "association_state": "unchanged",
+        "auth_proof": "validated_session",
+        "redacted_fields": [
+          "identity_token",
+          "client_secret",
+          "full_3pid"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "already-unbound-is-idempotent",
+        "kind": "already_unbound",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/3pid/unbind"
+        },
+        "status": 200,
+        "association_state": "not_found",
+        "auth_proof": "homeserver_signature",
+        "redacted_fields": [
+          "identity_token",
+          "full_3pid",
+          "signature"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "post-unbind-lookup-returns-no-mapping",
         "kind": "post_unbind_lookup",
         "request": {
           "method": "POST",
           "path": "/_matrix/identity/v2/lookup"
         },
         "status": 200,
-        "association_visible": false,
-        "lookup_removed": true,
+        "association_state": "not_found",
+        "auth_proof": "identity_token",
+        "redacted_fields": [
+          "identity_token",
+          "lookup_pepper",
+          "hashed_3pid"
+        ],
         "result": "accepted"
-      },
-      {
-        "id": "stale-session-failure",
-        "kind": "stale_session_failure",
-        "request": {
-          "method": "POST",
-          "path": "/_matrix/identity/v2/3pid/unbind"
-        },
-        "status": 403,
-        "errcode": "M_FORBIDDEN",
-        "association_visible": true,
-        "lookup_removed": false,
-        "result": "rejected"
-      },
-      {
-        "id": "already-unbound-failure",
-        "kind": "already_unbound_failure",
-        "request": {
-          "method": "POST",
-          "path": "/_matrix/identity/v2/3pid/unbind"
-        },
-        "status": 404,
-        "errcode": "M_NOT_FOUND",
-        "association_visible": false,
-        "lookup_removed": true,
-        "result": "rejected"
-      },
-      {
-        "id": "invalid-homeserver-signature",
-        "kind": "auth_privacy_failure",
-        "request": {
-          "method": "POST",
-          "path": "/_matrix/identity/v2/3pid/unbind"
-        },
-        "status": 403,
-        "errcode": "M_FORBIDDEN",
-        "association_visible": true,
-        "lookup_removed": false,
-        "result": "rejected"
       }
     ],
     "release_evidence_rules": {
@@ -131,18 +161,21 @@
     }
   },
   "expected": {
-    "case_count": 8,
-    "accepted_case_count": 5,
-    "rejected_case_count": 3,
-    "max_case_count": 10,
-    "validated_query_before_bind": true,
-    "bind_publishes_lookup": true,
-    "session_unbind_removes_lookup": true,
-    "homeserver_signed_unbind_removes_lookup": true,
-    "stale_session_rejected": true,
-    "already_unbound_rejected": true,
+    "case_count": 7,
+    "accepted_case_count": 7,
+    "max_case_count": 8,
+    "validated_3pid_does_not_publish": true,
+    "bind_publishes_association": true,
+    "homeserver_signed_unbind_supported": true,
+    "session_based_unbind_supported": true,
+    "stale_session_fails_closed": true,
+    "already_unbound_idempotent": true,
+    "post_unbind_lookup_removed": true,
+    "raw_identity_tokens_stored": false,
+    "raw_validation_tokens_stored": false,
+    "raw_client_secrets_stored": false,
+    "raw_lookup_peppers_stored": false,
     "raw_3pids_stored": false,
-    "raw_tokens_stored": false,
     "raw_signatures_stored": false,
     "identity_service_full_breadth_claimed": false,
     "provider_delivery_claimed": false,

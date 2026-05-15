@@ -6,33 +6,35 @@ Canonical: yes
 
 ## Purpose
 
-Define a bounded Identity Service bind, validated 3PID, unbind, and association
-lifecycle boundary for the `bind-validated-3pid-unbind-association-lifecycle-
-breadth` lane in `SPEC-076`.
+Define a bounded Identity Service bind, validated 3PID, and unbind lifecycle
+boundary for the `bind-validated-3pid-unbind-association-lifecycle-breadth`
+lane in `SPEC-076`.
 
 This contract lets implementation repositories record representative evidence
-for publishing and removing validated 3PID associations without claiming full
-Identity Service API support, external provider delivery, invitation storage,
-or consent UI behavior.
+for publishing, reading, and removing third-party identifier associations
+without claiming full Identity Service API support, provider delivery, consent
+UI, or Matrix version advertisement.
 
 ## Scope
 
 This contract covers representative Matrix v1.18 Identity Service lifecycle
 behavior:
 
-- validated 3PID query for an unbound validation session;
-- bind publication after validated session proof;
-- lookup visibility only after bind publication;
-- session-based unbind proof using `sid` and `client_secret`;
-- homeserver-signed unbind proof for the controlled `mxid`;
-- stale-session and already-unbound failures;
+- `POST /_matrix/identity/v2/3pid/bind`;
+- `GET /_matrix/identity/v2/3pid/getValidated3pid`;
+- `POST /_matrix/identity/v2/3pid/unbind`;
+- association publication only after bind;
+- homeserver-signed unbind;
+- session-based unbind through `sid` and `client_secret`;
+- stale-session rejection;
+- already-unbound idempotent removal evidence;
 - lookup removal after successful unbind;
-- privacy and authentication failures as Matrix errors.
+- bounded, redacted lifecycle artifacts.
 
-It does not define email or SMS provider delivery, invite storage, ephemeral
-invitation signing, identity-server selection UI, consent UI, provider retry
-policy, association signature cryptographic verification beyond representative
-redacted evidence, or full Identity Service API advertisement.
+It does not define validation provider delivery, email or SMS operations,
+identity-service account registration, terms UI, invitation storage, ephemeral
+invitation signing, long-term identity key rotation, homeserver account-data
+persistence, or full Identity Service API advertisement.
 
 ## Matrix reference
 
@@ -42,70 +44,81 @@ redacted evidence, or full Identity Service API advertisement.
 - Source: <https://spec.matrix.org/v1.18/identity-service-api/#post_matrixidentityv23pidunbind>
 - Parent contract: `SPEC-059`
 - Gap inventory: `SPEC-076`
-- Checked at: 2026-05-16T05:45:00+09:00
+- Checked at: 2026-05-16T05:58:00+09:00
 - Timezone: Asia/Tokyo
 
 ## Lifecycle behavior
 
-`GET /_matrix/identity/v2/3pid/getValidated3pid` returns a validated 3PID for
-a live validation session without publishing that association to lookup.
+Validation sessions prove control over a 3PID but do not publish lookup
+associations. Publication happens only through:
 
-`POST /_matrix/identity/v2/3pid/bind` publishes a lookup association only when
-the caller proves a validated session for the submitted `sid`, `client_secret`,
-and `mxid`. The bind response is a signed association object. Evidence may
-record that a signed association was returned, but it must not store raw
-signatures or private key material.
+```text
+POST /_matrix/identity/v2/3pid/bind
+```
 
-`POST /_matrix/identity/v2/3pid/unbind` accepts either:
+`GET /_matrix/identity/v2/3pid/getValidated3pid` returns the validated 3PID
+for a session. It MUST NOT publish an association by itself.
 
-- a live validated session proof for the submitted 3PID and `mxid`; or
-- a homeserver-signed proof for the submitted `mxid` and 3PID.
+`POST /_matrix/identity/v2/3pid/unbind` removes a published association when
+authenticated by either:
 
-A successful unbind removes future lookup visibility for that 3PID. Repeating
-unbind after the association is already absent is a failure case for this
-representative boundary and must not recreate or leak an association.
+- homeserver-signed proof for the controlled `mxid`; or
+- the validated session tuple `sid` and `client_secret`.
 
-Stale, missing, or mismatched validation sessions fail closed. Missing identity
-service authentication, unsigned terms, invalid homeserver signatures, and
-rotated lookup pepper failures remain Matrix errors.
+Successful unbind MUST remove the association from future lookup results. A
+second unbind for an already-removed association MAY be treated as an idempotent
+success if the artifact records that no mapping remains. Stale or mismatched
+sessions MUST fail closed and MUST NOT remove an unrelated association.
+
+Unsupported unbind behavior remains governed by `SPEC-059`; this contract adds
+the lifecycle artifact shape required before `houra-server#245` can cite bind
+and unbind lifecycle breadth.
 
 ## Resource and privacy bounds
 
 Representative artifacts MUST be bounded:
 
-- maximum canonical case bytes: 24576;
-- maximum case count: 10;
-- maximum lifecycle step count: 12;
-- maximum failure count: 6;
-- validated session storage: `process`;
-- association storage: `process`;
-- provider delivery: false;
+- maximum canonical case bytes: 20480;
+- maximum case count: 8;
+- maximum association count: 4;
+- maximum signature key count per association: 2;
+- replay cache scope: `process`;
+- replay cache max entries: 128;
+- provider delivery request generation: false;
+- network lookup: false;
+- raw identity token evidence: false;
+- raw validation token evidence: false;
+- raw client secret evidence: false;
+- raw lookup pepper evidence: false;
 - raw 3PID evidence: false;
-- raw token evidence: false;
 - raw signature evidence: false;
 - versions advertisement widened: false.
 
-Implementations MUST fail closed when these bounds are not present or are
-weakened.
+Implementations MUST fail closed when these bounds are missing or weakened.
 
 ## Evidence artifact
 
 Each representative case records:
 
 - `id`;
-- `kind`: `validated_3pid_query`, `bind_publication`,
-  `session_unbind`, `homeserver_signed_unbind`, `post_unbind_lookup`,
-  `stale_session_failure`, `already_unbound_failure`, or `auth_privacy_failure`;
+- `kind`: `validated_3pid`, `bind_association`,
+  `homeserver_signed_unbind`, `session_based_unbind`, `stale_session`,
+  `already_unbound`, or `post_unbind_lookup`;
 - `request`: method and path;
 - `status`;
 - `errcode` when the result is a Matrix error;
-- `association_visible`;
-- `lookup_removed`;
-- `result`: `accepted` or `rejected`.
+- `association_state`: `not_published`, `published`, `removed`,
+  `unchanged`, or `not_found`;
+- `auth_proof`: `identity_token`, `homeserver_signature`,
+  `validated_session`, or `none`;
+- `redacted_fields`;
+- `result`: `accepted`.
 
-Artifacts MUST NOT store raw 3PIDs, tokens, client secrets, lookup peppers,
-homeserver signatures, identity-service signatures, provider payloads, or
-local paths.
+Artifacts MUST NOT store raw Identity Service tokens, validation tokens,
+client secrets, lookup peppers, full 3PID addresses, provider payloads,
+signature bytes, local paths, or database keys. Redacted fields MAY identify
+which categories were removed so downstream evidence can be audited without
+exposing secrets or user identifiers.
 
 ## Compatibility boundaries
 
@@ -113,8 +126,7 @@ local paths.
 - Identity Service API remains out of the current Matrix v1.18 advertisement
   until the release-evidence gate explicitly allows it.
 - `SPEC-059` remains the representative Identity Service boundary. This
-  contract records lifecycle breadth for bind/unbind behavior and does not
-  weaken `SPEC-059` privacy and authentication failures.
-- Validation provider delivery, lookup privacy breadth, public-key lifecycle,
-  invitation storage, ephemeral invitation signing, and consent UI stay in
-  their own lanes.
+  contract narrows one `SPEC-076` lane for implementation adoption evidence; it
+  does not complete Identity Service full breadth.
+- Provider delivery, consent UI, invitation storage, ephemeral signing,
+  account lifecycle, and key-rotation lanes stay separate.
