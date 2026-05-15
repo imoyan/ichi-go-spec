@@ -1,0 +1,240 @@
+{
+  "name": "matrix-identity-validation-provider-delivery-boundary",
+  "contract": "SPEC-094",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/identity-service-api/#post_matrixidentityv2validateemailrequesttoken",
+      "https://spec.matrix.org/v1.18/identity-service-api/#post_matrixidentityv2validateemailsubmittoken",
+      "https://spec.matrix.org/v1.18/identity-service-api/#post_matrixidentityv2validatemsisdnrequesttoken",
+      "https://spec.matrix.org/v1.18/identity-service-api/#post_matrixidentityv2validatemsisdnsubmittoken"
+    ],
+    "checked_at": "2026-05-16T06:10:00+09:00",
+    "parent_contract": "SPEC-059",
+    "gap_inventory_contract": "SPEC-076",
+    "lane_id": "validation-session-provider-delivery-breadth",
+    "resource_bounds": {
+      "max_canonical_case_bytes": 20480,
+      "max_case_count": 8,
+      "max_session_count": 4,
+      "max_provider_handoff_count": 4,
+      "token_ttl_seconds": 900,
+      "send_attempt_max": 3,
+      "replay_cache_scope": "process",
+      "replay_cache_max_entries": 128,
+      "provider_delivery_operation": "handoff-only",
+      "provider_retry_queue_enabled": false,
+      "provider_network_delivery": false,
+      "raw_identity_token_evidence": false,
+      "raw_validation_token_evidence": false,
+      "raw_client_secret_evidence": false,
+      "raw_provider_payload_evidence": false,
+      "raw_provider_log_evidence": false,
+      "raw_3pid_evidence": false,
+      "local_template_path_evidence": false,
+      "versions_advertisement_widened": false
+    },
+    "cases": [
+      {
+        "id": "email-request-token-queues-redacted-handoff",
+        "kind": "email_request_token",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/validate/email/requestToken"
+        },
+        "status": 200,
+        "medium": "email",
+        "session_state": "issued",
+        "provider_handoff": "queued",
+        "auth_proof": "identity_token",
+        "redacted_fields": [
+          "identity_token",
+          "client_secret",
+          "validation_token",
+          "full_3pid",
+          "provider_payload"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "email-submit-token-validates-session",
+        "kind": "email_submit_token",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/validate/email/submitToken"
+        },
+        "status": 200,
+        "medium": "email",
+        "session_state": "validated",
+        "provider_handoff": "not_generated",
+        "auth_proof": "none",
+        "redacted_fields": [
+          "client_secret",
+          "validation_token",
+          "full_3pid"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "msisdn-request-token-queues-redacted-handoff",
+        "kind": "msisdn_request_token",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/validate/msisdn/requestToken"
+        },
+        "status": 200,
+        "medium": "msisdn",
+        "session_state": "issued",
+        "provider_handoff": "queued",
+        "auth_proof": "identity_token",
+        "redacted_fields": [
+          "identity_token",
+          "client_secret",
+          "validation_token",
+          "full_3pid",
+          "provider_payload"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "msisdn-submit-token-validates-session",
+        "kind": "msisdn_submit_token",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/validate/msisdn/submitToken"
+        },
+        "status": 200,
+        "medium": "msisdn",
+        "session_state": "validated",
+        "provider_handoff": "not_generated",
+        "auth_proof": "none",
+        "redacted_fields": [
+          "client_secret",
+          "validation_token",
+          "full_3pid"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "expired-token-fails-closed",
+        "kind": "expired_token",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/validate/email/submitToken"
+        },
+        "status": 403,
+        "errcode": "M_FORBIDDEN",
+        "medium": "email",
+        "session_state": "expired",
+        "provider_handoff": "not_generated",
+        "auth_proof": "none",
+        "redacted_fields": [
+          "client_secret",
+          "validation_token",
+          "full_3pid"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "repeated-submit-is-idempotent-without-handoff",
+        "kind": "repeated_submit",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/validate/email/submitToken"
+        },
+        "status": 200,
+        "medium": "email",
+        "session_state": "validated",
+        "provider_handoff": "not_generated",
+        "auth_proof": "none",
+        "redacted_fields": [
+          "client_secret",
+          "validation_token",
+          "full_3pid"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "provider-bounce-fails-closed",
+        "kind": "provider_bounce",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/validate/email/requestToken"
+        },
+        "status": 503,
+        "errcode": "M_UNKNOWN",
+        "medium": "email",
+        "session_state": "failed",
+        "provider_handoff": "bounced",
+        "auth_proof": "identity_token",
+        "redacted_fields": [
+          "identity_token",
+          "client_secret",
+          "validation_token",
+          "full_3pid",
+          "provider_payload",
+          "provider_log"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "provider-timeout-fails-closed",
+        "kind": "provider_timeout",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/validate/msisdn/requestToken"
+        },
+        "status": 503,
+        "errcode": "M_UNKNOWN",
+        "medium": "msisdn",
+        "session_state": "failed",
+        "provider_handoff": "timed_out",
+        "auth_proof": "identity_token",
+        "redacted_fields": [
+          "identity_token",
+          "client_secret",
+          "validation_token",
+          "full_3pid",
+          "provider_payload",
+          "provider_log"
+        ],
+        "result": "accepted"
+      }
+    ],
+    "release_evidence_rules": {
+      "artifact_is_representative_only": true,
+      "identity_service_full_breadth_claimed": false,
+      "provider_delivery_claimed": false,
+      "provider_retry_claimed": false,
+      "consent_ui_claimed": false,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "case_count": 8,
+    "accepted_case_count": 8,
+    "max_case_count": 8,
+    "email_request_token_supported": true,
+    "email_submit_token_supported": true,
+    "msisdn_request_token_supported": true,
+    "msisdn_submit_token_supported": true,
+    "expired_token_fails_closed": true,
+    "repeated_submit_idempotent": true,
+    "provider_bounce_fails_closed": true,
+    "provider_timeout_fails_closed": true,
+    "provider_handoff_queued_count": 2,
+    "provider_network_delivery_claimed": false,
+    "provider_retry_claimed": false,
+    "raw_identity_tokens_stored": false,
+    "raw_validation_tokens_stored": false,
+    "raw_client_secrets_stored": false,
+    "raw_provider_payloads_stored": false,
+    "raw_provider_logs_stored": false,
+    "raw_3pids_stored": false,
+    "local_template_paths_stored": false,
+    "identity_service_full_breadth_claimed": false,
+    "provider_delivery_claimed": false,
+    "consent_ui_claimed": false,
+    "versions_advertisement_widened": false
+  }
+}
