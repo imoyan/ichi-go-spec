@@ -1,0 +1,210 @@
+{
+  "name": "matrix-client-server-relations-threads-reactions",
+  "contract": "SPEC-090",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/",
+    "checked_at": "2026-05-16T01:10:00+09:00",
+    "parent_contract": "SPEC-073",
+    "spec_issue": "imoyan/houra-spec#99",
+    "implementation_issue": "imoyan/houra-labs#120",
+    "parent_issue": "imoyan/houra-server#135",
+    "boundary": "room-lifecycle-state-relations-user-visible-breadth",
+    "request_descriptors": [
+      {
+        "id": "relations-all",
+        "method": "GET",
+        "path": "/_matrix/client/v1/rooms/{roomId}/relations/{eventId}",
+        "path_params": {
+          "roomId": "!room:example.test",
+          "eventId": "$parent:example.test"
+        },
+        "query_params": {
+          "limit": 20
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": true,
+        "response_parser": "relation_chunk"
+      },
+      {
+        "id": "relations-by-type",
+        "method": "GET",
+        "path": "/_matrix/client/v1/rooms/{roomId}/relations/{eventId}/{relType}",
+        "path_params": {
+          "roomId": "!room:example.test",
+          "eventId": "$parent:example.test",
+          "relType": "m.annotation"
+        },
+        "query_params": {
+          "from": "rel_1",
+          "limit": 20
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": true,
+        "response_parser": "relation_chunk"
+      },
+      {
+        "id": "relations-by-type-and-event",
+        "method": "GET",
+        "path": "/_matrix/client/v1/rooms/{roomId}/relations/{eventId}/{relType}/{eventType}",
+        "path_params": {
+          "roomId": "!room:example.test",
+          "eventId": "$parent:example.test",
+          "relType": "m.annotation",
+          "eventType": "m.reaction"
+        },
+        "query_params": {
+          "from": "rel_1",
+          "to": "rel_2",
+          "limit": 20
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": true,
+        "response_parser": "relation_chunk"
+      },
+      {
+        "id": "room-threads",
+        "method": "GET",
+        "path": "/_matrix/client/v1/rooms/{roomId}/threads",
+        "path_params": {
+          "roomId": "!room:example.test"
+        },
+        "query_params": {
+          "include": "all",
+          "limit": 20
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": true,
+        "response_parser": "thread_roots"
+      }
+    ],
+    "sample_responses": {
+      "relation_chunk": {
+        "chunk": [
+          {
+            "content": {
+              "m.relates_to": {
+                "event_id": "$parent:example.test",
+                "key": "+1",
+                "rel_type": "m.annotation"
+              }
+            },
+            "event_id": "$reaction:example.test",
+            "origin_server_ts": 1715754650000,
+            "room_id": "!room:example.test",
+            "sender": "@alice:example.test",
+            "type": "m.reaction"
+          }
+        ],
+        "next_batch": "rel_2",
+        "prev_batch": "rel_0"
+      },
+      "thread_roots": {
+        "chunk": [
+          {
+            "content": {
+              "body": "Thread root",
+              "msgtype": "m.text"
+            },
+            "event_id": "$thread-root:example.test",
+            "origin_server_ts": 1715754600000,
+            "room_id": "!room:example.test",
+            "sender": "@alice:example.test",
+            "type": "m.room.message",
+            "unsigned": {
+              "m.relations": {
+                "m.thread": {
+                  "count": 2,
+                  "current_user_participated": true,
+                  "latest_event": {
+                    "content": {
+                      "body": "Thread reply",
+                      "msgtype": "m.text"
+                    },
+                    "event_id": "$thread-reply:example.test",
+                    "origin_server_ts": 1715754700000,
+                    "room_id": "!room:example.test",
+                    "sender": "@bob:example.test",
+                    "type": "m.room.message"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "next_batch": "thread_2"
+      },
+      "edit_event": {
+        "content": {
+          "body": " * Edited",
+          "m.new_content": {
+            "body": "Edited",
+            "msgtype": "m.text"
+          },
+          "m.relates_to": {
+            "event_id": "$parent:example.test",
+            "rel_type": "m.replace"
+          },
+          "msgtype": "m.text"
+        },
+        "event_id": "$edit:example.test",
+        "origin_server_ts": 1715754750000,
+        "room_id": "!room:example.test",
+        "sender": "@alice:example.test",
+        "type": "m.room.message"
+      },
+      "reply_event": {
+        "content": {
+          "body": "> <@alice:example.test> Parent\n\nReply",
+          "m.relates_to": {
+            "m.in_reply_to": {
+              "event_id": "$parent:example.test"
+            }
+          },
+          "msgtype": "m.text"
+        },
+        "event_id": "$reply:example.test",
+        "origin_server_ts": 1715754800000,
+        "room_id": "!room:example.test",
+        "sender": "@bob:example.test",
+        "type": "m.room.message"
+      },
+      "membership_variant_failure": {
+        "errcode": "M_FORBIDDEN",
+        "error": "Knock and restricted join runtime behavior is outside SPEC-090."
+      }
+    },
+    "fail_closed_cases": [
+      "malformed_relation_chunk",
+      "malformed_reaction_content",
+      "malformed_thread_summary",
+      "malformed_edit_relation",
+      "malformed_reply_relation",
+      "knock_runtime_behavior_not_claimed",
+      "restricted_join_runtime_behavior_not_claimed",
+      "aggregation_correctness_not_inferred",
+      "versions_advertisement_not_widened"
+    ],
+    "release_evidence_rules": {
+      "parser_only": true,
+      "runtime_route_behavior_claimed": false,
+      "aggregation_correctness_claimed": false,
+      "thread_ordering_claimed": false,
+      "membership_variant_runtime_claimed": false,
+      "versions_advertisement_widened": false,
+      "client_server_support_claim_widened": false
+    }
+  },
+  "expected": {
+    "descriptor_count": 4,
+    "parser_count": 5,
+    "relation_chunk_events_parsed": 1,
+    "thread_roots_parsed": 1,
+    "reaction_relation_type": "m.annotation",
+    "edit_relation_type": "m.replace",
+    "reply_relation_present": true,
+    "membership_variant_failure_errcode": "M_FORBIDDEN",
+    "runtime_route_behavior_claimed": false,
+    "versions_advertisement_widened": false
+  }
+}
