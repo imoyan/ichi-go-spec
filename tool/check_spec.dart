@@ -155,6 +155,7 @@ void main() {
   checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(contracts, failures);
   checkMatrixV118ReleaseEvidenceBundleNegativeFixtures(failures);
   checkProductMvpReleaseCandidatePlan(contracts, failures);
+  checkOssPublicationReadinessPlan(contracts, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -179,6 +180,7 @@ void checkNamespaceConsistency(List<String> failures) {
     'AGENTS.md',
     'CHANGELOG.md',
     'LICENSE',
+    'SECURITY.md',
     '.github/PULL_REQUEST_TEMPLATE.md',
     '.github/ISSUE_TEMPLATE/bug_report.md',
     '.github/ISSUE_TEMPLATE/feature_request.md',
@@ -232,6 +234,7 @@ void checkBoundary(List<String> failures) {
     'MODULE_DEPENDENCIES.md',
     'README.md',
     'REFERENCE_POLICY.md',
+    'SECURITY.md',
     'SOURCE_OF_TRUTH.md',
     'contracts',
     'design',
@@ -12130,6 +12133,155 @@ void checkProductMvpReleaseCandidatePlan(
       expected['matrix_full_compliance_not_claimed'] != true ||
       expected['rc_tag_blocked_until_evidence_complete'] != true) {
     failures.add('${relative(file)} expected Product MVP RC result invalid.');
+  }
+}
+
+void checkOssPublicationReadinessPlan(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-066')) {
+    failures.add('OSS publication readiness plan requires SPEC-066.');
+  }
+  const path = 'test-vectors/core/oss-publication-readiness-plan.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing OSS publication readiness plan vector: $path');
+    return;
+  }
+  if (!File('LICENSE').existsSync()) {
+    failures.add('OSS publication readiness requires LICENSE.');
+  }
+  if (!File('SECURITY.md').existsSync()) {
+    failures.add('OSS publication readiness requires SECURITY.md.');
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-066') {
+    failures.add('${relative(file)} must reference SPEC-066.');
+  }
+  final event = json['event'];
+  if (event is! Map ||
+      event['source_doc'] != 'README.md' ||
+      event['tracked_issue'] != 'imoyan/houra-spec#191' ||
+      event['readiness_plan'] != 'oss-publication-readiness') {
+    failures.add('${relative(file)} OSS readiness metadata invalid.');
+    return;
+  }
+  final eventMap = event.cast<String, Object?>();
+  requireStringListIncludes(file, eventMap, 'normative_source_of_truth', {
+    'contracts/SPEC-*.md',
+    'test-vectors/',
+    'design/theme.schema.json',
+    'design/themes/*.json',
+    'design/ui.surface.schema.json',
+    'design/ui-surfaces/*.json',
+  }, failures);
+  final surfaces = eventMap['required_repository_surfaces'];
+  if (surfaces is! List || surfaces.length < 5) {
+    failures.add('${relative(file)} repository surfaces invalid.');
+  } else {
+    final surfaceIds = <String>{};
+    for (final item in surfaces) {
+      if (item is! Map ||
+          item['id'] is! String ||
+          item['path'] is! String ||
+          item['state'] is! String ||
+          item['required_before_public_listing'] is! bool) {
+        failures.add('${relative(file)} repository surface shape invalid.');
+        continue;
+      }
+      surfaceIds.add(item['id'] as String);
+    }
+    if (!surfaceIds.containsAll({
+      'license',
+      'security-policy',
+      'release-notes',
+      'github-topics',
+      'context7-config',
+    })) {
+      failures.add('${relative(file)} repository surface ids incomplete.');
+    }
+  }
+  final externalSources = eventMap['external_index_sources'];
+  if (externalSources is! List || externalSources.length != 3) {
+    failures.add('${relative(file)} external index sources invalid.');
+  } else {
+    final sourceIds = <String>{};
+    for (final item in externalSources) {
+      if (item is! Map ||
+          item['id'] is! String ||
+          item['source'] is! String ||
+          item['checked_at'] is! String ||
+          item['classification'] is! String ||
+          item['adoption_order'] is! String) {
+        failures.add('${relative(file)} external index source shape invalid.');
+        continue;
+      }
+      sourceIds.add(item['id'] as String);
+    }
+    if (!sourceIds.containsAll({
+      'context7',
+      'openssf-scorecard',
+      'openssf-best-practices-badge',
+    })) {
+      failures.add('${relative(file)} external index source ids incomplete.');
+    }
+  }
+  requireStringListIncludes(file, eventMap, 'publication_order', {
+    'complete repository surfaces: LICENSE, SECURITY.md, README release boundary, GitHub topics, release notes template',
+    'create a GitHub Release anchor for the chosen pre-release or stable ref',
+    'register non-normative documentation index entries such as Context7 only after the public docs URL is stable',
+    'enable non-normative trust signals such as OpenSSF Scorecard and Best Practices Badge after security and release process surfaces exist',
+    'publish implementation packages, app artifacts, or container images only from their owning repositories after artifact-specific readiness issues close',
+  }, failures);
+  final artifactBoundaries = eventMap['artifact_publication_boundaries'];
+  if (artifactBoundaries is! List || artifactBoundaries.length < 4) {
+    failures.add('${relative(file)} artifact publication boundaries invalid.');
+  } else {
+    final trackingRefs = <String>{};
+    for (final item in artifactBoundaries) {
+      if (item is! Map ||
+          item['artifact'] is! String ||
+          item['owner_repo'] is! String ||
+          item['publish_condition'] is! String) {
+        failures.add('${relative(file)} artifact boundary shape invalid.');
+        continue;
+      }
+      final trackingRef = item['tracking_ref'];
+      if (trackingRef is String) {
+        trackingRefs.add(trackingRef);
+      }
+    }
+    if (!trackingRefs.containsAll({
+      'imoyan/houra-server#256',
+      'imoyan/houra-client#150',
+    })) {
+      failures.add('${relative(file)} artifact readiness refs incomplete.');
+    }
+  }
+  final claimBoundaries = eventMap['claim_boundaries'];
+  if (claimBoundaries is! Map ||
+      claimBoundaries['normative_index'] is! String ||
+      claimBoundaries['non_normative_indexes'] is! String ||
+      claimBoundaries['product_mvp'] is! String ||
+      claimBoundaries['matrix_compatibility'] is! String) {
+    failures.add('${relative(file)} claim boundaries invalid.');
+  }
+  requireStringListIncludes(file, eventMap, 'required_commands', {
+    'dart tool/check_spec.dart',
+    'git diff --check',
+  }, failures);
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['repository_surfaces_traceable'] != true ||
+      expected['publication_order_defined'] != true ||
+      expected['implementation_artifacts_split_by_owner_repo'] != true ||
+      expected['non_normative_indexes_do_not_override_ssot'] != true ||
+      expected['product_mvp_and_matrix_claims_not_widened'] != true) {
+    failures.add('${relative(file)} expected OSS readiness result invalid.');
   }
 }
 

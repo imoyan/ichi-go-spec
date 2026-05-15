@@ -46,6 +46,10 @@ checklist です。
   `test-vectors/core/product-mvp-release-candidate-plan.json` を確認し、
   `imoyan/houra-client#121`、`imoyan/houra-client#122`、`imoyan/houra-server#227`
   が対象 ref、commands、結果、blocker、claim boundary を記録するまで tag を切らない
+- OSS 公開前には `test-vectors/core/oss-publication-readiness-plan.json` を確認し、
+  `LICENSE`、`SECURITY.md`、GitHub Releases、GitHub topics、Context7、OpenSSF、
+  package / container registry の順序と non-normative boundary が記録されている
+  ことを確認する
 - Houra Product MVP claim と Matrix compatibility claim は別々に扱われ、片方の
   evidence だけで他方の support claim を広げていない
 - 未反映の日本語 drift がある場合は、release blocker、PR の未解決事項、または follow-up issue として明示されている

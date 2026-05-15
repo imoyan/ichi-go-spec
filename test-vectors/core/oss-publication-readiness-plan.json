@@ -1,0 +1,128 @@
+{
+  "name": "oss-publication-readiness-plan",
+  "contract": "SPEC-066",
+  "event": {
+    "readiness_plan": "oss-publication-readiness",
+    "source_doc": "README.md",
+    "tracked_issue": "imoyan/houra-spec#191",
+    "checked_at": "2026-05-15T09:05:00+09:00",
+    "normative_source_of_truth": [
+      "contracts/SPEC-*.md",
+      "test-vectors/",
+      "design/theme.schema.json",
+      "design/themes/*.json",
+      "design/ui.surface.schema.json",
+      "design/ui-surfaces/*.json"
+    ],
+    "required_repository_surfaces": [
+      {
+        "id": "license",
+        "path": "LICENSE",
+        "state": "present",
+        "required_before_public_listing": true
+      },
+      {
+        "id": "security-policy",
+        "path": "SECURITY.md",
+        "state": "present",
+        "required_before_public_listing": true
+      },
+      {
+        "id": "release-notes",
+        "path": "GitHub Releases and CHANGELOG.md",
+        "state": "required-for-release-anchor",
+        "required_before_public_listing": true
+      },
+      {
+        "id": "github-topics",
+        "path": "GitHub repository metadata",
+        "state": "manual-metadata-update-required",
+        "required_before_public_listing": true
+      },
+      {
+        "id": "context7-config",
+        "path": "context7.json",
+        "state": "deferred-until-public-docs-url-and-library-claim-are-known",
+        "required_before_public_listing": false
+      }
+    ],
+    "external_index_sources": [
+      {
+        "id": "context7",
+        "source": "https://context7.mintlify.dev/docs/adding-libraries",
+        "checked_at": "2026-05-15T09:05:00+09:00",
+        "classification": "non-normative-docs-index",
+        "adoption_order": "after public repository/docs URL exists, before advertising Context7 availability",
+        "notes": "context7.json is optional and gives more control over parsing and presentation."
+      },
+      {
+        "id": "openssf-scorecard",
+        "source": "https://github.com/ossf/scorecard-action",
+        "checked_at": "2026-05-15T09:05:00+09:00",
+        "classification": "non-normative-security-signal",
+        "adoption_order": "after public repository metadata and SECURITY.md are present",
+        "notes": "Run the official action on the owned public repository; publish_results and public badge require the action's documented permissions."
+      },
+      {
+        "id": "openssf-best-practices-badge",
+        "source": "https://openssf.org/projects/best-practices-badge/",
+        "checked_at": "2026-05-15T09:05:00+09:00",
+        "classification": "non-normative-self-certification",
+        "adoption_order": "after Scorecard baseline and release/security processes are documented",
+        "notes": "Self-certification is a trust signal and must not replace local contracts, vectors, or release evidence."
+      }
+    ],
+    "publication_order": [
+      "complete repository surfaces: LICENSE, SECURITY.md, README release boundary, GitHub topics, release notes template",
+      "create a GitHub Release anchor for the chosen pre-release or stable ref",
+      "register non-normative documentation index entries such as Context7 only after the public docs URL is stable",
+      "enable non-normative trust signals such as OpenSSF Scorecard and Best Practices Badge after security and release process surfaces exist",
+      "publish implementation packages, app artifacts, or container images only from their owning repositories after artifact-specific readiness issues close"
+    ],
+    "artifact_publication_boundaries": [
+      {
+        "artifact": "houra-spec release archive",
+        "owner_repo": "imoyan/houra-spec",
+        "publish_condition": "GitHub Release records changed contracts, vectors, design inputs, evidence refs, claim boundary, and verification commands."
+      },
+      {
+        "artifact": "server container image",
+        "owner_repo": "imoyan/houra-server",
+        "tracking_ref": "imoyan/houra-server#256",
+        "publish_condition": "Container registry readiness names image, digest, tag, release ref, smoke evidence, and redaction policy."
+      },
+      {
+        "artifact": "client package or app artifact",
+        "owner_repo": "imoyan/houra-client",
+        "tracking_ref": "imoyan/houra-client#150",
+        "publish_condition": "Package or app artifact readiness names package/artifact, version, release ref, Product MVP evidence, and claim boundary."
+      },
+      {
+        "artifact": "npm, pub.dev, crates.io, docs.rs, or other ecosystem package",
+        "owner_repo": "owning implementation or shared-core repository",
+        "publish_condition": "Only publish after the SDK, crate, or package surface is stable, licensed, documented, and backed by release evidence."
+      }
+    ],
+    "claim_boundaries": {
+      "normative_index": "GitHub Releases and repository files point to canonical contracts, vectors, design inputs, and UI surfaces.",
+      "non_normative_indexes": "Context7, OpenSSF Scorecard, OpenSSF Best Practices Badge, badges, topics, and registry listings are discoverability or trust signals only.",
+      "product_mvp": "OSS listing does not by itself claim Product MVP release readiness; Product MVP evidence remains gated by the Product MVP RC plan.",
+      "matrix_compatibility": "OSS listing, package publication, or index registration does not widen Matrix compatibility, /versions advertisement, or Matrix full-compliance claims."
+    },
+    "required_commands": [
+      "dart tool/check_spec.dart",
+      "git diff --check"
+    ],
+    "redaction_policy": [
+      "Do not record raw bearer tokens, refresh tokens, database URLs, image registry credentials, private local paths, or machine-specific environment values.",
+      "Do not include private vulnerability details in public issues, vectors, release notes, or index registration text."
+    ]
+  },
+  "expected": {
+    "repository_surfaces_traceable": true,
+    "publication_order_defined": true,
+    "implementation_artifacts_split_by_owner_repo": true,
+    "non_normative_indexes_do_not_override_ssot": true,
+    "product_mvp_and_matrix_claims_not_widened": true
+  }
+}

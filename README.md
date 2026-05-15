@@ -83,6 +83,7 @@ matching Product MVP contract/vector/design input also changed.
 - `design/`: shared platform-neutral theme tokens and UI surface definitions.
 - `SOURCE_OF_TRUTH.md`: precedence and change rules.
 - `REFERENCE_POLICY.md`: clean-room source policy.
+- `SECURITY.md`: vulnerability reporting scope and redaction policy.
 - `FEATURE_PROFILES.md`: feature slices.
 - `MODULE_DEPENDENCIES.md`: allowed dependency direction.
 - `CONTRACT_MODULE_MAP.md`: contract-to-profile table.
@@ -338,6 +339,56 @@ lanes record the consumed refs, commands, pass/fail results, known blockers,
 redaction policy, and claim boundary. Passing the Product MVP evidence lanes
 does not widen `/versions`, Matrix v1.18 support, federation, E2EE, push,
 identity service, application service, or room-version compliance claims.
+
+## OSS Publication Readiness
+
+OSS publication readiness is tracked by
+`test-vectors/core/oss-publication-readiness-plan.json` and
+`imoyan/houra-spec#191`. This repository can be listed publicly only as the
+canonical specification root for contracts, vectors, design inputs, and Product
+MVP UI surfaces. Public listing does not make implementation repositories,
+packages, containers, or app artifacts canonical.
+
+Required repository surfaces before public listing:
+
+- `LICENSE` is present and applies to this specification root.
+- `SECURITY.md` defines reporting scope, private-report guidance, and redaction
+  policy.
+- GitHub Releases are used as release anchors and name changed contracts,
+  vectors, design inputs, implementation evidence refs, claim boundaries, and
+  verification commands.
+- GitHub topics are maintained as repository metadata for discoverability.
+
+Publication and index order:
+
+1. Complete repository surfaces: license, security policy, README release
+   boundary, GitHub topics, and release-note content.
+2. Create a GitHub Release anchor for the chosen pre-release or stable ref.
+3. Register documentation indexes such as Context7 only after the public docs
+   URL and library claim are stable. `context7.json` remains deferred until
+   that URL and desired parsing behavior are known.
+4. Enable trust signals such as OpenSSF Scorecard and OpenSSF Best Practices
+   Badge after repository security and release-process surfaces exist.
+5. Publish implementation packages, app artifacts, or container images only from
+   their owning repositories after artifact-specific readiness issues close.
+
+Artifact-specific publication tracking is split by owner:
+
+- `imoyan/houra-server#256` tracks server container registry readiness.
+- `imoyan/houra-client#150` tracks client package and app artifact readiness.
+- npm, pub.dev, crates.io, docs.rs, or other ecosystem package publication is
+  deferred until the owning SDK, crate, or package surface is stable, licensed,
+  documented, and backed by release evidence.
+
+Context7, OpenSSF Scorecard, OpenSSF Best Practices Badge, badges, GitHub
+topics, package registry metadata, and container registry metadata are
+non-normative discoverability or trust signals. They must not override this
+repository's contracts, vectors, design schemas, UI surfaces, release evidence,
+or claim boundaries.
+
+OSS listing, package publication, or index registration does not widen Product
+MVP readiness, Matrix compatibility, `/versions` advertisement, or Matrix
+full-compliance claims.
 
 ## Spec Health
 
