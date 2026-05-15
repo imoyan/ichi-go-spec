@@ -21,9 +21,16 @@ the implementation contract.
 
 ## Reporting
 
-For now, use a private GitHub security advisory or direct maintainer contact
-when a report includes exploit details, credentials, private paths, tokens,
-database URLs, registry credentials, or non-public deployment information.
+Use GitHub private vulnerability reporting for `imoyan/houra-spec` when a
+report includes exploit details, credentials, private paths, tokens, database
+URLs, registry credentials, or non-public deployment information.
+
+If GitHub private vulnerability reporting is disabled or unavailable, open a
+public GitHub issue titled `Security reporting channel request` without any
+sensitive details and ask the maintainer to enable a private reporting channel.
+Wait for the private channel before sharing exploit details, credentials,
+private paths, tokens, database URLs, registry credentials, or non-public
+deployment information.
 
 Public GitHub issues are appropriate for contract ambiguities, missing vectors,
 documentation drift, release-readiness gaps, and claim-boundary bugs that do

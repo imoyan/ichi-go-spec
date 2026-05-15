@@ -12303,6 +12303,7 @@ void checkOssPublicationReadinessPlan(
     failures.add('${relative(file)} repository surfaces invalid.');
   } else {
     final surfaceIds = <String>{};
+    final surfacePathsById = <String, String>{};
     for (final item in surfaces) {
       if (item is! Map ||
           item['id'] is! String ||
@@ -12312,7 +12313,10 @@ void checkOssPublicationReadinessPlan(
         failures.add('${relative(file)} repository surface shape invalid.');
         continue;
       }
-      surfaceIds.add(item['id'] as String);
+      final id = item['id'] as String;
+      final path = item['path'] as String;
+      surfaceIds.add(id);
+      surfacePathsById[id] = path;
     }
     if (!surfaceIds.containsAll({
       'license',
@@ -12322,6 +12326,17 @@ void checkOssPublicationReadinessPlan(
       'context7-config',
     })) {
       failures.add('${relative(file)} repository surface ids incomplete.');
+    }
+    const canonicalRepositorySurfaces = {
+      'license': 'LICENSE',
+      'security-policy': 'SECURITY.md',
+    };
+    for (final entry in canonicalRepositorySurfaces.entries) {
+      if (surfacePathsById[entry.key] != entry.value) {
+        failures.add(
+          '${relative(file)} ${entry.key} surface must point to ${entry.value}.',
+        );
+      }
     }
   }
   final externalSources = eventMap['external_index_sources'];
