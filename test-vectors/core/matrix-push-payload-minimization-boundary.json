@@ -1,0 +1,91 @@
+{
+  "name": "matrix-push-payload-minimization-boundary",
+  "contract": "SPEC-086",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/push-gateway-api/#post_matrixpushv1notify",
+    "checked_at": "2026-05-16T00:45:00+09:00",
+    "parent_contract": "SPEC-060",
+    "gap_inventory_contract": "SPEC-077",
+    "lane_id": "privacy-payload-minimization-breadth",
+    "resource_bounds": {
+      "max_canonical_decision_bytes": 16384,
+      "max_decision_count": 8,
+      "max_allowed_fields": 8,
+      "max_omitted_fields": 12,
+      "recursive_event_lookup": false,
+      "event_content_lookup": false,
+      "network_lookup": false,
+      "vendor_provider_request_generation": false,
+      "raw_pushkey_persistence": false,
+      "local_path_evidence": false
+    },
+    "decisions": [
+      {
+        "id": "event-id-only-reference",
+        "notification_class": "event_id_only",
+        "payload_shape": "event_reference",
+        "allowed_fields": ["event_id", "room_id", "counts", "devices"],
+        "omitted_fields": ["content", "body", "formatted_body", "sender_display_name", "room_name", "room_alias", "pushkey", "vendor_token"],
+        "redaction_assertions": ["message_content_omitted", "pushkeys_redacted", "provider_tokens_omitted"],
+        "result": "accepted"
+      },
+      {
+        "id": "count-only-update",
+        "notification_class": "count_only",
+        "payload_shape": "count_update",
+        "allowed_fields": ["counts", "devices"],
+        "omitted_fields": ["event_id", "room_id", "content", "body", "sender", "sender_display_name", "room_name", "room_alias"],
+        "redaction_assertions": ["event_metadata_omitted", "message_content_omitted", "pushkeys_redacted"],
+        "result": "accepted"
+      },
+      {
+        "id": "encrypted-room-content-free",
+        "notification_class": "encrypted_room",
+        "payload_shape": "event_reference",
+        "allowed_fields": ["event_id", "room_id", "counts", "devices", "type"],
+        "omitted_fields": ["content", "body", "formatted_body", "sender_display_name", "room_name", "room_alias", "ciphertext", "session_id"],
+        "redaction_assertions": ["encrypted_content_omitted", "message_content_omitted", "provider_tokens_omitted"],
+        "result": "accepted"
+      },
+      {
+        "id": "redacted-event-content-free",
+        "notification_class": "redacted_event",
+        "payload_shape": "event_reference",
+        "allowed_fields": ["event_id", "room_id", "counts", "devices", "type"],
+        "omitted_fields": ["content", "body", "formatted_body", "sender_display_name", "room_name", "room_alias", "redacts", "unsigned"],
+        "redaction_assertions": ["redacted_content_omitted", "message_content_omitted", "pushkeys_redacted"],
+        "result": "accepted"
+      },
+      {
+        "id": "invite-member-reference",
+        "notification_class": "invite_member",
+        "payload_shape": "event_reference",
+        "allowed_fields": ["event_id", "room_id", "counts", "devices", "type"],
+        "omitted_fields": ["content", "body", "formatted_body", "sender_display_name", "room_name", "room_alias", "membership"],
+        "redaction_assertions": ["member_preview_omitted", "message_content_omitted", "provider_tokens_omitted"],
+        "result": "accepted"
+      }
+    ],
+    "release_evidence_rules": {
+      "artifact_is_representative_only": true,
+      "push_gateway_full_breadth_claimed": false,
+      "vendor_provider_operation_claimed": false,
+      "notification_rendering_claimed": false,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "decision_count": 5,
+    "accepted_decision_count": 5,
+    "max_decision_count": 8,
+    "content_omitted_for_all_decisions": true,
+    "pushkeys_redacted": true,
+    "provider_tokens_omitted": true,
+    "raw_payload_stored": false,
+    "push_gateway_full_breadth_claimed": false,
+    "vendor_provider_operation_claimed": false,
+    "notification_rendering_claimed": false,
+    "versions_advertisement_widened": false
+  }
+}
