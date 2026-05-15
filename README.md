@@ -160,6 +160,10 @@ matching Product MVP contract/vector/design input also changed.
 - `contracts/SPEC-079-matrix-olm-megolm-full-e2ee-gap-inventory.md`
 - `contracts/SPEC-080-matrix-room-versions-capabilities-advertisement-boundary.md`
 - `contracts/SPEC-081-matrix-maintained-crypto-storage-ownership-boundary.md`
+- `contracts/SPEC-082-matrix-client-well-known-discovery-support-policy.md`
+- `contracts/SPEC-083-matrix-room-version-event-decision-artifacts.md`
+- `contracts/SPEC-084-matrix-room-version-federation-cross-domain-validation.md`
+- `contracts/SPEC-085-matrix-client-server-event-retrieval-membership-history.md`
 
 ## Shared Design Inputs
 
@@ -958,6 +962,11 @@ Matrix v1.18 roadmap close-out snapshot:
   Matrix crypto stack evidence gate and keeps secure storage, recovery keys,
   backup secrets, local deletion, and recovery UX host-owned. It does not select
   a crypto package, add endpoints, or widen Matrix version advertisement.
+- `SPEC-085` splits the event retrieval, joined-members, historical-membership,
+  timestamp-to-event, and deprecated compatibility descriptor/parser boundary
+  out of `SPEC-073`. It gives `houra-labs` a parser-only adoption target while
+  keeping runtime route behavior, history visibility, authorization, deprecated
+  endpoint support, and Client-Server advertisement excluded.
 - #97 through #101 should not be closed merely because their spec-side
   checklists are complete or because the current release candidate excludes the
   domain from advertisement. Close them only when #95 links current pass/fail
@@ -1565,6 +1574,9 @@ Use this contract-to-endpoint smoke table:
 | SPEC-080 | Matrix room versions capabilities advertisement boundary | `test-vectors/rooms/matrix-room-versions-capabilities-advertisement-boundary.json` |
 | SPEC-081 | Matrix maintained crypto stack and storage ownership boundary | `test-vectors/messaging/matrix-maintained-crypto-storage-ownership-boundary.json` |
 | SPEC-082 | Matrix client well-known discovery, support, and policy boundary | `test-vectors/core/matrix-client-well-known-discovery-support-policy.json` |
+| SPEC-083 | Matrix room-version event decision artifacts | `test-vectors/events/matrix-room-version-event-decision-artifacts.json` |
+| SPEC-084 | Matrix room-version federation cross-domain validation | `test-vectors/events/matrix-room-version-federation-cross-domain-validation.json` |
+| SPEC-085 | Matrix Client-Server event retrieval and membership history | `test-vectors/core/matrix-client-server-event-retrieval-membership-history.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this

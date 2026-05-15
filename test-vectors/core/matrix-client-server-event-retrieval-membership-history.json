@@ -1,0 +1,188 @@
+{
+  "name": "matrix-client-server-event-retrieval-membership-history",
+  "contract": "SPEC-085",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/",
+    "checked_at": "2026-05-16T01:10:00+09:00",
+    "parent_contract": "SPEC-073",
+    "spec_issue": "imoyan/houra-spec#262",
+    "implementation_issue": "imoyan/houra-labs#119",
+    "parent_issue": "imoyan/houra-server#135",
+    "boundary": "event-retrieval-membership-history-deprecated-compatibility",
+    "request_descriptors": [
+      {
+        "id": "deprecated-events-stream",
+        "method": "GET",
+        "path": "/_matrix/client/v3/events",
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "unsupported_reason": "deprecated_compatibility_endpoint"
+      },
+      {
+        "id": "deprecated-event-by-id",
+        "method": "GET",
+        "path": "/_matrix/client/v3/events/{eventId}",
+        "path_params": {
+          "eventId": "$event:example.test"
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "unsupported_reason": "deprecated_compatibility_endpoint"
+      },
+      {
+        "id": "deprecated-initial-sync",
+        "method": "GET",
+        "path": "/_matrix/client/v3/initialSync",
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "unsupported_reason": "deprecated_compatibility_endpoint"
+      },
+      {
+        "id": "deprecated-room-initial-sync",
+        "method": "GET",
+        "path": "/_matrix/client/v3/rooms/{roomId}/initialSync",
+        "path_params": {
+          "roomId": "!room:example.test"
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "unsupported_reason": "deprecated_compatibility_endpoint"
+      },
+      {
+        "id": "room-event-by-id",
+        "method": "GET",
+        "path": "/_matrix/client/v3/rooms/{roomId}/event/{eventId}",
+        "path_params": {
+          "roomId": "!room:example.test",
+          "eventId": "$event:example.test"
+        },
+        "requires_auth": true,
+        "response_parser": "client_event"
+      },
+      {
+        "id": "joined-members",
+        "method": "GET",
+        "path": "/_matrix/client/v3/rooms/{roomId}/joined_members",
+        "path_params": {
+          "roomId": "!room:example.test"
+        },
+        "requires_auth": true,
+        "response_parser": "joined_members"
+      },
+      {
+        "id": "members-history",
+        "method": "GET",
+        "path": "/_matrix/client/v3/rooms/{roomId}/members",
+        "path_params": {
+          "roomId": "!room:example.test"
+        },
+        "query_params": {
+          "at": "s123_456",
+          "membership": "join",
+          "not_membership": "leave"
+        },
+        "requires_auth": true,
+        "response_parser": "membership_chunk"
+      },
+      {
+        "id": "timestamp-to-event",
+        "method": "GET",
+        "path": "/_matrix/client/v1/rooms/{roomId}/timestamp_to_event",
+        "path_params": {
+          "roomId": "!room:example.test"
+        },
+        "query_params": {
+          "ts": 1715754600000,
+          "dir": "b"
+        },
+        "requires_auth": true,
+        "response_parser": "timestamp_to_event"
+      }
+    ],
+    "sample_responses": {
+      "client_event": {
+        "content": {
+          "body": "Hello",
+          "msgtype": "m.text"
+        },
+        "event_id": "$event:example.test",
+        "origin_server_ts": 1715754600000,
+        "room_id": "!room:example.test",
+        "sender": "@alice:example.test",
+        "type": "m.room.message"
+      },
+      "joined_members": {
+        "joined": {
+          "@alice:example.test": {
+            "display_name": "Alice",
+            "avatar_url": "mxc://example.test/alice"
+          },
+          "@bob:example.test": {}
+        }
+      },
+      "membership_chunk": {
+        "chunk": [
+          {
+            "content": {
+              "membership": "join",
+              "displayname": "Alice"
+            },
+            "event_id": "$join:example.test",
+            "origin_server_ts": 1715754500000,
+            "room_id": "!room:example.test",
+            "sender": "@alice:example.test",
+            "state_key": "@alice:example.test",
+            "type": "m.room.member",
+            "unsigned": {
+              "membership": "join"
+            }
+          },
+          {
+            "content": {
+              "membership": "leave"
+            },
+            "event_id": "$leave:example.test",
+            "origin_server_ts": 1715754550000,
+            "room_id": "!room:example.test",
+            "sender": "@bob:example.test",
+            "state_key": "@bob:example.test",
+            "type": "m.room.member"
+          }
+        ]
+      },
+      "timestamp_to_event": {
+        "event_id": "$event:example.test",
+        "origin_server_ts": 1715754600000
+      }
+    },
+    "fail_closed_cases": [
+      "malformed_client_event",
+      "malformed_joined_members",
+      "malformed_membership_chunk",
+      "invalid_membership_filter",
+      "unsupported_deprecated_runtime_endpoint",
+      "history_visibility_not_inferred",
+      "authorization_not_inferred"
+    ],
+    "release_evidence_rules": {
+      "parser_only": true,
+      "runtime_route_behavior_claimed": false,
+      "deprecated_endpoints_adopted": false,
+      "versions_advertisement_widened": false,
+      "client_server_support_claim_widened": false
+    }
+  },
+  "expected": {
+    "descriptor_count": 8,
+    "deprecated_descriptor_count": 4,
+    "parser_count": 4,
+    "client_event_required_fields_present": true,
+    "joined_members_map_parsed": true,
+    "membership_chunk_events_parsed": 2,
+    "timestamp_to_event_fields_present": true,
+    "runtime_route_behavior_claimed": false,
+    "deprecated_endpoints_adopted": false,
+    "versions_advertisement_widened": false
+  }
+}

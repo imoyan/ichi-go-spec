@@ -129,6 +129,7 @@ void main() {
   checkMatrixModerationReportingAdminControls(contracts, failures);
   checkMatrixClientServerFullBreadthGapInventory(contracts, failures);
   checkMatrixClientWellKnownDiscoverySupportPolicy(contracts, failures);
+  checkMatrixClientServerEventRetrievalMembershipHistory(contracts, failures);
   checkMatrixCryptoAdapterBoundary(contracts, failures);
   checkMatrixDeviceOneTimeFallbackKeys(contracts, failures);
   checkMatrixToDeviceEncryptedRoomGate(contracts, failures);
@@ -5312,6 +5313,199 @@ void checkMatrixClientWellKnownDiscoverySupportPolicy(
       expected['versions_advertisement_widened'] != false) {
     failures.add('${relative(file)} expected well-known boundary invalid.');
   }
+}
+
+void checkMatrixClientServerEventRetrievalMembershipHistory(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-085')) {
+    failures.add(
+      'Matrix Client-Server event retrieval/membership SPEC-085 is required.',
+    );
+  }
+  const path =
+      'test-vectors/core/matrix-client-server-event-retrieval-membership-history.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix Client-Server event retrieval vector: $path');
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-085') {
+    failures.add('${relative(file)} must reference SPEC-085.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18' ||
+      eventMap['matrix_spec_source'] !=
+          'https://spec.matrix.org/v1.18/client-server-api/' ||
+      eventMap['parent_contract'] != 'SPEC-073' ||
+      eventMap['spec_issue'] != 'imoyan/houra-spec#262' ||
+      eventMap['implementation_issue'] != 'imoyan/houra-labs#119' ||
+      eventMap['parent_issue'] != 'imoyan/houra-server#135' ||
+      eventMap['boundary'] !=
+          'event-retrieval-membership-history-deprecated-compatibility') {
+    failures.add('${relative(file)} Matrix reference or issue refs invalid.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String || !checkedAt.contains('+09:00')) {
+    failures.add('${relative(file)} checked_at must be a dated JST snapshot.');
+  }
+
+  const expectedPaths = {
+    '/_matrix/client/v3/events',
+    '/_matrix/client/v3/events/{eventId}',
+    '/_matrix/client/v3/initialSync',
+    '/_matrix/client/v3/rooms/{roomId}/initialSync',
+    '/_matrix/client/v3/rooms/{roomId}/event/{eventId}',
+    '/_matrix/client/v3/rooms/{roomId}/joined_members',
+    '/_matrix/client/v3/rooms/{roomId}/members',
+    '/_matrix/client/v1/rooms/{roomId}/timestamp_to_event',
+  };
+  const expectedParserIds = {
+    'client_event',
+    'joined_members',
+    'membership_chunk',
+    'timestamp_to_event',
+  };
+  final descriptors = eventMap['request_descriptors'];
+  final seenPaths = <String>{};
+  final seenParsers = <String>{};
+  var deprecatedCount = 0;
+  if (descriptors is! List || descriptors.length != expectedPaths.length) {
+    failures.add('${relative(file)} request descriptors invalid.');
+  } else {
+    for (final descriptor in descriptors) {
+      if (descriptor is! Map ||
+          descriptor['id'] is! String ||
+          descriptor['method'] != 'GET' ||
+          descriptor['path'] is! String ||
+          descriptor['requires_auth'] != true) {
+        failures.add('${relative(file)} request descriptor shape invalid.');
+        continue;
+      }
+      final descriptorPath = descriptor['path'] as String;
+      if (!expectedPaths.contains(descriptorPath)) {
+        failures.add('${relative(file)} request descriptor path invalid.');
+      }
+      seenPaths.add(descriptorPath);
+      final parser = descriptor['response_parser'];
+      if (parser is String) {
+        if (!expectedParserIds.contains(parser)) {
+          failures.add('${relative(file)} response parser id invalid.');
+        }
+        seenParsers.add(parser);
+      }
+      if (descriptor['adopted_runtime_behavior'] == false) {
+        deprecatedCount += 1;
+        if (descriptor['unsupported_reason'] !=
+            'deprecated_compatibility_endpoint') {
+          failures.add(
+            '${relative(file)} deprecated descriptor reason invalid.',
+          );
+        }
+      }
+    }
+    if (!seenPaths.containsAll(expectedPaths) ||
+        !seenParsers.containsAll(expectedParserIds) ||
+        deprecatedCount != 4) {
+      failures.add('${relative(file)} descriptor set incomplete.');
+    }
+  }
+
+  final responses = eventMap['sample_responses'];
+  if (responses is! Map) {
+    failures.add('${relative(file)} sample responses invalid.');
+  } else {
+    final clientEvent = responses['client_event'];
+    if (!_isMatrixClientEvent(clientEvent)) {
+      failures.add('${relative(file)} client event sample invalid.');
+    }
+    final joinedMembers = responses['joined_members'];
+    final joined = joinedMembers is Map ? joinedMembers['joined'] : null;
+    if (joined is! Map || joined.isEmpty) {
+      failures.add('${relative(file)} joined members sample invalid.');
+    }
+    final membershipChunk = responses['membership_chunk'];
+    final chunk = membershipChunk is Map ? membershipChunk['chunk'] : null;
+    if (chunk is! List ||
+        chunk.length != 2 ||
+        !chunk.every(_isMatrixMembershipEvent)) {
+      failures.add('${relative(file)} membership chunk sample invalid.');
+    }
+    final timestampToEvent = responses['timestamp_to_event'];
+    if (timestampToEvent is! Map ||
+        timestampToEvent['event_id'] is! String ||
+        timestampToEvent['origin_server_ts'] is! int) {
+      failures.add('${relative(file)} timestamp_to_event sample invalid.');
+    }
+  }
+
+  requireStringListIncludes(file, eventMap, 'fail_closed_cases', {
+    'malformed_client_event',
+    'malformed_joined_members',
+    'malformed_membership_chunk',
+    'invalid_membership_filter',
+    'unsupported_deprecated_runtime_endpoint',
+    'history_visibility_not_inferred',
+    'authorization_not_inferred',
+  }, failures);
+
+  final rules = eventMap['release_evidence_rules'];
+  if (rules is! Map ||
+      rules['parser_only'] != true ||
+      rules['runtime_route_behavior_claimed'] != false ||
+      rules['deprecated_endpoints_adopted'] != false ||
+      rules['versions_advertisement_widened'] != false ||
+      rules['client_server_support_claim_widened'] != false) {
+    failures.add('${relative(file)} release evidence rules invalid.');
+  }
+
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['descriptor_count'] != 8 ||
+      expected['deprecated_descriptor_count'] != 4 ||
+      expected['parser_count'] != 4 ||
+      expected['client_event_required_fields_present'] != true ||
+      expected['joined_members_map_parsed'] != true ||
+      expected['membership_chunk_events_parsed'] != 2 ||
+      expected['timestamp_to_event_fields_present'] != true ||
+      expected['runtime_route_behavior_claimed'] != false ||
+      expected['deprecated_endpoints_adopted'] != false ||
+      expected['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} expected event retrieval boundary invalid.',
+    );
+  }
+}
+
+bool _isMatrixClientEvent(Object? value) {
+  if (value is! Map) {
+    return false;
+  }
+  return value['content'] is Map &&
+      value['event_id'] is String &&
+      value['origin_server_ts'] is int &&
+      value['room_id'] is String &&
+      value['sender'] is String &&
+      value['type'] is String;
+}
+
+bool _isMatrixMembershipEvent(Object? value) {
+  if (!_isMatrixClientEvent(value) || value is! Map) {
+    return false;
+  }
+  final content = value['content'];
+  return value['type'] == 'm.room.member' &&
+      value['state_key'] is String &&
+      content is Map &&
+      content['membership'] is String;
 }
 
 void checkMatrixCryptoAdapterBoundary(
