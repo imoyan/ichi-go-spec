@@ -1,0 +1,92 @@
+{
+  "name": "matrix-room-version-federation-cross-domain-validation",
+  "contract": "SPEC-084",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_room_version": "12",
+    "checked_at": "2026-05-16T00:05:00+09:00",
+    "parent_contract": "SPEC-078",
+    "server_server_parent_contract": "SPEC-074",
+    "boundary": "federation-cross-domain-room-version-breadth",
+    "resource_bounds": {
+      "max_canonical_event_bytes": 65536,
+      "max_pdu_count": 8,
+      "max_auth_events": 10,
+      "max_prev_events": 20,
+      "max_state_ids": 64,
+      "max_auth_chain_ids": 64,
+      "max_batch_validations": 16,
+      "remote_key_fetch_allowed": false,
+      "network_lookup_allowed": false,
+      "recursive_graph_expansion": false,
+      "unbounded_database_scan_allowed": false
+    },
+    "validations": [
+      {
+        "id": "send-transaction-pdu-room-version",
+        "surface": "send_transaction",
+        "result": "accepted",
+        "reason": "room_version_matches_expected",
+        "origin": "hs-b.example.test",
+        "destination": "hs-a.example.test",
+        "room_id": "!room:hs-a.example.test",
+        "room_version": "12"
+      },
+      {
+        "id": "send-join-room-version-mismatch",
+        "surface": "send_join",
+        "result": "rejected",
+        "reason": "room_version_mismatch",
+        "origin": "hs-b.example.test",
+        "destination": "hs-a.example.test",
+        "room_id": "!room:hs-a.example.test",
+        "room_version": "11",
+        "expected_room_version": "12"
+      },
+      {
+        "id": "invite-cross-room-event",
+        "surface": "invite",
+        "result": "rejected",
+        "reason": "event_room_id_mismatch",
+        "origin": "hs-b.example.test",
+        "destination": "hs-a.example.test",
+        "room_id": "!room:hs-a.example.test",
+        "event_room_id": "!other:hs-a.example.test",
+        "room_version": "12"
+      },
+      {
+        "id": "state-ids-bounded",
+        "surface": "state_ids",
+        "result": "accepted",
+        "reason": "state_ids_within_bounds",
+        "origin": "hs-b.example.test",
+        "destination": "hs-a.example.test",
+        "room_id": "!room:hs-a.example.test",
+        "room_version": "12",
+        "state_ids_count": 3,
+        "auth_chain_ids_count": 2
+      }
+    ],
+    "release_evidence_rules": {
+      "artifact_is_representative_only": true,
+      "room_versions_advertisement_widened": false,
+      "server_server_advertisement_widened": false,
+      "full_room_version_algorithm_claimed": false,
+      "full_federation_claimed": false,
+      "resource_bounds_required": true
+    }
+  },
+  "expected": {
+    "room_version": "12",
+    "validation_count": 4,
+    "accepted_validation_count": 2,
+    "rejected_validation_count": 2,
+    "max_batch_validations": 16,
+    "remote_key_fetch_allowed": false,
+    "network_lookup_allowed": false,
+    "full_room_version_algorithm_claimed": false,
+    "full_federation_claimed": false,
+    "room_versions_advertisement_widened": false,
+    "server_server_advertisement_widened": false
+  }
+}
