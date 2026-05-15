@@ -27,13 +27,14 @@ homeserver extension. The homeserver does not interpret the metadata.
 Use only events already defined by Matrix. No application-specific fields
 inside event `content`.
 
-Typical events:
+Standard Matrix shapes Houra builds on:
 
-- `m.room.message`
-- `m.notice`
-- `m.reaction`
-- media attachment events
-- replies and relations
+- `m.room.message` with standard `msgtype` values, including `m.text`,
+  `m.notice`, and media msgtypes such as `m.image`, `m.file`, `m.audio`,
+  and `m.video`.
+- `m.reaction` events for annotations.
+- Reply and relation content fields such as `m.in_reply_to` and
+  `m.relates_to` inside the events above.
 
 When ordinary chat, notifications, reactions, or file attachments are
 sufficient, prefer Level 1.

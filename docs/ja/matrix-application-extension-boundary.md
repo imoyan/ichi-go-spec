@@ -27,13 +27,14 @@ Level 3 は Level 2 で表現できない場合だけ使います。
 普通の chat、通知、reaction、添付ファイルで足りる場合に選びます。
 追加の application 固有 field は `content` に入れません。
 
-代表的な event:
+Houra が前提にする標準的な Matrix の形:
 
-- `m.room.message`
-- `m.notice`
-- `m.reaction`
-- media attachment event
-- reply / relation
+- `m.room.message` と、その中で使う標準的な `msgtype` (`m.text`、
+  `m.notice`、および `m.image` / `m.file` / `m.audio` / `m.video` などの
+  media msgtype)。
+- annotation を表す `m.reaction` event。
+- 上記 event の `content` に含める `m.in_reply_to` や `m.relates_to`
+  などの reply / relation 表現。
 
 ### Level 2: 標準 event type + namespaced metadata
 
