@@ -1,0 +1,203 @@
+{
+  "name": "matrix-sync-breadth-extensions",
+  "contract": "SPEC-093",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3sync",
+      "https://spec.matrix.org/v1.18/client-server-api/#filtering",
+      "https://spec.matrix.org/v1.18/client-server-api/#extensions-to-sync"
+    ],
+    "checked_at": "2026-05-16T06:30:00+09:00",
+    "parent_contract": "SPEC-037",
+    "gap_inventory_contract": "SPEC-073",
+    "spec_issue": "imoyan/houra-spec#264",
+    "implementation_issue": "imoyan/houra-labs#121",
+    "parent_issue": "imoyan/houra-server#135",
+    "boundary": "sync-breadth-extensions",
+    "request_descriptors": [
+      {
+        "id": "sync-query-extensions",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "query_params": {
+          "filter": "filter-1",
+          "full_state": true,
+          "set_presence": "online",
+          "since": "s1",
+          "timeout": 0,
+          "use_state_after": true
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "response_parser": "sync_extensions"
+      },
+      {
+        "id": "sync-lazy-load-filter",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "query_params": {
+          "filter": {
+            "room": {
+              "state": {
+                "lazy_load_members": true
+              },
+              "timeline": {
+                "lazy_load_members": true
+              }
+            }
+          },
+          "timeout": 0
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "response_parser": "sync_extensions"
+      }
+    ],
+    "sample_responses": {
+      "sync_extensions": {
+        "next_batch": "s2",
+        "presence": {
+          "events": [
+            {
+              "sender": "@alice:example.test",
+              "type": "m.presence",
+              "content": {
+                "presence": "online",
+                "last_active_ago": 1200
+              }
+            }
+          ]
+        },
+        "to_device": {
+          "events": [
+            {
+              "sender": "@alice:example.test",
+              "type": "m.room.encrypted",
+              "content": {
+                "algorithm": "m.olm.v1.curve25519-aes-sha2",
+                "sender_key": "alice-curve25519-device1",
+                "ciphertext": {
+                  "bob-curve25519-bob1": {
+                    "type": 0,
+                    "body": "olm-prekey-ciphertext"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "device_lists": {
+          "changed": [
+            "@alice:example.test"
+          ],
+          "left": [
+            "@carol:example.test"
+          ]
+        },
+        "device_one_time_keys_count": {
+          "signed_curve25519": 3
+        },
+        "rooms": {
+          "join": {
+            "!room:example.test": {
+              "state": {
+                "events": []
+              },
+              "timeline": {
+                "events": [],
+                "limited": false,
+                "prev_batch": "t1"
+              }
+            }
+          },
+          "invite": {
+            "!invite:example.test": {
+              "invite_state": {
+                "events": [
+                  {
+                    "sender": "@alice:example.test",
+                    "state_key": "",
+                    "type": "m.room.name",
+                    "content": {
+                      "name": "Invited room"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "leave": {
+            "!left:example.test": {
+              "timeline": {
+                "events": [],
+                "limited": false
+              },
+              "state": {
+                "events": []
+              }
+            }
+          },
+          "knock": {
+            "!knock:example.test": {
+              "knock_state": {
+                "events": [
+                  {
+                    "sender": "@alice:example.test",
+                    "state_key": "",
+                    "type": "m.room.name",
+                    "content": {
+                      "name": "Knockable room"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "unsupported_parameter_error": {
+        "errcode": "M_INVALID_PARAM",
+        "error": "Unsupported set_presence value for SPEC-093 parser-only sync descriptor."
+      }
+    },
+    "fail_closed_cases": [
+      "full_state_must_be_boolean",
+      "use_state_after_must_be_boolean",
+      "timeout_must_be_non_negative_integer",
+      "unsupported_set_presence_value",
+      "malformed_device_lists",
+      "malformed_one_time_key_count",
+      "lazy_loading_correctness_not_claimed",
+      "to_device_decryption_not_claimed",
+      "fanout_correctness_not_claimed",
+      "versions_advertisement_not_widened"
+    ],
+    "release_evidence_rules": {
+      "parser_only": true,
+      "runtime_query_semantics_claimed": false,
+      "long_poll_timing_claimed": false,
+      "sync_token_persistence_claimed": false,
+      "fanout_correctness_claimed": false,
+      "e2ee_readiness_claimed": false,
+      "lazy_loading_correctness_claimed": false,
+      "versions_advertisement_widened": false,
+      "client_server_support_claim_widened": false
+    }
+  },
+  "expected": {
+    "descriptor_count": 2,
+    "parser_count": 2,
+    "presence_events_parsed": 1,
+    "to_device_events_parsed": 1,
+    "device_list_changed_count": 1,
+    "device_list_left_count": 1,
+    "one_time_key_algorithm": "signed_curve25519",
+    "invite_rooms_parsed": 1,
+    "leave_rooms_parsed": 1,
+    "knock_rooms_parsed": 1,
+    "unsupported_parameter_errcode": "M_INVALID_PARAM",
+    "runtime_query_semantics_claimed": false,
+    "versions_advertisement_widened": false
+  }
+}
