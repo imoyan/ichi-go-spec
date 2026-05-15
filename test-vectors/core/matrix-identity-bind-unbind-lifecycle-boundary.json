@@ -1,0 +1,185 @@
+{
+  "name": "matrix-identity-bind-unbind-lifecycle-boundary",
+  "contract": "SPEC-092",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/identity-service-api/#post_matrixidentityv23pidbind",
+      "https://spec.matrix.org/v1.18/identity-service-api/#get_matrixidentityv23pidgetvalidated3pid",
+      "https://spec.matrix.org/v1.18/identity-service-api/#post_matrixidentityv23pidunbind"
+    ],
+    "checked_at": "2026-05-16T05:58:00+09:00",
+    "parent_contract": "SPEC-059",
+    "gap_inventory_contract": "SPEC-076",
+    "lane_id": "bind-validated-3pid-unbind-association-lifecycle-breadth",
+    "resource_bounds": {
+      "max_canonical_case_bytes": 20480,
+      "max_case_count": 8,
+      "max_association_count": 4,
+      "max_signature_key_count_per_association": 2,
+      "replay_cache_scope": "process",
+      "replay_cache_max_entries": 128,
+      "provider_delivery_request_generation": false,
+      "network_lookup": false,
+      "raw_identity_token_evidence": false,
+      "raw_validation_token_evidence": false,
+      "raw_client_secret_evidence": false,
+      "raw_lookup_pepper_evidence": false,
+      "raw_3pid_evidence": false,
+      "raw_signature_evidence": false,
+      "versions_advertisement_widened": false
+    },
+    "cases": [
+      {
+        "id": "validated-3pid-does-not-publish",
+        "kind": "validated_3pid",
+        "request": {
+          "method": "GET",
+          "path": "/_matrix/identity/v2/3pid/getValidated3pid"
+        },
+        "status": 200,
+        "association_state": "not_published",
+        "auth_proof": "identity_token",
+        "redacted_fields": [
+          "identity_token",
+          "client_secret",
+          "full_3pid"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "bind-publishes-association",
+        "kind": "bind_association",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/3pid/bind"
+        },
+        "status": 200,
+        "association_state": "published",
+        "auth_proof": "validated_session",
+        "redacted_fields": [
+          "identity_token",
+          "client_secret",
+          "full_3pid",
+          "signature"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "homeserver-signed-unbind-removes-association",
+        "kind": "homeserver_signed_unbind",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/3pid/unbind"
+        },
+        "status": 200,
+        "association_state": "removed",
+        "auth_proof": "homeserver_signature",
+        "redacted_fields": [
+          "identity_token",
+          "full_3pid",
+          "signature"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "session-based-unbind-removes-association",
+        "kind": "session_based_unbind",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/3pid/unbind"
+        },
+        "status": 200,
+        "association_state": "removed",
+        "auth_proof": "validated_session",
+        "redacted_fields": [
+          "identity_token",
+          "client_secret",
+          "full_3pid"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "stale-session-fails-closed",
+        "kind": "stale_session",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/3pid/unbind"
+        },
+        "status": 403,
+        "errcode": "M_FORBIDDEN",
+        "association_state": "unchanged",
+        "auth_proof": "validated_session",
+        "redacted_fields": [
+          "identity_token",
+          "client_secret",
+          "full_3pid"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "already-unbound-is-idempotent",
+        "kind": "already_unbound",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/3pid/unbind"
+        },
+        "status": 200,
+        "association_state": "not_found",
+        "auth_proof": "homeserver_signature",
+        "redacted_fields": [
+          "identity_token",
+          "full_3pid",
+          "signature"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "post-unbind-lookup-returns-no-mapping",
+        "kind": "post_unbind_lookup",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/lookup"
+        },
+        "status": 200,
+        "association_state": "not_found",
+        "auth_proof": "identity_token",
+        "redacted_fields": [
+          "identity_token",
+          "lookup_pepper",
+          "hashed_3pid"
+        ],
+        "result": "accepted"
+      }
+    ],
+    "release_evidence_rules": {
+      "artifact_is_representative_only": true,
+      "identity_service_full_breadth_claimed": false,
+      "provider_delivery_claimed": false,
+      "consent_ui_claimed": false,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "case_count": 7,
+    "accepted_case_count": 7,
+    "max_case_count": 8,
+    "validated_3pid_does_not_publish": true,
+    "bind_publishes_association": true,
+    "homeserver_signed_unbind_supported": true,
+    "session_based_unbind_supported": true,
+    "stale_session_fails_closed": true,
+    "already_unbound_idempotent": true,
+    "post_unbind_lookup_removed": true,
+    "raw_identity_tokens_stored": false,
+    "raw_validation_tokens_stored": false,
+    "raw_client_secrets_stored": false,
+    "raw_lookup_peppers_stored": false,
+    "raw_3pids_stored": false,
+    "raw_signatures_stored": false,
+    "identity_service_full_breadth_claimed": false,
+    "provider_delivery_claimed": false,
+    "consent_ui_claimed": false,
+    "versions_advertisement_widened": false
+  }
+}
