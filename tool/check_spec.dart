@@ -130,6 +130,7 @@ void main() {
   checkMatrixClientServerFullBreadthGapInventory(contracts, failures);
   checkMatrixClientWellKnownDiscoverySupportPolicy(contracts, failures);
   checkMatrixClientServerEventRetrievalMembershipHistory(contracts, failures);
+  checkMatrixClientServerRelationsThreadsReactions(contracts, failures);
   checkMatrixCryptoAdapterBoundary(contracts, failures);
   checkMatrixDeviceOneTimeFallbackKeys(contracts, failures);
   checkMatrixToDeviceEncryptedRoomGate(contracts, failures);
@@ -5485,6 +5486,162 @@ void checkMatrixClientServerEventRetrievalMembershipHistory(
   }
 }
 
+void checkMatrixClientServerRelationsThreadsReactions(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-090')) {
+    failures.add(
+      'Matrix Client-Server relations/threads/reactions SPEC-090 is required.',
+    );
+  }
+  const path =
+      'test-vectors/core/matrix-client-server-relations-threads-reactions.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix Client-Server relations vector: $path');
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-090') {
+    failures.add('${relative(file)} must reference SPEC-090.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18' ||
+      eventMap['matrix_spec_source'] !=
+          'https://spec.matrix.org/v1.18/client-server-api/' ||
+      eventMap['parent_contract'] != 'SPEC-073' ||
+      eventMap['spec_issue'] != 'imoyan/houra-spec#99' ||
+      eventMap['implementation_issue'] != 'imoyan/houra-labs#120' ||
+      eventMap['parent_issue'] != 'imoyan/houra-server#135' ||
+      eventMap['boundary'] !=
+          'room-lifecycle-state-relations-user-visible-breadth') {
+    failures.add('${relative(file)} Matrix reference or issue refs invalid.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String || !checkedAt.contains('+09:00')) {
+    failures.add('${relative(file)} checked_at must be a dated JST snapshot.');
+  }
+
+  const expectedPaths = {
+    '/_matrix/client/v1/rooms/{roomId}/relations/{eventId}',
+    '/_matrix/client/v1/rooms/{roomId}/relations/{eventId}/{relType}',
+    '/_matrix/client/v1/rooms/{roomId}/relations/{eventId}/{relType}/{eventType}',
+    '/_matrix/client/v1/rooms/{roomId}/threads',
+  };
+  const expectedParserIds = {'relation_chunk', 'thread_roots'};
+  final descriptors = eventMap['request_descriptors'];
+  final seenPaths = <String>{};
+  final seenParsers = <String>{};
+  if (descriptors is! List || descriptors.length != expectedPaths.length) {
+    failures.add('${relative(file)} request descriptors invalid.');
+  } else {
+    for (final descriptor in descriptors) {
+      if (descriptor is! Map ||
+          descriptor['id'] is! String ||
+          descriptor['method'] != 'GET' ||
+          descriptor['path'] is! String ||
+          descriptor['requires_auth'] != true ||
+          descriptor['adopted_runtime_behavior'] != true) {
+        failures.add('${relative(file)} request descriptor shape invalid.');
+        continue;
+      }
+      final descriptorPath = descriptor['path'] as String;
+      if (!expectedPaths.contains(descriptorPath)) {
+        failures.add('${relative(file)} request descriptor path invalid.');
+      }
+      seenPaths.add(descriptorPath);
+      final parser = descriptor['response_parser'];
+      if (parser is! String || !expectedParserIds.contains(parser)) {
+        failures.add('${relative(file)} response parser id invalid.');
+      } else {
+        seenParsers.add(parser);
+      }
+    }
+    if (!seenPaths.containsAll(expectedPaths) ||
+        !seenParsers.containsAll(expectedParserIds)) {
+      failures.add('${relative(file)} descriptor set incomplete.');
+    }
+  }
+
+  final responses = eventMap['sample_responses'];
+  if (responses is! Map) {
+    failures.add('${relative(file)} sample responses invalid.');
+  } else {
+    final relationChunk = responses['relation_chunk'];
+    final chunk = relationChunk is Map ? relationChunk['chunk'] : null;
+    if (chunk is! List ||
+        chunk.length != 1 ||
+        !_isMatrixReactionEvent(chunk.first)) {
+      failures.add('${relative(file)} relation chunk sample invalid.');
+    }
+    final threadRoots = responses['thread_roots'];
+    final threads = threadRoots is Map ? threadRoots['chunk'] : null;
+    if (threads is! List ||
+        threads.length != 1 ||
+        !_hasMatrixThreadSummary(threads.first)) {
+      failures.add('${relative(file)} thread roots sample invalid.');
+    }
+    if (!_isMatrixEditEvent(responses['edit_event'])) {
+      failures.add('${relative(file)} edit event sample invalid.');
+    }
+    if (!_isMatrixReplyEvent(responses['reply_event'])) {
+      failures.add('${relative(file)} reply event sample invalid.');
+    }
+    final membershipFailure = responses['membership_variant_failure'];
+    if (membershipFailure is! Map ||
+        membershipFailure['errcode'] != 'M_FORBIDDEN' ||
+        membershipFailure['error'] is! String) {
+      failures.add('${relative(file)} membership failure sample invalid.');
+    }
+  }
+
+  requireStringListIncludes(file, eventMap, 'fail_closed_cases', {
+    'malformed_relation_chunk',
+    'malformed_reaction_content',
+    'malformed_thread_summary',
+    'malformed_edit_relation',
+    'malformed_reply_relation',
+    'knock_runtime_behavior_not_claimed',
+    'restricted_join_runtime_behavior_not_claimed',
+    'aggregation_correctness_not_inferred',
+    'versions_advertisement_not_widened',
+  }, failures);
+
+  final rules = eventMap['release_evidence_rules'];
+  if (rules is! Map ||
+      rules['parser_only'] != true ||
+      rules['runtime_route_behavior_claimed'] != false ||
+      rules['aggregation_correctness_claimed'] != false ||
+      rules['thread_ordering_claimed'] != false ||
+      rules['membership_variant_runtime_claimed'] != false ||
+      rules['versions_advertisement_widened'] != false ||
+      rules['client_server_support_claim_widened'] != false) {
+    failures.add('${relative(file)} release evidence rules invalid.');
+  }
+
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['descriptor_count'] != 4 ||
+      expected['parser_count'] != 5 ||
+      expected['relation_chunk_events_parsed'] != 1 ||
+      expected['thread_roots_parsed'] != 1 ||
+      expected['reaction_relation_type'] != 'm.annotation' ||
+      expected['edit_relation_type'] != 'm.replace' ||
+      expected['reply_relation_present'] != true ||
+      expected['membership_variant_failure_errcode'] != 'M_FORBIDDEN' ||
+      expected['runtime_route_behavior_claimed'] != false ||
+      expected['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} expected relations boundary invalid.');
+  }
+}
+
 bool _isMatrixClientEvent(Object? value) {
   if (value is! Map) {
     return false;
@@ -5506,6 +5663,57 @@ bool _isMatrixMembershipEvent(Object? value) {
       value['state_key'] is String &&
       content is Map &&
       content['membership'] is String;
+}
+
+bool _isMatrixReactionEvent(Object? value) {
+  if (!_isMatrixClientEvent(value) ||
+      value is! Map ||
+      value['type'] != 'm.reaction') {
+    return false;
+  }
+  final content = value['content'];
+  final relatesTo = content is Map ? content['m.relates_to'] : null;
+  return relatesTo is Map &&
+      relatesTo['event_id'] is String &&
+      relatesTo['rel_type'] == 'm.annotation' &&
+      relatesTo['key'] is String;
+}
+
+bool _hasMatrixThreadSummary(Object? value) {
+  if (!_isMatrixClientEvent(value) || value is! Map) {
+    return false;
+  }
+  final unsigned = value['unsigned'];
+  final relations = unsigned is Map ? unsigned['m.relations'] : null;
+  final thread = relations is Map ? relations['m.thread'] : null;
+  return thread is Map &&
+      thread['count'] is int &&
+      (thread['count'] as int) >= 0 &&
+      thread['current_user_participated'] is bool &&
+      _isMatrixClientEvent(thread['latest_event']);
+}
+
+bool _isMatrixEditEvent(Object? value) {
+  if (!_isMatrixClientEvent(value) || value is! Map) {
+    return false;
+  }
+  final content = value['content'];
+  final relatesTo = content is Map ? content['m.relates_to'] : null;
+  return content is Map &&
+      content['m.new_content'] is Map &&
+      relatesTo is Map &&
+      relatesTo['event_id'] is String &&
+      relatesTo['rel_type'] == 'm.replace';
+}
+
+bool _isMatrixReplyEvent(Object? value) {
+  if (!_isMatrixClientEvent(value) || value is! Map) {
+    return false;
+  }
+  final content = value['content'];
+  final relatesTo = content is Map ? content['m.relates_to'] : null;
+  final reply = relatesTo is Map ? relatesTo['m.in_reply_to'] : null;
+  return reply is Map && reply['event_id'] is String;
 }
 
 void checkMatrixCryptoAdapterBoundary(
