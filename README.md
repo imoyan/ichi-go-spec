@@ -164,6 +164,7 @@ matching Product MVP contract/vector/design input also changed.
 - `contracts/SPEC-083-matrix-room-version-event-decision-artifacts.md`
 - `contracts/SPEC-084-matrix-room-version-federation-cross-domain-validation.md`
 - `contracts/SPEC-085-matrix-client-server-event-retrieval-membership-history.md`
+- `contracts/SPEC-093-matrix-sync-breadth-extensions.md`
 
 ## Shared Design Inputs
 
@@ -967,6 +968,14 @@ Matrix v1.18 roadmap close-out snapshot:
   out of `SPEC-073`. It gives `houra-labs` a parser-only adoption target while
   keeping runtime route behavior, history visibility, authorization, deprecated
   endpoint support, and Client-Server advertisement excluded.
+- `SPEC-093` splits the `/sync` query descriptor and response-section parser
+  boundary out of the `SPEC-073` `sync-breadth-extensions` lane. It gives
+  `houra-labs` a parser-only adoption target for `full_state`, `filter`,
+  `set_presence`, `use_state_after`, lazy-loading filter flags, presence,
+  to-device, device-list, one-time-key-count, invite, leave, and knock sync
+  envelopes while keeping long-poll timing, token persistence, fanout
+  correctness, E2EE readiness, lazy-loading correctness, and Matrix
+  Client-Server advertisement fail-closed.
 - #97 through #101 should not be closed merely because their spec-side
   checklists are complete or because the current release candidate excludes the
   domain from advertisement. Close them only when #95 links current pass/fail
