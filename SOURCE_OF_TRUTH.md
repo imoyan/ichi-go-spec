@@ -177,6 +177,23 @@ their implementation refs, commands, results, blockers, and claim boundaries.
 This boundary does not imply Matrix v1.18 full compliance or widen Matrix
 advertisement.
 
+## OSS Publication Boundary
+
+The OSS publication readiness plan is
+`test-vectors/core/oss-publication-readiness-plan.json`. It defines public
+listing, documentation index, trust-signal, package, and registry ordering
+without changing the canonical source-of-truth priority.
+
+GitHub Releases may anchor published specification refs, but Context7, OpenSSF
+Scorecard, OpenSSF Best Practices Badge, GitHub topics, package registries, and
+container registries are non-normative signals. They must not supersede
+contracts, vectors, design inputs, UI surfaces, or release evidence in this
+repository.
+
+Implementation packages, app artifacts, and container images are owned by their
+implementation repositories and require their own readiness evidence before
+publication.
+
 ## Spec Health Sweeps
 
 Spec health sweeps are release and roadmap hygiene checks, not behavior-change
