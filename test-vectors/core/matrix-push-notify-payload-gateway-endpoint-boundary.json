@@ -1,0 +1,156 @@
+{
+  "name": "matrix-push-notify-payload-gateway-endpoint-boundary",
+  "contract": "SPEC-091",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/push-gateway-api/#post_matrixpushv1notify",
+    "checked_at": "2026-05-16T01:08:00+09:00",
+    "parent_contract": "SPEC-060",
+    "gap_inventory_contract": "SPEC-077",
+    "lane_id": "notify-payload-gateway-endpoint-breadth",
+    "resource_bounds": {
+      "max_canonical_case_bytes": 24576,
+      "max_case_count": 8,
+      "max_payload_field_count": 12,
+      "max_device_count": 4,
+      "max_rejected_count": 4,
+      "duplicate_cache_scope": "process",
+      "duplicate_cache_max_entries": 128,
+      "network_lookup": false,
+      "vendor_provider_request_generation": false,
+      "raw_pushkey_evidence": false,
+      "raw_vendor_token_evidence": false,
+      "versions_advertisement_widened": false
+    },
+    "cases": [
+      {
+        "id": "full-event-notification",
+        "kind": "event_notification",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/push/v1/notify"
+        },
+        "payload_fields": [
+          "content",
+          "counts",
+          "devices",
+          "event_id",
+          "prio",
+          "room_id",
+          "room_name",
+          "sender",
+          "sender_display_name",
+          "type"
+        ],
+        "status": 200,
+        "duplicate_suppressed": false,
+        "rejected_count": 0,
+        "result": "accepted"
+      },
+      {
+        "id": "count-only-update",
+        "kind": "count_only_update",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/push/v1/notify"
+        },
+        "payload_fields": [
+          "counts",
+          "devices"
+        ],
+        "status": 200,
+        "duplicate_suppressed": false,
+        "rejected_count": 0,
+        "result": "accepted"
+      },
+      {
+        "id": "duplicate-event-notification",
+        "kind": "duplicate_event_notification",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/push/v1/notify"
+        },
+        "payload_fields": [
+          "counts",
+          "devices",
+          "event_id",
+          "room_id"
+        ],
+        "status": 200,
+        "duplicate_suppressed": true,
+        "rejected_count": 0,
+        "result": "accepted"
+      },
+      {
+        "id": "rejected-response",
+        "kind": "rejected_response",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/push/v1/notify"
+        },
+        "payload_fields": [
+          "counts",
+          "devices",
+          "event_id",
+          "room_id"
+        ],
+        "status": 200,
+        "duplicate_suppressed": false,
+        "rejected_count": 1,
+        "result": "accepted"
+      },
+      {
+        "id": "unsupported-endpoint",
+        "kind": "unsupported_endpoint",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/push/v1/unknown"
+        },
+        "payload_fields": [],
+        "status": 404,
+        "errcode": "M_UNRECOGNIZED",
+        "duplicate_suppressed": false,
+        "rejected_count": 0,
+        "result": "accepted"
+      },
+      {
+        "id": "unsupported-method",
+        "kind": "unsupported_method",
+        "request": {
+          "method": "GET",
+          "path": "/_matrix/push/v1/notify"
+        },
+        "payload_fields": [],
+        "status": 405,
+        "errcode": "M_UNRECOGNIZED",
+        "duplicate_suppressed": false,
+        "rejected_count": 0,
+        "result": "accepted"
+      }
+    ],
+    "release_evidence_rules": {
+      "artifact_is_representative_only": true,
+      "push_gateway_full_breadth_claimed": false,
+      "vendor_provider_operation_claimed": false,
+      "notification_rendering_claimed": false,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "case_count": 6,
+    "accepted_case_count": 6,
+    "max_case_count": 8,
+    "full_event_payload_fields_preserved": true,
+    "count_only_event_metadata_omitted": true,
+    "duplicate_suppression_by_event_id": true,
+    "rejected_response_shape_valid": true,
+    "unsupported_endpoint_unrecognized": true,
+    "unsupported_method_unrecognized": true,
+    "raw_pushkeys_stored": false,
+    "raw_vendor_tokens_stored": false,
+    "push_gateway_full_breadth_claimed": false,
+    "vendor_provider_operation_claimed": false,
+    "notification_rendering_claimed": false,
+    "versions_advertisement_widened": false
+  }
+}
