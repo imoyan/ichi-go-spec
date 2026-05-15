@@ -11,6 +11,7 @@
 - 実装採用者向けガイド: [`adoption-guide.md`](adoption-guide.md)
 - release 前の日英確認: [`release-readiness.md`](release-readiness.md)
 - Matrix v1.18 の読み方: [`matrix-v1-18.md`](matrix-v1-18.md)
+- Matrix アプリ拡張境界: [`matrix-application-extension-boundary.md`](matrix-application-extension-boundary.md)
 
 ## 正本へのリンク
 
