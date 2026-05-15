@@ -1,0 +1,81 @@
+{
+  "name": "matrix-client-well-known-discovery-support-policy",
+  "contract": "SPEC-082",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_client_well_known_source": "https://spec.matrix.org/v1.18/client-server-api/#getwell-knownmatrixclient",
+    "matrix_support_well_known_source": "https://spec.matrix.org/v1.18/client-server-api/#getwell-knownmatrixsupport",
+    "matrix_policy_server_well_known_source": "https://spec.matrix.org/v1.18/client-server-api/#getwell-knownmatrixpolicy_server",
+    "checked_at": "2026-05-15T22:40:00+09:00",
+    "parent_contract": "SPEC-073",
+    "spec_issue": "imoyan/houra-spec#260",
+    "parent_issue": "imoyan/houra-server#135",
+    "implementation_issue": "imoyan/houra-server#229",
+    "boundary": "client-well-known-discovery-support-policy",
+    "routes": [
+      {
+        "method": "GET",
+        "path": "/.well-known/matrix/client",
+        "response": {
+          "m.homeserver": {
+            "base_url": "https://example.test"
+          }
+        },
+        "requires_safe_public_https_base_url": true,
+        "identity_server_advertised": false
+      },
+      {
+        "method": "GET",
+        "path": "/.well-known/matrix/support",
+        "response": {
+          "contacts": [
+            {
+              "email_address": "support@example.test",
+              "matrix_id": "@support:example.test",
+              "role": "m.role.admin"
+            }
+          ],
+          "support_page": "https://example.test/support"
+        },
+        "requires_explicit_public_support_metadata": true
+      },
+      {
+        "method": "GET",
+        "path": "/.well-known/matrix/policy_server",
+        "response": {
+          "m.policy_server": {
+            "base_url": "https://policy.example.test"
+          }
+        },
+        "requires_explicit_public_policy_server_base_url": true,
+        "policy_server_api_advertised": false
+      }
+    ],
+    "fail_closed_cases": [
+      "missing_public_homeserver_base_url",
+      "unsafe_public_base_url",
+      "missing_support_metadata",
+      "missing_policy_server_base_url",
+      "unsupported_method",
+      "malformed_local_configuration"
+    ],
+    "release_evidence_rules": {
+      "well_known_is_metadata_not_full_support": true,
+      "identity_service_not_inferred": true,
+      "policy_server_api_not_inferred": true,
+      "versions_advertisement_widened": false,
+      "client_server_support_claim_widened": false
+    }
+  },
+  "expected": {
+    "implemented_routes": [
+      "/.well-known/matrix/client",
+      "/.well-known/matrix/support",
+      "/.well-known/matrix/policy_server"
+    ],
+    "unsupported_or_unconfigured_routes_fail_closed": true,
+    "unsafe_urls_rejected": true,
+    "support_claim_not_widened": true,
+    "versions_advertisement_widened": false
+  }
+}

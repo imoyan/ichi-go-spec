@@ -128,6 +128,7 @@ void main() {
   checkMatrixRoomDirectoryAliasesInvites(contracts, failures);
   checkMatrixModerationReportingAdminControls(contracts, failures);
   checkMatrixClientServerFullBreadthGapInventory(contracts, failures);
+  checkMatrixClientWellKnownDiscoverySupportPolicy(contracts, failures);
   checkMatrixCryptoAdapterBoundary(contracts, failures);
   checkMatrixDeviceOneTimeFallbackKeys(contracts, failures);
   checkMatrixToDeviceEncryptedRoomGate(contracts, failures);
@@ -5192,6 +5193,124 @@ void checkMatrixClientServerFullBreadthGapInventory(
       expected['versions_advertisement_widened'] != false ||
       expected['follow_up_required'] != true) {
     failures.add('${relative(file)} expected gap inventory invalid.');
+  }
+}
+
+void checkMatrixClientWellKnownDiscoverySupportPolicy(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-082')) {
+    failures.add(
+      'Matrix client well-known discovery/support/policy SPEC-082 is required.',
+    );
+  }
+  const path =
+      'test-vectors/core/matrix-client-well-known-discovery-support-policy.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix client well-known vector: $path');
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-082') {
+    failures.add('${relative(file)} must reference SPEC-082.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18' ||
+      eventMap['matrix_client_well_known_source'] !=
+          'https://spec.matrix.org/v1.18/client-server-api/#getwell-knownmatrixclient' ||
+      eventMap['matrix_support_well_known_source'] !=
+          'https://spec.matrix.org/v1.18/client-server-api/#getwell-knownmatrixsupport' ||
+      eventMap['matrix_policy_server_well_known_source'] !=
+          'https://spec.matrix.org/v1.18/client-server-api/#getwell-knownmatrixpolicy_server' ||
+      eventMap['parent_contract'] != 'SPEC-073' ||
+      eventMap['spec_issue'] != 'imoyan/houra-spec#260' ||
+      eventMap['parent_issue'] != 'imoyan/houra-server#135' ||
+      eventMap['implementation_issue'] != 'imoyan/houra-server#229') {
+    failures.add('${relative(file)} Matrix reference or issue refs invalid.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String || !checkedAt.contains('+09:00')) {
+    failures.add('${relative(file)} checked_at must be a dated JST snapshot.');
+  }
+
+  final routes = eventMap['routes'];
+  const expectedPaths = {
+    '/.well-known/matrix/client',
+    '/.well-known/matrix/support',
+    '/.well-known/matrix/policy_server',
+  };
+  if (routes is! List || routes.length != expectedPaths.length) {
+    failures.add('${relative(file)} well-known routes invalid.');
+  } else {
+    final seenPaths = <String>{};
+    for (final route in routes) {
+      if (route is! Map ||
+          route['method'] != 'GET' ||
+          route['path'] is! String ||
+          route['response'] is! Map) {
+        failures.add('${relative(file)} well-known route shape invalid.');
+        continue;
+      }
+      final path = route['path'] as String;
+      if (!expectedPaths.contains(path)) {
+        failures.add('${relative(file)} well-known route path invalid.');
+      }
+      seenPaths.add(path);
+      if (path == '/.well-known/matrix/client' &&
+          (route['requires_safe_public_https_base_url'] != true ||
+              route['identity_server_advertised'] != false)) {
+        failures.add('${relative(file)} client well-known rules invalid.');
+      }
+      if (path == '/.well-known/matrix/support' &&
+          route['requires_explicit_public_support_metadata'] != true) {
+        failures.add('${relative(file)} support well-known rules invalid.');
+      }
+      if (path == '/.well-known/matrix/policy_server' &&
+          (route['requires_explicit_public_policy_server_base_url'] != true ||
+              route['policy_server_api_advertised'] != false)) {
+        failures.add('${relative(file)} policy well-known rules invalid.');
+      }
+    }
+    if (!seenPaths.containsAll(expectedPaths)) {
+      failures.add('${relative(file)} well-known route set incomplete.');
+    }
+  }
+
+  requireStringListIncludes(file, eventMap, 'fail_closed_cases', {
+    'missing_public_homeserver_base_url',
+    'unsafe_public_base_url',
+    'missing_support_metadata',
+    'missing_policy_server_base_url',
+    'unsupported_method',
+    'malformed_local_configuration',
+  }, failures);
+
+  final rules = eventMap['release_evidence_rules'];
+  if (rules is! Map ||
+      rules['well_known_is_metadata_not_full_support'] != true ||
+      rules['identity_service_not_inferred'] != true ||
+      rules['policy_server_api_not_inferred'] != true ||
+      rules['versions_advertisement_widened'] != false ||
+      rules['client_server_support_claim_widened'] != false) {
+    failures.add('${relative(file)} release evidence rules invalid.');
+  }
+
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['implemented_routes'] is! List ||
+      expected['unsupported_or_unconfigured_routes_fail_closed'] != true ||
+      expected['unsafe_urls_rejected'] != true ||
+      expected['support_claim_not_widened'] != true ||
+      expected['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} expected well-known boundary invalid.');
   }
 }
 
