@@ -9,7 +9,7 @@
     "client_server_e2ee_source": "https://spec.matrix.org/v1.18/client-server-api/#end-to-end-encryption",
     "checked_at": "2026-05-14T08:50:23+09:00",
     "parent_issue": "imoyan/houra-server#141",
-    "current_release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-14",
+    "current_release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-16",
     "release_scope_decision": {
       "domain": "Olm & Megolm",
       "decision": "out-of-scope-for-current-release-candidate",

@@ -6,7 +6,7 @@
     "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/",
     "checked_at": "2026-05-14T07:36:37+09:00",
     "parent_issue": "imoyan/houra-server#135",
-    "current_release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-14",
+    "current_release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-16",
     "release_scope_decision": {
       "domain": "Client-Server API",
       "decision": "out-of-scope-for-current-release-candidate",

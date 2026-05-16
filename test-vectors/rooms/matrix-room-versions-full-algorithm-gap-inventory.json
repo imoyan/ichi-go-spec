@@ -7,7 +7,7 @@
     "room_version_12_source": "https://spec.matrix.org/v1.18/rooms/v12/",
     "checked_at": "2026-05-14T08:32:10+09:00",
     "parent_issue": "imoyan/houra-server#140",
-    "current_release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-14",
+    "current_release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-16",
     "release_scope_decision": {
       "domain": "Room Versions",
       "decision": "out-of-scope-for-current-release-candidate",

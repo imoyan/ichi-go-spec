@@ -7,7 +7,7 @@
     "client_server_push_source": "https://spec.matrix.org/v1.18/client-server-api/#push-notifications",
     "checked_at": "2026-05-14T08:25:29+09:00",
     "parent_issue": "imoyan/houra-server#139",
-    "current_release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-14",
+    "current_release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-16",
     "release_scope_decision": {
       "domain": "Push Gateway API",
       "decision": "out-of-scope-for-current-release-candidate",
