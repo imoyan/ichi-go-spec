@@ -194,6 +194,7 @@ matching Product MVP contract/vector/design input also changed.
 - `contracts/SPEC-110-matrix-federation-acl-policy-signing-runtime.md`
 - `contracts/SPEC-111-matrix-federation-leave-knock-runtime.md`
 - `contracts/SPEC-112-matrix-federation-event-retrieval-runtime.md`
+- `contracts/SPEC-113-conformance-tooling-result-schema.md`
 
 ## Shared Design Inputs
 
@@ -254,24 +255,39 @@ load:
 - `design/ui.surface.schema.json` and `design/ui-surfaces/*.json` for
   platform-neutral UI surface validation.
 
-The harness output should be a pass/fail report per feature profile and vector,
-with enough detail for the implementation repository to identify the failed
-contract or fixture. The v1 target profiles are the existing `core`, `auth`,
-`rooms`, `events`, `messaging`, `sync`, and `media` slices.
+The harness output should follow `SPEC-113` and emit a report per feature
+profile and vector, with enough detail for the implementation repository to
+identify the failed contract or fixture. The v1 target profiles are the
+existing `core`, `auth`, `rooms`, `events`, `messaging`, `sync`, and `media`
+slices.
 
 At minimum, a v1 runner should expose one result per vector with:
 
 - Feature profile from `CONTRACT_MODULE_MAP.md`.
-- Vector name from the vector file's `name` field.
+- Vector name and path from the vector file's `name` field and location.
 - Contract id from the vector file's `contract` field.
-- `pass` or `fail` status.
+- `pass`, `fail`, `skipped`, `blocked`, or `out_of_scope` status.
 - Failure detail that identifies the failed contract expectation, fixture field,
   or parser category without requiring server implementation context.
+- Consumed `houra-spec` ref and exact commit SHA.
+- Claim boundary fields proving that the report alone does not widen Product
+  MVP, Matrix advertisement, shared-core, or release-readiness claims.
+
+The canonical sample artifact is
+`test-vectors/core/conformance-tooling-result-schema-v1.json`. Negative cases
+for stale spec refs, unknown vectors, unknown contract ids, profile mismatch,
+and unredacted failure details are tracked by
+`test-vectors/core/conformance-tooling-result-negative-cases-v1.json`.
 
 The runner may adapt each vector to an implementation-specific test harness, but
 the reported result must remain traceable to the canonical vector file. A single
 failed vector should not prevent the runner from reporting the remaining vector
 results.
+
+`skipped`, `blocked`, and `out_of_scope` are not pass evidence. Product MVP and
+Matrix release gates may cite these reports only when their separate adoption
+or release-readiness evidence explains the excluded behavior and keeps
+unsupported claims fail-closed.
 
 Stateful vector metadata is allowed under a top-level `given` object when a
 vector depends on prior covered public behavior. The supported MVP shape is:

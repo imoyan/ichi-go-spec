@@ -161,6 +161,7 @@ void main() {
   checkMatrixV118ReleaseEvidenceBundleNegativeFixtures(failures);
   checkProductMvpReleaseCandidatePlan(contracts, failures);
   checkOssPublicationReadinessPlan(contracts, failures);
+  checkConformanceToolingResultSchema(contracts, profileMap, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -12957,6 +12958,258 @@ void checkOssPublicationReadinessPlan(
       expected['non_normative_indexes_do_not_override_ssot'] != true ||
       expected['product_mvp_and_matrix_claims_not_widened'] != true) {
     failures.add('${relative(file)} expected OSS readiness result invalid.');
+  }
+}
+
+void checkConformanceToolingResultSchema(
+  Map<String, String> contracts,
+  Map<String, String> profileMap,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-113')) {
+    failures.add('Conformance tooling result schema requires SPEC-113.');
+  }
+
+  final schemaFile = File(
+    'test-vectors/core/conformance-tooling-result-schema-v1.json',
+  );
+  final schema = readJsonObject(schemaFile, failures);
+  if (schema == null) {
+    return;
+  }
+  if (schema['contract'] != 'SPEC-113') {
+    failures.add('${relative(schemaFile)} must reference SPEC-113.');
+  }
+  final event = schema['event'];
+  if (event is! Map ||
+      event['schema_version'] != 'conformance-report-v1' ||
+      event['source_doc'] != 'README.md') {
+    failures.add('${relative(schemaFile)} conformance schema metadata invalid.');
+    return;
+  }
+  final eventMap = event.cast<String, Object?>();
+  const statuses = {'pass', 'fail', 'skipped', 'blocked', 'out_of_scope'};
+  requireStringListIncludes(
+    schemaFile,
+    eventMap,
+    'status_values',
+    statuses,
+    failures,
+  );
+  requireStringListIncludes(schemaFile, eventMap, 'required_report_fields', {
+    'schema_version',
+    'generated_at',
+    'houra_spec_ref',
+    'houra_spec_commit',
+    'implementation',
+    'runner',
+    'target',
+    'results',
+    'totals',
+    'claim_boundary',
+    'redaction',
+  }, failures);
+  requireStringListIncludes(schemaFile, eventMap, 'required_result_fields', {
+    'vector_name',
+    'vector_path',
+    'contract',
+    'feature_profile',
+    'status',
+  }, failures);
+
+  final sampleReport = eventMap['sample_report'];
+  if (sampleReport is! Map) {
+    failures.add('${relative(schemaFile)} sample_report must be an object.');
+  } else {
+    validateConformanceReportSample(
+      schemaFile,
+      sampleReport.cast<String, Object?>(),
+      profileMap,
+      statuses,
+      failures,
+    );
+  }
+
+  final expected = schema['expected'];
+  if (expected is! Map ||
+      expected['schema_defined'] != true ||
+      expected['required_report_fields_traceable'] != true ||
+      expected['required_result_fields_traceable'] != true ||
+      expected['all_status_values_defined'] != true ||
+      expected['sample_report_traceable_to_contract_vector_profile'] != true ||
+      expected['claim_boundary_not_widened_by_report'] != true ||
+      expected['redaction_required'] != true) {
+    failures.add('${relative(schemaFile)} expected schema result invalid.');
+  }
+
+  final negativeFile = File(
+    'test-vectors/core/conformance-tooling-result-negative-cases-v1.json',
+  );
+  final negative = readJsonObject(negativeFile, failures);
+  if (negative == null) {
+    return;
+  }
+  if (negative['contract'] != 'SPEC-113') {
+    failures.add('${relative(negativeFile)} must reference SPEC-113.');
+  }
+  final negativeEvent = negative['event'];
+  if (negativeEvent is! Map ||
+      negativeEvent['schema_version'] != 'conformance-report-v1') {
+    failures.add('${relative(negativeFile)} negative metadata invalid.');
+    return;
+  }
+  final negativeEventMap = negativeEvent.cast<String, Object?>();
+  final cases = negativeEventMap['negative_cases'];
+  if (cases is! List) {
+    failures.add('${relative(negativeFile)} negative_cases must be an array.');
+  } else {
+    final ids = <String>{};
+    for (final item in cases) {
+      if (item is! Map ||
+          item['id'] is! String ||
+          item['invalid_field'] is! String ||
+          item['reason'] is! String ||
+          item['expected_result'] != 'rejected') {
+        failures.add('${relative(negativeFile)} negative case shape invalid.');
+        continue;
+      }
+      ids.add(item['id'] as String);
+    }
+    for (final id in {
+      'stale-spec-ref',
+      'unknown-vector',
+      'unknown-contract-id',
+      'profile-mismatch',
+      'unredacted-failure-detail',
+    }) {
+      if (!ids.contains(id)) {
+        failures.add('${relative(negativeFile)} missing negative case: $id');
+      }
+    }
+  }
+  requireStringListIncludes(
+    negativeFile,
+    negativeEventMap,
+    'forbidden_failure_detail_categories',
+    {
+      'bearer_tokens',
+      'refresh_tokens',
+      'database_urls',
+      'signed_or_credentialed_urls',
+      'private_local_paths',
+      'media_keys',
+      'room_keys',
+      'recovery_keys',
+      'pushkeys',
+      'vendor_tokens',
+      'plaintext_media_bytes',
+      'raw_secrets',
+    },
+    failures,
+  );
+  final negativeExpected = negative['expected'];
+  if (negativeExpected is! Map ||
+      negativeExpected['negative_case_count'] != 5 ||
+      negativeExpected['stale_spec_ref_rejected'] != true ||
+      negativeExpected['unknown_vector_rejected'] != true ||
+      negativeExpected['unknown_contract_rejected'] != true ||
+      negativeExpected['profile_mismatch_rejected'] != true ||
+      negativeExpected['unredacted_failure_detail_rejected'] != true ||
+      negativeExpected['redaction_categories_defined_without_secret_values'] !=
+          true) {
+    failures.add('${relative(negativeFile)} expected negative result invalid.');
+  }
+}
+
+void validateConformanceReportSample(
+  File file,
+  Map<String, Object?> report,
+  Map<String, String> profileMap,
+  Set<String> statuses,
+  List<String> failures,
+) {
+  if (report['schema_version'] != 'conformance-report-v1' ||
+      report['houra_spec_ref'] is! String ||
+      report['houra_spec_commit'] is! String ||
+      report['implementation'] is! Map ||
+      report['runner'] is! Map ||
+      report['target'] is! Map) {
+    failures.add('${relative(file)} sample_report core fields invalid.');
+  }
+
+  final results = report['results'];
+  if (results is! List || results.isEmpty) {
+    failures.add('${relative(file)} sample_report results invalid.');
+    return;
+  }
+  final totals = <String, int>{for (final status in statuses) status: 0};
+  for (final item in results) {
+    if (item is! Map) {
+      failures.add('${relative(file)} sample_report result shape invalid.');
+      continue;
+    }
+    final result = item.cast<String, Object?>();
+    final status = result['status'];
+    if (status is! String || !statuses.contains(status)) {
+      failures.add('${relative(file)} sample_report result status invalid.');
+      continue;
+    }
+    totals[status] = (totals[status] ?? 0) + 1;
+    final vectorPath = result['vector_path'];
+    final vectorName = result['vector_name'];
+    final contract = result['contract'];
+    final featureProfile = result['feature_profile'];
+    if (vectorPath is! String ||
+        vectorName is! String ||
+        contract is! String ||
+        featureProfile is! String ||
+        !File(vectorPath).existsSync()) {
+      failures.add('${relative(file)} sample_report result trace invalid.');
+      continue;
+    }
+    final vector = readJsonObject(File(vectorPath), failures);
+    if (vector == null ||
+        vector['name'] != vectorName ||
+        vector['contract'] != contract ||
+        profileMap[contract] != featureProfile) {
+      failures.add(
+        '${relative(file)} sample_report result must match vector contract/profile.',
+      );
+    }
+    final failureDetail = result['failure_detail'];
+    if ((status == 'fail' || status == 'blocked') &&
+        (failureDetail is! Map || failureDetail['redacted'] != true)) {
+      failures.add(
+        '${relative(file)} failing sample_report results require redacted detail.',
+      );
+    }
+  }
+
+  final totalMap = report['totals'];
+  if (totalMap is! Map) {
+    failures.add('${relative(file)} sample_report totals invalid.');
+  } else {
+    for (final status in statuses) {
+      if (totalMap[status] != totals[status]) {
+        failures.add('${relative(file)} sample_report totals mismatch.');
+      }
+    }
+  }
+
+  final claimBoundary = report['claim_boundary'];
+  if (claimBoundary is! Map ||
+      claimBoundary['matrix_versions_advertisement_widened'] != false ||
+      claimBoundary['matrix_domain_support_claimed'] != false ||
+      claimBoundary['shared_core_adoption_claimed'] != false ||
+      claimBoundary['release_ready'] != false) {
+    failures.add('${relative(file)} sample_report claim boundary invalid.');
+  }
+  final redaction = report['redaction'];
+  if (redaction is! Map ||
+      redaction['secrets_redacted'] != true ||
+      redaction['raw_local_paths_redacted'] != true ||
+      redaction['failure_detail_redacted'] != true) {
+    failures.add('${relative(file)} sample_report redaction invalid.');
   }
 }
 

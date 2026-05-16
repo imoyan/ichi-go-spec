@@ -1,0 +1,62 @@
+{
+  "name": "conformance-tooling-result-negative-cases-v1",
+  "contract": "SPEC-113",
+  "event": {
+    "schema_version": "conformance-report-v1",
+    "negative_cases": [
+      {
+        "id": "stale-spec-ref",
+        "invalid_field": "houra_spec_commit",
+        "reason": "report commit does not match the vector set used by the runner",
+        "expected_result": "rejected"
+      },
+      {
+        "id": "unknown-vector",
+        "invalid_field": "results[0].vector_path",
+        "reason": "vector path or vector name is absent from the consumed houra-spec checkout",
+        "expected_result": "rejected"
+      },
+      {
+        "id": "unknown-contract-id",
+        "invalid_field": "results[0].contract",
+        "reason": "contract id is not present in contracts/SPEC-*.md",
+        "expected_result": "rejected"
+      },
+      {
+        "id": "profile-mismatch",
+        "invalid_field": "results[0].feature_profile",
+        "reason": "feature profile does not match CONTRACT_MODULE_MAP.md for the result contract",
+        "expected_result": "rejected"
+      },
+      {
+        "id": "unredacted-failure-detail",
+        "invalid_field": "results[0].failure_detail",
+        "reason": "failure detail records a forbidden secret, credentialed URL, local path, key material, or plaintext payload category",
+        "expected_result": "rejected"
+      }
+    ],
+    "forbidden_failure_detail_categories": [
+      "bearer_tokens",
+      "refresh_tokens",
+      "database_urls",
+      "signed_or_credentialed_urls",
+      "private_local_paths",
+      "media_keys",
+      "room_keys",
+      "recovery_keys",
+      "pushkeys",
+      "vendor_tokens",
+      "plaintext_media_bytes",
+      "raw_secrets"
+    ]
+  },
+  "expected": {
+    "negative_case_count": 5,
+    "stale_spec_ref_rejected": true,
+    "unknown_vector_rejected": true,
+    "unknown_contract_rejected": true,
+    "profile_mismatch_rejected": true,
+    "unredacted_failure_detail_rejected": true,
+    "redaction_categories_defined_without_secret_values": true
+  }
+}
