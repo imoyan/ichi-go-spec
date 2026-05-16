@@ -1,0 +1,76 @@
+{
+  "name": "matrix-e2ee-parser-artifact-breadth",
+  "contract": "SPEC-102",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "parent_contract": "SPEC-079",
+    "checked_at": "2026-05-16T15:55:00+09:00",
+    "artifact_surfaces": [
+      "encrypted_event_envelope",
+      "device_key_public_payload",
+      "key_backup_public_metadata",
+      "verification_event_public_content",
+      "cross_signing_public_key"
+    ],
+    "request_descriptors": [
+      {
+        "id": "keys-query",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/query",
+        "response_parser": "device_key_query_public_payload"
+      },
+      {
+        "id": "verification-signatures-upload",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/signatures/upload",
+        "response_parser": "matrix_error_or_empty_json"
+      }
+    ],
+    "binding_safe_output": {
+      "allowed_fields": [
+        "type",
+        "algorithm",
+        "sender_key",
+        "session_id",
+        "device_id",
+        "key_id",
+        "signatures",
+        "unsigned"
+      ],
+      "forbidden_fields": [
+        "private_key",
+        "session_key",
+        "recovery_key",
+        "plaintext",
+        "local_secret_path"
+      ]
+    },
+    "negative_cases": [
+      {
+        "id": "secret-bearing-artifact",
+        "reason": "private_key_present",
+        "expected_result": "rejected"
+      },
+      {
+        "id": "local-path-leak",
+        "reason": "local_secret_path_present",
+        "expected_result": "rejected"
+      }
+    ],
+    "ownership": {
+      "olm_megolm_primitives": "client-crypto-stack-owned",
+      "secure_storage": "host-owned",
+      "trust_ui": "client-owned",
+      "transport": "implementation-owned",
+      "versions_advertisement": "not_widened"
+    }
+  },
+  "expected": {
+    "artifact_surface_count": 5,
+    "request_descriptor_count": 2,
+    "negative_case_count": 2,
+    "secret_fields_allowed": false,
+    "versions_advertisement_widened": false,
+    "full_e2ee_support_claimed": false
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "name": "matrix-room-version-event-format-hash-signature",
+  "contract": "SPEC-103",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "parent_contract": "SPEC-078",
+    "checked_at": "2026-05-16T15:55:00+09:00",
+    "room_versions": [
+      {
+        "room_version": "12",
+        "event_id_format": "reference_hash",
+        "room_id_format": "create_event_hash",
+        "auth_events_limit": 10,
+        "prev_events_limit": 20
+      }
+    ],
+    "canonical_json_cases": [
+      {
+        "id": "canonical-basic",
+        "input": {
+          "type": "m.room.message",
+          "room_id": "!room:example.test",
+          "sender": "@alice:example.test",
+          "content": {
+            "body": "hello",
+            "msgtype": "m.text"
+          }
+        },
+        "expected_canonical_json": "{\"content\":{\"body\":\"hello\",\"msgtype\":\"m.text\"},\"room_id\":\"!room:example.test\",\"sender\":\"@alice:example.test\",\"type\":\"m.room.message\"}",
+        "expected_bytes": 135
+      },
+      {
+        "id": "canonical-invalid-secret",
+        "input": {
+          "private_key": "redacted"
+        },
+        "expected_error": "private_signing_material_not_allowed"
+      }
+    ],
+    "hash_signature_inputs": [
+      {
+        "id": "hash-signing-descriptor",
+        "event_id": "$event:example.test",
+        "hash_algorithm": "sha256",
+        "signature_algorithm": "ed25519",
+        "hash_calculated": false,
+        "signature_verified": false,
+        "private_key_present": false
+      }
+    ],
+    "redaction_retention_cases": [
+      {
+        "event_type": "m.room.member",
+        "retained_content_fields": [
+          "membership",
+          "join_authorised_via_users_server"
+        ],
+        "stripped_content_fields": [
+          "displayname",
+          "avatar_url"
+        ]
+      }
+    ],
+    "limits": {
+      "max_canonical_event_bytes": 65536,
+      "max_json_nesting_depth": 16,
+      "max_event_depth": 2147483647,
+      "max_auth_events": 10,
+      "max_prev_events": 20
+    },
+    "ownership": {
+      "network_auth": "server-owned",
+      "federation_fetch": "server-owned",
+      "state_mutation": "server-owned",
+      "signature_trust_policy": "server-owned",
+      "versions_advertisement": "not_widened"
+    }
+  },
+  "expected": {
+    "room_version_count": 1,
+    "canonical_case_count": 2,
+    "hash_signature_input_count": 1,
+    "redaction_retention_case_count": 1,
+    "hash_calculated": false,
+    "signature_verified": false,
+    "versions_advertisement_widened": false,
+    "full_room_version_algorithm_claimed": false
+  }
+}
