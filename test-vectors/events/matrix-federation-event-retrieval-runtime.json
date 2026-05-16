@@ -1,0 +1,343 @@
+{
+  "name": "matrix-federation-event-retrieval-runtime",
+  "contract": "SPEC-112",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/server-server-api/#get_matrixfederationv1eventeventid",
+      "https://spec.matrix.org/v1.18/server-server-api/#post_matrixfederationv1get_missing_eventsroomid",
+      "https://spec.matrix.org/v1.18/server-server-api/#get_matrixfederationv1stateroomid",
+      "https://spec.matrix.org/v1.18/server-server-api/#get_matrixfederationv1timestamp_to_eventroomid"
+    ],
+    "checked_at": "2026-05-16T22:20:00+09:00",
+    "parent_contract": "SPEC-057",
+    "gap_inventory_contract": "SPEC-074",
+    "lane_id": "event-retrieval-missing-events-backfill-state-breadth",
+    "requests": [
+      {
+        "id": "event-retrieval",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/event/$event:example.test",
+        "authorization": {
+          "scheme": "X-Matrix",
+          "origin": "remote.example.test",
+          "destination": "example.test",
+          "key": "ed25519:auto1",
+          "sig": "base64-request-signature"
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "origin": "example.test",
+            "origin_server_ts": 1778411200000,
+            "pdus": [
+              {
+                "event_id": "$event:example.test",
+                "type": "m.room.message",
+                "room_id": "!room:example.test",
+                "sender": "@alice:example.test",
+                "origin_server_ts": 1778411200000,
+                "depth": 4,
+                "prev_events": [
+                  "$prev:example.test"
+                ],
+                "auth_events": [
+                  "$auth:example.test"
+                ],
+                "content": {
+                  "msgtype": "m.text",
+                  "body": "representative federation event"
+                },
+                "hashes": {
+                  "sha256": "base64-event-hash"
+                },
+                "signatures": {
+                  "example.test": {
+                    "ed25519:auto1": "base64-event-signature"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "get-missing-events",
+        "method": "POST",
+        "path": "/_matrix/federation/v1/get_missing_events/!room:example.test",
+        "authorization_ref": "event-retrieval",
+        "body": {
+          "earliest_events": [
+            "$prev:example.test"
+          ],
+          "latest_events": [
+            "$event:example.test"
+          ],
+          "limit": 10,
+          "min_depth": 1
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "events": [
+              {
+                "event_id": "$prev:example.test",
+                "type": "m.room.message",
+                "room_id": "!room:example.test",
+                "sender": "@bob:example.test",
+                "origin_server_ts": 1778411190000,
+                "depth": 3,
+                "prev_events": [
+                  "$create:example.test"
+                ],
+                "auth_events": [
+                  "$auth:example.test"
+                ],
+                "content": {
+                  "msgtype": "m.text",
+                  "body": "representative previous event"
+                },
+                "hashes": {
+                  "sha256": "base64-prev-event-hash"
+                },
+                "signatures": {
+                  "example.test": {
+                    "ed25519:auto1": "base64-prev-event-signature"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "state-response",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/state/!room:example.test?event_id=$event:example.test",
+        "authorization_ref": "event-retrieval",
+        "response": {
+          "status": 200,
+          "body": {
+            "pdus": [
+              {
+                "event_id": "$state:example.test",
+                "type": "m.room.name",
+                "room_id": "!room:example.test",
+                "sender": "@server:example.test",
+                "state_key": "",
+                "origin_server_ts": 1778411180000,
+                "depth": 2,
+                "prev_events": [
+                  "$create:example.test"
+                ],
+                "auth_events": [
+                  "$auth:example.test"
+                ],
+                "content": {
+                  "name": "Houra Public"
+                },
+                "hashes": {
+                  "sha256": "base64-state-event-hash"
+                },
+                "signatures": {
+                  "example.test": {
+                    "ed25519:auto1": "base64-state-event-signature"
+                  }
+                }
+              }
+            ],
+            "auth_chain": [
+              {
+                "event_id": "$auth:example.test",
+                "type": "m.room.power_levels",
+                "room_id": "!room:example.test",
+                "sender": "@server:example.test",
+                "state_key": "",
+                "origin_server_ts": 1778411170000,
+                "depth": 1,
+                "prev_events": [
+                  "$create:example.test"
+                ],
+                "auth_events": [
+                  "$create:example.test"
+                ],
+                "content": {
+                  "users_default": 0
+                },
+                "hashes": {
+                  "sha256": "base64-auth-event-hash"
+                },
+                "signatures": {
+                  "example.test": {
+                    "ed25519:auto1": "base64-auth-event-signature"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "timestamp-to-event-forward",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/timestamp_to_event/!room:example.test?ts=1778411195000&dir=f",
+        "authorization_ref": "event-retrieval",
+        "response": {
+          "status": 200,
+          "body": {
+            "event_id": "$event:example.test",
+            "origin_server_ts": 1778411200000
+          }
+        }
+      },
+      {
+        "id": "timestamp-to-event-backward",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/timestamp_to_event/!room:example.test?ts=1778411195000&dir=b",
+        "authorization_ref": "event-retrieval",
+        "response": {
+          "status": 200,
+          "body": {
+            "event_id": "$prev:example.test",
+            "origin_server_ts": 1778411190000
+          }
+        }
+      }
+    ],
+    "negative_cases": [
+      {
+        "id": "event-missing-authorization",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/event/$event:example.test",
+        "expected_status": 401,
+        "expected_error": "M_UNAUTHORIZED"
+      },
+      {
+        "id": "event-acl-denied",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/event/$event:example.test",
+        "authorization": {
+          "scheme": "X-Matrix",
+          "origin": "banned.example.test",
+          "destination": "example.test",
+          "key": "ed25519:auto1",
+          "sig": "base64-request-signature"
+        },
+        "expected_status": 403,
+        "expected_error": "M_FORBIDDEN"
+      },
+      {
+        "id": "event-invalid-id",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/event/not-an-event",
+        "authorization_ref": "event-retrieval",
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      },
+      {
+        "id": "event-unknown",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/event/$missing:example.test",
+        "authorization_ref": "event-retrieval",
+        "expected_status": 404,
+        "expected_error": "M_NOT_FOUND"
+      },
+      {
+        "id": "missing-events-invalid-body",
+        "method": "POST",
+        "path": "/_matrix/federation/v1/get_missing_events/!room:example.test",
+        "authorization_ref": "event-retrieval",
+        "body": {
+          "earliest_events": "$prev:example.test",
+          "latest_events": [
+            "$event:example.test"
+          ],
+          "limit": 10
+        },
+        "expected_status": 400,
+        "expected_error": "M_BAD_JSON"
+      },
+      {
+        "id": "missing-events-invalid-room",
+        "method": "POST",
+        "path": "/_matrix/federation/v1/get_missing_events/not-a-room",
+        "authorization_ref": "event-retrieval",
+        "body": {
+          "earliest_events": [
+            "$prev:example.test"
+          ],
+          "latest_events": [
+            "$event:example.test"
+          ],
+          "limit": 10
+        },
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      },
+      {
+        "id": "state-missing-event-id",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/state/!room:example.test",
+        "authorization_ref": "event-retrieval",
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      },
+      {
+        "id": "state-unsupported-room",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/state/!unknown:example.test?event_id=$event:example.test",
+        "authorization_ref": "event-retrieval",
+        "expected_status": 404,
+        "expected_error": "M_NOT_FOUND"
+      },
+      {
+        "id": "timestamp-invalid-dir",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/timestamp_to_event/!room:example.test?ts=1778411195000&dir=x",
+        "authorization_ref": "event-retrieval",
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      },
+      {
+        "id": "timestamp-invalid-ts",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/timestamp_to_event/!room:example.test?ts=not-a-number&dir=f",
+        "authorization_ref": "event-retrieval",
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      }
+    ],
+    "resource_bounds": {
+      "max_missing_events_limit": 20,
+      "max_state_response_pdus": 20,
+      "max_state_response_auth_chain_events": 20,
+      "request_authorization_required": true,
+      "outbound_federation_execution": false,
+      "complete_history_visibility_claimed": false,
+      "redaction_correctness_claimed": false,
+      "complete_pagination_backfill_breadth_claimed": false,
+      "complete_state_resolution_correctness_claimed": false,
+      "timestamp_index_persistence_claimed": false,
+      "versions_advertisement_widened": false
+    },
+    "release_evidence_rules": {
+      "representative_runtime": true,
+      "event_retrieval_runtime_claimed": true,
+      "complete_history_visibility_claimed": false,
+      "advertisement_allowed": false
+    }
+  },
+  "expected": {
+    "request_count": 5,
+    "missing_events_count": 1,
+    "state_pdu_count": 1,
+    "state_auth_chain_count": 1,
+    "timestamp_forward_event_id": "$event:example.test",
+    "timestamp_backward_event_id": "$prev:example.test",
+    "outbound_federation_execution": false,
+    "complete_history_visibility_claimed": false,
+    "complete_state_resolution_correctness_claimed": false,
+    "versions_advertisement_widened": false,
+    "advertisement_allowed": false
+  }
+}
