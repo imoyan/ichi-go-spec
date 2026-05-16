@@ -890,10 +890,10 @@ Canonical release evidence example bundle:
 
 Matrix v1.18 roadmap close-out snapshot:
 
-- Snapshot checked at: 2026-05-14T07:15:04+09:00.
-- #95 remains the parent Matrix v1.18 roadmap. #189 is the close-out snapshot
-  lane for keeping #95, domain issues, implementation adoption refs, and
-  release evidence in sync.
+- Snapshot checked at: 2026-05-16T20:57:44+09:00.
+- #95 remains the parent Matrix v1.18 roadmap. #189 is the historical close-out
+  snapshot lane; current issue sync is maintained here and in #95 so domain
+  issues, implementation adoption refs, and release evidence do not drift.
 - The `houra-spec` domain issue checklists for #97 through #101 have completed
   their contract/vector/gate children. That is contract coverage, not a release
   support claim.
@@ -901,18 +901,23 @@ Matrix v1.18 roadmap close-out snapshot:
   imoyan/houra-server#59 through imoyan/houra-server#69 and
   imoyan/houra-server#106 through imoyan/houra-server#108. imoyan/houra-server#145
   records the current-candidate release-scope exclusion decisions that closed
-  imoyan/houra-server#133 as an active Complement/full-breadth blocker. The
-  full-breadth follow-up trackers remain open as imoyan/houra-server#135
-  through imoyan/houra-server#142.
+  imoyan/houra-server#133 as an active Complement/full-breadth blocker.
+- Current open `houra-server` Matrix implementation gap trackers are 33 issues:
+  in `imoyan/houra-server`, Client-Server #135, #153, #195, and #197; Room
+  Versions #140 and #168 through #170; E2EE #141, #173, #174, and #252 through
+  #255; Server-Server #136, #158 through #160, and #232 through #234;
+  Application Service #137, #162, #163, and #235 through #240; and Identity
+  Service #138 and #164. Push Gateway #139 and Appendices/common #142 are
+  closed at this snapshot.
 - `houra-client` adoption refs named by #189 are closed:
   imoyan/houra-client#55 through imoyan/houra-client#66 and
-  imoyan/houra-client#95 through imoyan/houra-client#97.
-- `houra-labs` remains an optional shared-core/parser exploration lane:
-  imoyan/houra-labs#56 through imoyan/houra-labs#73 and
-  imoyan/houra-labs#76 through imoyan/houra-labs#77 are still open, while
-  imoyan/houra-labs#74 and imoyan/houra-labs#75 are closed. These open labs
-  issues do not block Matrix version advertisement unless a release candidate
-  includes shared-core artifacts as evidence.
+  imoyan/houra-client#95 through imoyan/houra-client#97. No open
+  `houra-client` issue remained in the checked issue list.
+- `houra-labs` remains an optional shared-core/parser exploration lane, but no
+  open `houra-labs` issue remained in the checked issue list. The prior
+  parser/shared-core issues imoyan/houra-labs#56 through #77 are closed at this
+  snapshot and do not block Matrix version advertisement unless a release
+  candidate includes shared-core artifacts as evidence.
 - #200 records the current blocked release evidence bundle with real
   implementation refs and keeps Matrix version advertisement fail-closed.
   #201 records the `SPEC-068` OAuth account-management adoption boundary and
@@ -927,12 +932,13 @@ Matrix v1.18 roadmap close-out snapshot:
   3fa134955c9e0804adc9e4b54e6d90fb24631f77, and `houra-client`
   0f330a14ad86d69ad4f147c7a5b6d1852c9c78f2. It links every excluded stable
   domain to an explicit current-candidate release-scope decision:
-  imoyan/houra-server#135 through imoyan/houra-server#142. Client-Server API
-  still references both #97 and #99 because the MVP-equivalent slice and
-  breadth slice share the same Matrix domain. Release readiness remains blocked
-  by fail-closed Matrix version advertisement; `GET /_matrix/client/versions`
-  still returns no Matrix versions and no publishable Matrix support claim is
-  allowed.
+  imoyan/houra-server#135 through imoyan/houra-server#142. Later child issues
+  under the same domains track implementation breadth without changing that
+  blocked candidate set. Client-Server API still references both #97 and #99
+  because the MVP-equivalent slice and breadth slice share the same Matrix
+  domain. Release readiness remains blocked by fail-closed Matrix version
+  advertisement; `GET /_matrix/client/versions` still returns no Matrix
+  versions and no publishable Matrix support claim is allowed.
 - `SPEC-073` decomposes `houra-server#135` Client-Server full-breadth gaps into
   discovery/support, auth refresh, event history, room breadth, sync extension,
   media breadth, and E2EE Client-Server lanes. It is a fail-closed gap
