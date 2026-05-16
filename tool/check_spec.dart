@@ -14499,6 +14499,7 @@ String entityName(FileSystemEntity entity) {
 
 bool isGeneratedEntry(String name) {
   return name == '.git' ||
+      name == '.claude' ||
       name == '.dart_tool' ||
       name == 'build' ||
       name == 'pubspec.lock';
