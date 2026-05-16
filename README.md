@@ -187,6 +187,7 @@ matching Product MVP contract/vector/design input also changed.
 - `contracts/SPEC-109-matrix-federation-e2ee-device-media-runtime.md`
 - `contracts/SPEC-110-matrix-federation-acl-policy-signing-runtime.md`
 - `contracts/SPEC-111-matrix-federation-leave-knock-runtime.md`
+- `contracts/SPEC-112-matrix-federation-event-retrieval-runtime.md`
 
 ## Shared Design Inputs
 
@@ -1696,6 +1697,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-109 | Matrix federation E2EE device, to-device, and media representative runtime behavior | `test-vectors/core/matrix-federation-e2ee-device-media-runtime.json` |
 | SPEC-110 | Matrix federation Server ACL, policy signing, and event hash/signature representative runtime behavior | `test-vectors/core/matrix-federation-acl-policy-signing-runtime.json` |
 | SPEC-111 | Matrix federation leave and knock representative runtime behavior | `test-vectors/events/matrix-federation-leave-knock-runtime.json` |
+| SPEC-112 | Matrix federation event retrieval, missing-events, state response, and timestamp lookup representative runtime behavior | `test-vectors/events/matrix-federation-event-retrieval-runtime.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
