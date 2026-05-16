@@ -1,0 +1,320 @@
+{
+  "name": "matrix-federation-e2ee-device-media-runtime",
+  "contract": "SPEC-109",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/server-server-api/#device-management",
+      "https://spec.matrix.org/v1.18/server-server-api/#end-to-end-encryption",
+      "https://spec.matrix.org/v1.18/server-server-api/#put_matrixfederationv1sendtodeviceeventtypetxnid",
+      "https://spec.matrix.org/v1.18/server-server-api/#get_matrixfederationv1mediadownloadmediaid",
+      "https://spec.matrix.org/v1.18/server-server-api/#get_matrixfederationv1mediathumbnailmediaid"
+    ],
+    "checked_at": "2026-05-16T21:50:00+09:00",
+    "parser_artifact_contract": "SPEC-102",
+    "gap_inventory_contract": "SPEC-074",
+    "lane_id": "federation-e2ee-device-send-to-device-media-breadth",
+    "requests": [
+      {
+        "id": "user-devices",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/user/devices/@alice:example.test",
+        "authorization": {
+          "scheme": "X-Matrix",
+          "origin": "remote.example.test",
+          "destination": "example.test",
+          "key": "ed25519:auto1",
+          "sig": "base64-request-signature"
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "user_id": "@alice:example.test",
+            "stream_id": 7,
+            "devices": [
+              {
+                "device_id": "ALICEDEVICE",
+                "display_name": "Alice device",
+                "keys": {
+                  "user_id": "@alice:example.test",
+                  "device_id": "ALICEDEVICE",
+                  "algorithms": [
+                    "m.olm.v1.curve25519-aes-sha2",
+                    "m.megolm.v1.aes-sha2"
+                  ],
+                  "keys": {
+                    "curve25519:ALICEDEVICE": "curve25519-public",
+                    "ed25519:ALICEDEVICE": "ed25519-public"
+                  },
+                  "signatures": {
+                    "@alice:example.test": {
+                      "ed25519:ALICEDEVICE": "base64-device-signature"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "keys-query",
+        "method": "POST",
+        "path": "/_matrix/federation/v1/user/keys/query",
+        "authorization": {
+          "scheme": "X-Matrix",
+          "origin": "remote.example.test",
+          "destination": "example.test",
+          "key": "ed25519:auto1",
+          "sig": "base64-request-signature"
+        },
+        "body": {
+          "device_keys": {
+            "@alice:example.test": []
+          }
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "failures": {},
+            "device_keys": {
+              "@alice:example.test": {
+                "ALICEDEVICE": {
+                  "user_id": "@alice:example.test",
+                  "device_id": "ALICEDEVICE",
+                  "algorithms": [
+                    "m.olm.v1.curve25519-aes-sha2",
+                    "m.megolm.v1.aes-sha2"
+                  ],
+                  "keys": {
+                    "curve25519:ALICEDEVICE": "curve25519-public",
+                    "ed25519:ALICEDEVICE": "ed25519-public"
+                  },
+                  "signatures": {
+                    "@alice:example.test": {
+                      "ed25519:ALICEDEVICE": "base64-device-signature"
+                    }
+                  }
+                }
+              }
+            },
+            "master_keys": {},
+            "self_signing_keys": {},
+            "user_signing_keys": {}
+          }
+        }
+      },
+      {
+        "id": "keys-claim",
+        "method": "POST",
+        "path": "/_matrix/federation/v1/user/keys/claim",
+        "authorization": {
+          "scheme": "X-Matrix",
+          "origin": "remote.example.test",
+          "destination": "example.test",
+          "key": "ed25519:auto1",
+          "sig": "base64-request-signature"
+        },
+        "body": {
+          "one_time_keys": {
+            "@alice:example.test": {
+              "ALICEDEVICE": "signed_curve25519"
+            }
+          }
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "failures": {},
+            "one_time_keys": {
+              "@alice:example.test": {
+                "ALICEDEVICE": {
+                  "signed_curve25519:AAAAAQ": {
+                    "key": "one-time-public",
+                    "signatures": {
+                      "@alice:example.test": {
+                        "ed25519:ALICEDEVICE": "base64-one-time-signature"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "send-to-device",
+        "method": "PUT",
+        "path": "/_matrix/federation/v1/sendToDevice/m.room.encrypted/txn-1",
+        "authorization": {
+          "scheme": "X-Matrix",
+          "origin": "remote.example.test",
+          "destination": "example.test",
+          "key": "ed25519:auto1",
+          "sig": "base64-request-signature"
+        },
+        "body": {
+          "messages": {
+            "@alice:example.test": {
+              "ALICEDEVICE": {
+                "algorithm": "m.olm.v1.curve25519-aes-sha2",
+                "sender_key": "remote-curve25519-public",
+                "ciphertext": {
+                  "curve25519-public": {
+                    "type": 0,
+                    "body": "opaque-ciphertext"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "response": {
+          "status": 200,
+          "body": {}
+        }
+      },
+      {
+        "id": "media-download",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/media/download/media1",
+        "authorization": {
+          "scheme": "X-Matrix",
+          "origin": "remote.example.test",
+          "destination": "example.test",
+          "key": "ed25519:auto1",
+          "sig": "base64-request-signature"
+        },
+        "response": {
+          "status": 200,
+          "content_type": "text/plain; charset=utf-8",
+          "content_disposition": "inline; filename=\"houra-media.txt\"",
+          "body_text": "hello matrix media"
+        }
+      }
+    ],
+    "negative_cases": [
+      {
+        "id": "missing-authorization",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/user/devices/@alice:example.test",
+        "expected_status": 401,
+        "expected_error": "M_UNAUTHORIZED"
+      },
+      {
+        "id": "devices-invalid-user-id",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/user/devices/not-a-user",
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      },
+      {
+        "id": "devices-unknown-user",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/user/devices/@missing:example.test",
+        "authorization_ref": "user-devices",
+        "expected_status": 404,
+        "expected_error": "M_NOT_FOUND"
+      },
+      {
+        "id": "keys-query-invalid-body",
+        "method": "POST",
+        "path": "/_matrix/federation/v1/user/keys/query",
+        "authorization_ref": "keys-query",
+        "body": {
+          "device_keys": []
+        },
+        "expected_status": 400,
+        "expected_error": "M_BAD_JSON"
+      },
+      {
+        "id": "keys-claim-invalid-body",
+        "method": "POST",
+        "path": "/_matrix/federation/v1/user/keys/claim",
+        "authorization_ref": "keys-claim",
+        "body": {
+          "one_time_keys": []
+        },
+        "expected_status": 400,
+        "expected_error": "M_BAD_JSON"
+      },
+      {
+        "id": "send-to-device-unsupported-event-type",
+        "method": "PUT",
+        "path": "/_matrix/federation/v1/sendToDevice/m.room.message/txn-2",
+        "authorization_ref": "send-to-device",
+        "body": {
+          "messages": {
+            "@alice:example.test": {
+              "ALICEDEVICE": {
+                "body": "plaintext is not accepted by this contract"
+              }
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": "M_UNRECOGNIZED"
+      },
+      {
+        "id": "send-to-device-invalid-messages",
+        "method": "PUT",
+        "path": "/_matrix/federation/v1/sendToDevice/m.room.encrypted/txn-3",
+        "authorization_ref": "send-to-device",
+        "body": {
+          "messages": []
+        },
+        "expected_status": 400,
+        "expected_error": "M_BAD_JSON"
+      },
+      {
+        "id": "media-download-missing",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/media/download/missing",
+        "authorization_ref": "media-download",
+        "expected_status": 404,
+        "expected_error": "M_NOT_FOUND"
+      },
+      {
+        "id": "media-thumbnail-unsupported",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/media/thumbnail/media1",
+        "authorization_ref": "media-download",
+        "expected_status": 404,
+        "expected_error": "M_UNRECOGNIZED"
+      }
+    ],
+    "bounds": {
+      "max_devices_per_user": 50,
+      "max_queried_users": 20,
+      "max_queried_devices_per_user": 50,
+      "max_claimed_users": 20,
+      "max_claimed_devices_per_user": 50,
+      "max_to_device_recipient_users": 20,
+      "max_to_device_recipient_devices_per_user": 50,
+      "max_local_media_response_bytes": 10485760,
+      "remote_network_fetch": false,
+      "olm_megolm_primitive_implementation": false,
+      "encrypted_attachment_decryption": false,
+      "thumbnail_generation_required": false,
+      "cache_persistence": false,
+      "versions_advertisement_widened": false
+    },
+    "excluded_claims": [
+      "local_olm_megolm_crypto",
+      "device_list_fanout_correctness",
+      "remote_media_fetch",
+      "encrypted_attachment_decryption",
+      "thumbnail_generation",
+      "range_requests",
+      "malware_scanning",
+      "server_server_full_breadth",
+      "matrix_v1_18_full_compliance"
+    ],
+    "adoption": {
+      "server_issue": "houra-server#233",
+      "advertisement_allowed": false,
+      "release_evidence_required": true
+    }
+  }
+}

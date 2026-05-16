@@ -184,6 +184,7 @@ matching Product MVP contract/vector/design input also changed.
 - `contracts/SPEC-106-matrix-identity-service-parser-artifact-breadth.md`
 - `contracts/SPEC-107-matrix-federation-transaction-event-validation-runtime.md`
 - `contracts/SPEC-108-matrix-federation-directory-query-openid-runtime.md`
+- `contracts/SPEC-109-matrix-federation-e2ee-device-media-runtime.md`
 
 ## Shared Design Inputs
 
@@ -1632,6 +1633,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-106 | Matrix Identity Service parser-only artifact breadth descriptors | `test-vectors/core/matrix-identity-service-parser-artifact-breadth.json` |
 | SPEC-107 | Matrix federation transaction event-validation representative runtime behavior | `test-vectors/events/matrix-federation-transaction-event-validation-runtime.json` |
 | SPEC-108 | Matrix federation directory, hierarchy, query, and OpenID representative runtime behavior | `test-vectors/core/matrix-federation-directory-query-openid-runtime.json` |
+| SPEC-109 | Matrix federation E2EE device, to-device, and media representative runtime behavior | `test-vectors/core/matrix-federation-e2ee-device-media-runtime.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
