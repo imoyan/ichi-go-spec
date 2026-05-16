@@ -1,0 +1,247 @@
+{
+  "name": "matrix-federation-leave-knock-runtime",
+  "contract": "SPEC-111",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/server-server-api/#leaving-rooms",
+      "https://spec.matrix.org/v1.18/server-server-api/#knocking-on-rooms"
+    ],
+    "checked_at": "2026-05-16T21:50:00+09:00",
+    "parent_contract": "SPEC-056",
+    "gap_inventory_contract": "SPEC-074",
+    "lane_id": "join-knock-leave-invite-third-party-invite-breadth",
+    "requests": [
+      {
+        "id": "make-leave",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/make_leave/!room:example.test/@alice:remote.example.test",
+        "authorization": {
+          "scheme": "X-Matrix",
+          "origin": "remote.example.test",
+          "destination": "example.test",
+          "key": "ed25519:auto1",
+          "sig": "base64-request-signature"
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "room_version": "12",
+            "event": {
+              "type": "m.room.member",
+              "room_id": "!room:example.test",
+              "sender": "@alice:remote.example.test",
+              "state_key": "@alice:remote.example.test",
+              "content": {
+                "membership": "leave"
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "send-leave",
+        "method": "PUT",
+        "path": "/_matrix/federation/v2/send_leave/!room:example.test/$leave:remote.example.test",
+        "authorization_ref": "make-leave",
+        "body": {
+          "type": "m.room.member",
+          "room_id": "!room:example.test",
+          "sender": "@alice:remote.example.test",
+          "state_key": "@alice:remote.example.test",
+          "content": {
+            "membership": "leave"
+          },
+          "signatures": {
+            "remote.example.test": {
+              "ed25519:auto1": "base64-leave-signature"
+            }
+          }
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "event": {
+              "event_id": "$leave:remote.example.test",
+              "type": "m.room.member",
+              "room_id": "!room:example.test",
+              "sender": "@alice:remote.example.test",
+              "state_key": "@alice:remote.example.test",
+              "content": {
+                "membership": "leave"
+              },
+              "signatures": {
+                "remote.example.test": {
+                  "ed25519:auto1": "base64-leave-signature"
+                },
+                "example.test": {
+                  "ed25519:auto1": "base64-leave-resident-signature"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "make-knock",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/make_knock/!room:example.test/@alice:remote.example.test",
+        "authorization_ref": "make-leave",
+        "response": {
+          "status": 200,
+          "body": {
+            "room_version": "12",
+            "event": {
+              "type": "m.room.member",
+              "room_id": "!room:example.test",
+              "sender": "@alice:remote.example.test",
+              "state_key": "@alice:remote.example.test",
+              "content": {
+                "membership": "knock"
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "send-knock",
+        "method": "PUT",
+        "path": "/_matrix/federation/v1/send_knock/!room:example.test/$knock:remote.example.test",
+        "authorization_ref": "make-leave",
+        "body": {
+          "type": "m.room.member",
+          "room_id": "!room:example.test",
+          "sender": "@alice:remote.example.test",
+          "state_key": "@alice:remote.example.test",
+          "content": {
+            "membership": "knock"
+          },
+          "signatures": {
+            "remote.example.test": {
+              "ed25519:auto1": "base64-knock-signature"
+            }
+          }
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "event": {
+              "event_id": "$knock:remote.example.test",
+              "type": "m.room.member",
+              "room_id": "!room:example.test",
+              "sender": "@alice:remote.example.test",
+              "state_key": "@alice:remote.example.test",
+              "content": {
+                "membership": "knock"
+              },
+              "signatures": {
+                "remote.example.test": {
+                  "ed25519:auto1": "base64-knock-signature"
+                },
+                "example.test": {
+                  "ed25519:auto1": "base64-knock-resident-signature"
+                }
+              }
+            },
+            "knock_room_state": [
+              {
+                "type": "m.room.name",
+                "state_key": "",
+                "content": {
+                  "name": "Houra Public"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "negative_cases": [
+      {
+        "id": "make-leave-missing-authorization",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/make_leave/!room:example.test/@alice:remote.example.test",
+        "expected_status": 401,
+        "expected_error": "M_UNAUTHORIZED"
+      },
+      {
+        "id": "make-leave-invalid-room",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/make_leave/not-a-room/@alice:remote.example.test",
+        "authorization_ref": "make-leave",
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      },
+      {
+        "id": "make-knock-unsupported-room",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/make_knock/!unknown:example.test/@alice:remote.example.test",
+        "authorization_ref": "make-leave",
+        "expected_status": 404,
+        "expected_error": "M_NOT_FOUND"
+      },
+      {
+        "id": "send-leave-invalid-membership",
+        "method": "PUT",
+        "path": "/_matrix/federation/v2/send_leave/!room:example.test/$leave:remote.example.test",
+        "authorization_ref": "make-leave",
+        "body": {
+          "type": "m.room.member",
+          "room_id": "!room:example.test",
+          "sender": "@alice:remote.example.test",
+          "state_key": "@alice:remote.example.test",
+          "content": {
+            "membership": "join"
+          }
+        },
+        "expected_status": 400,
+        "expected_error": "M_BAD_JSON"
+      },
+      {
+        "id": "send-knock-invalid-event",
+        "method": "PUT",
+        "path": "/_matrix/federation/v1/send_knock/!room:example.test/not-an-event",
+        "authorization_ref": "make-leave",
+        "body": {
+          "type": "m.room.member",
+          "room_id": "!room:example.test",
+          "sender": "@alice:remote.example.test",
+          "state_key": "@alice:remote.example.test",
+          "content": {
+            "membership": "knock"
+          }
+        },
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      }
+    ],
+    "resource_bounds": {
+      "max_knock_room_state_events": 20,
+      "request_authorization_required": true,
+      "membership_persistence": false,
+      "outbound_federation_execution": false,
+      "restricted_join_knock_correctness_claimed": false,
+      "complete_auth_event_selection_claimed": false,
+      "room_version_auth_correctness_claimed": false,
+      "third_party_invite_exchange_claimed": false,
+      "versions_advertisement_widened": false
+    },
+    "release_evidence_rules": {
+      "representative_runtime": true,
+      "leave_knock_runtime_claimed": true,
+      "third_party_invite_exchange_claimed": false,
+      "advertisement_allowed": false
+    }
+  },
+  "expected": {
+    "request_count": 4,
+    "leave_membership": "leave",
+    "knock_membership": "knock",
+    "knock_room_state_count": 1,
+    "membership_persistence": false,
+    "outbound_federation_execution": false,
+    "third_party_invite_exchange_claimed": false,
+    "versions_advertisement_widened": false,
+    "advertisement_allowed": false
+  }
+}
