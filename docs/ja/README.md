@@ -48,6 +48,13 @@ optional flow です。現行 Product MVP happy path には含めず、media met
 UI surface adoption evidence、signed URL / local path / plaintext bytes の redaction 方針が
 揃うまで fail-closed として扱います。encrypted attachment は `SPEC-072` 側で分けます。
 
+`SPEC-072` の encrypted media attachment は metadata validation、ciphertext download /
+decrypt handoff、missing / wrong key、redaction、recoverable error の optional flow です。
+現行 Product MVP happy path には含めず、encrypted attachment capability、crypto-adapter
+handoff evidence、trust copy、media key / room key / recovery key / plaintext bytes /
+decrypted thumbnail の redaction 方針が揃うまで fail-closed として扱います。この flow だけで
+encrypted-room や complete E2EE support claim は広げません。
+
 ## 書き方
 
 日本語ページは、GitHub の表示で読みやすいように短い段落とリンク中心にします。

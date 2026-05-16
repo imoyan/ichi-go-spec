@@ -1,0 +1,21 @@
+{
+  "name": "product-mvp-encrypted-media-wrong-key",
+  "contract": "SPEC-072",
+  "event": {
+    "media_id": "media1",
+    "encrypted_attachment_state": "wrong_key",
+    "crypto_adapter_result": {
+      "ok": false,
+      "reason": "authentication_failed",
+      "media_key_value": "redacted"
+    }
+  },
+  "expected": {
+    "plaintext_rendered": false,
+    "plaintext_cached": false,
+    "share_or_export_allowed": false,
+    "diagnostic_reason_visible": true,
+    "media_key_recorded": false,
+    "retry_allowed_after_key_refresh": true
+  }
+}

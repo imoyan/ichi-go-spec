@@ -119,7 +119,7 @@
     {
       "id": "media",
       "session": "authenticated",
-      "purpose": "Upload media metadata and verify same-origin content download.",
+      "purpose": "Upload media metadata, verify same-origin content download, and surface optional vNext transfer or encrypted attachment actions only when advertised.",
       "regions": ["media-inputs", "media-result", "status"],
       "fields": [
         {
@@ -157,7 +157,11 @@
         "media.upload-and-download",
         "media.request-thumbnail",
         "media.range-download",
-        "media.resume-download"
+        "media.resume-download",
+        "media.inspect-encrypted-attachment",
+        "media.download-encrypted-attachment",
+        "media.decrypt-encrypted-attachment",
+        "media.retry-encrypted-attachment"
       ]
     },
     {
@@ -338,6 +342,46 @@
       "error_expectation": "Stale resume state is visible and restart remains available without exposing local paths."
     },
     {
+      "id": "media.inspect-encrypted-attachment",
+      "label_key": "action.inspect-encrypted-attachment",
+      "requires_auth": true,
+      "api_contracts": ["SPEC-072"],
+      "busy_state": "pending.encrypted-media",
+      "disabled_when": ["pending.any", "unsupported.encrypted-media"],
+      "success_expectation": "Encrypted attachment metadata is visible only after SPEC-072 capability metadata is advertised and validated.",
+      "error_expectation": "Malformed or unsupported encrypted media remains hidden or disabled without probing unadvertised endpoints."
+    },
+    {
+      "id": "media.download-encrypted-attachment",
+      "label_key": "action.download-encrypted-attachment",
+      "requires_auth": true,
+      "api_contracts": ["SPEC-072"],
+      "busy_state": "pending.encrypted-media",
+      "disabled_when": ["pending.any", "unsupported.encrypted-media", "data.redacted-attachment"],
+      "success_expectation": "Ciphertext download completes as an opaque host-owned handoff without exposing local paths or plaintext bytes.",
+      "error_expectation": "Download errors are recoverable and keep retry controls visible without logging signed URLs or tokens."
+    },
+    {
+      "id": "media.decrypt-encrypted-attachment",
+      "label_key": "action.decrypt-encrypted-attachment",
+      "requires_auth": true,
+      "api_contracts": ["SPEC-072"],
+      "busy_state": "pending.encrypted-media",
+      "disabled_when": ["pending.any", "unsupported.encrypted-media", "blocked.encrypted-media-key", "data.redacted-attachment"],
+      "success_expectation": "The crypto adapter returns a decrypted summary or preview descriptor without SDK core owning plaintext lifecycle.",
+      "error_expectation": "Missing-key or wrong-key states remain visible, trust copy stays bounded, and plaintext preview/share/export stay disabled."
+    },
+    {
+      "id": "media.retry-encrypted-attachment",
+      "label_key": "action.retry-encrypted-attachment",
+      "requires_auth": true,
+      "api_contracts": ["SPEC-072"],
+      "busy_state": "pending.encrypted-media",
+      "disabled_when": ["pending.any", "unsupported.encrypted-media", "data.redacted-attachment"],
+      "success_expectation": "A recoverable encrypted media failure retries only the failed download or decrypt handoff step.",
+      "error_expectation": "Repeated recoverable failures stay bounded and do not clear host-owned ciphertext or retry state without host policy."
+    },
+    {
       "id": "session.refresh",
       "label_key": "action.refresh",
       "requires_auth": true,
@@ -415,6 +459,11 @@
       "description": "A thumbnail, ranged download, or resumable download request is in flight."
     },
     {
+      "id": "pending.encrypted-media",
+      "kind": "async",
+      "description": "An encrypted attachment metadata, download, decrypt, or retry action is in flight."
+    },
+    {
       "id": "pending.refresh",
       "kind": "async",
       "description": "A refresh request is in flight."
@@ -460,9 +509,34 @@
       "description": "Host-owned resumable download state is available without local path values."
     },
     {
+      "id": "data.encrypted-attachment",
+      "kind": "data",
+      "description": "Validated encrypted attachment metadata is available without raw media keys."
+    },
+    {
+      "id": "data.decrypt-handoff",
+      "kind": "data",
+      "description": "A host-owned ciphertext or decrypt result descriptor is available without plaintext bytes."
+    },
+    {
+      "id": "data.redacted-attachment",
+      "kind": "data",
+      "description": "The encrypted attachment has been redacted and cannot be downloaded or decrypted."
+    },
+    {
       "id": "unsupported.media-transfer",
       "kind": "data",
       "description": "The selected media object has not advertised SPEC-071 transfer capabilities."
+    },
+    {
+      "id": "unsupported.encrypted-media",
+      "kind": "data",
+      "description": "The selected media object has not advertised SPEC-072 encrypted attachment capabilities."
+    },
+    {
+      "id": "blocked.encrypted-media-key",
+      "kind": "data",
+      "description": "Encrypted attachment metadata is present but the host or crypto adapter has no usable media key."
     },
     {
       "id": "data.recovery-state",
@@ -483,6 +557,11 @@
       "id": "error.visible",
       "kind": "error",
       "description": "The most recent recoverable error is visible to the user."
+    },
+    {
+      "id": "error.encrypted-media-recoverable",
+      "kind": "error",
+      "description": "An encrypted media download or decrypt handoff failed in a recoverable way."
     }
   ],
   "text_keys": {
@@ -490,12 +569,16 @@
     "action.create-room": "Create",
     "action.account-recovery": "Account recovery",
     "action.complete-idp-login": "Complete IdP login",
+    "action.decrypt-encrypted-attachment": "Decrypt attachment",
+    "action.download-encrypted-attachment": "Download encrypted",
+    "action.inspect-encrypted-attachment": "Inspect encrypted",
     "action.login": "Login",
     "action.logout": "Logout",
     "action.open-room": "Open room",
     "action.range-download": "Download range",
     "action.refresh": "Refresh",
     "action.request-thumbnail": "Load thumbnail",
+    "action.retry-encrypted-attachment": "Retry encrypted",
     "action.resume-download": "Resume download",
     "action.request-email-verification": "Send verification email",
     "action.request-password-reset": "Send password reset",
@@ -606,6 +689,41 @@
       ]
     },
     {
+      "id": "product-mvp-encrypted-media-vnext",
+      "description": "Optional Product MVP vNext UI flow for SPEC-072 encrypted attachment metadata, ciphertext download, decrypt handoff, and recoverable errors; not part of the current Product MVP happy path until evidence includes it.",
+      "steps": [
+        {
+          "id": "encrypted-media-capability",
+          "screen": "media",
+          "expectation": "Encrypted attachment actions are visible only when media metadata advertises SPEC-072 encrypted_attachment capabilities."
+        },
+        {
+          "id": "inspect-encrypted-attachment",
+          "screen": "media",
+          "action": "media.inspect-encrypted-attachment",
+          "expectation": "Validated metadata is visible without raw media keys, local paths, signed URLs, or plaintext bytes."
+        },
+        {
+          "id": "download-ciphertext",
+          "screen": "media",
+          "action": "media.download-encrypted-attachment",
+          "expectation": "Ciphertext download is treated as opaque and handed to host-owned storage without plaintext preview."
+        },
+        {
+          "id": "decrypt-handoff",
+          "screen": "media",
+          "action": "media.decrypt-encrypted-attachment",
+          "expectation": "Decrypt handoff goes through the crypto adapter and missing-key or wrong-key states do not render plaintext."
+        },
+        {
+          "id": "retry-recoverable-error",
+          "screen": "media",
+          "action": "media.retry-encrypted-attachment",
+          "expectation": "Recoverable errors keep retry controls visible while duplicate retry submission is disabled."
+        }
+      ]
+    },
+    {
       "id": "product-mvp-account-recovery-vnext",
       "description": "Optional Product MVP vNext UI flow for SPEC-070 account recovery and IdP login; not part of the current Product MVP happy path until evidence includes it.",
       "steps": [
@@ -668,12 +786,13 @@
       "run or manually record product-mvp-happy-path acceptance flow coverage",
       "if SPEC-070 is included, record product-mvp-account-recovery-vnext coverage and advertised capability evidence",
       "if SPEC-071 is included, record product-mvp-media-transfer-vnext coverage and advertised metadata capability evidence",
+      "if SPEC-072 is included, record product-mvp-encrypted-media-vnext coverage, advertised encrypted_attachment capability evidence, crypto-adapter handoff evidence, and trust copy boundaries",
       "record accessibility pass or explicit blocker for form labels, buttons, status, and focus order"
     ],
     "redaction_policy": [
       "do not record raw bearer tokens or refresh tokens",
       "do not record reset tokens, email verification tokens, authorization codes, callback URL query values, or IdP session identifiers",
-      "do not record signed or credentialed URLs, local filesystem paths, plaintext media bytes, media keys, or cache filenames exposing user data",
+      "do not record signed or credentialed URLs, local filesystem paths, plaintext media bytes, media keys, room keys, recovery keys, decrypted thumbnails, or cache filenames exposing user data",
       "do not record database URLs or private local paths",
       "do not record machine-specific environment values",
       "record redacted server base URL shape only when needed"
@@ -684,14 +803,16 @@
       "Docker Compose deploy smoke is separate from UI surface adoption evidence",
       "SPEC-070 account recovery and IdP login actions are optional vNext coverage and require advertised capability evidence",
       "SPEC-071 thumbnail, range, and resumable download actions are optional vNext coverage and require advertised metadata capability evidence",
+      "SPEC-072 encrypted attachment actions are optional vNext coverage and require advertised metadata capability, crypto-adapter handoff, trust copy, and redaction evidence",
       "Matrix full compliance is not claimed by this surface"
     ]
   },
   "limitations": [
     "This surface does not define marketing pages or onboarding copy outside the Product MVP operation flow.",
     "This surface does not define framework-specific navigation, component hierarchy, animations, or persistence APIs.",
-    "Federation, encrypted media, and Matrix full-spec coverage are outside this Product MVP surface.",
+    "Federation and Matrix full-spec coverage are outside this Product MVP surface.",
     "SPEC-071 thumbnails, range requests, and resumable download are optional Product MVP vNext actions and are outside the current Product MVP happy path until a release candidate includes matching adoption evidence.",
-    "SPEC-070 account recovery and IdP login are optional Product MVP vNext actions and are outside the current Product MVP happy path until a release candidate includes matching adoption evidence."
+    "SPEC-070 account recovery and IdP login are optional Product MVP vNext actions and are outside the current Product MVP happy path until a release candidate includes matching adoption evidence.",
+    "SPEC-072 encrypted attachment metadata, ciphertext download, decrypt handoff, recoverable errors, and trust copy are optional Product MVP vNext actions and are outside the current Product MVP happy path until a release candidate includes matching adoption evidence."
   ]
 }

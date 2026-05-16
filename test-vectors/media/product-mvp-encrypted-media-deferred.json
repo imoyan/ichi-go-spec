@@ -3,24 +3,31 @@
   "contract": "SPEC-072",
   "event": {
     "target": "Product MVP encrypted media attachment",
-    "decision": "defer",
-    "implemented_by_this_contract": false,
+    "decision": "current-baseline-defer-vnext-contract-defined",
+    "implemented_by_this_contract": true,
     "product_mvp_next_step": true,
     "matrix_full_compliance_claim": false,
     "encrypted_room_support_claim": false,
     "complete_e2ee_support_claim": false,
-    "current_product_mvp_ui_surface_changes": false,
+    "current_product_mvp_ui_surface_changes": true,
+    "current_release_support": false,
     "media_transfer_scope": false,
+    "vnext_contract_lanes": [
+      "encrypted_attachment_capability_metadata",
+      "encrypted_attachment_metadata_validation",
+      "download_decrypt_handoff",
+      "missing_key_wrong_key_redaction_recoverable_error_states",
+      "encrypted_media_ui_surface"
+    ],
     "fail_closed_client_behavior": [
       "do_not_render_encrypted_attachment_actions",
       "do_not_export_encrypted_attachment_sdk_methods_without_followup_contract",
       "do_not_infer_support_from_m_room_encrypted_or_crypto_stack_selection",
-      "do_not_treat_media_upload_download_support_as_encrypted_attachment_support"
+      "do_not_treat_media_upload_download_support_as_encrypted_attachment_support",
+      "do_not_treat_spec_071_transfer_metadata_as_encrypted_attachment_support"
     ],
     "future_lanes": [
-      "encrypted_attachment_metadata_parser",
-      "encrypted_attachment_transfer_descriptors",
-      "crypto_adapter_media_key_handling",
+      "encrypted_attachment_upload_descriptor",
       "host_secure_storage_and_deletion_policy",
       "preview_share_export_ui_surface",
       "release_evidence_and_advertisement_wording"
@@ -31,7 +38,8 @@
       "response_parsers",
       "matrix_content_uri_validation",
       "opaque_encrypted_content_descriptor_parsing",
-      "public_error_envelope_mapping"
+      "public_error_envelope_mapping",
+      "redacted_decrypt_handoff_diagnostic_shaping"
     ],
     "crypto_adapter_owned": [
       "encryption",
@@ -79,14 +87,17 @@
       "SPEC-038",
       "SPEC-050",
       "SPEC-052",
-      "SPEC-071"
+      "SPEC-071",
+      "SPEC-079",
+      "SPEC-081"
     ],
     "required_before_implementation": [
-      "followup_contract",
       "test_vectors",
-      "ui_surface_update_when_ui_changes",
+      "ui_surface_adoption_evidence",
       "crypto_security_evidence_requirements",
-      "implementation_adoption_gate"
+      "maintained_crypto_stack_and_storage_ownership_boundary",
+      "implementation_adoption_gate",
+      "advertised_capability_evidence"
     ]
   }
 }
