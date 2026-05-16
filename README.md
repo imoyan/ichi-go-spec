@@ -956,6 +956,13 @@ Matrix v1.18 roadmap close-out snapshot:
   domain. Release readiness remains blocked by fail-closed Matrix version
   advertisement; `GET /_matrix/client/versions` still returns no Matrix
   versions and no publishable Matrix support claim is allowed.
+- Post-bundle Client-Server registration classification sync:
+  imoyan/houra-server#303 merged at 2026-05-16T23:29:29+09:00 and records the
+  Complement `TestLogin` one-shot registration helper failure as a known
+  non-advertised Client-Server registration breadth gap under
+  imoyan/houra-server#135 and imoyan/houra-server#191. This sync does not
+  change runtime behavior, does not refresh the frozen candidate refs above,
+  and keeps `/versions` fail-closed with no Matrix support claim.
 - `SPEC-073` decomposes `houra-server#135` Client-Server full-breadth gaps into
   discovery/support, auth refresh, event history, room breadth, sync extension,
   media breadth, and E2EE Client-Server lanes. It is a fail-closed gap
@@ -1042,7 +1049,10 @@ Matrix readiness map:
   Client-Server subset can be advertised. Its open child gaps #153, #195, and
   #197 are known non-advertised Client-Server breadth gaps for the first subset
   unless a later release candidate explicitly includes them with passing
-  evidence.
+  evidence. The 2026-05-16 Complement `TestLogin` narrow smoke reached the
+  Houra server and failed at the adopted registration UIA `401` challenge; it
+  is part of this known non-advertised Client-Server registration breadth, not
+  a support claim or advertisement blocker removal.
 - Room Versions are explicitly out of scope for the first subset:
   `houra-server#140` remains the known non-advertised domain gap, and #168
   through #170 are post-release breadth issues unless the advertised scope is
