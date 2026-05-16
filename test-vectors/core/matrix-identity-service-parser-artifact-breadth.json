@@ -1,0 +1,90 @@
+{
+  "name": "matrix-identity-service-parser-artifact-breadth",
+  "contract": "SPEC-106",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "parent_contract": "SPEC-076",
+    "checked_at": "2026-05-16T16:05:00+09:00",
+    "parser_surfaces": [
+      "discovery_terms_descriptor",
+      "lookup_hash_details_descriptor",
+      "validation_request_descriptor",
+      "bind_unbind_lifecycle_descriptor",
+      "public_key_signature_descriptor",
+      "invitation_placeholder_descriptor",
+      "matrix_error_envelope",
+      "redaction_artifact"
+    ],
+    "positive_artifacts": [
+      {
+        "id": "lookup-hash-details",
+        "surface": "lookup_hash_details_descriptor",
+        "normalized_fields": [
+          "algorithms",
+          "lookup_pepper"
+        ]
+      },
+      {
+        "id": "validated-bind-association",
+        "surface": "bind_unbind_lifecycle_descriptor",
+        "normalized_fields": [
+          "medium",
+          "address",
+          "mxid",
+          "not_before",
+          "not_after",
+          "signatures"
+        ]
+      },
+      {
+        "id": "public-key-signature",
+        "surface": "public_key_signature_descriptor",
+        "normalized_fields": [
+          "public_key",
+          "ephemeral_key",
+          "valid_until_ts",
+          "signature"
+        ]
+      }
+    ],
+    "malformed_artifacts": [
+      {
+        "id": "invalid-matrix-error",
+        "reason": "errcode_missing_m_prefix",
+        "expected_result": "rejected"
+      },
+      {
+        "id": "token-leak",
+        "reason": "identity_token_present",
+        "expected_result": "redacted"
+      },
+      {
+        "id": "local-path-leak",
+        "reason": "local_secret_path_present",
+        "expected_result": "redacted"
+      }
+    ],
+    "redaction_policy": {
+      "identity_tokens_allowed": false,
+      "client_secrets_allowed": false,
+      "raw_signatures_allowed": false,
+      "local_paths_allowed": false
+    },
+    "ownership": {
+      "provider_delivery": "implementation-owned",
+      "consent_ui": "client-owned",
+      "contact_upload_ux": "client-owned",
+      "identity_server_selection": "client-owned",
+      "ephemeral_signing_runtime": "implementation-owned",
+      "support_advertisement": "not_widened"
+    }
+  },
+  "expected": {
+    "parser_surface_count": 8,
+    "positive_artifact_count": 3,
+    "malformed_artifact_count": 3,
+    "secret_fields_allowed": false,
+    "support_advertisement_widened": false,
+    "full_identity_service_support_claimed": false
+  }
+}

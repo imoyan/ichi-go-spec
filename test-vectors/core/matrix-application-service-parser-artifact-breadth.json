@@ -1,0 +1,86 @@
+{
+  "name": "matrix-application-service-parser-artifact-breadth",
+  "contract": "SPEC-105",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "parent_contract": "SPEC-075",
+    "checked_at": "2026-05-16T16:05:00+09:00",
+    "parser_surfaces": [
+      "registration_descriptor",
+      "namespace_regex_descriptor",
+      "transaction_envelope",
+      "query_response_descriptor",
+      "ping_result_descriptor",
+      "masquerade_descriptor",
+      "redaction_artifact"
+    ],
+    "positive_artifacts": [
+      {
+        "id": "registration-basic",
+        "surface": "registration_descriptor",
+        "normalized_fields": [
+          "id",
+          "url",
+          "as_token",
+          "hs_token",
+          "sender_localpart",
+          "namespaces"
+        ]
+      },
+      {
+        "id": "transaction-with-retry-metadata",
+        "surface": "transaction_envelope",
+        "normalized_fields": [
+          "txn_id",
+          "events",
+          "ephemeral",
+          "retry_after_ms",
+          "idempotency_key"
+        ]
+      },
+      {
+        "id": "masquerade-descriptor",
+        "surface": "masquerade_descriptor",
+        "normalized_fields": [
+          "as_token",
+          "user_id",
+          "device_id",
+          "identity_assertion"
+        ]
+      }
+    ],
+    "malformed_artifacts": [
+      {
+        "id": "duplicate-token",
+        "reason": "as_token_equals_hs_token",
+        "expected_result": "rejected"
+      },
+      {
+        "id": "invalid-namespace-regex",
+        "reason": "regex_parse_failed",
+        "expected_result": "rejected"
+      },
+      {
+        "id": "raw-token-leak",
+        "reason": "unredacted_token_in_evidence",
+        "expected_result": "rejected"
+      }
+    ],
+    "ownership": {
+      "delivery_retry": "server-owned",
+      "bridge_runtime": "implementation-owned",
+      "token_storage": "server-owned",
+      "third_party_network_runtime": "implementation-owned",
+      "server_mutation": "server-owned",
+      "support_advertisement": "not_widened"
+    }
+  },
+  "expected": {
+    "parser_surface_count": 7,
+    "positive_artifact_count": 3,
+    "malformed_artifact_count": 3,
+    "raw_tokens_allowed": false,
+    "support_advertisement_widened": false,
+    "full_application_service_support_claimed": false
+  }
+}
