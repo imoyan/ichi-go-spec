@@ -1,0 +1,167 @@
+{
+  "name": "matrix-media-repository-breadth",
+  "contract": "SPEC-095",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/client-server-api/#media-repository",
+      "https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv1mediaconfig",
+      "https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv1mediapreview_url",
+      "https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv1mediathumbnailservernamemediaid",
+      "https://spec.matrix.org/v1.18/client-server-api/#post_matrixmediav1create",
+      "https://spec.matrix.org/v1.18/client-server-api/#put_matrixmediav3uploadservernamemediaid"
+    ],
+    "checked_at": "2026-05-16T07:05:00+09:00",
+    "parent_contract": "SPEC-038",
+    "gap_inventory_contract": "SPEC-073",
+    "implementation_issue": "imoyan/houra-labs#122",
+    "parent_issue": "imoyan/houra-server#135",
+    "boundary": "media-repository-breadth",
+    "request_descriptors": [
+      {
+        "id": "media-config",
+        "method": "GET",
+        "path": "/_matrix/client/v1/media/config",
+        "path_params": {},
+        "query_params": {},
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "response_parser": "media_config"
+      },
+      {
+        "id": "media-preview-url",
+        "method": "GET",
+        "path": "/_matrix/client/v1/media/preview_url",
+        "path_params": {},
+        "query_params": {
+          "url": "https://example.test/article",
+          "ts": 1710000000000
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "response_parser": "media_preview_url"
+      },
+      {
+        "id": "media-thumbnail",
+        "method": "GET",
+        "path": "/_matrix/client/v1/media/thumbnail/{serverName}/{mediaId}",
+        "path_params": {
+          "serverName": "example.test",
+          "mediaId": "media1"
+        },
+        "query_params": {
+          "width": 64,
+          "height": 64,
+          "method": "scale",
+          "timeout_ms": 0,
+          "allow_remote": false,
+          "animated": false
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "response_parser": "media_thumbnail_metadata"
+      },
+      {
+        "id": "media-create-upload",
+        "method": "POST",
+        "path": "/_matrix/media/v1/create",
+        "path_params": {},
+        "query_params": {},
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "response_parser": "media_upload_create"
+      },
+      {
+        "id": "media-resumable-upload",
+        "method": "PUT",
+        "path": "/_matrix/media/v3/upload/{serverName}/{mediaId}",
+        "path_params": {
+          "serverName": "example.test",
+          "mediaId": "media1"
+        },
+        "query_params": {
+          "filename": "avatar.png"
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "response_parser": "media_upload_resume"
+      }
+    ],
+    "sample_responses": {
+      "media_config": {
+        "m.upload.size": 10485760
+      },
+      "preview_url": {
+        "og:title": "Example article",
+        "og:description": "Preview text",
+        "og:image": "mxc://example.test/preview1",
+        "og:image:type": "image/png",
+        "matrix:image:size": 12345,
+        "og:image:width": 640,
+        "og:image:height": 480
+      },
+      "thumbnail_metadata": {
+        "content_uri": "mxc://example.test/thumb1",
+        "content_type": "image/png",
+        "width": 64,
+        "height": 64,
+        "method": "scale",
+        "animated": false
+      },
+      "upload_create": {
+        "content_uri": "mxc://example.test/media1",
+        "unused_expires_at": 1710003600000
+      },
+      "upload_resume": {
+        "content_uri": "mxc://example.test/media1"
+      },
+      "content_disposition": "inline; filename=\"avatar.png\"",
+      "unsafe_content_disposition": "inline; filename=\"..%2Fsecret.png\"",
+      "unsupported_thumbnail_method_error": {
+        "errcode": "M_INVALID_PARAM",
+        "error": "Unsupported thumbnail method for SPEC-095 parser-only media descriptor."
+      }
+    },
+    "fail_closed_cases": [
+      "mxc_uri_must_have_server_and_media_id",
+      "media_id_must_not_be_path_shaped",
+      "upload_size_must_be_non_negative_integer",
+      "preview_image_size_must_be_non_negative_integer",
+      "thumbnail_dimensions_must_be_non_negative_integer",
+      "thumbnail_method_must_be_scale_or_crop",
+      "allow_remote_must_be_boolean",
+      "animated_must_be_boolean",
+      "timeout_must_be_non_negative_integer",
+      "unsafe_filename_rejected",
+      "binary_transfer_not_claimed",
+      "remote_fetch_not_claimed",
+      "thumbnail_generation_not_claimed",
+      "versions_advertisement_not_widened"
+    ],
+    "release_evidence_rules": {
+      "parser_only": true,
+      "binary_transfer_claimed": false,
+      "thumbnail_generation_claimed": false,
+      "preview_crawling_claimed": false,
+      "remote_media_fetch_claimed": false,
+      "resumable_upload_runtime_claimed": false,
+      "range_request_claimed": false,
+      "encrypted_attachment_claimed": false,
+      "versions_advertisement_widened": false,
+      "client_server_support_claim_widened": false
+    }
+  },
+  "expected": {
+    "descriptor_count": 5,
+    "parser_count": 5,
+    "upload_size": 10485760,
+    "preview_image_uri": "mxc://example.test/preview1",
+    "thumbnail_uri": "mxc://example.test/thumb1",
+    "upload_create_uri": "mxc://example.test/media1",
+    "safe_filename": "avatar.png",
+    "unsafe_filename_rejected": true,
+    "unsupported_thumbnail_method_errcode": "M_INVALID_PARAM",
+    "binary_transfer_claimed": false,
+    "versions_advertisement_widened": false
+  }
+}
