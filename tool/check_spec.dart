@@ -625,6 +625,7 @@ Map<String, String> checkProfileMap(
 
   final seen = <String>{};
   final profileMap = <String, String>{};
+  int? previousMatrixBreadthContractNumber;
   for (final line in file.readAsLinesSync()) {
     if (!line.startsWith('| SPEC-')) {
       continue;
@@ -638,6 +639,16 @@ Map<String, String> checkProfileMap(
     if (id == null || !contracts.containsKey(id)) {
       failures.add('Contract map references missing contract: ${parts[1]}');
       continue;
+    }
+    final numericId = int.parse(id.substring('SPEC-'.length));
+    if (numericId >= 73) {
+      final previous = previousMatrixBreadthContractNumber;
+      if (previous != null && numericId < previous) {
+        failures.add(
+          'CONTRACT_MODULE_MAP.md lists $id after SPEC-${previous.toString().padLeft(3, '0')}.',
+        );
+      }
+      previousMatrixBreadthContractNumber = numericId;
     }
     if (parts[2] != contracts[id]) {
       failures.add(
