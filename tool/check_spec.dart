@@ -12717,7 +12717,10 @@ void checkOssPublicationReadinessPlan(
       }
       final id = item['id'] as String;
       final path = item['path'] as String;
-      surfaceIds.add(id);
+      if (!surfaceIds.add(id)) {
+        failures.add('${relative(file)} duplicate repository surface id: $id.');
+        continue;
+      }
       surfacePathsById[id] = path;
     }
     if (!surfaceIds.containsAll({
@@ -12734,7 +12737,11 @@ void checkOssPublicationReadinessPlan(
       'security-policy': 'SECURITY.md',
     };
     for (final entry in canonicalRepositorySurfaces.entries) {
-      if (surfacePathsById[entry.key] != entry.value) {
+      final actualPath = surfacePathsById[entry.key];
+      if (actualPath == null) {
+        continue;
+      }
+      if (actualPath != entry.value) {
         failures.add(
           '${relative(file)} ${entry.key} surface must point to ${entry.value}.',
         );
