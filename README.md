@@ -182,6 +182,7 @@ matching Product MVP contract/vector/design input also changed.
 - `contracts/SPEC-104-matrix-room-version-state-resolution-fixture-runner.md`
 - `contracts/SPEC-105-matrix-application-service-parser-artifact-breadth.md`
 - `contracts/SPEC-106-matrix-identity-service-parser-artifact-breadth.md`
+- `contracts/SPEC-107-matrix-federation-transaction-event-validation-runtime.md`
 
 ## Shared Design Inputs
 
@@ -1628,6 +1629,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-104 | Matrix room-version state-resolution fixture runner descriptors | `test-vectors/events/matrix-room-version-state-resolution-fixture-runner.json` |
 | SPEC-105 | Matrix Application Service parser-only artifact breadth descriptors | `test-vectors/core/matrix-application-service-parser-artifact-breadth.json` |
 | SPEC-106 | Matrix Identity Service parser-only artifact breadth descriptors | `test-vectors/core/matrix-identity-service-parser-artifact-breadth.json` |
+| SPEC-107 | Matrix federation transaction event-validation representative runtime behavior | `test-vectors/events/matrix-federation-transaction-event-validation-runtime.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
