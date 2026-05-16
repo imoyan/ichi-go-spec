@@ -1,0 +1,194 @@
+{
+  "name": "matrix-identity-public-key-signature-boundary",
+  "contract": "SPEC-096",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/identity-service-api/#get_matrixidentityv2pubkeykeyid",
+      "https://spec.matrix.org/v1.18/identity-service-api/#get_matrixidentityv2pubkeyisvalid",
+      "https://spec.matrix.org/v1.18/identity-service-api/#get_matrixidentityv2pubkeyephemeralisvalid"
+    ],
+    "checked_at": "2026-05-16T10:56:00+09:00",
+    "parent_contract": "SPEC-059",
+    "gap_inventory_contract": "SPEC-076",
+    "lane_id": "public-key-ephemeral-key-signed-association-breadth",
+    "resource_bounds": {
+      "max_canonical_case_bytes": 20480,
+      "max_case_count": 8,
+      "max_active_public_key_count": 2,
+      "max_active_ephemeral_key_count": 2,
+      "max_signature_key_count_per_association": 2,
+      "key_validity_clock_source": "server",
+      "key_validity_cache_scope": "process",
+      "key_validity_cache_max_entries": 128,
+      "production_key_rotation_operation": false,
+      "invitation_signing_operation": false,
+      "raw_identity_token_evidence": false,
+      "raw_lookup_pepper_evidence": false,
+      "raw_public_key_evidence": false,
+      "raw_private_key_evidence": false,
+      "raw_ephemeral_key_evidence": false,
+      "raw_signature_evidence": false,
+      "raw_3pid_evidence": false,
+      "versions_advertisement_widened": false
+    },
+    "cases": [
+      {
+        "id": "active-public-key-lookup",
+        "kind": "public_key_lookup",
+        "request": {
+          "method": "GET",
+          "path": "/_matrix/identity/v2/pubkey/ed25519:0"
+        },
+        "status": 200,
+        "key_state": "active",
+        "signature_state": "not_applicable",
+        "association_state": "not_applicable",
+        "redacted_fields": [
+          "public_key"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "active-public-key-is-valid",
+        "kind": "public_key_valid",
+        "request": {
+          "method": "GET",
+          "path": "/_matrix/identity/v2/pubkey/isvalid"
+        },
+        "status": 200,
+        "key_state": "active",
+        "signature_state": "not_applicable",
+        "association_state": "not_applicable",
+        "redacted_fields": [
+          "public_key"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "rotated-public-key-fails-closed",
+        "kind": "public_key_rotated",
+        "request": {
+          "method": "GET",
+          "path": "/_matrix/identity/v2/pubkey/ed25519:rotated"
+        },
+        "status": 404,
+        "errcode": "M_NOT_FOUND",
+        "key_state": "rotated",
+        "signature_state": "not_applicable",
+        "association_state": "not_applicable",
+        "redacted_fields": [
+          "public_key"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "active-ephemeral-key-is-valid",
+        "kind": "ephemeral_key_valid",
+        "request": {
+          "method": "GET",
+          "path": "/_matrix/identity/v2/pubkey/ephemeral/isvalid"
+        },
+        "status": 200,
+        "key_state": "active",
+        "signature_state": "not_applicable",
+        "association_state": "not_applicable",
+        "redacted_fields": [
+          "ephemeral_key"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "expired-ephemeral-key-is-invalid",
+        "kind": "ephemeral_key_expired",
+        "request": {
+          "method": "GET",
+          "path": "/_matrix/identity/v2/pubkey/ephemeral/isvalid"
+        },
+        "status": 200,
+        "key_state": "expired",
+        "signature_state": "not_applicable",
+        "association_state": "not_applicable",
+        "redacted_fields": [
+          "ephemeral_key"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "signed-association-validates-current-key",
+        "kind": "signed_association_valid",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/3pid/bind"
+        },
+        "status": 200,
+        "key_state": "active",
+        "signature_state": "valid",
+        "association_state": "verified",
+        "redacted_fields": [
+          "identity_token",
+          "client_secret",
+          "lookup_pepper",
+          "full_3pid",
+          "public_key",
+          "signature"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "invalid-signature-rejects-association",
+        "kind": "invalid_signature",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/3pid/bind"
+        },
+        "status": 403,
+        "errcode": "M_FORBIDDEN",
+        "key_state": "active",
+        "signature_state": "invalid",
+        "association_state": "rejected",
+        "redacted_fields": [
+          "identity_token",
+          "client_secret",
+          "lookup_pepper",
+          "full_3pid",
+          "public_key",
+          "signature"
+        ],
+        "result": "accepted"
+      }
+    ],
+    "release_evidence_rules": {
+      "artifact_is_representative_only": true,
+      "identity_service_full_breadth_claimed": false,
+      "invitation_signing_claimed": false,
+      "production_key_rotation_claimed": false,
+      "consent_ui_claimed": false,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "case_count": 7,
+    "accepted_case_count": 7,
+    "max_case_count": 8,
+    "public_key_lookup_supported": true,
+    "public_key_validity_supported": true,
+    "rotated_key_fails_closed": true,
+    "ephemeral_key_validity_supported": true,
+    "expired_ephemeral_key_fails_closed": true,
+    "signed_association_validates_current_key": true,
+    "invalid_signature_fails_closed": true,
+    "raw_identity_tokens_stored": false,
+    "raw_lookup_peppers_stored": false,
+    "raw_public_keys_stored": false,
+    "raw_private_keys_stored": false,
+    "raw_ephemeral_keys_stored": false,
+    "raw_signatures_stored": false,
+    "raw_3pids_stored": false,
+    "identity_service_full_breadth_claimed": false,
+    "invitation_signing_claimed": false,
+    "production_key_rotation_claimed": false,
+    "consent_ui_claimed": false,
+    "versions_advertisement_widened": false
+  }
+}
