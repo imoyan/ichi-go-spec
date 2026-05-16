@@ -23,6 +23,7 @@ const matrixDomains = {
   'Push Gateway API',
   'Room Versions',
   'Server-Server API',
+  'Server-Server API; Room Versions',
 };
 
 const negativeVectorProfiles = {
