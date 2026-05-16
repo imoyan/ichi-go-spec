@@ -1026,6 +1026,45 @@ Matrix v1.18 roadmap close-out snapshot:
   domain from advertisement. Close them only when #95 links current pass/fail
   evidence and records the intended release outcome for that domain.
 
+Matrix readiness map:
+
+- Readiness map checked at: 2026-05-16T21:33:52+09:00.
+- The first publishable Matrix scope defaults to a Client-Server subset only.
+  This still requires current pass/fail evidence, release notes, and
+  `/versions` advertisement that name the included endpoint families exactly.
+  Until that evidence is refreshed, `/versions` remains empty and no Matrix
+  support claim is allowed.
+- `houra-server#135` is the release-blocker tracker for deciding whether the
+  Client-Server subset can be advertised. Its open child gaps #153, #195, and
+  #197 are known non-advertised Client-Server breadth gaps for the first subset
+  unless a later release candidate explicitly includes them with passing
+  evidence.
+- Room Versions are explicitly out of scope for the first subset:
+  `houra-server#140` remains the known non-advertised domain gap, and #168
+  through #170 are post-release breadth issues unless the advertised scope is
+  widened.
+- E2EE is explicitly out of scope for the first subset: `houra-server#141`
+  remains the known non-advertised Olm/Megolm domain gap, and #173, #174, and
+  #252 through #255 are post-release breadth issues.
+- Federation and ecosystem APIs are explicitly out of scope for the first
+  subset: Server-Server `houra-server#136`, Application Service
+  `houra-server#137`, and Identity Service `houra-server#138` remain known
+  non-advertised domain gaps. Their open child issues #158 through #160, #162,
+  #163, #164, #234, and #235 through #240 are post-release breadth issues.
+- `houra-client` and `houra-labs` have no open Matrix adoption issue in the
+  checked issue lists. Create new adoption issues only when the selected
+  release scope requires current client evidence or shared-core/parser
+  artifacts.
+- Performance work starts after the claim boundary is stable. Prioritize
+  verification speed and stability first: vector batch runtime, server smoke
+  runtime, release evidence generation runtime, and Complement-compatible lane
+  stability. Record p95 runtime evidence only when a shared parser/core
+  adoption or other hot-path change is introduced.
+- 日本語メモ: 初回の広告可能範囲は Client-Server subset に限定し、Room Versions、
+  E2EE、Federation、Application Service、Identity Service は明示的な対象外として
+  fail-closed のまま扱う。速度改善は、claim 境界と evidence が揃った後に、まず
+  検証時間と安定性から着手する。
+
 Matrix compliance phases:
 
 1. **Audit and contract map**: add Matrix-domain coverage metadata to this
