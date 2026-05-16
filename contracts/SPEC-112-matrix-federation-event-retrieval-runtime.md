@@ -53,7 +53,7 @@ reference homeserver interop, or Matrix version advertisement.
 - Source: <https://spec.matrix.org/v1.18/server-server-api/#get_matrixfederationv1timestamp_to_eventroomid>
 - Parent contract: `SPEC-057`
 - Gap inventory: `SPEC-074`
-- Checked at: 2026-05-16T22:20:00+09:00
+- Checked at: 2026-05-16T22:12:00+09:00
 - Timezone: Asia/Tokyo
 
 ## Runtime Behavior
