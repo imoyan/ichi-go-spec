@@ -1,0 +1,411 @@
+{
+  "name": "shared-core-adoption-evidence-schema-v1",
+  "contract": "SPEC-114",
+  "event": {
+    "schema_version": "shared-core-adoption-evidence-v1",
+    "source_doc": "README.md",
+    "status_values": [
+      "spec-only",
+      "lab-candidate",
+      "shared-adopted",
+      "adapter-owned",
+      "split-by-language",
+      "avoid-shared"
+    ],
+    "required_bundle_fields": [
+      "schema_version",
+      "generated_at",
+      "houra_spec_ref",
+      "houra_spec_commit",
+      "candidate_evidence",
+      "claim_boundary",
+      "redaction"
+    ],
+    "required_candidate_fields": [
+      "candidate_id",
+      "candidate_area",
+      "status",
+      "source_contracts",
+      "source_vectors",
+      "consumer_repos",
+      "artifact_manifest",
+      "parity_evidence",
+      "performance_evidence",
+      "security_boundary",
+      "facade_stability",
+      "rollback",
+      "claim_boundary"
+    ],
+    "initial_candidates": [
+      {
+        "candidate_id": "matrix-versions-request-response",
+        "candidate_area": "Matrix versions request/response handling",
+        "required_contracts": [
+          "SPEC-030",
+          "SPEC-064"
+        ],
+        "required_vectors": [
+          "test-vectors/core/matrix-client-versions-basic.json",
+          "test-vectors/core/matrix-version-advertisement-allowed-with-evidence.json",
+          "test-vectors/core/matrix-version-advertisement-blocked-missing-evidence.json",
+          "test-vectors/core/matrix-version-advertisement-ci-adoption.json"
+        ],
+        "adapter_owned_responsibilities": [
+          "endpoint_fetch",
+          "cache_policy",
+          "runtime_feature_gate",
+          "release_advertisement_decision"
+        ]
+      },
+      {
+        "candidate_id": "matrix-houra-error-envelope",
+        "candidate_area": "Matrix and Houra error envelope parsing and emission",
+        "required_contracts": [
+          "SPEC-002",
+          "SPEC-031",
+          "SPEC-004",
+          "SPEC-038"
+        ],
+        "required_vectors": [
+          "test-vectors/core/error-basic.json",
+          "test-vectors/core/matrix-foundation-error-basic.json",
+          "test-vectors/auth/auth-error-basic.json",
+          "test-vectors/media/matrix-media-download-not-found.json"
+        ],
+        "adapter_owned_responsibilities": [
+          "http_status_selection",
+          "retry_policy",
+          "telemetry",
+          "localization",
+          "user_facing_copy"
+        ]
+      }
+    ],
+    "sample_bundle": {
+      "schema_version": "shared-core-adoption-evidence-v1",
+      "generated_at": "2026-05-17T10:30:00+09:00",
+      "houra_spec_ref": "houra-spec@main",
+      "houra_spec_commit": "commit-sha-placeholder",
+      "candidate_evidence": [
+        {
+          "candidate_id": "matrix-versions-request-response",
+          "candidate_area": "Matrix versions request/response handling",
+          "status": "lab-candidate",
+          "source_contracts": [
+            "SPEC-030",
+            "SPEC-064"
+          ],
+          "source_vectors": [
+            "test-vectors/core/matrix-client-versions-basic.json",
+            "test-vectors/core/matrix-version-advertisement-allowed-with-evidence.json",
+            "test-vectors/core/matrix-version-advertisement-blocked-missing-evidence.json",
+            "test-vectors/core/matrix-version-advertisement-ci-adoption.json"
+          ],
+          "consumer_repos": [
+            "imoyan/houra-labs",
+            "imoyan/houra-server",
+            "imoyan/houra-client"
+          ],
+          "artifact_manifest": {
+            "artifact_name": "houra-labs-matrix-versions-shared-core",
+            "artifact_type": "lab-parser-validator",
+            "package_refs": [
+              "unpublished houra-labs artifact"
+            ],
+            "abi_version": "versions-lab-abi-v0",
+            "facade_apis": [
+              "parseMatrixVersionsResponse",
+              "validateMatrixVersionAdvertisement"
+            ],
+            "target_runtimes": [
+              "typescript-browser-wasm",
+              "typescript-node-napi",
+              "dart-native-ffi",
+              "dart-web-js-interop"
+            ],
+            "binary_size_kib": {
+              "wasm": null,
+              "napi": null,
+              "dart_native_library": null
+            },
+            "startup_ms": {
+              "browser_wasm": null,
+              "node_napi": null,
+              "dart_native": null
+            },
+            "build_rebuild_cost": "No production rebuild requirement while status is lab-candidate.",
+            "license_dependency_notes": "No new production dependency is required before a focused adoption issue.",
+            "prebuilt_artifact_policy": "Required before shared-adopted for each supported runtime."
+          },
+          "parity_evidence": {
+            "measurement_state": "pending-lab-run",
+            "conformance_reports": [],
+            "vectors": [
+              {
+                "vector_path": "test-vectors/core/matrix-client-versions-basic.json",
+                "vector_name": "matrix-client-versions-basic",
+                "contract": "SPEC-030",
+                "feature_profile": "core",
+                "status": "pending"
+              },
+              {
+                "vector_path": "test-vectors/core/matrix-version-advertisement-allowed-with-evidence.json",
+                "vector_name": "matrix-version-advertisement-allowed-with-evidence",
+                "contract": "SPEC-064",
+                "feature_profile": "core",
+                "status": "pending"
+              },
+              {
+                "vector_path": "test-vectors/core/matrix-version-advertisement-blocked-missing-evidence.json",
+                "vector_name": "matrix-version-advertisement-blocked-missing-evidence",
+                "contract": "SPEC-064",
+                "feature_profile": "core",
+                "status": "pending"
+              },
+              {
+                "vector_path": "test-vectors/core/matrix-version-advertisement-ci-adoption.json",
+                "vector_name": "matrix-version-advertisement-ci-adoption",
+                "contract": "SPEC-064",
+                "feature_profile": "core",
+                "status": "pending"
+              }
+            ],
+            "cross_repo_parity": {
+              "houra_labs": "pending",
+              "houra_server": "local-typescript-baseline",
+              "houra_client": "local-typescript-baseline"
+            }
+          },
+          "performance_evidence": {
+            "representative_batch": "matrix-version-vectors",
+            "measurement_state": "pending-lab-run",
+            "local_p95_ms": null,
+            "shared_p95_ms": null,
+            "p95_regression_percent": null,
+            "within_plus_10_percent": false,
+            "hidden_by_network_disk_ui_latency": false,
+            "required_before_shared_adopted": true
+          },
+          "security_boundary": {
+            "secret_free_diagnostics": true,
+            "redaction_review": "required-before-shared-adopted",
+            "hidden_io": false,
+            "hidden_network": false,
+            "hidden_disk": false,
+            "adapter_owned_responsibilities": [
+              "endpoint_fetch",
+              "cache_policy",
+              "runtime_feature_gate",
+              "release_advertisement_decision"
+            ],
+            "forbidden_shared_responsibilities": [
+              "transport",
+              "token_persistence",
+              "release_advertisement_decision"
+            ]
+          },
+          "facade_stability": {
+            "abi_version": "versions-lab-abi-v0",
+            "typescript_facade_status": "draft",
+            "dart_facade_status": "draft",
+            "stable_for_adoption": false,
+            "breaking_change_policy": "Breaking facade or ABI changes require a new abi_version before shared-adopted."
+          },
+          "rollback": {
+            "rollback_to_local_parser": true,
+            "rollback_owner": "consumer-repo",
+            "rollback_conditions": [
+              "parity-regression",
+              "p95-gate-failure",
+              "packaging-failure",
+              "facade-breaking-change"
+            ],
+            "rollback_verification": "Run the local TypeScript vector runner for the same source_vectors."
+          },
+          "claim_boundary": {
+            "product_mvp_release_claim_widened": false,
+            "matrix_versions_advertisement_widened": false,
+            "matrix_domain_support_claimed": false,
+            "shared_core_required_dependency_claimed": false,
+            "release_ready": false
+          }
+        },
+        {
+          "candidate_id": "matrix-houra-error-envelope",
+          "candidate_area": "Matrix and Houra error envelope parsing and emission",
+          "status": "lab-candidate",
+          "source_contracts": [
+            "SPEC-002",
+            "SPEC-031",
+            "SPEC-004",
+            "SPEC-038"
+          ],
+          "source_vectors": [
+            "test-vectors/core/error-basic.json",
+            "test-vectors/core/matrix-foundation-error-basic.json",
+            "test-vectors/auth/auth-error-basic.json",
+            "test-vectors/media/matrix-media-download-not-found.json"
+          ],
+          "consumer_repos": [
+            "imoyan/houra-labs",
+            "imoyan/houra-server",
+            "imoyan/houra-client"
+          ],
+          "artifact_manifest": {
+            "artifact_name": "houra-labs-error-envelope-shared-core",
+            "artifact_type": "lab-error-envelope-parser-builder",
+            "package_refs": [
+              "unpublished houra-labs artifact"
+            ],
+            "abi_version": "errors-lab-abi-v0",
+            "facade_apis": [
+              "parseHouraErrorEnvelope",
+              "parseMatrixErrorEnvelope",
+              "buildPublicErrorEnvelope"
+            ],
+            "target_runtimes": [
+              "typescript-browser-wasm",
+              "typescript-node-napi",
+              "dart-native-ffi",
+              "dart-web-js-interop"
+            ],
+            "binary_size_kib": {
+              "wasm": null,
+              "napi": null,
+              "dart_native_library": null
+            },
+            "startup_ms": {
+              "browser_wasm": null,
+              "node_napi": null,
+              "dart_native": null
+            },
+            "build_rebuild_cost": "No production rebuild requirement while status is lab-candidate.",
+            "license_dependency_notes": "No new production dependency is required before a focused adoption issue.",
+            "prebuilt_artifact_policy": "Required before shared-adopted for each supported runtime."
+          },
+          "parity_evidence": {
+            "measurement_state": "pending-lab-run",
+            "conformance_reports": [],
+            "vectors": [
+              {
+                "vector_path": "test-vectors/core/error-basic.json",
+                "vector_name": "error-basic",
+                "contract": "SPEC-002",
+                "feature_profile": "core",
+                "status": "pending"
+              },
+              {
+                "vector_path": "test-vectors/core/matrix-foundation-error-basic.json",
+                "vector_name": "matrix-foundation-error-basic",
+                "contract": "SPEC-031",
+                "feature_profile": "core",
+                "status": "pending"
+              },
+              {
+                "vector_path": "test-vectors/auth/auth-error-basic.json",
+                "vector_name": "auth-error-basic",
+                "contract": "SPEC-004",
+                "feature_profile": "auth",
+                "status": "pending"
+              },
+              {
+                "vector_path": "test-vectors/media/matrix-media-download-not-found.json",
+                "vector_name": "matrix-media-download-not-found",
+                "contract": "SPEC-038",
+                "feature_profile": "media",
+                "status": "pending"
+              }
+            ],
+            "cross_repo_parity": {
+              "houra_labs": "pending",
+              "houra_server": "local-typescript-baseline",
+              "houra_client": "local-typescript-baseline"
+            }
+          },
+          "performance_evidence": {
+            "representative_batch": "public-error-envelope-vectors",
+            "measurement_state": "pending-lab-run",
+            "local_p95_ms": null,
+            "shared_p95_ms": null,
+            "p95_regression_percent": null,
+            "within_plus_10_percent": false,
+            "hidden_by_network_disk_ui_latency": false,
+            "required_before_shared_adopted": true
+          },
+          "security_boundary": {
+            "secret_free_diagnostics": true,
+            "redaction_review": "required-before-shared-adopted",
+            "hidden_io": false,
+            "hidden_network": false,
+            "hidden_disk": false,
+            "adapter_owned_responsibilities": [
+              "http_status_selection",
+              "retry_policy",
+              "telemetry",
+              "localization",
+              "user_facing_copy"
+            ],
+            "forbidden_shared_responsibilities": [
+              "transport",
+              "retry_policy",
+              "telemetry",
+              "localization",
+              "user_facing_copy"
+            ]
+          },
+          "facade_stability": {
+            "abi_version": "errors-lab-abi-v0",
+            "typescript_facade_status": "draft",
+            "dart_facade_status": "draft",
+            "stable_for_adoption": false,
+            "breaking_change_policy": "Breaking facade or ABI changes require a new abi_version before shared-adopted."
+          },
+          "rollback": {
+            "rollback_to_local_parser": true,
+            "rollback_owner": "consumer-repo",
+            "rollback_conditions": [
+              "parity-regression",
+              "p95-gate-failure",
+              "redaction-regression",
+              "facade-breaking-change"
+            ],
+            "rollback_verification": "Run the local TypeScript error vector runner for the same source_vectors."
+          },
+          "claim_boundary": {
+            "product_mvp_release_claim_widened": false,
+            "matrix_versions_advertisement_widened": false,
+            "matrix_domain_support_claimed": false,
+            "shared_core_required_dependency_claimed": false,
+            "release_ready": false
+          }
+        }
+      ],
+      "claim_boundary": {
+        "product_mvp_release_claim_widened": false,
+        "matrix_versions_advertisement_widened": false,
+        "matrix_domain_support_claimed": false,
+        "shared_core_required_dependency_claimed": false,
+        "release_ready": false
+      },
+      "redaction": {
+        "secrets_redacted": true,
+        "raw_local_paths_redacted": true,
+        "diagnostics_redacted": true,
+        "artifact_metadata_secret_free": true
+      }
+    }
+  },
+  "expected": {
+    "schema_defined": true,
+    "required_bundle_fields_traceable": true,
+    "required_candidate_fields_traceable": true,
+    "all_status_values_defined": true,
+    "initial_candidates_trace_to_contract_vector_profile": true,
+    "artifact_manifest_requires_abi_and_runtime_notes": true,
+    "performance_gate_requires_p95_plus_10_or_hidden_latency": true,
+    "secret_free_diagnostics_required": true,
+    "rollback_to_local_parser_required": true,
+    "claim_boundary_not_widened_by_evidence": true,
+    "shared_adopted_not_required_dependency": true
+  }
+}

@@ -162,6 +162,7 @@ void main() {
   checkProductMvpReleaseCandidatePlan(contracts, failures);
   checkOssPublicationReadinessPlan(contracts, failures);
   checkConformanceToolingResultSchema(contracts, profileMap, failures);
+  checkSharedCoreAdoptionEvidenceSchema(contracts, profileMap, failures);
   checkMvpReadiness(contracts, profileMap, failures);
   checkThemes(failures);
   checkUiSurfaces(contracts, failures);
@@ -13210,6 +13211,518 @@ void validateConformanceReportSample(
       redaction['raw_local_paths_redacted'] != true ||
       redaction['failure_detail_redacted'] != true) {
     failures.add('${relative(file)} sample_report redaction invalid.');
+  }
+}
+
+void checkSharedCoreAdoptionEvidenceSchema(
+  Map<String, String> contracts,
+  Map<String, String> profileMap,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-114')) {
+    failures.add('Shared-core adoption evidence schema requires SPEC-114.');
+  }
+
+  final schemaFile = File(
+    'test-vectors/core/shared-core-adoption-evidence-schema-v1.json',
+  );
+  final schema = readJsonObject(schemaFile, failures);
+  if (schema == null) {
+    return;
+  }
+  if (schema['contract'] != 'SPEC-114') {
+    failures.add('${relative(schemaFile)} must reference SPEC-114.');
+  }
+  final event = schema['event'];
+  if (event is! Map ||
+      event['schema_version'] != 'shared-core-adoption-evidence-v1' ||
+      event['source_doc'] != 'README.md') {
+    failures.add('${relative(schemaFile)} shared-core schema metadata invalid.');
+    return;
+  }
+  final eventMap = event.cast<String, Object?>();
+  const statuses = {
+    'spec-only',
+    'lab-candidate',
+    'shared-adopted',
+    'adapter-owned',
+    'split-by-language',
+    'avoid-shared',
+  };
+  requireStringListIncludes(
+    schemaFile,
+    eventMap,
+    'status_values',
+    statuses,
+    failures,
+  );
+  requireStringListIncludes(schemaFile, eventMap, 'required_bundle_fields', {
+    'schema_version',
+    'generated_at',
+    'houra_spec_ref',
+    'houra_spec_commit',
+    'candidate_evidence',
+    'claim_boundary',
+    'redaction',
+  }, failures);
+  requireStringListIncludes(schemaFile, eventMap, 'required_candidate_fields', {
+    'candidate_id',
+    'candidate_area',
+    'status',
+    'source_contracts',
+    'source_vectors',
+    'consumer_repos',
+    'artifact_manifest',
+    'parity_evidence',
+    'performance_evidence',
+    'security_boundary',
+    'facade_stability',
+    'rollback',
+    'claim_boundary',
+  }, failures);
+
+  final initialCandidates = eventMap['initial_candidates'];
+  final initialIds = <String>{};
+  if (initialCandidates is! List || initialCandidates.isEmpty) {
+    failures.add('${relative(schemaFile)} initial_candidates invalid.');
+  } else {
+    for (final item in initialCandidates) {
+      if (item is! Map ||
+          item['candidate_id'] is! String ||
+          item['candidate_area'] is! String ||
+          item['required_contracts'] is! List ||
+          item['required_vectors'] is! List ||
+          item['adapter_owned_responsibilities'] is! List) {
+        failures.add('${relative(schemaFile)} initial candidate shape invalid.');
+        continue;
+      }
+      final candidate = item.cast<String, Object?>();
+      final id = candidate['candidate_id'] as String;
+      initialIds.add(id);
+      final requiredContracts = (candidate['required_contracts'] as List)
+          .whereType<String>()
+          .toSet();
+      final requiredVectors = (candidate['required_vectors'] as List)
+          .whereType<String>()
+          .toSet();
+      for (final contract in requiredContracts) {
+        if (!contracts.containsKey(contract) || profileMap[contract] == null) {
+          failures.add(
+            '${relative(schemaFile)} initial candidate references unknown contract: $contract',
+          );
+        }
+      }
+      for (final path in requiredVectors) {
+        validateSharedCoreSourceVector(
+          schemaFile,
+          path,
+          requiredContracts,
+          profileMap,
+          failures,
+        );
+      }
+    }
+    for (final id in {
+      'matrix-versions-request-response',
+      'matrix-houra-error-envelope',
+    }) {
+      if (!initialIds.contains(id)) {
+        failures.add('${relative(schemaFile)} missing initial candidate: $id');
+      }
+    }
+  }
+
+  final sampleBundle = eventMap['sample_bundle'];
+  if (sampleBundle is! Map) {
+    failures.add('${relative(schemaFile)} sample_bundle must be an object.');
+  } else {
+    validateSharedCoreEvidenceBundleSample(
+      schemaFile,
+      sampleBundle.cast<String, Object?>(),
+      contracts,
+      profileMap,
+      statuses,
+      failures,
+    );
+  }
+
+  final expected = schema['expected'];
+  if (expected is! Map ||
+      expected['schema_defined'] != true ||
+      expected['required_bundle_fields_traceable'] != true ||
+      expected['required_candidate_fields_traceable'] != true ||
+      expected['all_status_values_defined'] != true ||
+      expected['initial_candidates_trace_to_contract_vector_profile'] != true ||
+      expected['artifact_manifest_requires_abi_and_runtime_notes'] != true ||
+      expected['performance_gate_requires_p95_plus_10_or_hidden_latency'] !=
+          true ||
+      expected['secret_free_diagnostics_required'] != true ||
+      expected['rollback_to_local_parser_required'] != true ||
+      expected['claim_boundary_not_widened_by_evidence'] != true ||
+      expected['shared_adopted_not_required_dependency'] != true) {
+    failures.add('${relative(schemaFile)} expected schema result invalid.');
+  }
+
+  final negativeFile = File(
+    'test-vectors/core/shared-core-adoption-evidence-negative-cases-v1.json',
+  );
+  final negative = readJsonObject(negativeFile, failures);
+  if (negative == null) {
+    return;
+  }
+  if (negative['contract'] != 'SPEC-114') {
+    failures.add('${relative(negativeFile)} must reference SPEC-114.');
+  }
+  final negativeEvent = negative['event'];
+  if (negativeEvent is! Map ||
+      negativeEvent['schema_version'] != 'shared-core-adoption-evidence-v1') {
+    failures.add('${relative(negativeFile)} negative metadata invalid.');
+    return;
+  }
+  final negativeEventMap = negativeEvent.cast<String, Object?>();
+  final cases = negativeEventMap['negative_cases'];
+  if (cases is! List) {
+    failures.add('${relative(negativeFile)} negative_cases must be an array.');
+  } else {
+    final ids = <String>{};
+    for (final item in cases) {
+      if (item is! Map ||
+          item['id'] is! String ||
+          item['invalid_field'] is! String ||
+          item['reason'] is! String ||
+          item['expected_result'] != 'rejected') {
+        failures.add('${relative(negativeFile)} negative case shape invalid.');
+        continue;
+      }
+      ids.add(item['id'] as String);
+    }
+    for (final id in {
+      'stale-spec-ref',
+      'missing-parity-vectors',
+      'missing-artifact-abi-version',
+      'p95-regression-over-plus-10-percent',
+      'unredacted-diagnostics',
+      'missing-rollback-to-local-parser',
+      'adapter-owned-behavior-in-shared-artifact',
+      'claim-boundary-widened-without-gate',
+    }) {
+      if (!ids.contains(id)) {
+        failures.add('${relative(negativeFile)} missing negative case: $id');
+      }
+    }
+  }
+  requireStringListIncludes(
+    negativeFile,
+    negativeEventMap,
+    'forbidden_diagnostic_categories',
+    {
+      'bearer_tokens',
+      'refresh_tokens',
+      'database_urls',
+      'signed_or_credentialed_urls',
+      'private_local_paths',
+      'media_keys',
+      'room_keys',
+      'recovery_keys',
+      'pushkeys',
+      'vendor_tokens',
+      'plaintext_payload_bytes',
+      'raw_secrets',
+    },
+    failures,
+  );
+  requireStringListIncludes(
+    negativeFile,
+    negativeEventMap,
+    'forbidden_shared_responsibilities',
+    {
+      'transport',
+      'secure_storage',
+      'token_persistence',
+      'retry_policy',
+      'ui_rendering',
+      'crypto_stack_selection',
+      'production_release_advertisement',
+    },
+    failures,
+  );
+  final negativeExpected = negative['expected'];
+  if (negativeExpected is! Map ||
+      negativeExpected['negative_case_count'] != 8 ||
+      negativeExpected['stale_spec_ref_rejected'] != true ||
+      negativeExpected['missing_parity_vectors_rejected'] != true ||
+      negativeExpected['missing_artifact_abi_version_rejected'] != true ||
+      negativeExpected['p95_regression_over_plus_10_rejected'] != true ||
+      negativeExpected['unredacted_diagnostics_rejected'] != true ||
+      negativeExpected['missing_rollback_rejected'] != true ||
+      negativeExpected['adapter_owned_shared_behavior_rejected'] != true ||
+      negativeExpected['claim_boundary_widened_without_gate_rejected'] != true) {
+    failures.add('${relative(negativeFile)} expected negative result invalid.');
+  }
+}
+
+void validateSharedCoreSourceVector(
+  File file,
+  String path,
+  Set<String> sourceContracts,
+  Map<String, String> profileMap,
+  List<String> failures,
+) {
+  final vectorFile = File(path);
+  if (!vectorFile.existsSync()) {
+    failures.add('${relative(file)} source vector does not exist: $path');
+    return;
+  }
+  final vector = readJsonObject(vectorFile, failures);
+  final contract = vector?['contract'];
+  if (vector == null ||
+      vector['name'] is! String ||
+      contract is! String ||
+      !sourceContracts.contains(contract) ||
+      profileMap[contract] == null) {
+    failures.add(
+      '${relative(file)} source vector must match candidate contracts: $path',
+    );
+  }
+}
+
+void validateSharedCoreEvidenceBundleSample(
+  File file,
+  Map<String, Object?> bundle,
+  Map<String, String> contracts,
+  Map<String, String> profileMap,
+  Set<String> statuses,
+  List<String> failures,
+) {
+  if (bundle['schema_version'] != 'shared-core-adoption-evidence-v1' ||
+      bundle['houra_spec_ref'] is! String ||
+      bundle['houra_spec_commit'] is! String) {
+    failures.add('${relative(file)} sample_bundle core fields invalid.');
+  }
+
+  final candidates = bundle['candidate_evidence'];
+  if (candidates is! List || candidates.isEmpty) {
+    failures.add('${relative(file)} sample_bundle candidates invalid.');
+    return;
+  }
+  final candidateIds = <String>{};
+  for (final item in candidates) {
+    if (item is! Map) {
+      failures.add('${relative(file)} sample_bundle candidate shape invalid.');
+      continue;
+    }
+    final candidate = item.cast<String, Object?>();
+    final id = candidate['candidate_id'];
+    final status = candidate['status'];
+    if (id is! String ||
+        candidate['candidate_area'] is! String ||
+        status is! String ||
+        !statuses.contains(status)) {
+      failures.add('${relative(file)} sample candidate identity invalid.');
+      continue;
+    }
+    candidateIds.add(id);
+    final sourceContracts = candidate['source_contracts'];
+    final sourceVectors = candidate['source_vectors'];
+    if (sourceContracts is! List ||
+        sourceContracts.any((item) => item is! String) ||
+        sourceVectors is! List ||
+        sourceVectors.any((item) => item is! String)) {
+      failures.add('${relative(file)} sample candidate sources invalid.');
+      continue;
+    }
+    final sourceContractSet = sourceContracts.cast<String>().toSet();
+    for (final contract in sourceContractSet) {
+      if (!contracts.containsKey(contract) || profileMap[contract] == null) {
+        failures.add(
+          '${relative(file)} sample candidate references unknown contract: $contract',
+        );
+      }
+    }
+    for (final path in sourceVectors.cast<String>()) {
+      validateSharedCoreSourceVector(
+        file,
+        path,
+        sourceContractSet,
+        profileMap,
+        failures,
+      );
+    }
+
+    final manifest = candidate['artifact_manifest'];
+    if (manifest is! Map ||
+        manifest['artifact_name'] is! String ||
+        manifest['artifact_type'] is! String ||
+        manifest['package_refs'] is! List ||
+        manifest['abi_version'] is! String ||
+        manifest['facade_apis'] is! List ||
+        manifest['target_runtimes'] is! List ||
+        manifest['binary_size_kib'] is! Map ||
+        manifest['startup_ms'] is! Map ||
+        manifest['build_rebuild_cost'] is! String ||
+        manifest['license_dependency_notes'] is! String ||
+        manifest['prebuilt_artifact_policy'] is! String) {
+      failures.add('${relative(file)} sample artifact manifest invalid.');
+    }
+
+    final parity = candidate['parity_evidence'];
+    if (parity is! Map ||
+        parity['measurement_state'] is! String ||
+        parity['conformance_reports'] is! List ||
+        parity['vectors'] is! List ||
+        parity['cross_repo_parity'] is! Map) {
+      failures.add('${relative(file)} sample parity evidence invalid.');
+    } else {
+      validateSharedCoreParityVectors(
+        file,
+        parity['vectors'] as List,
+        sourceContractSet,
+        profileMap,
+        failures,
+      );
+    }
+
+    final performance = candidate['performance_evidence'];
+    if (performance is! Map ||
+        performance['representative_batch'] is! String ||
+        performance['measurement_state'] is! String ||
+        performance['within_plus_10_percent'] is! bool ||
+        performance['hidden_by_network_disk_ui_latency'] is! bool ||
+        performance['required_before_shared_adopted'] != true) {
+      failures.add('${relative(file)} sample performance evidence invalid.');
+    }
+    if (status == 'shared-adopted' &&
+        performance is Map &&
+        performance['within_plus_10_percent'] != true &&
+        performance['hidden_by_network_disk_ui_latency'] != true) {
+      failures.add(
+        '${relative(file)} shared-adopted candidates require p95 gate evidence.',
+      );
+    }
+
+    final security = candidate['security_boundary'];
+    if (security is! Map ||
+        security['secret_free_diagnostics'] != true ||
+        security['redaction_review'] is! String ||
+        security['hidden_io'] != false ||
+        security['hidden_network'] != false ||
+        security['hidden_disk'] != false ||
+        security['adapter_owned_responsibilities'] is! List ||
+        security['forbidden_shared_responsibilities'] is! List) {
+      failures.add('${relative(file)} sample security boundary invalid.');
+    }
+
+    final facade = candidate['facade_stability'];
+    if (facade is! Map ||
+        facade['abi_version'] is! String ||
+        facade['typescript_facade_status'] is! String ||
+        facade['dart_facade_status'] is! String ||
+        facade['stable_for_adoption'] is! bool ||
+        facade['breaking_change_policy'] is! String) {
+      failures.add('${relative(file)} sample facade stability invalid.');
+    }
+
+    final rollback = candidate['rollback'];
+    if (rollback is! Map ||
+        rollback['rollback_to_local_parser'] != true ||
+        rollback['rollback_owner'] is! String ||
+        rollback['rollback_conditions'] is! List ||
+        rollback['rollback_verification'] is! String) {
+      failures.add('${relative(file)} sample rollback invalid.');
+    }
+
+    validateSharedCoreClaimBoundary(
+      file,
+      candidate['claim_boundary'],
+      'sample candidate',
+      failures,
+    );
+  }
+
+  for (final id in {
+    'matrix-versions-request-response',
+    'matrix-houra-error-envelope',
+  }) {
+    if (!candidateIds.contains(id)) {
+      failures.add('${relative(file)} sample_bundle missing candidate: $id');
+    }
+  }
+
+  validateSharedCoreClaimBoundary(
+    file,
+    bundle['claim_boundary'],
+    'sample_bundle',
+    failures,
+  );
+  final redaction = bundle['redaction'];
+  if (redaction is! Map ||
+      redaction['secrets_redacted'] != true ||
+      redaction['raw_local_paths_redacted'] != true ||
+      redaction['diagnostics_redacted'] != true ||
+      redaction['artifact_metadata_secret_free'] != true) {
+    failures.add('${relative(file)} sample_bundle redaction invalid.');
+  }
+}
+
+void validateSharedCoreParityVectors(
+  File file,
+  List vectors,
+  Set<String> sourceContracts,
+  Map<String, String> profileMap,
+  List<String> failures,
+) {
+  if (vectors.isEmpty) {
+    failures.add('${relative(file)} sample parity vectors empty.');
+    return;
+  }
+  const parityStatuses = {'pending', 'pass', 'fail', 'blocked'};
+  for (final item in vectors) {
+    if (item is! Map) {
+      failures.add('${relative(file)} sample parity vector shape invalid.');
+      continue;
+    }
+    final vector = item.cast<String, Object?>();
+    final vectorPath = vector['vector_path'];
+    final vectorName = vector['vector_name'];
+    final contract = vector['contract'];
+    final featureProfile = vector['feature_profile'];
+    final status = vector['status'];
+    if (vectorPath is! String ||
+        vectorName is! String ||
+        contract is! String ||
+        featureProfile is! String ||
+        status is! String ||
+        !parityStatuses.contains(status) ||
+        !sourceContracts.contains(contract)) {
+      failures.add('${relative(file)} sample parity vector fields invalid.');
+      continue;
+    }
+    final sourceFile = File(vectorPath);
+    final source = readJsonObject(sourceFile, failures);
+    if (source == null ||
+        source['name'] != vectorName ||
+        source['contract'] != contract ||
+        profileMap[contract] != featureProfile) {
+      failures.add(
+        '${relative(file)} sample parity vector must match vector contract/profile.',
+      );
+    }
+  }
+}
+
+void validateSharedCoreClaimBoundary(
+  File file,
+  Object? value,
+  String label,
+  List<String> failures,
+) {
+  if (value is! Map ||
+      value['product_mvp_release_claim_widened'] != false ||
+      value['matrix_versions_advertisement_widened'] != false ||
+      value['matrix_domain_support_claimed'] != false ||
+      value['shared_core_required_dependency_claimed'] != false ||
+      value['release_ready'] != false) {
+    failures.add('${relative(file)} $label claim boundary invalid.');
   }
 }
 
