@@ -1,0 +1,40 @@
+{
+  "name": "product-mvp-media-transfer-capabilities-basic",
+  "contract": "SPEC-071",
+  "request": {
+    "method": "GET",
+    "path": "/_houra/client/media/media1",
+    "access_token": "token-1"
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "media_id": "media1",
+      "filename": "avatar.png",
+      "content_type": "image/png",
+      "download_url": "https://example.test/_houra/client/media/media1/content",
+      "download_requires_auth": false,
+      "download_expires_at": "2030-01-01T00:00:00Z",
+      "transfer": {
+        "thumbnail": {
+          "supported": true,
+          "url": "https://example.test/_houra/client/media/media1/thumbnail",
+          "methods": ["crop", "scale"],
+          "max_width": 1024,
+          "max_height": 1024
+        },
+        "byte_ranges": {
+          "supported": true,
+          "unit": "bytes",
+          "etag": "\"media1-v1\"",
+          "content_length": 5
+        },
+        "resumable_download": {
+          "supported": true,
+          "validator": "etag",
+          "max_resume_window_ms": 3600000
+        }
+      }
+    }
+  }
+}

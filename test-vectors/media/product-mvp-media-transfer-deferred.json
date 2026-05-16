@@ -3,23 +3,26 @@
   "contract": "SPEC-071",
   "event": {
     "target": "Product MVP next-step media transfer",
-    "decision": "defer",
-    "implemented_by_this_contract": false,
+    "decision": "current-baseline-defer-vnext-contract-defined",
+    "implemented_by_this_contract": true,
     "product_mvp_next_step": true,
     "matrix_full_compliance_claim": false,
-    "current_product_mvp_ui_surface_changes": false,
+    "current_product_mvp_ui_surface_changes": true,
+    "current_release_support": false,
     "encrypted_attachment_scope": false,
-    "fail_closed_client_behavior": [
-      "do_not_render_thumbnail_preview_action",
-      "do_not_render_download_progress_or_resume_action",
-      "do_not_export_thumbnail_or_range_sdk_methods_without_followup_contract",
-      "do_not_infer_support_from_http_headers_or_cdn_behavior"
-    ],
-    "future_lanes": [
+    "vnext_contract_lanes": [
       "thumbnail_descriptor",
       "range_request_partial_content",
       "resumable_download_state",
-      "download_progress_ui_surface",
+      "download_progress_ui_surface"
+    ],
+    "fail_closed_client_behavior": [
+      "do_not_render_thumbnail_preview_action_without_capability",
+      "do_not_render_download_progress_or_resume_action_without_capability",
+      "do_not_call_thumbnail_range_or_resume_behavior_without_capability",
+      "do_not_infer_support_from_http_headers_or_cdn_behavior"
+    ],
+    "future_lanes": [
       "remote_or_federated_media"
     ],
     "sdk_core_may_own_after_followup_contract": [

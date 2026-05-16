@@ -1,0 +1,36 @@
+{
+  "name": "product-mvp-resumable-download-state-basic",
+  "contract": "SPEC-071",
+  "event": {
+    "media_id": "media1",
+    "resume_allowed": true,
+    "downloaded_bytes": 3,
+    "total_bytes": 5,
+    "stored_validator": "\"media1-v1\"",
+    "latest_validator": "\"media1-v1\"",
+    "next_request": {
+      "method": "GET",
+      "path": "/_houra/client/media/media1/content",
+      "headers": {
+        "range": "bytes=3-",
+        "if-range": "\"media1-v1\""
+      }
+    },
+    "host_owned": [
+      "partial_file_path",
+      "retry_schedule",
+      "background_download_policy",
+      "cancellation_ui"
+    ],
+    "must_not_record": [
+      "local_filesystem_paths",
+      "signed_or_credentialed_urls",
+      "plaintext_media_bytes"
+    ]
+  },
+  "expected": {
+    "resume_descriptor_safe_for_sdk_core": true,
+    "host_storage_policy_owned_by_host": true,
+    "encrypted_attachment_scope": false
+  }
+}

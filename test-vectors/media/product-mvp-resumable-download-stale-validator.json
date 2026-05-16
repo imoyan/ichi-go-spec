@@ -1,0 +1,22 @@
+{
+  "name": "product-mvp-resumable-download-stale-validator",
+  "contract": "SPEC-071",
+  "event": {
+    "media_id": "media1",
+    "resume_allowed": false,
+    "downloaded_bytes": 3,
+    "total_bytes": 5,
+    "stored_validator": "\"media1-v1\"",
+    "latest_validator": "\"media1-v2\"",
+    "required_client_behavior": [
+      "discard_partial_resume_state",
+      "refresh_metadata",
+      "restart_normal_download_after_user_visible_recovery"
+    ]
+  },
+  "expected": {
+    "resume_descriptor_safe_for_sdk_core": false,
+    "host_storage_policy_owned_by_host": true,
+    "partial_resume_state_must_not_be_reused": true
+  }
+}
