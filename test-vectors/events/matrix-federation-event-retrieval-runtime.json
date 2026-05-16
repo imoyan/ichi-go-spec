@@ -9,7 +9,7 @@
       "https://spec.matrix.org/v1.18/server-server-api/#get_matrixfederationv1stateroomid",
       "https://spec.matrix.org/v1.18/server-server-api/#get_matrixfederationv1timestamp_to_eventroomid"
     ],
-    "checked_at": "2026-05-16T22:20:00+09:00",
+    "checked_at": "2026-05-16T22:12:00+09:00",
     "parent_contract": "SPEC-057",
     "gap_inventory_contract": "SPEC-074",
     "lane_id": "event-retrieval-missing-events-backfill-state-breadth",
