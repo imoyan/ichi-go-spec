@@ -1139,6 +1139,22 @@ Matrix readiness map:
   runtime, release evidence generation runtime, and Complement-compatible lane
   stability. Record p95 runtime evidence only when a shared parser/core
   adoption or other hot-path change is introduced.
+- Release verification baseline checked at 2026-05-17T08:20:00+09:00:
+  `dart tool/check_spec.dart` completed in 0.872s in a clean detached
+  `houra-spec` worktree at `511cb59b3011eb27cbb80003d0c4226436852036`;
+  `git diff --check` completed in 0.022s in the same clean worktree. In the
+  live checkout, `dart tool/check_spec.dart` completed its scan in 0.732s but
+  failed on an unrelated local `.claude/` helper worktree under the repository
+  root. That failure is classified as local verification-environment noise, not
+  a Matrix claim or vector failure. `.claude/` is now ignored and treated as a
+  generated local entry by `tool/check_spec.dart`; after that classification
+  fix, the same live checkout passed in 0.711s.
+- First improvement candidates: keep `houra-spec` vector validation as the
+  fast local gate, record wall time for downstream `houra-server` smoke /
+  request-vector / release-evidence generation and Complement-compatible lanes
+  before optimizing them, and split or cache only duplicated fixture scans or
+  evidence generation that dominate PR iteration. Do not use this baseline to
+  widen `/versions`, release notes claims, or `publishable_matrix_support_claim`.
 - 日本語メモ: 初回の広告可能範囲は Client-Server subset に限定し、Room Versions、
   E2EE、Federation、Application Service、Identity Service は明示的な対象外として
   fail-closed のまま扱う。速度改善は、claim 境界と evidence が揃った後に、まず
