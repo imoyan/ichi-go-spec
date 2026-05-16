@@ -455,12 +455,12 @@ implementation repository canonical. Public behavior remains fixed here, in
 `contracts/SPEC-*.md`, `test-vectors/`, and shared design inputs. Shared
 implementation artifacts are allowed only as consumers of those inputs.
 
-Rust is the preferred first candidate for a shared protocol core because it can
-serve browser, Node.js, Dart native, Flutter native, and other ecosystems
-through thin bindings. Rust is not a required implementation language, and it is
-not the specification source. Each protocol area may stay implementation-owned,
-move into a shared Rust core, or split by language when that is more practical
-for performance, packaging, or ecosystem fit.
+Houra's production default is TypeScript for both `houra-client` and
+`houra-server`. Rust, WASM, N-API, Dart FFI, and other shared-core experiments
+belong in `houra-labs` as benchmark and future-commonization candidates, not as
+the default implementation path. Each protocol area may stay implementation-owned
+in TypeScript, move into a shared artifact later, or split by language when that
+is more practical for performance, packaging, or ecosystem fit.
 
 The goal is to share the protocol logic that most often drifts between client
 and server implementations: request and response parsing, validation,
@@ -527,30 +527,35 @@ secure storage、transport、retry、UI state、deployment policy は実装側�
 
 ### Current shared-core status
 
-The current shared-core work is still pre-adoption. `houra-labs` contains the
-first Rust protocol-core prototype, a `wasm-bindgen` wrapper prototype, and a
-TypeScript WASM facade prototype for parser and validation experiments through
-the Matrix Client-Server MVP gate. Those artifacts are implementation
-experiments, not public contracts, published packages, or required dependencies
-for `houra-client` or `houra-server`.
+The current shared-core work is still pre-adoption. `houra-client` and
+`houra-server` remain TypeScript implementations. `houra-labs` contains the Rust
+protocol-core prototype, a `wasm-bindgen` wrapper prototype, and a TypeScript
+WASM facade prototype for parser, validation, compatibility, and benchmark
+experiments. Those artifacts are implementation experiments, not public
+contracts, published packages, or required dependencies for `houra-client` or
+`houra-server`.
 
 The next shared-core sequence is:
 
 1. Keep `houra-spec` contracts and vectors as the source of truth.
-2. Stabilize the Rust crate manifest and ABI/version gate in `houra-labs`.
-3. Add parity and performance evidence for representative vector batches.
-4. Prepare publish readiness for the Rust crate and TypeScript WASM facade.
-5. Adopt the shared core from implementation repositories only after the
-   relevant area reaches `rust-adopted` status with the required evidence.
+2. Keep production client and server work on the TypeScript path unless a
+   focused adoption issue says otherwise.
+3. Use `houra-labs` to collect parity, packaging, binary-size, startup, and p95
+   benchmark evidence for representative vector batches.
+4. Keep Rust/WASM/N-API/Dart FFI artifacts private or unpublished until a
+   focused release decision exists.
+5. Adopt a shared artifact from implementation repositories only after the
+   relevant area reaches `shared-adopted` status with the required evidence.
 
 Until those steps are complete, implementation repositories should keep local
 parser or validator code unless a focused adoption issue explicitly wires the
 shared artifact into that repository.
 
-日本語メモ: Rust 共通化は `houra-labs` で prototype が進んでいる段階であり、
-`houra-spec` 上の現在地は `rust-candidate` です。manifest / ABI/version gate、
-parity / performance evidence、公開 package 化、実装 repo への採用が揃うまでは
-`rust-adopted` として扱いません。
+日本語メモ: Houra の production 方針は `houra-client` / `houra-server` の
+TypeScript 実装を正道にします。`houra-labs` の Rust/WASM/N-API/Dart FFI は
+benchmark と将来の共通化候補であり、parity / performance evidence、package 方針、
+rollback 方針、実装 repo への明示 adoption issue が揃うまでは required dependency
+として扱いません。
 
 ### Coupling and dependency policy
 
@@ -583,20 +588,25 @@ before any implementation repository treats a shared artifact as adopted.
 
 ### TypeScript and Dart backend strategy
 
-The TypeScript and Dart ecosystems need different bindings for different
+The production TypeScript path is native TypeScript unless a focused shared-core
+adoption issue proves that a lab artifact is smaller, faster enough, or safer
+enough to justify the extra runtime boundary. If a shared artifact is adopted
+later, the TypeScript and Dart ecosystems need different bindings for different
 runtimes:
 
-- TypeScript browser, Vue, and Next client code should prefer WebAssembly built
-  from the Rust core, using the Rust/WebAssembly ecosystem around
-  `wasm-bindgen`.
-- TypeScript Node.js and Next server code should prefer N-API bindings for
-  native performance and package ergonomics.
-- TypeScript edge or restricted serverless runtimes should keep a WebAssembly
-  fallback when native add-ons are unavailable.
+- TypeScript browser, Vue, and Next client code may use WebAssembly built from a
+  lab shared core only after artifact, bundler, startup, and p95 evidence exists.
+- TypeScript Node.js and Next server code may use N-API bindings only after
+  native packaging, prebuild, fallback, and p95 evidence beats or matches local
+  TypeScript for the target boundary.
+- TypeScript edge or restricted serverless runtimes should keep local
+  TypeScript unless a WebAssembly fallback has explicit startup and binary-size
+  evidence.
 - Dart CLI, Dart server, and Flutter native code should use a C ABI exposed to
-  `dart:ffi`.
+  `dart:ffi` only for adopted shared artifacts.
 - Dart web and Flutter web should call a WebAssembly JavaScript wrapper through
-  `dart:js_interop`; they should not depend on `dart:ffi`.
+  `dart:js_interop` only for adopted shared artifacts; they should not depend on
+  `dart:ffi`.
 
 This split follows the current Dart direction where `dart:js_interop` is the
 web interop layer and `package:web` is the long-term web API package designed
@@ -606,9 +616,9 @@ conditional imports.
 
 ### Build and distribution policy
 
-Rust compile time should not become a tax on every application developer.
-Implementation packages should publish prebuilt artifacts for supported
-platforms wherever practical:
+Rust compile time should not become a tax on every application developer. If a
+shared Rust artifact is adopted later, implementation packages should publish
+prebuilt artifacts for supported platforms wherever practical:
 
 - npm packages can include WebAssembly artifacts for browsers and N-API
   binaries for Node.js platforms.
@@ -627,7 +637,8 @@ iteration faster.
 
 ### Performance rule
 
-Sharing is optional. An area should not be moved into shared code if the
+Sharing is optional. Local TypeScript is the production baseline for the current
+Houra client and server. An area should not be moved into shared code if the
 cross-language boundary, binary size, startup cost, or packaging cost makes the
 result meaningfully worse than a local implementation. The default performance
 gate is that shared protocol logic should stay within roughly a p95 `+10%` cost
@@ -672,10 +683,10 @@ Implementation sharing statuses:
 
 - `spec-only`: only the specification inputs are shared; implementation stays
   per repository or per language.
-- `rust-candidate`: suitable for a Rust shared core, but not a required
-  dependency until parity evidence exists.
-- `rust-adopted`: a Rust shared core has passed parity tests for the area and
-  may be used by adapters.
+- `lab-candidate`: suitable for a lab shared-core experiment, but not a required
+  dependency until parity, packaging, rollback, and performance evidence exists.
+- `shared-adopted`: a shared artifact has passed parity and performance gates
+  for the area and may be used by adapters through a focused adoption issue.
 - `adapter-owned`: framework, runtime, or host-application behavior should stay
   in the adapter or application layer.
 - `split-by-language`: many languages can share one implementation, but one or
@@ -703,13 +714,13 @@ client/server commonality is not lost during planning.
 
 | Area | Current sharing status | Implementation reach | Dependency policy | TS backend | Dart backend | Shared candidate | Adapter-owned responsibilities | Split trigger | Rebuild impact | Prebuilt artifact | Performance gate |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Matrix versions request/response handling | `rust-candidate` | `client+server` | `core-hard-dep` allowed for JSON parsing | WASM for browser and Next client; N-API for Node and Next server; WASM fallback for edge runtimes | `dart:ffi` for native; `dart:js_interop` to call the WASM JS wrapper on web | Rust protocol parser and validator for `SPEC-030` request and response shape | Fetching `/_matrix/client/versions`, cache policy, and feature gating | A runtime cannot consume the shared artifact without larger packaging cost than local parsing | Low after prebuilt artifacts; changing facade policy should not rebuild core | npm WASM, npm N-API, Dart native library, Dart web WASM wrapper | Server emission and client parsing pass against `test-vectors/core/matrix-client-versions-basic.json`; p95 within `+10%` of local parsing |
-| Matrix / Houra error parsing and emission | `rust-candidate` | `client+server` | `core-hard-dep` allowed for stable JSON and enum helpers | WASM / N-API through the TypeScript facade | Dart facade dispatches to FFI or JS interop backend | Shared error envelope and Matrix `M_*` vocabulary parser / builder | HTTP status handling, retry policy, telemetry, and user-facing messages | Platform error models require native exception or result types outside the shared ABI | Low; adding host-specific error text stays outside Rust | Same as protocol core artifacts | Vectors cover client parsing and server emission without adapter-specific fields; no measurable UI-path regression |
-| Identifier and URI validation | `rust-candidate` | `client+server` | `core-hard-dep` allowed for regex or parser utilities if they are mainstream and portable | WASM / N-API through the TypeScript facade | FFI on native and JS interop on web | Matrix and Houra identifier, room ID, event ID, user ID, content URI, and namespace validators | Input timing, UI validation display, and normalization before storage | A platform requires native text or URL APIs for correctness, accessibility, or locale behavior | Medium if parser dependencies change; stable grammar updates should be batched | Prebuilt parser artifacts per supported runtime | Positive and negative grammar vectors pass in client and server harnesses; boundary overhead is hidden by validation batch size |
-| Event content and message schema validation | `rust-candidate` | `client+server` | `core-hard-dep` allowed for JSON schema-like validation only when it stays protocol-focused | WASM / N-API for canonical validation; TS may keep permissive draft typing | FFI / JS interop for canonical validation; Dart may keep permissive draft models | Shared event type, message content, state key, and redaction shape validators | Rich composer UX, server persistence, timeline indexing, moderation policy, and draft states | A client needs permissive draft validation while servers require stricter acceptance rules | Medium; schema changes rebuild shared validators but not UI composer policy | Protocol validator artifacts plus native/web facade packages | Client compose fixtures and server acceptance/rejection vectors agree on canonical shapes; validation batch p95 stays within `+10%` |
-| Transaction ID and idempotency semantics | `rust-candidate` | `client+server` | `core-hard-dep` only for small deterministic helpers | WASM / N-API helper through TS facade | FFI / JS interop helper through Dart facade | Transaction ID grammar, idempotency-key comparison, and replay classification helpers | Retry scheduling, persistence of sent-message state, offline queueing, and conflict UI | Offline clients need language-native queue behavior that cannot share the same runtime | Low; queue policy changes should not rebuild Rust | Small helper artifact bundled with protocol core | Retry and conflict vectors pass with identical transaction classification; local queue performance is not gated on Rust |
-| Canonical JSON / signing helpers | `rust-candidate` | `client+server` | `core-hard-dep` for canonicalization and hash primitives; `extension-dep` for heavier signing stacks | WASM for browser-safe canonicalization; N-API for Node signing helpers when native crypto is useful | FFI for native signing helpers; JS interop/WASM for web canonicalization | Canonical JSON, hash, and signing input helper primitives | Key storage, key rotation policy, secure enclave integration, and request transport | Native crypto policy or platform keychain constraints require separate bindings | Medium to high when crypto dependencies change; isolate heavy crypto outside the pure core | Separate core and crypto extension artifacts | Cross-language canonicalization fixtures produce byte-identical output; crypto extension has its own p95 and binary-size gate |
-| Room version auth/state resolution | `rust-candidate` | `server-only` | `extension-dep` unless the algorithm is small enough for pure core | N-API for Node servers; WASM only for tooling or tests | Usually not used by Dart clients; Dart server may use FFI if adopted | Room-version-aware auth events, state resolution, and event validation helpers | Persistent event store layout, indexing, sync pagination, conflict recovery UI, and federation policy | Performance, database coupling, or federation deployment needs a server-native path | High; keep database and storage policy outside the Rust algorithm crate | Server-side native artifact only until a client/tooling use case exists | Room-version fixtures and restart-safe server integration tests pass; algorithm cost improves or matches local implementation |
+| Matrix versions request/response handling | `lab-candidate` | `client+server` | `core-hard-dep` allowed for JSON parsing only inside the lab artifact | Local TypeScript by default; WASM/N-API only after adoption evidence | `dart:ffi` or `dart:js_interop` only after adoption evidence | Lab parser and validator for `SPEC-030` request and response shape | Fetching `/_matrix/client/versions`, cache policy, and feature gating | A runtime cannot consume the shared artifact without larger packaging cost than local parsing | Low after prebuilt artifacts; changing facade policy should not rebuild core | Optional npm WASM, npm N-API, Dart native library, or Dart web WASM wrapper | Server emission and client parsing pass against `test-vectors/core/matrix-client-versions-basic.json`; p95 within `+10%` of local TypeScript parsing |
+| Matrix / Houra error parsing and emission | `lab-candidate` | `client+server` | `core-hard-dep` allowed for stable JSON and enum helpers only inside the lab artifact | Local TypeScript by default; WASM/N-API only after adoption evidence | Dart facade dispatches to FFI or JS interop backend only after adoption evidence | Shared error envelope and Matrix `M_*` vocabulary parser / builder | HTTP status handling, retry policy, telemetry, and user-facing messages | Platform error models require native exception or result types outside the shared ABI | Low; adding host-specific error text stays outside the lab artifact | Optional protocol-core artifacts | Vectors cover client parsing and server emission without adapter-specific fields; no measurable UI-path regression |
+| Identifier and URI validation | `lab-candidate` | `client+server` | `core-hard-dep` allowed for regex or parser utilities if they are mainstream and portable | Local TypeScript by default; WASM/N-API only after adoption evidence | FFI on native and JS interop on web only after adoption evidence | Matrix and Houra identifier, room ID, event ID, user ID, content URI, and namespace validators | Input timing, UI validation display, and normalization before storage | A platform requires native text or URL APIs for correctness, accessibility, or locale behavior | Medium if parser dependencies change; stable grammar updates should be batched | Optional prebuilt parser artifacts per supported runtime | Positive and negative grammar vectors pass in client and server harnesses; boundary overhead is hidden by validation batch size |
+| Event content and message schema validation | `lab-candidate` | `client+server` | `core-hard-dep` allowed for JSON schema-like validation only when it stays protocol-focused | Local TypeScript by default; TS may keep permissive draft typing | FFI / JS interop for canonical validation only after adoption evidence; Dart may keep permissive draft models | Shared event type, message content, state key, and redaction shape validators | Rich composer UX, server persistence, timeline indexing, moderation policy, and draft states | A client needs permissive draft validation while servers require stricter acceptance rules | Medium; schema changes rebuild shared validators but not UI composer policy | Optional protocol validator artifacts plus native/web facade packages | Client compose fixtures and server acceptance/rejection vectors agree on canonical shapes; validation batch p95 stays within `+10%` |
+| Transaction ID and idempotency semantics | `lab-candidate` | `client+server` | `core-hard-dep` only for small deterministic helpers | Local TypeScript by default; WASM/N-API helper only after adoption evidence | FFI / JS interop helper only after adoption evidence | Transaction ID grammar, idempotency-key comparison, and replay classification helpers | Retry scheduling, persistence of sent-message state, offline queueing, and conflict UI | Offline clients need language-native queue behavior that cannot share the same runtime | Low; queue policy changes should not rebuild the lab artifact | Optional small helper artifact bundled with protocol core | Retry and conflict vectors pass with identical transaction classification; local queue performance is not gated on shared-core calls |
+| Canonical JSON / signing helpers | `lab-candidate` | `client+server` | `core-hard-dep` for canonicalization and hash primitives; `extension-dep` for heavier signing stacks | Local TypeScript by default; WASM/N-API only when canonicalization evidence justifies it | FFI for native signing helpers; JS interop/WASM for web canonicalization only after adoption evidence | Canonical JSON, hash, and signing input helper primitives | Key storage, key rotation policy, secure enclave integration, and request transport | Native crypto policy or platform keychain constraints require separate bindings | Medium to high when crypto dependencies change; isolate heavy crypto outside the pure core | Optional separate core and crypto extension artifacts | Cross-language canonicalization fixtures produce byte-identical output; crypto extension has its own p95 and binary-size gate |
+| Room version auth/state resolution | `lab-candidate` | `server-only` | `extension-dep` unless the algorithm is small enough for pure core | Local TypeScript by default; N-API only when server-side evidence justifies it | Usually not used by Dart clients; Dart server may use FFI if adopted | Room-version-aware auth events, state resolution, and event validation helpers | Persistent event store layout, indexing, sync pagination, conflict recovery UI, and federation policy | Performance, database coupling, or federation deployment needs a server-native path | High; keep database and storage policy outside the lab artifact | Optional server-side native artifact only until a client/tooling use case exists | Room-version fixtures and restart-safe server integration tests pass; algorithm cost improves or matches local implementation |
 | E2EE bridge | `split-by-language` | `language-family` | `extension-dep`; never hand-roll Olm or Megolm in this repository | Use maintained Matrix crypto bindings where available; TS facade should not own secure storage | Use maintained native or Dart-compatible crypto binding when it fits the target | Wrapper around a maintained Matrix crypto implementation, not hand-rolled Olm or Megolm | Secure storage, device trust UI, backup UX, native keychain access, and background task policy | A target ecosystem already has a maintained native Matrix crypto binding with better support | High; isolate from pure core and publish separately | Separate crypto artifacts per ecosystem and platform | Encrypted-room send, receive, backup, restore, and verification flows pass in each adopted language |
 | HTTP transport / retry / cancellation | `adapter-owned` | `adapter-only` | `adapter-owned` or `avoid-shared` | Native `fetch`, framework client, or Node HTTP stack chosen by the host | Dart `http`, platform channel, or framework-owned client chosen by the host | None by default; shared code may expose request descriptors only | Fetch/client selection, retry, timeout, cancellation, proxy, cookies, and platform network policy | A language family shares a transport runtime and can add it without constraining others | None for Rust when policy changes stay in adapters | No Rust artifact required | Adapter tests prove host-owned cancellation and retry behavior; shared descriptors do not add request latency |
 | Token storage / secure storage | `adapter-owned` | `adapter-only` | `adapter-owned` | Browser storage, server secret store, or Expo secure storage selected by the host | Flutter secure storage, platform keychain, or server secret store selected by the host | None | Secure storage, token refresh timing, logout cleanup, and process lifecycle | A platform has a common secure-storage abstraction that still keeps host ownership explicit | None for Rust | No Rust artifact required | Logout and restore tests prove tokens are not persisted by the UI-free core |
@@ -724,8 +735,8 @@ without turning adapter policy into shared code.
 
 | Candidate | Scope | Spec and vectors | Consumer repos | Shared artifact boundary | Adapter-owned boundary | Timing rule | Evidence before adoption |
 |---|---|---|---|---|---|---|---|
-| Matrix versions request/response handling | Parse and validate `GET /_matrix/client/versions` request/response shape and release-advertisement result fields | `SPEC-030`, `SPEC-064`, `test-vectors/core/matrix-client-versions-basic.json`, `test-vectors/core/matrix-version-advertisement-*.json` | `houra-labs` first, then separate adoption issues for `houra-server` and `houra-client` | Rust parser / validator plus TypeScript WASM or N-API facade and Dart facade only after artifact evidence exists | Fetching the endpoint, cache policy, runtime feature gating, release decision ownership, and all network behavior | Planned adoption gate; do not migrate existing implementations only because adjacent code was touched | Vector parity, p95 `+10%` or hidden latency evidence, secret-free diagnostics, artifact manifest, `abi_version`, facade stability notes, rollback to local parser |
-| Matrix / Houra error parsing and emission | Parse and build public error envelopes and stable Matrix `M_*` vocabulary without owning user-facing messages or retry policy | `SPEC-002`, `SPEC-031`, `test-vectors/core/error-basic.json`, `test-vectors/core/matrix-foundation-error-basic.json`, `test-vectors/auth/auth-error-basic.json`, `test-vectors/media/matrix-media-download-not-found.json` | `houra-labs` first, then separate adoption issues for `houra-server` and `houra-client` | Shared error enum, envelope parser, and serializer with stable host-language result types | HTTP status selection, retry/cancellation, telemetry, localization, UI copy, and product-specific recovery flow | Planned adoption gate, with next-touch only for tiny call-site swaps after the shared facade exists | Cross-repo vector parity, no adapter-specific fields in shared output, redaction review, p95 evidence, packaging notes, rollback to local error mapping |
+| Matrix versions request/response handling | Parse and validate `GET /_matrix/client/versions` request/response shape and release-advertisement result fields | `SPEC-030`, `SPEC-064`, `test-vectors/core/matrix-client-versions-basic.json`, `test-vectors/core/matrix-version-advertisement-*.json` | `houra-labs` first for evidence; `houra-server` and `houra-client` stay TypeScript unless a later adoption issue is opened | Optional lab parser / validator plus TypeScript WASM or N-API facade and Dart facade only after artifact evidence exists | Fetching the endpoint, cache policy, runtime feature gating, release decision ownership, and all network behavior | Benchmark gate; do not migrate existing implementations only because adjacent code was touched | Vector parity, p95 `+10%` or hidden latency evidence, secret-free diagnostics, artifact manifest, `abi_version`, facade stability notes, rollback to local parser |
+| Matrix / Houra error parsing and emission | Parse and build public error envelopes and stable Matrix `M_*` vocabulary without owning user-facing messages or retry policy | `SPEC-002`, `SPEC-031`, `test-vectors/core/error-basic.json`, `test-vectors/core/matrix-foundation-error-basic.json`, `test-vectors/auth/auth-error-basic.json`, `test-vectors/media/matrix-media-download-not-found.json` | `houra-labs` first for evidence; `houra-server` and `houra-client` stay TypeScript unless a later adoption issue is opened | Optional shared error enum, envelope parser, and serializer with stable host-language result types | HTTP status selection, retry/cancellation, telemetry, localization, UI copy, and product-specific recovery flow | Benchmark gate; next-touch swaps require an explicit adoption decision | Cross-repo vector parity, no adapter-specific fields in shared output, redaction review, p95 evidence, packaging notes, rollback to local error mapping |
 
 Deferred candidates:
 
@@ -739,9 +750,10 @@ Deferred candidates:
 - HTTP transport, token storage, secure storage, and UI rendering remain
   non-targets for shared protocol core adoption.
 
-日本語メモ: 初回 adoption は `versions` と error envelope に絞ります。既存実装を
-一括移行するのではなく、`houra-labs` で artifact / parity / performance evidence を
-揃えた後、`houra-server` と `houra-client` の adoption issue に分けて進めます。
+日本語メモ: production は TypeScript 実装を正道にし、`versions` と error envelope も
+まず `houra-labs` で artifact / parity / performance evidence を見るだけにします。
+`houra-server` と `houra-client` へ入れるのは、TS 実装より小さい・速い・安全などの
+理由が揃い、明示の adoption issue を切った場合に限ります。
 
 ### Security, Privacy, and Abuse-Case Review
 
