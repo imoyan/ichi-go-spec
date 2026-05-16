@@ -1101,6 +1101,19 @@ Matrix v1.18 roadmap close-out snapshot:
   checklists are complete or because the current release candidate excludes the
   domain from advertisement. Close them only when #95 links current pass/fail
   evidence and records the intended release outcome for that domain.
+- Current-state refresh checked at 2026-05-17T08:35:00+09:00:
+  #97 through #101 remain intentionally open as domain-level release outcome
+  trackers, not as missing `houra-spec` decomposition work. #97 and #98 have
+  adopted-subset evidence in the current blocked bundle, while #99, #100, and
+  #101 keep full-breadth, E2EE, federation, Application Service, Identity
+  Service, and Push Gateway claims out of scope until owner-repo leaf gates
+  provide same-candidate pass evidence. #314 records the fast `houra-spec`
+  verification baseline and local `.claude/` failure classification. #323 adds
+  the shared-core adoption evidence schema and keeps shared artifacts separate
+  from required dependencies. The remaining #95 blockers are therefore release
+  surface and downstream readiness questions, especially server `/versions`
+  advertisement, release notes claim alignment, and publish readiness; this
+  note does not widen Matrix support claims.
 
 Matrix readiness map:
 
