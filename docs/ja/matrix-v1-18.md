@@ -65,6 +65,12 @@ signing、Complement breadth の lane に分ける inventory です。これは 
 対応や Complement 全 pass の完了ではなく、代表的な federation smoke evidence と
 full Matrix federation claim を分けるための記録です。
 
+`SPEC-097` は、このうち discovery / key / auth lane の parser-only 子 contract です。
+Federation version、key query lifecycle metadata、request-auth header shape は
+`houra-labs#123` の shared-core 入力にできますが、DNS / TLS 実行、key cache persistence、
+request signature verification、Server-Server API advertisement は引き続き別 evidence
+待ちです。
+
 `SPEC-075` は、`houra-server#137` の Application Service full-breadth gap を
 registration / token lifecycle、transaction delivery、user / room query、
 third-party network directory、ping / liveness、Client-Server extension、

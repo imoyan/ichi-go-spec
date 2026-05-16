@@ -1,0 +1,171 @@
+{
+  "name": "matrix-federation-version-key-lifecycle-request-auth",
+  "contract": "SPEC-097",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/server-server-api/",
+    "checked_at": "2026-05-16T11:20:00+09:00",
+    "parent_contract": "SPEC-055",
+    "gap_inventory": "SPEC-074",
+    "lane": "federation-discovery-version-key-lifecycle-request-auth-breadth",
+    "request_descriptors": [
+      {
+        "id": "federation-version",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/version",
+        "path_params": {},
+        "query_params": {},
+        "requires_auth": false,
+        "adopted_runtime_behavior": false,
+        "response_parser": "federation_version"
+      },
+      {
+        "id": "federation-key-query-batch",
+        "method": "POST",
+        "path": "/_matrix/key/v2/query",
+        "path_params": {},
+        "query_params": {},
+        "body": {
+          "server_keys": {
+            "example.test": {
+              "ed25519:auto1": {
+                "minimum_valid_until_ts": 1779011408000
+              },
+              "ed25519:auto2": {
+                "minimum_valid_until_ts": 1779011408000
+              }
+            }
+          }
+        },
+        "requires_auth": false,
+        "adopted_runtime_behavior": false,
+        "response_parser": "federation_key_query_response"
+      },
+      {
+        "id": "federation-key-query-single",
+        "method": "GET",
+        "path": "/_matrix/key/v2/query/{serverName}/{keyId}",
+        "path_params": {
+          "serverName": "example.test",
+          "keyId": "ed25519:auto1"
+        },
+        "query_params": {},
+        "requires_auth": false,
+        "adopted_runtime_behavior": false,
+        "response_parser": "federation_key_query_response"
+      },
+      {
+        "id": "federation-request-auth-header",
+        "method": "PUT",
+        "path": "/_matrix/federation/v1/send/{txnId}",
+        "path_params": {
+          "txnId": "txn1"
+        },
+        "query_params": {},
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "response_parser": "federation_request_auth_descriptor"
+      }
+    ],
+    "sample_responses": {
+      "version": {
+        "server": {
+          "name": "Houra",
+          "version": "0.1.0"
+        }
+      },
+      "key_query": {
+        "server_keys": [
+          {
+            "server_name": "example.test",
+            "verify_keys": {
+              "ed25519:auto1": {
+                "key": "VGhpcyBpcyBhIHRlc3QgcHVibGljIHZlcmlmeSBrZXk"
+              },
+              "ed25519:auto2": {
+                "key": "VGhpcyBpcyBhbm90aGVyIHRlc3QgcHVibGljIGtleQ"
+              }
+            },
+            "old_verify_keys": {
+              "ed25519:old1": {
+                "expired_ts": 1777801808000,
+                "key": "VGhpcyBpcyBhbiBvbGQgdGVzdCBwdWJsaWMga2V5"
+              }
+            },
+            "valid_until_ts": 1779011408000,
+            "signatures": {
+              "example.test": {
+                "ed25519:auto1": "VGhpcyBpcyBhIHRlc3Qgc2lnbmF0dXJl"
+              },
+              "notary.example.test": {
+                "ed25519:notary1": "VGhpcyBpcyBhIHRlc3Qgbm90YXJ5IHNpZ25hdHVyZQ"
+              }
+            }
+          }
+        ]
+      },
+      "request_auth": {
+        "scheme": "X-Matrix",
+        "origin": "example.test",
+        "destination": "remote.example.test",
+        "key": "ed25519:auto1",
+        "sig": "VGhpcyBpcyBhIHRlc3Qgc2lnbmF0dXJl",
+        "signed_json_fields": [
+          "method",
+          "uri",
+          "origin",
+          "destination"
+        ]
+      }
+    },
+    "negative_cases": [
+      {
+        "id": "unsupported-federation-method",
+        "method": "POST",
+        "path": "/_matrix/federation/v1/version",
+        "expected_error": "M_UNRECOGNIZED"
+      },
+      {
+        "id": "unsupported-key-endpoint",
+        "method": "GET",
+        "path": "/_matrix/key/v2/unknown",
+        "expected_error": "M_UNRECOGNIZED"
+      },
+      {
+        "id": "malformed-key-id",
+        "keyId": "rsa:auto1",
+        "expected_error": "M_INVALID_PARAM"
+      },
+      {
+        "id": "missing-request-auth-signature",
+        "scheme": "X-Matrix",
+        "origin": "example.test",
+        "destination": "remote.example.test",
+        "key": "ed25519:auto1",
+        "expected_error": "M_UNAUTHORIZED"
+      }
+    ],
+    "release_evidence_rules": {
+      "parser_only": true,
+      "private_key_exposed": false,
+      "effective_validity_days_max": 7,
+      "dns_tls_runtime_owned_by_server": true,
+      "key_cache_persistence_owned_by_server": true,
+      "request_signature_verification_owned_by_server": true,
+      "versions_advertisement_widened": false,
+      "advertisement_allowed": false
+    }
+  },
+  "expected": {
+    "descriptor_count": 4,
+    "verify_key_count": 2,
+    "old_key_count": 1,
+    "notary_signature_present": true,
+    "request_auth_shape_parsed": true,
+    "private_key_exposed": false,
+    "effective_validity_days_max": 7,
+    "support_claim_not_widened": true,
+    "versions_advertisement_widened": false,
+    "advertisement_allowed": false
+  }
+}

@@ -1596,6 +1596,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-085 | Matrix Client-Server event retrieval and membership history | `test-vectors/core/matrix-client-server-event-retrieval-membership-history.json` |
 | SPEC-093 | Matrix sync breadth extension parser descriptors and response sections | `test-vectors/sync/matrix-sync-breadth-extensions.json` |
 | SPEC-095 | Matrix media repository breadth parser descriptors, metadata, filenames, and `mxc://` validation | `test-vectors/media/matrix-media-repository-breadth.json` |
+| SPEC-097 | Matrix federation version, key lifecycle, and request-auth parser descriptors | `test-vectors/core/matrix-federation-version-key-lifecycle-request-auth.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
