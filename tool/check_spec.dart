@@ -138,6 +138,7 @@ void main() {
   checkMatrixKeyBackupRestoreGate(contracts, failures);
   checkMatrixVerificationCrossSigningGate(contracts, failures);
   checkMatrixOlmMegolmFullE2eeGapInventory(contracts, failures);
+  checkMatrixOlmMegolmFullE2eeGapInventoryNegativeFixtures(failures);
   checkMatrixMaintainedCryptoStorageOwnershipBoundary(contracts, failures);
   checkMatrixFederationDiscoverySigningKeys(contracts, failures);
   checkMatrixFederationTransactionJoinInvite(contracts, failures);
@@ -2092,6 +2093,14 @@ bool isMatrixRoomId(String id) {
 bool isIso8601TimestampWithTimezone(String value) =>
     DateTime.tryParse(value) != null &&
     RegExp(r'(Z|[+-]\d{2}:\d{2})$').hasMatch(value);
+
+bool isDatedJstSnapshot(String value) =>
+    DateTime.tryParse(value) != null && RegExp(r'\+09:00$').hasMatch(value);
+
+bool isNonEmptyStringList(Object? value) =>
+    value is List &&
+    value.isNotEmpty &&
+    value.every((item) => item is String && item.isNotEmpty);
 
 void checkMatrixStateSnapshotResolution(
   Map<String, String> contracts,
@@ -7534,6 +7543,14 @@ void checkMatrixOlmMegolmFullE2eeGapInventory(
   if (json == null) {
     return;
   }
+  validateMatrixOlmMegolmFullE2eeGapInventoryVector(file, json, failures);
+}
+
+void validateMatrixOlmMegolmFullE2eeGapInventoryVector(
+  File file,
+  Map<String, Object?> json,
+  List<String> failures,
+) {
   if (json['contract'] != 'SPEC-079') {
     failures.add('${relative(file)} must reference SPEC-079.');
   }
@@ -7554,7 +7571,7 @@ void checkMatrixOlmMegolmFullE2eeGapInventory(
     failures.add('${relative(file)} Matrix reference or parent issue invalid.');
   }
   final checkedAt = eventMap['checked_at'];
-  if (checkedAt is! String || !checkedAt.contains('+09:00')) {
+  if (checkedAt is! String || !isDatedJstSnapshot(checkedAt)) {
     failures.add('${relative(file)} checked_at must be a dated JST snapshot.');
   }
 
@@ -7599,32 +7616,35 @@ void checkMatrixOlmMegolmFullE2eeGapInventory(
   } else {
     final seenLaneIds = <String>{};
     for (final lane in lanes) {
+      final endpointExamplesValue = lane is Map
+          ? lane['endpoint_examples']
+          : null;
+      final ownerReposValue = lane is Map ? lane['owner_repos'] : null;
       if (lane is! Map ||
           lane['id'] is! String ||
           lane['status'] !=
               'requires-follow-up-contract-or-implementation-issue' ||
-          lane['endpoint_examples'] is! List ||
-          lane['owner_repos'] is! List ||
+          !isNonEmptyStringList(endpointExamplesValue) ||
+          !isNonEmptyStringList(ownerReposValue) ||
           lane['advertisement_allowed'] != false) {
         failures.add('${relative(file)} Olm & Megolm gap lane shape invalid.');
         continue;
       }
       final laneId = lane['id'] as String;
-      final endpointExamples = lane['endpoint_examples'] as List;
-      final ownerRepos = lane['owner_repos'] as List;
+      final ownerRepos = ownerReposValue as List;
       final expectedOwner =
           laneId == 'maintained-crypto-stack-local-state-ownership-breadth'
           ? 'houra-client'
           : 'houra-server';
       if (!expectedLaneIds.contains(laneId) ||
-          endpointExamples.isEmpty ||
-          ownerRepos.isEmpty ||
           !ownerRepos.any((repo) => repo == expectedOwner)) {
         failures.add(
           '${relative(file)} Olm & Megolm gap lane content invalid.',
         );
       }
-      seenLaneIds.add(laneId);
+      if (!seenLaneIds.add(laneId)) {
+        failures.add('${relative(file)} Olm & Megolm gap lane ids duplicate.');
+      }
     }
     if (!seenLaneIds.containsAll(expectedLaneIds)) {
       failures.add('${relative(file)} Olm & Megolm gap lane ids incomplete.');
@@ -7653,6 +7673,94 @@ void checkMatrixOlmMegolmFullE2eeGapInventory(
     failures.add(
       '${relative(file)} expected Olm & Megolm gap inventory invalid.',
     );
+  }
+}
+
+void checkMatrixOlmMegolmFullE2eeGapInventoryNegativeFixtures(
+  List<String> failures,
+) {
+  const basePath =
+      'test-vectors/messaging/matrix-olm-megolm-full-e2ee-gap-inventory.json';
+  final baseFile = File(basePath);
+  final base = readJsonObject(baseFile, failures);
+  if (base == null) {
+    return;
+  }
+  const cases = {
+    'malformed checked_at': _OlmMegolmGapInventoryFixtureCase(
+      mutation: _OlmMegolmGapInventoryMutation.malformedCheckedAt,
+      expectedFailureContains: 'checked_at must be a dated JST snapshot',
+    ),
+    'non-string endpoint_examples': _OlmMegolmGapInventoryFixtureCase(
+      mutation: _OlmMegolmGapInventoryMutation.nonStringEndpointExample,
+      expectedFailureContains: 'Olm & Megolm gap lane shape invalid',
+    ),
+    'duplicate lane id': _OlmMegolmGapInventoryFixtureCase(
+      mutation: _OlmMegolmGapInventoryMutation.duplicateLaneId,
+      expectedFailureContains: 'Olm & Megolm gap lane ids duplicate',
+    ),
+  };
+  for (final entry in cases.entries) {
+    final candidate = (jsonDecode(jsonEncode(base)) as Map)
+        .cast<String, Object?>();
+    mutateOlmMegolmGapInventoryFixture(candidate, entry.value.mutation);
+    final fixtureFailures = <String>[];
+    validateMatrixOlmMegolmFullE2eeGapInventoryVector(
+      baseFile,
+      candidate,
+      fixtureFailures,
+    );
+    if (!fixtureFailures.any(
+      (failure) => failure.contains(entry.value.expectedFailureContains),
+    )) {
+      failures.add(
+        '$basePath negative fixture ${entry.key} did not fail as expected.',
+      );
+    }
+  }
+}
+
+enum _OlmMegolmGapInventoryMutation {
+  malformedCheckedAt,
+  nonStringEndpointExample,
+  duplicateLaneId,
+}
+
+class _OlmMegolmGapInventoryFixtureCase {
+  const _OlmMegolmGapInventoryFixtureCase({
+    required this.mutation,
+    required this.expectedFailureContains,
+  });
+
+  final _OlmMegolmGapInventoryMutation mutation;
+  final String expectedFailureContains;
+}
+
+void mutateOlmMegolmGapInventoryFixture(
+  Map<String, Object?> vector,
+  _OlmMegolmGapInventoryMutation mutation,
+) {
+  final event = vector['event'];
+  if (event is! Map) {
+    return;
+  }
+  switch (mutation) {
+    case _OlmMegolmGapInventoryMutation.malformedCheckedAt:
+      event['checked_at'] = 'not-a-date+09:00';
+      return;
+    case _OlmMegolmGapInventoryMutation.nonStringEndpointExample:
+      final lanes = event['required_gap_lanes'];
+      final firstLane = lanes is List && lanes.isNotEmpty ? lanes.first : null;
+      if (firstLane is Map) {
+        firstLane['endpoint_examples'] = [123];
+      }
+      return;
+    case _OlmMegolmGapInventoryMutation.duplicateLaneId:
+      final lanes = event['required_gap_lanes'];
+      if (lanes is List && lanes.isNotEmpty) {
+        lanes.add(jsonDecode(jsonEncode(lanes.first)));
+      }
+      return;
   }
 }
 
