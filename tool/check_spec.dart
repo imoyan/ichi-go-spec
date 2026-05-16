@@ -7695,6 +7695,10 @@ void checkMatrixOlmMegolmFullE2eeGapInventoryNegativeFixtures(
       mutation: _OlmMegolmGapInventoryMutation.nonStringEndpointExample,
       expectedFailureContains: 'Olm & Megolm gap lane shape invalid',
     ),
+    'non-string owner_repos': _OlmMegolmGapInventoryFixtureCase(
+      mutation: _OlmMegolmGapInventoryMutation.nonStringOwnerRepo,
+      expectedFailureContains: 'Olm & Megolm gap lane shape invalid',
+    ),
     'duplicate lane id': _OlmMegolmGapInventoryFixtureCase(
       mutation: _OlmMegolmGapInventoryMutation.duplicateLaneId,
       expectedFailureContains: 'Olm & Megolm gap lane ids duplicate',
@@ -7723,6 +7727,7 @@ void checkMatrixOlmMegolmFullE2eeGapInventoryNegativeFixtures(
 enum _OlmMegolmGapInventoryMutation {
   malformedCheckedAt,
   nonStringEndpointExample,
+  nonStringOwnerRepo,
   duplicateLaneId,
 }
 
@@ -7753,6 +7758,13 @@ void mutateOlmMegolmGapInventoryFixture(
       final firstLane = lanes is List && lanes.isNotEmpty ? lanes.first : null;
       if (firstLane is Map) {
         firstLane['endpoint_examples'] = [123];
+      }
+      return;
+    case _OlmMegolmGapInventoryMutation.nonStringOwnerRepo:
+      final lanes = event['required_gap_lanes'];
+      final firstLane = lanes is List && lanes.isNotEmpty ? lanes.first : null;
+      if (firstLane is Map) {
+        firstLane['owner_repos'] = [123];
       }
       return;
     case _OlmMegolmGapInventoryMutation.duplicateLaneId:
