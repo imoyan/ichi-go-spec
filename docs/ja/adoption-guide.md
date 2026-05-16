@@ -57,6 +57,23 @@ stale spec ref、unknown vector、unknown contract id、profile mismatch、unred
 detail は report invalid として扱います。failure detail には bearer token、database URL、
 signed URL、private local path、key material、plaintext payload を記録しません。
 
+## Shared-core adoption evidence
+
+`houra-labs` の shared-core 実験を実装リポジトリへ採用候補として戻す場合は、
+`SPEC-114` の `shared-core-adoption-evidence-v1` shape を使います。これは
+`SPEC-113` の conformance report だけでは足りない、artifact manifest、`abi_version`、
+facade stability、binary size、startup、p95 `+10%` gate、secret-free diagnostics、
+adapter-owned boundary、rollback-to-local-parser を残すための evidence です。
+
+初期候補は Matrix versions request / response handling と Matrix / Houra error
+envelope です。どちらも `houra-server` / `houra-client` の production TypeScript path を
+置き換えるものではなく、`houra-labs` で evidence を集める段階では `lab-candidate` として
+扱います。
+
+`shared-adopted` は required dependency ではありません。実装リポジトリが採用するには
+別途 focused adoption issue が必要で、Product MVP release、Matrix advertisement、
+release readiness の claim はその issue と release gate が通るまで fail-closed のままにします。
+
 ## 実装側に残すもの
 
 storage、SDK convenience API、secure storage、token persistence、retry policy、

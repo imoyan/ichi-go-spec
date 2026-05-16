@@ -1,0 +1,91 @@
+{
+  "name": "shared-core-adoption-evidence-negative-cases-v1",
+  "contract": "SPEC-114",
+  "event": {
+    "schema_version": "shared-core-adoption-evidence-v1",
+    "negative_cases": [
+      {
+        "id": "stale-spec-ref",
+        "invalid_field": "houra_spec_commit",
+        "reason": "evidence commit does not match the vector set used by the lab experiment",
+        "expected_result": "rejected"
+      },
+      {
+        "id": "missing-parity-vectors",
+        "invalid_field": "candidate_evidence[0].source_vectors",
+        "reason": "candidate evidence does not cite every required source vector for the adoption gate",
+        "expected_result": "rejected"
+      },
+      {
+        "id": "missing-artifact-abi-version",
+        "invalid_field": "candidate_evidence[0].artifact_manifest.abi_version",
+        "reason": "shared artifact manifest cannot be evaluated without an abi_version",
+        "expected_result": "rejected"
+      },
+      {
+        "id": "p95-regression-over-plus-10-percent",
+        "invalid_field": "candidate_evidence[0].performance_evidence",
+        "reason": "shared p95 exceeds local p95 by more than +10% and is not hidden by network, disk, or UI latency",
+        "expected_result": "rejected"
+      },
+      {
+        "id": "unredacted-diagnostics",
+        "invalid_field": "candidate_evidence[0].security_boundary",
+        "reason": "diagnostics or artifact metadata include secrets, credentialed URLs, private local paths, keys, or plaintext payloads",
+        "expected_result": "rejected"
+      },
+      {
+        "id": "missing-rollback-to-local-parser",
+        "invalid_field": "candidate_evidence[0].rollback.rollback_to_local_parser",
+        "reason": "consumer repository cannot revert to local parser or local error mapping after adoption",
+        "expected_result": "rejected"
+      },
+      {
+        "id": "adapter-owned-behavior-in-shared-artifact",
+        "invalid_field": "candidate_evidence[0].security_boundary.forbidden_shared_responsibilities",
+        "reason": "shared artifact owns transport, secure storage, token persistence, retry, UI rendering, crypto stack selection, or release advertisement",
+        "expected_result": "rejected"
+      },
+      {
+        "id": "claim-boundary-widened-without-gate",
+        "invalid_field": "claim_boundary",
+        "reason": "evidence bundle widens Product MVP, Matrix advertisement, release readiness, or required-dependency claims without a focused adoption gate",
+        "expected_result": "rejected"
+      }
+    ],
+    "forbidden_diagnostic_categories": [
+      "bearer_tokens",
+      "refresh_tokens",
+      "database_urls",
+      "signed_or_credentialed_urls",
+      "private_local_paths",
+      "media_keys",
+      "room_keys",
+      "recovery_keys",
+      "pushkeys",
+      "vendor_tokens",
+      "plaintext_payload_bytes",
+      "raw_secrets"
+    ],
+    "forbidden_shared_responsibilities": [
+      "transport",
+      "secure_storage",
+      "token_persistence",
+      "retry_policy",
+      "ui_rendering",
+      "crypto_stack_selection",
+      "production_release_advertisement"
+    ]
+  },
+  "expected": {
+    "negative_case_count": 8,
+    "stale_spec_ref_rejected": true,
+    "missing_parity_vectors_rejected": true,
+    "missing_artifact_abi_version_rejected": true,
+    "p95_regression_over_plus_10_rejected": true,
+    "unredacted_diagnostics_rejected": true,
+    "missing_rollback_rejected": true,
+    "adapter_owned_shared_behavior_rejected": true,
+    "claim_boundary_widened_without_gate_rejected": true
+  }
+}

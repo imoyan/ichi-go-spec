@@ -195,6 +195,7 @@ matching Product MVP contract/vector/design input also changed.
 - `contracts/SPEC-111-matrix-federation-leave-knock-runtime.md`
 - `contracts/SPEC-112-matrix-federation-event-retrieval-runtime.md`
 - `contracts/SPEC-113-conformance-tooling-result-schema.md`
+- `contracts/SPEC-114-shared-core-adoption-evidence-schema.md`
 
 ## Shared Design Inputs
 
@@ -288,6 +289,27 @@ results.
 Matrix release gates may cite these reports only when their separate adoption
 or release-readiness evidence explains the excluded behavior and keeps
 unsupported claims fail-closed.
+
+## Shared-Core Adoption Evidence v1
+
+Shared-core adoption evidence v1 follows `SPEC-114`. It is narrower than
+general conformance reporting: a bundle must tie a lab candidate back to
+canonical contracts and vectors while also recording artifact manifest,
+`abi_version`, facade stability, binary size, startup, p95 `+10%` gate,
+secret-free diagnostics, adapter-owned boundaries, and rollback to the local
+parser or local error mapping.
+
+The canonical sample artifact is
+`test-vectors/core/shared-core-adoption-evidence-schema-v1.json`. Negative
+cases for stale spec refs, missing parity vectors, absent `abi_version`, p95
+regression, unredacted diagnostics, missing rollback, adapter-owned behavior in
+the shared artifact, and claim-boundary widening are tracked by
+`test-vectors/core/shared-core-adoption-evidence-negative-cases-v1.json`.
+
+This evidence is an input to focused adoption issues. `shared-adopted` does not
+mean a required dependency, and it does not widen Product MVP readiness, Matrix
+advertisement, release readiness, or production TypeScript replacement by
+itself.
 
 Stateful vector metadata is allowed under a top-level `given` object when a
 vector depends on prior covered public behavior. The supported MVP shape is:
@@ -578,8 +600,9 @@ The next shared-core sequence is:
 1. Keep `houra-spec` contracts and vectors as the source of truth.
 2. Keep production client and server work on the TypeScript path unless a
    focused adoption issue says otherwise.
-3. Use `houra-labs` to collect parity, packaging, binary-size, startup, and p95
-   benchmark evidence for representative vector batches.
+3. Use `SPEC-114` evidence bundles to collect parity, packaging, binary-size,
+   startup, p95 benchmark, redaction, facade-stability, and rollback evidence
+   for representative vector batches.
 4. Keep Rust/WASM/N-API/Dart FFI artifacts private or unpublished until a
    focused release decision exists.
 5. Adopt a shared artifact from implementation repositories only after the
@@ -771,6 +794,13 @@ domains move. Start with small, observable protocol boundaries that can pass the
 same vectors in `houra-spec`, `houra-labs`, `houra-server`, and `houra-client`
 without turning adapter policy into shared code.
 
+`SPEC-114` defines the evidence bundle shape for these gates. A candidate can
+remain `lab-candidate`, or it can be closed as `adapter-owned`,
+`split-by-language`, or `avoid-shared`; those outcomes are valid when the
+evidence does not justify shared adoption. `shared-adopted` still requires a
+focused implementation issue before any repository treats a shared artifact as
+an active dependency.
+
 | Candidate | Scope | Spec and vectors | Consumer repos | Shared artifact boundary | Adapter-owned boundary | Timing rule | Evidence before adoption |
 |---|---|---|---|---|---|---|---|
 | Matrix versions request/response handling | Parse and validate `GET /_matrix/client/versions` request/response shape and release-advertisement result fields | `SPEC-030`, `SPEC-064`, `test-vectors/core/matrix-client-versions-basic.json`, `test-vectors/core/matrix-version-advertisement-*.json` | `houra-labs` first for evidence; `houra-server` and `houra-client` stay TypeScript unless a later adoption issue is opened | Optional lab parser / validator plus TypeScript WASM or N-API facade and Dart facade only after artifact evidence exists | Fetching the endpoint, cache policy, runtime feature gating, release decision ownership, and all network behavior | Benchmark gate; do not migrate existing implementations only because adjacent code was touched | Vector parity, p95 `+10%` or hidden latency evidence, secret-free diagnostics, artifact manifest, `abi_version`, facade stability notes, rollback to local parser |
@@ -807,7 +837,7 @@ keys, push provider credentials, or unredacted release artifacts.
 | Media filename and download metadata | `SPEC-020`, `SPEC-038`, `SPEC-071`, `SPEC-072` cover MVP media, Matrix media, optional range/thumbnail/resume behavior, and encrypted-media boundaries | #181 closes `Content-Disposition` filename safety for CR/LF, control characters, separators, traversal-like names, and MVP quoting policy; #320 expands `SPEC-071` into optional Product MVP vNext media transfer vectors and UI surface evidence; #321 expands `SPEC-072` into optional encrypted attachment vectors and UI surface evidence | Download metadata must not permit header injection, unsafe path-shaped filenames, signed URL leakage, local path leakage, plaintext media byte evidence, media-key leakage, decrypted thumbnail evidence, or cache filenames that expose user data |
 | Federation and push outbound destinations | `SPEC-055`, `SPEC-060`, and `SPEC-061` define federation bootstrap, push gateway, and federation smoke boundaries | #182 closes SSRF-oriented destination controls for well-known redirects, DNS rebinding, private ranges, and push gateway URLs | Outbound request contracts must fail closed on unsafe internal destinations while preserving legitimate public federation and push gateway paths |
 | Error envelopes, diagnostics, and release evidence | `SPEC-002`, `SPEC-031`, `SPEC-064`, `SPEC-065`, `SPEC-070`, `SPEC-071`, and `SPEC-072` define public error shape, fail-closed advertisement, release evidence fields, optional vNext recovery/media evidence, and redacted boundary evidence | #319 expands `SPEC-070` into optional Product MVP vNext recovery / IdP vectors and UI surface evidence; #321 expands `SPEC-072` into optional encrypted media state/retry/trust-copy evidence; Matrix release evidence implementation refs remain tracked by #200 and must cite redacted artifacts only | Public errors and release evidence must not expose bearer tokens, refresh tokens, reset tokens, email verification tokens, authorization codes, callback query values, private keys, media keys, room keys, recovery keys, pushkeys, vendor tokens, raw secrets, plaintext bytes, or internal state beyond the contract vector |
-| Shared-core security boundary | `Shared boundary and risk rule` and `Initial Shared-Core Adoption Gates` keep shared parser/validator work separate from host-owned transport, storage, token, crypto, retry, and UI policy | Future adoption issues should inherit #198 evidence requirements instead of moving host-owned secrets into shared code | Shared artifacts require vector parity, p95 evidence, redaction review, artifact manifest, `abi_version`, facade stability notes, and rollback before adoption |
+| Shared-core security boundary | `SPEC-114`, `Shared boundary and risk rule`, and `Initial Shared-Core Adoption Gates` keep shared parser/validator work separate from host-owned transport, storage, token, crypto, retry, and UI policy | Future adoption issues should inherit #198 and #323 evidence requirements instead of moving host-owned secrets into shared code | Shared artifacts require vector parity, p95 evidence, redaction review, artifact manifest, `abi_version`, facade stability notes, and rollback before adoption |
 
 Security and privacy review issue handling:
 
