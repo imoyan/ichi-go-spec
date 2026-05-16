@@ -164,8 +164,16 @@ matching Product MVP contract/vector/design input also changed.
 - `contracts/SPEC-083-matrix-room-version-event-decision-artifacts.md`
 - `contracts/SPEC-084-matrix-room-version-federation-cross-domain-validation.md`
 - `contracts/SPEC-085-matrix-client-server-event-retrieval-membership-history.md`
+- `contracts/SPEC-086-matrix-push-payload-minimization-boundary.md`
+- `contracts/SPEC-090-matrix-client-server-relations-threads-reactions.md`
+- `contracts/SPEC-091-matrix-push-notify-payload-gateway-endpoint-boundary.md`
+- `contracts/SPEC-092-matrix-identity-bind-unbind-lifecycle-boundary.md`
 - `contracts/SPEC-093-matrix-sync-breadth-extensions.md`
+- `contracts/SPEC-094-matrix-identity-validation-provider-delivery-boundary.md`
 - `contracts/SPEC-095-matrix-media-repository-breadth.md`
+- `contracts/SPEC-096-matrix-identity-public-key-signature-boundary.md`
+- `contracts/SPEC-097-matrix-federation-version-key-lifecycle-request-auth.md`
+- `contracts/SPEC-098-matrix-push-parser-helper-breadth.md`
 
 ## Shared Design Inputs
 
@@ -1594,9 +1602,16 @@ Use this contract-to-endpoint smoke table:
 | SPEC-083 | Matrix room-version event decision artifacts | `test-vectors/events/matrix-room-version-event-decision-artifacts.json` |
 | SPEC-084 | Matrix room-version federation cross-domain validation | `test-vectors/events/matrix-room-version-federation-cross-domain-validation.json` |
 | SPEC-085 | Matrix Client-Server event retrieval and membership history | `test-vectors/core/matrix-client-server-event-retrieval-membership-history.json` |
+| SPEC-086 | Matrix Push Gateway payload minimization boundary | `test-vectors/core/matrix-push-payload-minimization-boundary.json` |
+| SPEC-090 | Matrix Client-Server relations, threads, and reactions parser descriptors | `test-vectors/core/matrix-client-server-relations-threads-reactions.json` |
+| SPEC-091 | Matrix Push Gateway notify payload and endpoint boundary | `test-vectors/core/matrix-push-notify-payload-gateway-endpoint-boundary.json` |
+| SPEC-092 | Matrix Identity Service bind and unbind lifecycle boundary | `test-vectors/core/matrix-identity-bind-unbind-lifecycle-boundary.json` |
 | SPEC-093 | Matrix sync breadth extension parser descriptors and response sections | `test-vectors/sync/matrix-sync-breadth-extensions.json` |
+| SPEC-094 | Matrix Identity Service validation provider delivery boundary | `test-vectors/core/matrix-identity-validation-provider-delivery-boundary.json` |
 | SPEC-095 | Matrix media repository breadth parser descriptors, metadata, filenames, and `mxc://` validation | `test-vectors/media/matrix-media-repository-breadth.json` |
+| SPEC-096 | Matrix Identity Service public key and signature boundary | `test-vectors/core/matrix-identity-public-key-signature-boundary.json` |
 | SPEC-097 | Matrix federation version, key lifecycle, and request-auth parser descriptors | `test-vectors/core/matrix-federation-version-key-lifecycle-request-auth.json` |
+| SPEC-098 | Matrix Push Gateway parser-helper breadth for pusher, push-rule, and redaction descriptors | `test-vectors/core/matrix-push-parser-helper-breadth.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this

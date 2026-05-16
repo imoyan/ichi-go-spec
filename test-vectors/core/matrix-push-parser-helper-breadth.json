@@ -1,0 +1,216 @@
+{
+  "name": "matrix-push-parser-helper-breadth",
+  "contract": "SPEC-098",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/client-server-api/#push-notifications",
+      "https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3pushers",
+      "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3pushersset",
+      "https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3pushrules",
+      "https://spec.matrix.org/v1.18/client-server-api/#put_matrixclientv3pushrulesglobalkindruleid"
+    ],
+    "checked_at": "2026-05-16T13:15:00+09:00",
+    "parent_contract": "SPEC-060",
+    "gap_inventory_contract": "SPEC-077",
+    "lane_ids": [
+      "pusher-configuration-outbound-destination-safety-breadth",
+      "push-rule-evaluation-sync-visibility-breadth",
+      "security-observability-redaction-breadth"
+    ],
+    "resource_bounds": {
+      "max_canonical_case_bytes": 28672,
+      "max_case_count": 10,
+      "max_pusher_descriptor_count": 4,
+      "max_push_rule_descriptor_count": 6,
+      "max_action_count_per_rule": 8,
+      "max_condition_count_per_rule": 8,
+      "url_parser_only": true,
+      "dns_lookup": false,
+      "redirect_follow": false,
+      "network_lookup": false,
+      "provider_request_generation": false,
+      "raw_pushkey_evidence": false,
+      "raw_vendor_token_evidence": false,
+      "raw_gateway_credential_evidence": false,
+      "raw_message_content_evidence": false,
+      "raw_local_path_evidence": false,
+      "versions_advertisement_widened": false
+    },
+    "cases": [
+      {
+        "id": "http-pusher-normalized",
+        "kind": "pusher_descriptor",
+        "input_surface": "POST /_matrix/client/v3/pushers/set",
+        "status": 200,
+        "normalized_fields": [
+          "kind",
+          "app_id",
+          "app_display_name",
+          "device_display_name",
+          "lang",
+          "profile_tag",
+          "data.format",
+          "data.url.scheme",
+          "data.url.host_class",
+          "data.url.path",
+          "replacement_policy"
+        ],
+        "redacted_fields": [
+          "pushkey"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "pusher-url-userinfo-fragment-rejected",
+        "kind": "malformed_descriptor",
+        "input_surface": "POST /_matrix/client/v3/pushers/set",
+        "status": 400,
+        "errcode": "M_INVALID_PARAM",
+        "normalized_fields": [
+          "data.url.scheme",
+          "data.url.userinfo_present",
+          "data.url.fragment_present"
+        ],
+        "redacted_fields": [
+          "pushkey",
+          "gateway_url"
+        ],
+        "result": "rejected"
+      },
+      {
+        "id": "pusher-url-path-rejected",
+        "kind": "malformed_descriptor",
+        "input_surface": "POST /_matrix/client/v3/pushers/set",
+        "status": 400,
+        "errcode": "M_INVALID_PARAM",
+        "normalized_fields": [
+          "data.url.scheme",
+          "data.url.path"
+        ],
+        "redacted_fields": [
+          "pushkey",
+          "gateway_url"
+        ],
+        "result": "rejected"
+      },
+      {
+        "id": "content-push-rule-normalized",
+        "kind": "push_rule_descriptor",
+        "input_surface": "PUT /_matrix/client/v3/pushrules/global/content/cake-rule",
+        "status": 200,
+        "normalized_fields": [
+          "kind",
+          "rule_id",
+          "enabled",
+          "conditions",
+          "actions",
+          "tweaks"
+        ],
+        "redacted_fields": [],
+        "result": "accepted"
+      },
+      {
+        "id": "user-rule-id-starts-with-dot-rejected",
+        "kind": "malformed_descriptor",
+        "input_surface": "PUT /_matrix/client/v3/pushrules/global/content/.reserved",
+        "status": 400,
+        "errcode": "M_INVALID_PARAM",
+        "normalized_fields": [
+          "kind",
+          "rule_id"
+        ],
+        "redacted_fields": [],
+        "result": "rejected"
+      },
+      {
+        "id": "rule-action-shape-rejected",
+        "kind": "malformed_descriptor",
+        "input_surface": "PUT /_matrix/client/v3/pushrules/global/override/noisy",
+        "status": 400,
+        "errcode": "M_BAD_JSON",
+        "normalized_fields": [
+          "kind",
+          "rule_id",
+          "actions"
+        ],
+        "redacted_fields": [
+          "message_content"
+        ],
+        "result": "rejected"
+      },
+      {
+        "id": "sync-push-rules-visible",
+        "kind": "sync_visibility_descriptor",
+        "input_surface": "m.push_rules account data in /sync",
+        "status": 200,
+        "normalized_fields": [
+          "account_data.type",
+          "global.override",
+          "global.content",
+          "global.room",
+          "global.sender",
+          "global.underride",
+          "unread_notifications"
+        ],
+        "redacted_fields": [
+          "message_content"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "push-evidence-redaction-helper",
+        "kind": "redaction_helper",
+        "input_surface": "audit metrics diagnostics release evidence",
+        "status": 200,
+        "normalized_fields": [
+          "redaction_categories",
+          "redacted_count",
+          "synthetic_replacement_tokens",
+          "non_reversible"
+        ],
+        "redacted_fields": [
+          "pushkey",
+          "gateway_url",
+          "vendor_token",
+          "gateway_credentials",
+          "message_content",
+          "local_path",
+          "provider_response"
+        ],
+        "result": "accepted"
+      }
+    ],
+    "release_evidence_rules": {
+      "artifact_is_representative_only": true,
+      "parser_only_helpers": true,
+      "push_gateway_full_breadth_claimed": false,
+      "production_provider_claimed": false,
+      "client_notification_ui_claimed": false,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "case_count": 8,
+    "accepted_case_count": 4,
+    "rejected_case_count": 4,
+    "max_case_count": 10,
+    "http_pusher_descriptor_normalized": true,
+    "pusher_userinfo_fragment_rejected": true,
+    "pusher_bad_path_rejected": true,
+    "push_rule_descriptor_normalized": true,
+    "reserved_rule_id_rejected": true,
+    "bad_rule_action_rejected": true,
+    "sync_push_rules_visible": true,
+    "redaction_helper_defined": true,
+    "raw_pushkeys_stored": false,
+    "raw_vendor_tokens_stored": false,
+    "raw_gateway_credentials_stored": false,
+    "raw_message_content_stored": false,
+    "raw_local_paths_stored": false,
+    "push_gateway_full_breadth_claimed": false,
+    "production_provider_claimed": false,
+    "client_notification_ui_claimed": false,
+    "versions_advertisement_widened": false
+  }
+}
