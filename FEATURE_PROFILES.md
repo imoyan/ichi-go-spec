@@ -23,7 +23,8 @@ sync
   room list, timeline, incremental sync subset
 
 media
-  media metadata, upload, download subset
+  media metadata, upload, download subset, optional Product MVP vNext media
+  transfer capability lanes
 
 full-client
   all MVP client features

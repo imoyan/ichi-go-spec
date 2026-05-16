@@ -1,0 +1,19 @@
+{
+  "name": "product-mvp-range-download-unsatisfied",
+  "contract": "SPEC-071",
+  "request": {
+    "method": "GET",
+    "path": "/_houra/client/media/media1/content",
+    "headers": {
+      "range": "bytes=99-100",
+      "if-range": "\"media1-v1\""
+    }
+  },
+  "expected": {
+    "status": 416,
+    "body_contains": {
+      "code": "HOURA_BAD_REQUEST",
+      "message": "Requested range is not satisfiable."
+    }
+  }
+}

@@ -139,9 +139,26 @@
           "label_key": "field.text-payload",
           "input": "text",
           "required": true
+        },
+        {
+          "id": "media.thumbnail-size",
+          "label_key": "field.thumbnail-size",
+          "input": "text",
+          "required": false
+        },
+        {
+          "id": "media.byte-range",
+          "label_key": "field.byte-range",
+          "input": "text",
+          "required": false
         }
       ],
-      "actions": ["media.upload-and-download"]
+      "actions": [
+        "media.upload-and-download",
+        "media.request-thumbnail",
+        "media.range-download",
+        "media.resume-download"
+      ]
     },
     {
       "id": "settings",
@@ -291,6 +308,36 @@
       "error_expectation": "Media errors are visible and input fields remain editable."
     },
     {
+      "id": "media.request-thumbnail",
+      "label_key": "action.request-thumbnail",
+      "requires_auth": true,
+      "api_contracts": ["SPEC-071"],
+      "busy_state": "pending.media-transfer",
+      "disabled_when": ["pending.any", "unsupported.media-transfer"],
+      "success_expectation": "Thumbnail metadata and preview summary are visible without exposing storage paths or raw bytes.",
+      "error_expectation": "Thumbnail errors are visible and media metadata remains available."
+    },
+    {
+      "id": "media.range-download",
+      "label_key": "action.range-download",
+      "requires_auth": true,
+      "api_contracts": ["SPEC-071"],
+      "busy_state": "pending.media-transfer",
+      "disabled_when": ["pending.any", "unsupported.media-transfer"],
+      "success_expectation": "Partial content progress is visible and tied to the advertised validator.",
+      "error_expectation": "Range errors are visible without deleting host-owned partial download state."
+    },
+    {
+      "id": "media.resume-download",
+      "label_key": "action.resume-download",
+      "requires_auth": true,
+      "api_contracts": ["SPEC-071"],
+      "busy_state": "pending.media-transfer",
+      "disabled_when": ["pending.any", "unsupported.media-transfer"],
+      "success_expectation": "A resumable download continues only when the advertised validator still matches host-owned resume state.",
+      "error_expectation": "Stale resume state is visible and restart remains available without exposing local paths."
+    },
+    {
       "id": "session.refresh",
       "label_key": "action.refresh",
       "requires_auth": true,
@@ -363,6 +410,11 @@
       "description": "A media roundtrip request is in flight."
     },
     {
+      "id": "pending.media-transfer",
+      "kind": "async",
+      "description": "A thumbnail, ranged download, or resumable download request is in flight."
+    },
+    {
       "id": "pending.refresh",
       "kind": "async",
       "description": "A refresh request is in flight."
@@ -393,6 +445,26 @@
       "description": "Latest media metadata and content download summary are available."
     },
     {
+      "id": "data.thumbnail-result",
+      "kind": "data",
+      "description": "Latest thumbnail descriptor and preview summary are available without raw bytes."
+    },
+    {
+      "id": "data.download-progress",
+      "kind": "data",
+      "description": "Visible download progress is derived from public content length and range metadata."
+    },
+    {
+      "id": "data.resume-state",
+      "kind": "data",
+      "description": "Host-owned resumable download state is available without local path values."
+    },
+    {
+      "id": "unsupported.media-transfer",
+      "kind": "data",
+      "description": "The selected media object has not advertised SPEC-071 transfer capabilities."
+    },
+    {
       "id": "data.recovery-state",
       "kind": "data",
       "description": "Redacted account recovery state is available without token values."
@@ -421,7 +493,10 @@
     "action.login": "Login",
     "action.logout": "Logout",
     "action.open-room": "Open room",
+    "action.range-download": "Download range",
     "action.refresh": "Refresh",
+    "action.request-thumbnail": "Load thumbnail",
+    "action.resume-download": "Resume download",
     "action.request-email-verification": "Send verification email",
     "action.request-password-reset": "Send password reset",
     "action.send-message": "Send",
@@ -442,6 +517,8 @@
     "field.room-name": "Room name",
     "field.server": "Server",
     "field.text-payload": "Text payload",
+    "field.thumbnail-size": "Thumbnail size",
+    "field.byte-range": "Byte range",
     "field.user": "User",
     "section.media": "Media",
     "section.rooms": "Rooms",
@@ -496,6 +573,35 @@
           "screen": "auth",
           "action": "auth.login",
           "expectation": "The same localpart and password resume an authenticated session."
+        }
+      ]
+    },
+    {
+      "id": "product-mvp-media-transfer-vnext",
+      "description": "Optional Product MVP vNext UI flow for SPEC-071 thumbnails, ranged download, and resumable download; not part of the current Product MVP happy path until evidence includes it.",
+      "steps": [
+        {
+          "id": "media-transfer-capability",
+          "screen": "media",
+          "expectation": "Thumbnail, range, and resume actions are visible only when media metadata advertises SPEC-071 transfer capabilities."
+        },
+        {
+          "id": "thumbnail",
+          "screen": "media",
+          "action": "media.request-thumbnail",
+          "expectation": "Thumbnail preview summary is visible without recording raw bytes or local cache paths."
+        },
+        {
+          "id": "range-download",
+          "screen": "media",
+          "action": "media.range-download",
+          "expectation": "Partial content progress is visible and associated with the advertised validator."
+        },
+        {
+          "id": "resume-download",
+          "screen": "media",
+          "action": "media.resume-download",
+          "expectation": "Resume continues only with a matching validator; stale state is surfaced as recoverable."
         }
       ]
     },
@@ -561,11 +667,13 @@
       "confirm recoverable error visibility for every action error_expectation",
       "run or manually record product-mvp-happy-path acceptance flow coverage",
       "if SPEC-070 is included, record product-mvp-account-recovery-vnext coverage and advertised capability evidence",
+      "if SPEC-071 is included, record product-mvp-media-transfer-vnext coverage and advertised metadata capability evidence",
       "record accessibility pass or explicit blocker for form labels, buttons, status, and focus order"
     ],
     "redaction_policy": [
       "do not record raw bearer tokens or refresh tokens",
       "do not record reset tokens, email verification tokens, authorization codes, callback URL query values, or IdP session identifiers",
+      "do not record signed or credentialed URLs, local filesystem paths, plaintext media bytes, media keys, or cache filenames exposing user data",
       "do not record database URLs or private local paths",
       "do not record machine-specific environment values",
       "record redacted server base URL shape only when needed"
@@ -575,13 +683,15 @@
       "UI-free core evidence does not satisfy manual UI acceptance by itself",
       "Docker Compose deploy smoke is separate from UI surface adoption evidence",
       "SPEC-070 account recovery and IdP login actions are optional vNext coverage and require advertised capability evidence",
+      "SPEC-071 thumbnail, range, and resumable download actions are optional vNext coverage and require advertised metadata capability evidence",
       "Matrix full compliance is not claimed by this surface"
     ]
   },
   "limitations": [
     "This surface does not define marketing pages or onboarding copy outside the Product MVP operation flow.",
     "This surface does not define framework-specific navigation, component hierarchy, animations, or persistence APIs.",
-    "Federation, encrypted media, range/resumable media download, thumbnails, and Matrix full-spec coverage are outside this Product MVP surface.",
+    "Federation, encrypted media, and Matrix full-spec coverage are outside this Product MVP surface.",
+    "SPEC-071 thumbnails, range requests, and resumable download are optional Product MVP vNext actions and are outside the current Product MVP happy path until a release candidate includes matching adoption evidence.",
     "SPEC-070 account recovery and IdP login are optional Product MVP vNext actions and are outside the current Product MVP happy path until a release candidate includes matching adoption evidence."
   ]
 }

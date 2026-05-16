@@ -10,10 +10,10 @@ Define the Product MVP next-step boundary for media thumbnails, range requests,
 and resumable download before any Houra client or server implementation adds
 those flows.
 
-This contract records a fail-closed defer decision. It intentionally does not
-add thumbnail endpoints, partial-content responses, resume tokens, cache
-metadata, filesystem behavior, preview UI, or encrypted attachment behavior by
-itself.
+This contract keeps the current Product MVP release candidate fail-closed, but
+it also defines optional Product MVP vNext lanes that implementations may adopt
+after the matching vectors, UI surface evidence, and implementation adoption
+gates pass.
 
 ## Scope
 
@@ -42,31 +42,157 @@ from thumbnail generation or transfer resume.
 - Checked at: 2026-05-13T18:25:00+09:00
 - Timezone: Asia/Tokyo
 
-## Current decision
+## Current release decision
 
-The Product MVP media scope is not widened by this contract.
+The current Product MVP media baseline is not widened by this contract.
+Metadata upload, metadata read, and same-origin binary download from `SPEC-020`
+remain the only required Houra Product MVP media behavior.
 
 Servers must not advertise or expose Product MVP thumbnail, range request, or
-resumable download behavior as supported unless a later contract defines the
-request/response shape, headers, failure behavior, UI surface, security
-evidence, and implementation adoption gates.
+resumable download behavior as supported unless the matching optional lane
+below is implemented and adoption evidence names the `houra-spec`,
+implementation, UI surface, and verification refs.
 
 Clients must fail closed:
 
 - do not render thumbnail preview, download progress, or resume controls as
-  Product MVP actions;
-- do not add SDK methods for thumbnail request, ranged media request,
-  resumable download state, cache metadata, or preview policy until a later
-  contract defines them;
+  Product MVP actions unless media metadata advertises the matching lane;
+- do not call thumbnail, ranged media, or resumable download behavior unless
+  media metadata advertises the matching lane;
 - do not infer support from `Accept-Ranges`, `Content-Range`, `ETag`, CDN
   behavior, a server-specific endpoint, or a lab prototype;
 - keep the existing media upload/metadata/download flows from `SPEC-020` and
   `SPEC-038` unchanged.
 
+## Media transfer capability metadata
+
+Product MVP vNext media transfer support is discovered through the existing
+Houra metadata response from `SPEC-020`. A server that supports vNext lanes may
+add a `transfer` object:
+
+```json
+{
+  "media_id": "media1",
+  "filename": "avatar.png",
+  "content_type": "image/png",
+  "download_url": "https://example.test/_houra/client/media/media1/content",
+  "download_requires_auth": false,
+  "download_expires_at": "2030-01-01T00:00:00Z",
+  "transfer": {
+    "thumbnail": {
+      "supported": true,
+      "url": "https://example.test/_houra/client/media/media1/thumbnail",
+      "methods": ["crop", "scale"],
+      "max_width": 1024,
+      "max_height": 1024
+    },
+    "byte_ranges": {
+      "supported": true,
+      "unit": "bytes",
+      "etag": "\"media1-v1\"",
+      "content_length": 5
+    },
+    "resumable_download": {
+      "supported": true,
+      "validator": "etag",
+      "max_resume_window_ms": 3600000
+    }
+  }
+}
+```
+
+If a lane is missing or has `supported: false`, clients must hide or disable the
+matching Product MVP action and must not probe server-specific endpoints. The
+`transfer` object describes public behavior only; it must not reveal object
+storage keys, cache filenames, local paths, CDN credentials, signed URLs, or
+encrypted attachment keys.
+
+## Thumbnail lane
+
+Thumbnail requests are authenticated exactly like the media content descriptor
+requires. If the latest metadata has `download_requires_auth: true`, clients
+must send `Authorization: Bearer`. If it is `false`, clients must not send
+bearer-token authorization.
+
+```text
+GET /_houra/client/media/{media_id}/thumbnail?width=64&height=64&method=scale
+```
+
+`width` and `height` must be positive integers no greater than the advertised
+maximums. `method` is either `crop` or `scale`. Servers should return the
+thumbnail bytes with `Content-Type` matching the generated thumbnail payload.
+
+```text
+HTTP/1.1 200 OK
+Content-Type: image/png
+Content-Length: 5
+Cache-Control: private, max-age=3600
+ETag: "media1-thumb-64"
+```
+
+The response body is raw thumbnail bytes. This contract does not require image
+format conversion, preview crawling, animated preview behavior, or remote media
+fetching.
+
+## Range request lane
+
+Range requests reuse the `download_url` from `SPEC-020`. Clients may send one
+single-byte range after metadata advertises `byte_ranges.supported: true`.
+Multi-range requests are out of scope.
+
+```text
+GET /_houra/client/media/{media_id}/content
+Range: bytes=0-2
+If-Range: "media1-v1"
+```
+
+Successful partial content returns `206`:
+
+```text
+HTTP/1.1 206 Partial Content
+Content-Type: image/png
+Content-Length: 3
+Content-Range: bytes 0-2/5
+Accept-Ranges: bytes
+ETag: "media1-v1"
+```
+
+The response body is the requested raw byte range. If the range is syntactically
+invalid or unsatisfied, servers should return `416` with `HOURA_BAD_REQUEST`
+and must not return partial bytes.
+
+## Resumable download lane
+
+Resumable download is a host-owned retry flow built from metadata refresh,
+`ETag` or equivalent validator checks, and single-range requests. SDK core may
+own request descriptors and response parsers; hosts own storage, partial-file
+tracking, retry scheduling, cancellation, and cleanup.
+
+A client may resume only when:
+
+- latest metadata still advertises `resumable_download.supported: true`;
+- the stored validator matches the latest `byte_ranges.etag`;
+- the host has a known downloaded byte count; and
+- the next request is a single range beginning at the known byte count.
+
+If the validator is stale, metadata is missing, or the partial content response
+does not match the requested range and total size, clients must discard the
+partial resume state and restart a normal download after user-visible recovery.
+
+## Progress and UI expectations
+
+Download progress is derived from public `Content-Length`, `Content-Range`, and
+metadata `transfer.byte_ranges.content_length` values. UI evidence must show
+duplicate-submit prevention, visible progress or retry state, recoverable error
+visibility, and redaction of local paths, signed URLs, tokens, and media bytes.
+
+Progress UI must not turn a cache policy, filesystem path, or background
+download behavior into a Product MVP contract.
+
 ## Boundary split
 
-Future work must be split into issue-sized gates. A later spec may adopt one or
-more of these lanes:
+Further work must stay split into issue-sized gates. Later specs may refine one
+or more of these lanes:
 
 1. Thumbnail request/response parsing and preview descriptor shape.
 2. HTTP range request and partial-content response behavior.
@@ -101,9 +227,9 @@ Host-owned responsibilities remain outside SDK core:
 - secure deletion;
 - user-facing progress, cancellation, and retry copy.
 
-## Error behavior to define later
+## Error behavior
 
-A later contract must define public behavior for:
+Implementations that adopt the optional lanes must use these public failures:
 
 - missing media metadata;
 - missing binary content;
@@ -114,8 +240,16 @@ A later contract must define public behavior for:
 - interruption and resume failure;
 - authentication failure for protected media.
 
-Until that contract exists, implementations must not turn those cases into
-Product MVP support claims.
+Missing metadata and missing binary content remain `404` with
+`HOURA_NOT_FOUND`. Missing or rejected bearer tokens for protected media remain
+`401` with `HOURA_UNAUTHORIZED`. Malformed thumbnail parameters, unsupported
+range units, multi-range requests, unsatisfied ranges, stale validators, and
+partial content metadata mismatches should fail with `HOURA_BAD_REQUEST` and a
+status appropriate to the request phase, such as `400` or `416`.
+
+Clients must preserve recoverable error visibility without deleting the host's
+saved media file, partial download state, or retry controls unless the host
+explicitly chooses that cleanup policy.
 
 ## Security and evidence
 
@@ -139,7 +273,9 @@ values, local paths, or media payload content.
   descriptors, and same-origin binary download.
 - `SPEC-038` remains the contract for Matrix media MVP upload and authenticated
   download.
-- The Product MVP UI surface remains unchanged by this contract.
+- Product MVP vNext media transfer UI actions are optional and must remain
+  hidden unless matching metadata capabilities are advertised and adoption
+  evidence is recorded.
 - This contract does not define encrypted attachment metadata.
 - This contract does not widen `GET /_matrix/client/versions` advertisement.
 - This contract does not claim Matrix media repository completeness, encrypted
