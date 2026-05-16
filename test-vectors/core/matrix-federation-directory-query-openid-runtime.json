@@ -1,0 +1,284 @@
+{
+  "name": "matrix-federation-directory-query-openid-runtime",
+  "contract": "SPEC-108",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/server-server-api/#get_matrixfederationv1publicrooms",
+      "https://spec.matrix.org/v1.18/server-server-api/#post_matrixfederationv1publicrooms",
+      "https://spec.matrix.org/v1.18/server-server-api/#get_matrixfederationv1hierarchyroomid",
+      "https://spec.matrix.org/v1.18/server-server-api/#querying-for-information",
+      "https://spec.matrix.org/v1.18/server-server-api/#openid"
+    ],
+    "checked_at": "2026-05-16T16:45:00+09:00",
+    "parser_helper_contract": "SPEC-100",
+    "gap_inventory_contract": "SPEC-074",
+    "lane_id": "directory-spaces-query-openid-profile-breadth",
+    "requests": [
+      {
+        "id": "public-rooms-get",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/publicRooms",
+        "query": {
+          "limit": "1"
+        },
+        "authorization": {
+          "scheme": "X-Matrix",
+          "origin": "remote.example.test",
+          "destination": "example.test",
+          "key": "ed25519:auto1",
+          "sig": "base64-request-signature"
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "chunk": [
+              {
+                "room_id": "!room:example.test",
+                "name": "Houra Public",
+                "topic": "Federation runtime directory",
+                "canonical_alias": "#houra:example.test",
+                "num_joined_members": 12,
+                "world_readable": true,
+                "guest_can_join": false,
+                "join_rule": "public",
+                "room_type": "m.space"
+              }
+            ],
+            "next_batch": "token-b",
+            "prev_batch": "token-a",
+            "total_room_count_estimate": 1
+          }
+        }
+      },
+      {
+        "id": "public-rooms-post",
+        "method": "POST",
+        "path": "/_matrix/federation/v1/publicRooms",
+        "authorization": {
+          "scheme": "X-Matrix",
+          "origin": "remote.example.test",
+          "destination": "example.test",
+          "key": "ed25519:auto1",
+          "sig": "base64-request-signature"
+        },
+        "body": {
+          "limit": 1,
+          "filter": {
+            "generic_search_term": "houra"
+          },
+          "include_all_networks": false,
+          "third_party_instance_id": "irc"
+        },
+        "response": {
+          "status": 200,
+          "body_ref": "public-rooms-get"
+        }
+      },
+      {
+        "id": "hierarchy",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/hierarchy/!space:example.test",
+        "query": {
+          "suggested_only": "true"
+        },
+        "authorization": {
+          "scheme": "X-Matrix",
+          "origin": "remote.example.test",
+          "destination": "example.test",
+          "key": "ed25519:auto1",
+          "sig": "base64-request-signature"
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "rooms": [
+              {
+                "room_id": "!space:example.test",
+                "name": "Houra Space",
+                "num_joined_members": 4,
+                "world_readable": true,
+                "guest_can_join": false,
+                "children_state": [
+                  {
+                    "type": "m.space.child",
+                    "state_key": "!room:example.test",
+                    "content": {
+                      "via": [
+                        "example.test"
+                      ],
+                      "suggested": true
+                    }
+                  }
+                ]
+              }
+            ],
+            "inaccessible_children": [
+              "!hidden:example.test"
+            ],
+            "next_batch": "hierarchy-next"
+          }
+        }
+      },
+      {
+        "id": "query-directory",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/query/directory",
+        "query": {
+          "room_alias": "#houra:example.test"
+        },
+        "authorization": {
+          "scheme": "X-Matrix",
+          "origin": "remote.example.test",
+          "destination": "example.test",
+          "key": "ed25519:auto1",
+          "sig": "base64-request-signature"
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "room_id": "!room:example.test",
+            "servers": [
+              "example.test",
+              "remote.example.test"
+            ]
+          }
+        }
+      },
+      {
+        "id": "query-profile",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/query/profile",
+        "query": {
+          "user_id": "@alice:example.test"
+        },
+        "authorization": {
+          "scheme": "X-Matrix",
+          "origin": "remote.example.test",
+          "destination": "example.test",
+          "key": "ed25519:auto1",
+          "sig": "base64-request-signature"
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "displayname": "Alice",
+            "avatar_url": "mxc://example.test/avatar"
+          }
+        }
+      },
+      {
+        "id": "openid-userinfo",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/openid/userinfo",
+        "query": {
+          "access_token": "redacted-token"
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "sub": "@alice:example.test"
+          }
+        }
+      }
+    ],
+    "negative_cases": [
+      {
+        "id": "public-rooms-negative-limit",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/publicRooms",
+        "query": {
+          "limit": "-1"
+        },
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      },
+      {
+        "id": "hierarchy-invalid-room-id",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/hierarchy/not-a-room",
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      },
+      {
+        "id": "directory-missing-alias",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/query/directory",
+        "expected_status": 400,
+        "expected_error": "M_MISSING_PARAM"
+      },
+      {
+        "id": "directory-unknown-alias",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/query/directory",
+        "query": {
+          "room_alias": "#missing:example.test"
+        },
+        "expected_status": 404,
+        "expected_error": "M_NOT_FOUND"
+      },
+      {
+        "id": "profile-unknown-user",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/query/profile",
+        "query": {
+          "user_id": "@missing:example.test"
+        },
+        "expected_status": 404,
+        "expected_error": "M_NOT_FOUND"
+      },
+      {
+        "id": "unsupported-query-type",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/query/unsupported",
+        "expected_status": 404,
+        "expected_error": "M_UNRECOGNIZED"
+      },
+      {
+        "id": "openid-missing-token",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/openid/userinfo",
+        "expected_status": 401,
+        "expected_error": "M_UNAUTHORIZED"
+      }
+    ],
+    "resource_bounds": {
+      "max_public_room_summary_count": 50,
+      "max_hierarchy_room_summary_count": 50,
+      "max_children_state_event_count_per_room": 20,
+      "max_inaccessible_child_count": 50,
+      "max_server_list_count_per_directory_query": 20,
+      "remote_network_fetch": false,
+      "visibility_decision_complete": false,
+      "profile_privacy_policy_complete": false,
+      "openid_token_verification_trust": false,
+      "cache_persistence": false,
+      "versions_advertisement_widened": false
+    },
+    "release_evidence_rules": {
+      "representative_runtime": true,
+      "remote_directory_runtime_claimed": false,
+      "profile_privacy_policy_claimed": false,
+      "openid_trust_claimed": false,
+      "advertisement_allowed": false
+    }
+  },
+  "expected": {
+    "request_count": 6,
+    "public_room_count": 1,
+    "hierarchy_room_count": 1,
+    "children_state_count": 1,
+    "directory_server_count": 2,
+    "openid_subject": "@alice:example.test",
+    "remote_network_fetch": false,
+    "visibility_decision_complete": false,
+    "profile_privacy_policy_complete": false,
+    "openid_token_verification_trust": false,
+    "cache_persistence": false,
+    "remote_directory_runtime_claimed": false,
+    "profile_privacy_policy_claimed": false,
+    "openid_trust_claimed": false,
+    "versions_advertisement_widened": false,
+    "advertisement_allowed": false
+  }
+}
