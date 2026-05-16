@@ -174,6 +174,12 @@ matching Product MVP contract/vector/design input also changed.
 - `contracts/SPEC-096-matrix-identity-public-key-signature-boundary.md`
 - `contracts/SPEC-097-matrix-federation-version-key-lifecycle-request-auth.md`
 - `contracts/SPEC-098-matrix-push-parser-helper-breadth.md`
+- `contracts/SPEC-099-matrix-federation-pdu-edu-parser-helpers.md`
+- `contracts/SPEC-100-matrix-federation-directory-query-openid-parser-helpers.md`
+- `contracts/SPEC-101-matrix-room-version-auth-rule-fixture-runner.md`
+- `contracts/SPEC-102-matrix-e2ee-parser-artifact-breadth.md`
+- `contracts/SPEC-103-matrix-room-version-event-format-hash-signature.md`
+- `contracts/SPEC-104-matrix-room-version-state-resolution-fixture-runner.md`
 
 ## Shared Design Inputs
 
@@ -1614,6 +1620,10 @@ Use this contract-to-endpoint smoke table:
 | SPEC-098 | Matrix Push Gateway parser-helper breadth for pusher, push-rule, and redaction descriptors | `test-vectors/core/matrix-push-parser-helper-breadth.json` |
 | SPEC-099 | Matrix federation transaction, PDU, EDU, canonical JSON input, and per-PDU response parser descriptors | `test-vectors/events/matrix-federation-pdu-edu-parser-helpers.json` |
 | SPEC-100 | Matrix federation public rooms, hierarchy, directory/profile/generic query, and OpenID userinfo parser descriptors | `test-vectors/core/matrix-federation-directory-query-openid-parser-helpers.json` |
+| SPEC-101 | Matrix room-version auth-rule fixture runner descriptors | `test-vectors/events/matrix-room-version-auth-rule-fixture-runner.json` |
+| SPEC-102 | Matrix E2EE parser-only artifact breadth descriptors | `test-vectors/messaging/matrix-e2ee-parser-artifact-breadth.json` |
+| SPEC-103 | Matrix room-version event format, canonical JSON, hash, and signature helper descriptors | `test-vectors/events/matrix-room-version-event-format-hash-signature.json` |
+| SPEC-104 | Matrix room-version state-resolution fixture runner descriptors | `test-vectors/events/matrix-room-version-state-resolution-fixture-runner.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this

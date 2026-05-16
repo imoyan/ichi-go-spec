@@ -1,0 +1,92 @@
+{
+  "name": "matrix-room-version-auth-rule-fixture-runner",
+  "contract": "SPEC-101",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_room_version": "12",
+    "parent_contract": "SPEC-078",
+    "checked_at": "2026-05-16T15:55:00+09:00",
+    "runner": "room-version-auth-rule-fixture-runner",
+    "resource_bounds": {
+      "max_cases": 32,
+      "max_auth_events_per_case": 10,
+      "max_state_events_per_case": 64,
+      "network_lookup_allowed": false,
+      "storage_mutation_allowed": false,
+      "versions_advertisement_widened": false
+    },
+    "cases": [
+      {
+        "id": "create-event-allowed",
+        "category": "m.room.create",
+        "input_summary": {
+          "type": "m.room.create",
+          "sender": "@creator:example.test",
+          "state_key_present": true,
+          "auth_event_count": 0
+        },
+        "expected_decision": {
+          "allowed": true,
+          "reason": "room_creator_initial_create"
+        }
+      },
+      {
+        "id": "duplicate-auth-event-rejected",
+        "category": "auth_event_selection",
+        "input_summary": {
+          "type": "m.room.member",
+          "sender": "@alice:example.test",
+          "state_key_present": true,
+          "auth_event_count": 2
+        },
+        "expected_decision": {
+          "allowed": false,
+          "reason": "duplicate_auth_event"
+        }
+      },
+      {
+        "id": "restricted-join-allowed",
+        "category": "restricted_join",
+        "input_summary": {
+          "type": "m.room.member",
+          "sender": "@bob:example.test",
+          "membership": "join",
+          "state_key_present": true,
+          "auth_event_count": 4
+        },
+        "expected_decision": {
+          "allowed": true,
+          "reason": "allowed_by_restricted_join_rule"
+        }
+      },
+      {
+        "id": "server-signature-boundary",
+        "category": "server_signature",
+        "input_summary": {
+          "type": "m.room.message",
+          "sender": "@remote:remote.example",
+          "state_key_present": false,
+          "auth_event_count": 3
+        },
+        "expected_decision": {
+          "allowed": false,
+          "reason": "server_signature_validation_out_of_scope"
+        }
+      }
+    ],
+    "ownership": {
+      "production_authorization_storage": "server-owned",
+      "network_behavior": "server-owned",
+      "federation_fetch": "server-owned",
+      "versions_advertisement": "not_widened"
+    }
+  },
+  "expected": {
+    "case_count": 4,
+    "positive_case_count": 2,
+    "negative_case_count": 2,
+    "max_cases": 32,
+    "versions_advertisement_widened": false,
+    "full_room_version_algorithm_claimed": false
+  }
+}
