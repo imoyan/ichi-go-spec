@@ -890,7 +890,7 @@ Canonical release evidence example bundle:
 
 Matrix v1.18 roadmap close-out snapshot:
 
-- Snapshot checked at: 2026-05-16T20:57:44+09:00.
+- Snapshot checked at: 2026-05-16T21:30:04+09:00.
 - #95 remains the parent Matrix v1.18 roadmap. #189 is the historical close-out
   snapshot lane; current issue sync is maintained here and in #95 so domain
   issues, implementation adoption refs, and release evidence do not drift.
@@ -902,13 +902,13 @@ Matrix v1.18 roadmap close-out snapshot:
   imoyan/houra-server#106 through imoyan/houra-server#108. imoyan/houra-server#145
   records the current-candidate release-scope exclusion decisions that closed
   imoyan/houra-server#133 as an active Complement/full-breadth blocker.
-- Current open `houra-server` Matrix implementation gap trackers are 33 issues:
+- Current open `houra-server` Matrix implementation gap trackers are 31 issues:
   in `imoyan/houra-server`, Client-Server #135, #153, #195, and #197; Room
   Versions #140 and #168 through #170; E2EE #141, #173, #174, and #252 through
-  #255; Server-Server #136, #158 through #160, and #232 through #234;
+  #255; Server-Server #136, #158 through #160, and #234;
   Application Service #137, #162, #163, and #235 through #240; and Identity
-  Service #138 and #164. Push Gateway #139 and Appendices/common #142 are
-  closed at this snapshot.
+  Service #138 and #164. Server-Server #232 and #233, Push Gateway #139, and
+  Appendices/common #142 are closed at this snapshot.
 - `houra-client` adoption refs named by #189 are closed:
   imoyan/houra-client#55 through imoyan/houra-client#66 and
   imoyan/houra-client#95 through imoyan/houra-client#97. No open
