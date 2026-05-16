@@ -165,6 +165,7 @@ matching Product MVP contract/vector/design input also changed.
 - `contracts/SPEC-084-matrix-room-version-federation-cross-domain-validation.md`
 - `contracts/SPEC-085-matrix-client-server-event-retrieval-membership-history.md`
 - `contracts/SPEC-093-matrix-sync-breadth-extensions.md`
+- `contracts/SPEC-095-matrix-media-repository-breadth.md`
 
 ## Shared Design Inputs
 
@@ -976,6 +977,13 @@ Matrix v1.18 roadmap close-out snapshot:
   envelopes while keeping long-poll timing, token persistence, fanout
   correctness, E2EE readiness, lazy-loading correctness, and Matrix
   Client-Server advertisement fail-closed.
+- `SPEC-095` splits the media repository descriptor and metadata parser
+  boundary out of the `SPEC-073` `media-repository-breadth` lane. It gives
+  `houra-labs` a parser-only adoption target for media config, URL preview,
+  thumbnail, create-upload, resumable-upload metadata, safe filename, and
+  `mxc://` URI helpers while keeping binary transfer, thumbnail generation,
+  preview crawling, remote fetch, range requests, encrypted attachment behavior,
+  and Matrix Client-Server advertisement fail-closed.
 - #97 through #101 should not be closed merely because their spec-side
   checklists are complete or because the current release candidate excludes the
   domain from advertisement. Close them only when #95 links current pass/fail
@@ -1586,6 +1594,8 @@ Use this contract-to-endpoint smoke table:
 | SPEC-083 | Matrix room-version event decision artifacts | `test-vectors/events/matrix-room-version-event-decision-artifacts.json` |
 | SPEC-084 | Matrix room-version federation cross-domain validation | `test-vectors/events/matrix-room-version-federation-cross-domain-validation.json` |
 | SPEC-085 | Matrix Client-Server event retrieval and membership history | `test-vectors/core/matrix-client-server-event-retrieval-membership-history.json` |
+| SPEC-093 | Matrix sync breadth extension parser descriptors and response sections | `test-vectors/sync/matrix-sync-breadth-extensions.json` |
+| SPEC-095 | Matrix media repository breadth parser descriptors, metadata, filenames, and `mxc://` validation | `test-vectors/media/matrix-media-repository-breadth.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
