@@ -52,8 +52,11 @@ server が capability を advertise し、実装 evidence が揃うまで fail-c
 media transfer として扱うための Product MVP vNext contract / vector / UI surface を定義します。
 ただし現行 Product MVP release candidate には含めず、media metadata が capability を
 advertise し、実装 evidence が揃うまで fail-closed です。
-`SPEC-072` は encrypted media attachment の metadata、transfer、key handling を
-扱う前の境界であり、encrypted-room や complete E2EE の claim と混同しません。
+`SPEC-072` は encrypted media attachment の metadata validation、ciphertext download /
+decrypt handoff、missing / wrong key、redaction、recoverable error を Product MVP 次段の
+optional flow として扱うための Product MVP vNext contract / vector / UI surface を定義します。
+ただし現行 Product MVP release candidate には含めず、encrypted-room や complete E2EE の
+claim と混同しません。
 
 ## Repository Topology
 
@@ -313,6 +316,11 @@ Optional `SPEC-071` media transfer actions are also Product MVP vNext coverage;
 they must remain hidden or disabled unless media metadata advertises matching
 capabilities and release evidence includes the `product-mvp-media-transfer-vnext`
 flow.
+Optional `SPEC-072` encrypted attachment actions are also Product MVP vNext
+coverage; they must remain hidden or disabled unless media metadata advertises
+matching encrypted attachment capabilities and release evidence includes the
+`product-mvp-encrypted-media-vnext` flow, crypto-adapter handoff evidence, and
+redacted trust copy.
 For the next Product MVP release candidate, UI readiness evidence must also
 record the consumed `houra-spec` ref, consumer repo/app ref, screen/action
 mapping, duplicate-submit prevention, recoverable error display, accessibility
@@ -780,9 +788,9 @@ keys, push provider credentials, or unredacted release artifacts.
 |---|---|---|---|
 | Auth/session lifecycle and owner scope | `SPEC-004`, `SPEC-032`, `SPEC-034`, `SPEC-053` cover bearer-token attachment, logout invalidation, device APIs, and key-backup surfaces | #180 closes the missing Houra stale-token logout vector plus Matrix device and key-backup owner-scope negative vectors | Do not record implementation adoption unless stale-token and cross-user negative vectors pass |
 | Protected key and verification operations | `SPEC-050`, `SPEC-054`, `SPEC-069` keep crypto operations adapter-owned and define parser-facing device-key / verification surfaces | #179 tracked the original `SPEC-054` auth precondition mismatch; `SPEC-054` now requires auth before signature or query semantics | Protected key operations must fail authentication before semantic signature errors are evaluated |
-| Media filename and download metadata | `SPEC-020`, `SPEC-038`, `SPEC-071`, `SPEC-072` cover MVP media, Matrix media, optional range/thumbnail/resume behavior, and encrypted-media boundaries | #181 closes `Content-Disposition` filename safety for CR/LF, control characters, separators, traversal-like names, and MVP quoting policy; #320 expands `SPEC-071` into optional Product MVP vNext media transfer vectors and UI surface evidence | Download metadata must not permit header injection, unsafe path-shaped filenames, signed URL leakage, local path leakage, plaintext media byte evidence, or cache filenames that expose user data |
+| Media filename and download metadata | `SPEC-020`, `SPEC-038`, `SPEC-071`, `SPEC-072` cover MVP media, Matrix media, optional range/thumbnail/resume behavior, and encrypted-media boundaries | #181 closes `Content-Disposition` filename safety for CR/LF, control characters, separators, traversal-like names, and MVP quoting policy; #320 expands `SPEC-071` into optional Product MVP vNext media transfer vectors and UI surface evidence; #321 expands `SPEC-072` into optional encrypted attachment vectors and UI surface evidence | Download metadata must not permit header injection, unsafe path-shaped filenames, signed URL leakage, local path leakage, plaintext media byte evidence, media-key leakage, decrypted thumbnail evidence, or cache filenames that expose user data |
 | Federation and push outbound destinations | `SPEC-055`, `SPEC-060`, and `SPEC-061` define federation bootstrap, push gateway, and federation smoke boundaries | #182 closes SSRF-oriented destination controls for well-known redirects, DNS rebinding, private ranges, and push gateway URLs | Outbound request contracts must fail closed on unsafe internal destinations while preserving legitimate public federation and push gateway paths |
-| Error envelopes, diagnostics, and release evidence | `SPEC-002`, `SPEC-031`, `SPEC-064`, `SPEC-065`, `SPEC-070`, `SPEC-071`, and `SPEC-072` define public error shape, fail-closed advertisement, release evidence fields, optional vNext recovery evidence, and redacted deferred-boundary evidence | #319 expands `SPEC-070` into optional Product MVP vNext recovery / IdP vectors and UI surface evidence; Matrix release evidence implementation refs remain tracked by #200 and must cite redacted artifacts only | Public errors and release evidence must not expose bearer tokens, refresh tokens, reset tokens, email verification tokens, authorization codes, callback query values, private keys, pushkeys, vendor tokens, raw secrets, or internal state beyond the contract vector |
+| Error envelopes, diagnostics, and release evidence | `SPEC-002`, `SPEC-031`, `SPEC-064`, `SPEC-065`, `SPEC-070`, `SPEC-071`, and `SPEC-072` define public error shape, fail-closed advertisement, release evidence fields, optional vNext recovery/media evidence, and redacted boundary evidence | #319 expands `SPEC-070` into optional Product MVP vNext recovery / IdP vectors and UI surface evidence; #321 expands `SPEC-072` into optional encrypted media state/retry/trust-copy evidence; Matrix release evidence implementation refs remain tracked by #200 and must cite redacted artifacts only | Public errors and release evidence must not expose bearer tokens, refresh tokens, reset tokens, email verification tokens, authorization codes, callback query values, private keys, media keys, room keys, recovery keys, pushkeys, vendor tokens, raw secrets, plaintext bytes, or internal state beyond the contract vector |
 | Shared-core security boundary | `Shared boundary and risk rule` and `Initial Shared-Core Adoption Gates` keep shared parser/validator work separate from host-owned transport, storage, token, crypto, retry, and UI policy | Future adoption issues should inherit #198 evidence requirements instead of moving host-owned secrets into shared code | Shared artifacts require vector parity, p95 evidence, redaction review, artifact manifest, `abi_version`, facade stability notes, and rollback before adoption |
 
 Security and privacy review issue handling:
@@ -834,7 +842,7 @@ Matrix compliance must be tracked by API domain, not as a single vague label:
 | Identity Service API | third-party identifier validation and lookup | Not implemented; `SPEC-059` adds the separate service boundary, identity token scope, hash lookup, validation session, bind, unbind, and privacy/auth failure gate; `SPEC-076` keeps invitation storage, ephemeral invitation signing, provider delivery, consent UI, and full Identity Service API gaps explicit and non-advertised for the current release candidate | Either explicitly out of supported deployment scope or implemented as a separate identity component with conformance evidence |
 | Push Gateway API | push notification gateway contracts | Not implemented; `SPEC-060` adds the separate push gateway boundary, notify payload, `event_id_only` privacy shape, pusher/push-rule setup, rejected pushkey, and delivery failure gate; `SPEC-077` keeps vendor provider credentials, device permission UI, notification rendering, background scheduling, and full Push Gateway API gaps explicit and non-advertised for the current release candidate | Either explicitly out of supported deployment scope or implemented with privacy-aware notification payload tests |
 | Room Versions | room version algorithms, event authorization rules, state resolution, room upgrade behavior | MVP rooms do not implement Matrix room versions or event DAG auth; `SPEC-040` adds the first Matrix event DAG and auth-event reference contract, `SPEC-041` adds state snapshot / representative state-resolution vectors, `SPEC-042` defines the stable room versions 1-12 / default 12 gate, `SPEC-043` adds representative membership, power-level, and redaction auth vectors, `SPEC-044` adds alias / upgrade / restart persistence gates without full room-version auth completeness, and `SPEC-078` keeps full room-version algorithm and domain-wide advertisement gaps explicit and non-advertised for the current release candidate | Supported room versions are listed, default room version is declared, and auth/state-resolution tests pass |
-| Olm & Megolm | E2EE primitives, one-time keys, device keys, encrypted room messaging, key backup, verification, cross-signing | Not implemented; `SPEC-050` defines the adapter ownership boundary and forbids local Olm/Megolm implementation; `SPEC-069` isolates the first client/parser-facing device-key query contract; `SPEC-051` adds device key, one-time key, and fallback key publication/claim contracts; `SPEC-052` adds to-device and encrypted-room send/receive gates; `SPEC-053` adds server-side key backup and logout/relogin restore gates; `SPEC-054` adds SAS verification, cross-signing, and wrong-device failure gates; `SPEC-079` keeps full Olm & Megolm E2EE breadth explicit and non-advertised for the current release candidate | Use a mainstream Matrix crypto stack; encrypted rooms, device trust, key backup, restore, verification, and wrong-device failure flows pass |
+| Olm & Megolm | E2EE primitives, one-time keys, device keys, encrypted room messaging, key backup, verification, cross-signing | Not implemented; `SPEC-050` defines the adapter ownership boundary and forbids local Olm/Megolm implementation; `SPEC-069` isolates the first client/parser-facing device-key query contract; `SPEC-051` adds device key, one-time key, and fallback key publication/claim contracts; `SPEC-052` adds to-device and encrypted-room send/receive gates; `SPEC-053` adds server-side key backup and logout/relogin restore gates; `SPEC-054` adds SAS verification, cross-signing, and wrong-device failure gates; `SPEC-072` defines optional Product MVP encrypted attachment evidence without widening E2EE support claims; `SPEC-079` keeps full Olm & Megolm E2EE breadth explicit and non-advertised for the current release candidate | Use a mainstream Matrix crypto stack; encrypted rooms, device trust, key backup, restore, verification, encrypted media, and wrong-device failure flows pass |
 | Appendices/common rules | identifiers, timestamps, namespacing, error vocabulary, deprecation behavior | Partially aligned only where MVP contracts copied the concept | Shared parser and validation tests enforce Matrix grammar and compatibility claims |
 
 Matrix domain coverage evidence report:
@@ -1681,7 +1689,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-066 | Matrix v1.18 release readiness, tag procedure, and canonical evidence bundle gate | `test-vectors/core/matrix-v1-18-release-readiness-*.json`, `test-vectors/core/matrix-v1-18-release-tag-*.json`, `test-vectors/core/matrix-v1-18-release-rollback-*.json`, and `test-vectors/core/matrix-v1-18-release-evidence-*.json` |
 | SPEC-070 | Product MVP account recovery and IdP login vNext capability, request, response, and fail-closed boundary | `test-vectors/auth/product-mvp-account-recovery-*.json`, `test-vectors/auth/product-mvp-email-verification-*.json`, `test-vectors/auth/product-mvp-password-reset-*.json`, and `test-vectors/auth/product-mvp-idp-login-*.json` |
 | SPEC-071 | Product MVP thumbnails, range request, resumable download, metadata capability, and fail-closed boundary | `test-vectors/media/product-mvp-media-transfer-*.json`, `test-vectors/media/product-mvp-thumbnail-*.json`, `test-vectors/media/product-mvp-range-download-*.json`, and `test-vectors/media/product-mvp-resumable-download-*.json` |
-| SPEC-072 | Product MVP encrypted media attachment fail-closed boundary | `test-vectors/media/product-mvp-encrypted-media-deferred.json` |
+| SPEC-072 | Product MVP encrypted media attachment capability metadata, validation, ciphertext download/decrypt handoff, state/retry UI, and fail-closed boundary | `test-vectors/media/product-mvp-encrypted-media-*.json` |
 | SPEC-073 | Matrix Client-Server full-breadth gap inventory | `test-vectors/core/matrix-client-server-full-breadth-gap-inventory.json` |
 | SPEC-074 | Matrix Server-Server full-breadth gap inventory | `test-vectors/core/matrix-server-server-full-breadth-gap-inventory.json` |
 | SPEC-075 | Matrix Application Service full-breadth gap inventory | `test-vectors/core/matrix-application-service-full-breadth-gap-inventory.json` |
@@ -1748,6 +1756,12 @@ If it includes `SPEC-071`, evidence must cite advertised media metadata
 capabilities, `product-mvp-media-transfer-vnext` coverage, and redaction of
 signed URLs, local filesystem paths, plaintext media bytes, media keys, and
 cache filenames exposing user data.
+If it includes `SPEC-072`, evidence must cite advertised encrypted attachment
+metadata capabilities, `product-mvp-encrypted-media-vnext` coverage,
+crypto-adapter handoff evidence, missing-key / wrong-key / redacted /
+recoverable-error state coverage, bounded trust copy, and redaction of media
+keys, room keys, recovery keys, signed URLs, local filesystem paths, plaintext
+media bytes, decrypted thumbnails, and cache filenames exposing user data.
 
 ## Implementation Adoption Reports
 

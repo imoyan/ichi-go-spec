@@ -24,7 +24,7 @@ sync
 
 media
   media metadata, upload, download subset, optional Product MVP vNext media
-  transfer capability lanes
+  transfer and encrypted attachment capability lanes
 
 full-client
   all MVP client features

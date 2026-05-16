@@ -1,0 +1,39 @@
+{
+  "name": "product-mvp-encrypted-media-metadata-validation-basic",
+  "contract": "SPEC-072",
+  "event": {
+    "media_id": "media1",
+    "descriptor": {
+      "supported": true,
+      "metadata_version": "product-mvp-vnext",
+      "ciphertext": {
+        "content_uri": "mxc://example.test/media1-ciphertext",
+        "download_requires_auth": true,
+        "content_length": 512,
+        "content_type": "application/octet-stream"
+      },
+      "crypto": {
+        "algorithm": "encrypted-file-v2",
+        "key_ref": "host-owned-media-key-redacted",
+        "iv_ref": "iv-redacted",
+        "hashes": {
+          "sha256": "sha256-redacted"
+        },
+        "key_material_inline": false
+      },
+      "plaintext": {
+        "filename": "photo.png",
+        "content_type": "image/png"
+      },
+      "state": "available"
+    }
+  },
+  "expected": {
+    "metadata_valid": true,
+    "encrypted_media_controls_available": true,
+    "download_allowed": true,
+    "decrypt_handoff_allowed": true,
+    "raw_media_key_recorded": false,
+    "matrix_versions_advertisement_allowed": false
+  }
+}

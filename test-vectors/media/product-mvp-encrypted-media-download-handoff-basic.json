@@ -1,0 +1,27 @@
+{
+  "name": "product-mvp-encrypted-media-download-handoff-basic",
+  "contract": "SPEC-072",
+  "request": {
+    "method": "GET",
+    "path": "/_houra/client/media/media1/content",
+    "headers": {
+      "authorization": "Bearer token-1"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/octet-stream",
+      "content-length": "10"
+    },
+    "body_base64": "Y2lwaGVydGV4dA==",
+    "handoff": {
+      "ciphertext_opaque_to_server": true,
+      "crypto_adapter_required": true,
+      "sdk_core_decrypts_plaintext": false,
+      "server_decrypts_plaintext": false,
+      "diagnostics_redacted": true,
+      "plain_bytes_recorded": false
+    }
+  }
+}

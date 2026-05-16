@@ -88,3 +88,28 @@ media key、user data を含む cache filename は記録しません。
 
 この vNext flow は Matrix Media Repository full breadth、encrypted media support、
 `/_matrix/client/versions` advertisement を広げません。
+
+## Product MVP vNext の encrypted media attachment
+
+`SPEC-072` は encrypted media attachment の Product MVP vNext contract / vector /
+UI surface を定義します。ただし、現行 Product MVP release candidate の必須 happy path
+ではありません。encrypted-room support、complete E2EE support、Matrix v1.18 full
+compliance の claim とは分けて扱います。
+
+実装リポジトリで採用する場合は、先に `SPEC-020` の media metadata に追加される
+`encrypted_attachment` capability、`test-vectors/media/product-mvp-encrypted-media-*.json`、
+および `design/ui-surfaces/product-mvp.json` の `product-mvp-encrypted-media-vnext`
+flow を確認します。
+
+media metadata が capability を advertise していない場合、client は encrypted attachment
+UI を隠すか disabled にし、`m.room.encrypted`、crypto stack selection、`SPEC-071`
+transfer metadata、server media upload support から support を推測しません。採用 evidence
+には advertised encrypted attachment capability、consumer repo ref、screen/action mapping、
+crypto-adapter handoff、missing-key / wrong-key / redacted / recoverable-error state、
+duplicate-submit prevention、bounded trust copy、redaction 方針を残します。bearer token、
+signed URL、local filesystem path、media key、room key、recovery key、plaintext media
+bytes、decrypted thumbnail、user data を含む cache filename は記録しません。
+
+SDK core は metadata parser、request/response descriptor、redacted diagnostic shaping までに
+留めます。encrypt/decrypt、media-key handling、secure storage、plaintext lifecycle、
+preview/share/export policy は crypto adapter または host-owned boundary です。

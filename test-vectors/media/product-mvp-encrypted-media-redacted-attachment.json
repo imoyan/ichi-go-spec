@@ -1,0 +1,17 @@
+{
+  "name": "product-mvp-encrypted-media-redacted-attachment",
+  "contract": "SPEC-072",
+  "event": {
+    "media_id": "media1",
+    "encrypted_attachment_state": "redacted",
+    "redaction_event_id": "$redaction1:example.test"
+  },
+  "expected": {
+    "download_allowed": false,
+    "decrypt_allowed": false,
+    "plaintext_preview_allowed": false,
+    "ui_state": "redacted_attachment",
+    "prior_attachment_metadata_reused": false,
+    "redaction_event_id_recorded": true
+  }
+}

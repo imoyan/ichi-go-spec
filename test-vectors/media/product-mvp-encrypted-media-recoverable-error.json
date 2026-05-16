@@ -1,0 +1,26 @@
+{
+  "name": "product-mvp-encrypted-media-recoverable-error",
+  "contract": "SPEC-072",
+  "event": {
+    "media_id": "media1",
+    "encrypted_attachment_state": "recoverable_error",
+    "failed_phase": "ciphertext_download",
+    "error": {
+      "status": 503,
+      "code": "HOURA_UNAVAILABLE",
+      "message": "Service unavailable."
+    },
+    "host_retry_state": {
+      "ciphertext_bytes_downloaded": 256,
+      "local_path": "redacted"
+    }
+  },
+  "expected": {
+    "retry_action_visible": true,
+    "duplicate_retry_prevented_while_pending": true,
+    "host_retry_state_may_be_preserved": true,
+    "local_path_recorded": false,
+    "plaintext_bytes_recorded": false,
+    "recoverable_error_visible": true
+  }
+}

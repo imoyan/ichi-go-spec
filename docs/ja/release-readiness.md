@@ -39,6 +39,11 @@ checklist です。
 - `SPEC-071` を含む release candidate では、advertised media metadata capability、
   `product-mvp-media-transfer-vnext` flow coverage、signed URL / local filesystem path /
   plaintext media bytes / media key / cache filename の redaction 方針が evidence に含まれている
+- `SPEC-072` を含む release candidate では、advertised encrypted attachment capability、
+  `product-mvp-encrypted-media-vnext` flow coverage、crypto-adapter handoff evidence、
+  missing-key / wrong-key / redacted / recoverable-error state coverage、bounded trust copy、
+  media key / room key / recovery key / signed URL / local filesystem path / plaintext media
+  bytes / decrypted thumbnail / cache filename の redaction 方針が evidence に含まれている
 - README の `Implementation Adoption Reports` と日本語説明が矛盾していない
 - Matrix version、外部仕様、互換性 claim は source と `checked_at` を持つ snapshot として扱われている
 - pre-1.0 の contract / vector / design input 変更は `breaking` / `additive` /
