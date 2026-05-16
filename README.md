@@ -1612,6 +1612,8 @@ Use this contract-to-endpoint smoke table:
 | SPEC-096 | Matrix Identity Service public key and signature boundary | `test-vectors/core/matrix-identity-public-key-signature-boundary.json` |
 | SPEC-097 | Matrix federation version, key lifecycle, and request-auth parser descriptors | `test-vectors/core/matrix-federation-version-key-lifecycle-request-auth.json` |
 | SPEC-098 | Matrix Push Gateway parser-helper breadth for pusher, push-rule, and redaction descriptors | `test-vectors/core/matrix-push-parser-helper-breadth.json` |
+| SPEC-099 | Matrix federation transaction, PDU, EDU, canonical JSON input, and per-PDU response parser descriptors | `test-vectors/events/matrix-federation-pdu-edu-parser-helpers.json` |
+| SPEC-100 | Matrix federation public rooms, hierarchy, directory/profile/generic query, and OpenID userinfo parser descriptors | `test-vectors/core/matrix-federation-directory-query-openid-parser-helpers.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
