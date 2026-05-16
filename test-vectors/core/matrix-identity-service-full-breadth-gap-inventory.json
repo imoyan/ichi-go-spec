@@ -6,7 +6,7 @@
     "matrix_spec_source": "https://spec.matrix.org/v1.18/identity-service-api/",
     "checked_at": "2026-05-14T08:18:16+09:00",
     "parent_issue": "imoyan/houra-server#138",
-    "current_release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-14",
+    "current_release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-16",
     "release_scope_decision": {
       "domain": "Identity Service API",
       "decision": "out-of-scope-for-current-release-candidate",

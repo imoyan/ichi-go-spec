@@ -5,7 +5,7 @@
     "matrix_spec_version": "v1.18",
     "matrix_spec_source": "https://spec.matrix.org/v1.18/",
     "matrix_release_source": "https://matrix.org/blog/2026/03/26/matrix-v1.18-release/",
-    "checked_at": "2026-05-14T07:15:04+09:00",
+    "checked_at": "2026-05-16T21:51:53+09:00",
     "bundle_contracts": [
       "SPEC-062",
       "SPEC-063",
@@ -14,21 +14,23 @@
       "SPEC-066"
     ],
     "candidate_refs": {
-      "release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-14",
-      "houra_spec_ref": "ce587f202de77dade3eebb07b63a0a6b4908743b",
-      "houra_server_ref": "3fa134955c9e0804adc9e4b54e6d90fb24631f77",
-      "houra_client_ref": "0f330a14ad86d69ad4f147c7a5b6d1852c9c78f2"
+      "release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-16",
+      "houra_spec_ref": "f040692d8f27dbde31c16bb93b197eb58ea49811",
+      "houra_server_ref": "eed3581e21061e660fae7c8d7ff8f3c68891d217",
+      "houra_client_ref": "03ef045fd31d5a2dfca7046b2b336d353aff7847"
     },
     "evidence_sources": {
       "server": {
         "repo": "houra-server",
         "issue": "imoyan/houra-server#108",
-        "pull_request": "imoyan/houra-server#145",
-        "merge_commit": "3fa134955c9e0804adc9e4b54e6d90fb24631f77",
-        "head_under_test": "3fa134955c9e0804adc9e4b54e6d90fb24631f77",
-        "spec_ref_under_test": "ce587f202de77dade3eebb07b63a0a6b4908743b",
+        "pull_request": "imoyan/houra-server#295",
+        "merge_commit": "eed3581e21061e660fae7c8d7ff8f3c68891d217",
+        "head_under_test": "eed3581e21061e660fae7c8d7ff8f3c68891d217",
+        "spec_ref_under_test": "f040692d8f27dbde31c16bb93b197eb58ea49811",
         "checks": [
-          "GitHub Actions CI / test pass"
+          "GitHub Actions CI / test pass",
+          "HOURA_SPEC_ROOT=<spec> npm test pass",
+          "matrix-release-evidence-bundle static pass"
         ],
         "support_claim_decision": "not-advertised",
         "versions_response": {
@@ -38,13 +40,16 @@
       "client": {
         "repo": "houra-client",
         "issue": "imoyan/houra-client#97",
-        "pull_request": "imoyan/houra-client#116",
-        "merge_commit": "0f330a14ad86d69ad4f147c7a5b6d1852c9c78f2",
-        "head_under_test": "0f330a14ad86d69ad4f147c7a5b6d1852c9c78f2",
-        "spec_ref_under_test": "ce587f202de77dade3eebb07b63a0a6b4908743b",
+        "pull_request": "imoyan/houra-client#177",
+        "merge_commit": "03ef045fd31d5a2dfca7046b2b336d353aff7847",
+        "head_under_test": "03ef045fd31d5a2dfca7046b2b336d353aff7847",
+        "spec_ref_under_test": "f040692d8f27dbde31c16bb93b197eb58ea49811",
         "checks": [
           "GitHub Actions test pass",
-          "GitHub Actions e2e pass"
+          "GitHub Actions e2e pass",
+          "HOURA_SPEC_ROOT=<spec> npm test pass",
+          "matrix-release-notes-evidence static pass",
+          "matrix-v1.18-release-readiness static pass"
         ],
         "support_claim_decision": "not-advertised",
         "publishable_matrix_support_claim": false
