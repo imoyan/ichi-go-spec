@@ -3,21 +3,24 @@
   "contract": "SPEC-070",
   "event": {
     "target": "Product MVP next step",
-    "decision": "defer",
-    "implemented_by_this_contract": false,
+    "decision": "current-baseline-defer-vnext-contract-defined",
+    "implemented_by_this_contract": true,
     "product_mvp_next_step": true,
     "matrix_full_compliance_claim": false,
-    "current_product_mvp_ui_surface_changes": false,
-    "fail_closed_client_behavior": [
-      "do_not_render_email_verification_action",
-      "do_not_render_password_reset_action",
-      "do_not_render_identity_provider_login_action",
-      "do_not_export_recovery_or_idp_sdk_methods_without_followup_contract"
-    ],
-    "future_lanes": [
+    "current_product_mvp_ui_surface_changes": true,
+    "current_release_support": false,
+    "vnext_contract_lanes": [
       "email_verification",
       "password_reset",
-      "identity_provider_login",
+      "identity_provider_login"
+    ],
+    "fail_closed_client_behavior": [
+      "do_not_render_email_verification_action_without_capability",
+      "do_not_render_password_reset_action_without_capability",
+      "do_not_render_identity_provider_login_action_without_capability",
+      "do_not_call_recovery_or_idp_endpoints_without_capability"
+    ],
+    "future_lanes": [
       "token_refresh",
       "native_account_management_ui"
     ],

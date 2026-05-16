@@ -46,3 +46,23 @@
 storage、SDK convenience API、secure storage、token persistence、retry policy、
 deployment policy、framework-specific UI は実装リポジトリ側の責務です。
 公開 contract に必要な場合だけ、このリポジトリに仕様として追加します。
+
+## Product MVP vNext の account recovery / IdP login
+
+`SPEC-070` は email verification、password reset、identity provider login の
+Product MVP vNext contract / vector / UI surface を定義します。ただし、現行 Product MVP
+release candidate の必須 happy path ではありません。
+
+実装リポジトリで採用する場合は、先に `GET /_houra/client/login` の capability discovery、
+`test-vectors/auth/product-mvp-account-recovery-*.json`、`product-mvp-email-verification-*`、
+`product-mvp-password-reset-*`、`product-mvp-idp-login-*`、および
+`design/ui-surfaces/product-mvp.json` の `product-mvp-account-recovery-vnext` flow を確認します。
+
+server が capability を advertise していない場合、client は account recovery / IdP login
+UI を隠すか disabled にし、未広告 endpoint を probe しません。採用 evidence には
+advertised capability、consumer repo ref、screen/action mapping、recoverable error 表示、
+duplicate-submit prevention、redaction 方針を残します。reset token、email verification
+token、authorization code、callback query、IdP session identifier は記録しません。
+
+この vNext flow は Matrix OAuth full support claim、Matrix auth full compliance、
+`/_matrix/client/versions` advertisement を広げません。

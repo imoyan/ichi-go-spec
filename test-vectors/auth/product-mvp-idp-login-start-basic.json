@@ -1,0 +1,21 @@
+{
+  "name": "product-mvp-idp-login-start-basic",
+  "contract": "SPEC-070",
+  "request": {
+    "method": "POST",
+    "path": "/_houra/client/login/idp/start",
+    "body": {
+      "provider_id": "example-idp",
+      "redirect_uri": "houra://auth/callback",
+      "state": "state-1"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "authorization_url": "https://idp.example.test/authorize?client_id=houra&state=state-1",
+      "state": "state-1",
+      "expires_in_ms": 300000
+    }
+  }
+}

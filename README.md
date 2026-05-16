@@ -45,8 +45,9 @@ GitHub のリポジトリトップではこの README が表示されます。�
 
 Product MVP の次段階機能は、実装リポジトリで先に挙動を決めず、このリポジトリの
 contract、vector、UI surface を先に更新します。`SPEC-070` は email verification、
-password reset、identity provider login を Product MVP 次段として扱う前の
-fail-closed 境界であり、現時点では実装やサポート claim を追加しません。
+password reset、identity provider login の Product MVP vNext 用 contract / vector /
+UI surface を定義します。ただし現行 Product MVP release candidate には含めず、
+server が capability を advertise し、実装 evidence が揃うまで fail-closed です。
 `SPEC-071` は thumbnails、range request、resumable download を Product MVP 次段の
 media transfer として扱う前の境界であり、encrypted attachment とは分けて扱います。
 `SPEC-072` は encrypted media attachment の metadata、transfer、key handling を
@@ -302,6 +303,10 @@ Implementation repositories should treat this file as read-only conformance
 input. A client may arrange native layouts differently, but it should preserve
 the screen semantics, action availability, duplicate-submit prevention,
 recoverable error visibility, and `product-mvp-happy-path` acceptance coverage.
+Optional `SPEC-070` account recovery and IdP login actions are Product MVP vNext
+coverage; they must remain hidden or disabled unless the selected server
+advertises matching capabilities and release evidence includes the
+`product-mvp-account-recovery-vnext` flow.
 For the next Product MVP release candidate, UI readiness evidence must also
 record the consumed `houra-spec` ref, consumer repo/app ref, screen/action
 mapping, duplicate-submit prevention, recoverable error display, accessibility
@@ -771,7 +776,7 @@ keys, push provider credentials, or unredacted release artifacts.
 | Protected key and verification operations | `SPEC-050`, `SPEC-054`, `SPEC-069` keep crypto operations adapter-owned and define parser-facing device-key / verification surfaces | #179 tracked the original `SPEC-054` auth precondition mismatch; `SPEC-054` now requires auth before signature or query semantics | Protected key operations must fail authentication before semantic signature errors are evaluated |
 | Media filename and download metadata | `SPEC-020`, `SPEC-038`, `SPEC-071`, `SPEC-072` cover MVP media, Matrix media, deferred range/thumbnail behavior, and encrypted-media boundaries | #181 closes `Content-Disposition` filename safety for CR/LF, control characters, separators, traversal-like names, and MVP quoting policy | Download metadata must not permit header injection or unsafe path-shaped filenames as canonical behavior |
 | Federation and push outbound destinations | `SPEC-055`, `SPEC-060`, and `SPEC-061` define federation bootstrap, push gateway, and federation smoke boundaries | #182 closes SSRF-oriented destination controls for well-known redirects, DNS rebinding, private ranges, and push gateway URLs | Outbound request contracts must fail closed on unsafe internal destinations while preserving legitimate public federation and push gateway paths |
-| Error envelopes, diagnostics, and release evidence | `SPEC-002`, `SPEC-031`, `SPEC-064`, `SPEC-065`, `SPEC-070`, `SPEC-071`, and `SPEC-072` define public error shape, fail-closed advertisement, release evidence fields, and redacted deferred-boundary evidence | No new issue from this pass; release evidence implementation refs remain tracked by #200 and must cite redacted artifacts only | Public errors and release evidence must not expose bearer tokens, refresh tokens, reset tokens, private keys, pushkeys, vendor tokens, raw secrets, or internal state beyond the contract vector |
+| Error envelopes, diagnostics, and release evidence | `SPEC-002`, `SPEC-031`, `SPEC-064`, `SPEC-065`, `SPEC-070`, `SPEC-071`, and `SPEC-072` define public error shape, fail-closed advertisement, release evidence fields, optional vNext recovery evidence, and redacted deferred-boundary evidence | #319 expands `SPEC-070` into optional Product MVP vNext recovery / IdP vectors and UI surface evidence; Matrix release evidence implementation refs remain tracked by #200 and must cite redacted artifacts only | Public errors and release evidence must not expose bearer tokens, refresh tokens, reset tokens, email verification tokens, authorization codes, callback query values, private keys, pushkeys, vendor tokens, raw secrets, or internal state beyond the contract vector |
 | Shared-core security boundary | `Shared boundary and risk rule` and `Initial Shared-Core Adoption Gates` keep shared parser/validator work separate from host-owned transport, storage, token, crypto, retry, and UI policy | Future adoption issues should inherit #198 evidence requirements instead of moving host-owned secrets into shared code | Shared artifacts require vector parity, p95 evidence, redaction review, artifact manifest, `abi_version`, facade stability notes, and rollback before adoption |
 
 Security and privacy review issue handling:
@@ -1668,7 +1673,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-064 | Matrix version advertisement release gate | `test-vectors/core/matrix-version-advertisement-*.json` |
 | SPEC-065 | Matrix release notes evidence template gate | `test-vectors/core/matrix-release-notes-*.json` |
 | SPEC-066 | Matrix v1.18 release readiness, tag procedure, and canonical evidence bundle gate | `test-vectors/core/matrix-v1-18-release-readiness-*.json`, `test-vectors/core/matrix-v1-18-release-tag-*.json`, `test-vectors/core/matrix-v1-18-release-rollback-*.json`, and `test-vectors/core/matrix-v1-18-release-evidence-*.json` |
-| SPEC-070 | Product MVP account recovery and IdP login fail-closed boundary | `test-vectors/auth/product-mvp-account-recovery-idp-deferred.json` |
+| SPEC-070 | Product MVP account recovery and IdP login vNext capability, request, response, and fail-closed boundary | `test-vectors/auth/product-mvp-account-recovery-*.json`, `test-vectors/auth/product-mvp-email-verification-*.json`, `test-vectors/auth/product-mvp-password-reset-*.json`, and `test-vectors/auth/product-mvp-idp-login-*.json` |
 | SPEC-071 | Product MVP thumbnails, range request, and resumable download fail-closed boundary | `test-vectors/media/product-mvp-media-transfer-deferred.json` |
 | SPEC-072 | Product MVP encrypted media attachment fail-closed boundary | `test-vectors/media/product-mvp-encrypted-media-deferred.json` |
 | SPEC-073 | Matrix Client-Server full-breadth gap inventory | `test-vectors/core/matrix-client-server-full-breadth-gap-inventory.json` |
@@ -1729,7 +1734,10 @@ tracked separately from Docker Compose deploy smoke. The canonical surface is
 screen/action mapping, duplicate-submit prevention, recoverable error display,
 accessibility result or blocker, `product-mvp-happy-path` coverage, and
 redaction of tokens, database URLs, private local paths, and machine-specific
-environment values.
+environment values. If a release candidate includes `SPEC-070`, evidence must
+also cite advertised capabilities, `product-mvp-account-recovery-vnext`
+coverage, and redaction of reset tokens, email verification tokens,
+authorization codes, callback query values, and IdP session identifiers.
 
 ## Implementation Adoption Reports
 

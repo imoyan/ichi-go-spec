@@ -1,0 +1,21 @@
+{
+  "name": "product-mvp-email-verification-submit-basic",
+  "contract": "SPEC-070",
+  "request": {
+    "method": "POST",
+    "path": "/_houra/client/account/email-verification/submit",
+    "access_token": "token-1",
+    "body": {
+      "sid": "email-sid-1",
+      "client_secret": "client-secret-1",
+      "token": "123456"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "email_verified": true,
+      "user_id": "@alice:example.test"
+    }
+  }
+}

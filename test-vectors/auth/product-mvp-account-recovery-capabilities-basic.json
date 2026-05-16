@@ -1,0 +1,42 @@
+{
+  "name": "product-mvp-account-recovery-capabilities-basic",
+  "contract": "SPEC-070",
+  "request": {
+    "method": "GET",
+    "path": "/_houra/client/login"
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "flows": [
+        {
+          "type": "houra.login.password"
+        },
+        {
+          "type": "houra.login.idp.redirect",
+          "providers": [
+            {
+              "id": "example-idp",
+              "name": "Example IdP"
+            }
+          ],
+          "start_path": "/_houra/client/login/idp/start",
+          "complete_path": "/_houra/client/login/idp/complete"
+        }
+      ],
+      "account_recovery": {
+        "password_reset": {
+          "supported": true,
+          "request_path": "/_houra/client/account/password-reset/request",
+          "submit_path": "/_houra/client/account/password-reset/submit"
+        },
+        "email_verification": {
+          "supported": true,
+          "requires_auth": true,
+          "request_path": "/_houra/client/account/email-verification/request",
+          "submit_path": "/_houra/client/account/email-verification/submit"
+        }
+      }
+    }
+  }
+}
