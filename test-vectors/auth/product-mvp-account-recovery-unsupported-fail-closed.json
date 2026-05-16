@@ -1,0 +1,20 @@
+{
+  "name": "product-mvp-account-recovery-unsupported-fail-closed",
+  "contract": "SPEC-070",
+  "request": {
+    "method": "POST",
+    "path": "/_houra/client/account/password-reset/request",
+    "body": {
+      "email": "alice@example.test",
+      "client_secret": "client-secret-1",
+      "send_attempt": 1
+    }
+  },
+  "expected": {
+    "status": 404,
+    "body_contains": {
+      "code": "HOURA_NOT_FOUND",
+      "message": "Account recovery is not available."
+    }
+  }
+}

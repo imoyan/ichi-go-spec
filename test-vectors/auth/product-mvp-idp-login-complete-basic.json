@@ -1,0 +1,22 @@
+{
+  "name": "product-mvp-idp-login-complete-basic",
+  "contract": "SPEC-070",
+  "request": {
+    "method": "POST",
+    "path": "/_houra/client/login/idp/complete",
+    "body": {
+      "provider_id": "example-idp",
+      "redirect_uri": "houra://auth/callback",
+      "state": "state-1",
+      "code": "authorization-code-1"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "user_id": "@alice:example.test",
+      "access_token": "token-idp-1",
+      "device_id": "DEVICE-IDP1"
+    }
+  }
+}

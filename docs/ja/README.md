@@ -38,6 +38,11 @@ Product MVP は `/_houra/client/**`、Product MVP UI surface、adoption evidence
 release notes evidence を中心に確認します。片方の evidence だけで他方の support claim を
 広げません。
 
+`SPEC-070` の account recovery / IdP login は Product MVP vNext の optional flow です。
+現行 Product MVP happy path には含めず、server capability、UI surface adoption evidence、
+token / authorization code / callback query の redaction 方針が揃うまで fail-closed として
+扱います。
+
 ## 書き方
 
 日本語ページは、GitHub の表示で読みやすいように短い段落とリンク中心にします。

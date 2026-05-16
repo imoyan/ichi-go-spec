@@ -7,7 +7,8 @@ core
   discovery, error model, identifiers, JSON conventions
 
 auth
-  login flow discovery, login, sessions, access tokens
+  login flow discovery, login, sessions, access tokens, optional Product MVP
+  vNext account recovery and IdP login capability lanes
 
 rooms
   room creation, join, and membership subset

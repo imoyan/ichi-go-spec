@@ -40,7 +40,51 @@
           "required": true
         }
       ],
-      "actions": ["auth.login", "auth.create-account"]
+      "actions": [
+        "auth.login",
+        "auth.create-account",
+        "auth.open-account-recovery"
+      ]
+    },
+    {
+      "id": "account-recovery",
+      "session": "any",
+      "purpose": "Run optional Product MVP vNext account recovery, email verification, and IdP login actions only when SPEC-070 capabilities are advertised.",
+      "regions": ["account-recovery-inputs", "account-recovery-actions", "status"],
+      "fields": [
+        {
+          "id": "account.email",
+          "label_key": "field.email",
+          "input": "text",
+          "required": true
+        },
+        {
+          "id": "recovery.token",
+          "label_key": "field.recovery-token",
+          "input": "text",
+          "required": true
+        },
+        {
+          "id": "recovery.new-password",
+          "label_key": "field.new-password",
+          "input": "password",
+          "required": true
+        },
+        {
+          "id": "idp.provider",
+          "label_key": "field.identity-provider",
+          "input": "text",
+          "required": true
+        }
+      ],
+      "actions": [
+        "auth.request-password-reset",
+        "auth.submit-password-reset",
+        "auth.request-email-verification",
+        "auth.submit-email-verification",
+        "auth.start-idp-login",
+        "auth.complete-idp-login"
+      ]
     },
     {
       "id": "rooms",
@@ -137,6 +181,76 @@
       "error_expectation": "Registration errors are visible without losing user input."
     },
     {
+      "id": "auth.open-account-recovery",
+      "label_key": "action.account-recovery",
+      "requires_auth": false,
+      "api_contracts": ["SPEC-070"],
+      "busy_state": "pending.recovery",
+      "disabled_when": ["pending.any", "unsupported.account-recovery"],
+      "success_expectation": "Account recovery actions are visible only when the selected server advertises SPEC-070 capabilities.",
+      "error_expectation": "Unsupported recovery remains hidden or disabled without probing unadvertised endpoints."
+    },
+    {
+      "id": "auth.request-password-reset",
+      "label_key": "action.request-password-reset",
+      "requires_auth": false,
+      "api_contracts": ["SPEC-070"],
+      "busy_state": "pending.recovery",
+      "disabled_when": ["pending.any", "unsupported.account-recovery"],
+      "success_expectation": "A redacted recovery state is available and the user is directed to check the recovery channel.",
+      "error_expectation": "Password reset request errors are visible without revealing account existence."
+    },
+    {
+      "id": "auth.submit-password-reset",
+      "label_key": "action.submit-password-reset",
+      "requires_auth": false,
+      "api_contracts": ["SPEC-070"],
+      "busy_state": "pending.recovery",
+      "disabled_when": ["pending.any", "unsupported.account-recovery"],
+      "success_expectation": "Password reset completes and the user is returned to password login.",
+      "error_expectation": "Invalid or expired recovery token errors are visible without clearing entered email."
+    },
+    {
+      "id": "auth.request-email-verification",
+      "label_key": "action.request-email-verification",
+      "requires_auth": true,
+      "api_contracts": ["SPEC-070"],
+      "busy_state": "pending.recovery",
+      "disabled_when": ["pending.any", "unsupported.account-recovery"],
+      "success_expectation": "A redacted email verification state is available for the authenticated account.",
+      "error_expectation": "Email verification request errors are visible without logging token or provider details."
+    },
+    {
+      "id": "auth.submit-email-verification",
+      "label_key": "action.submit-email-verification",
+      "requires_auth": true,
+      "api_contracts": ["SPEC-070"],
+      "busy_state": "pending.recovery",
+      "disabled_when": ["pending.any", "unsupported.account-recovery"],
+      "success_expectation": "The authenticated account records email ownership proof.",
+      "error_expectation": "Invalid or expired verification token errors are visible without clearing the session."
+    },
+    {
+      "id": "auth.start-idp-login",
+      "label_key": "action.start-idp-login",
+      "requires_auth": false,
+      "api_contracts": ["SPEC-070"],
+      "busy_state": "pending.idp-login",
+      "disabled_when": ["pending.any", "unsupported.account-recovery"],
+      "success_expectation": "The host receives a redirect descriptor and owns browser presentation.",
+      "error_expectation": "IdP start errors are visible without launching a browser to an untrusted URL."
+    },
+    {
+      "id": "auth.complete-idp-login",
+      "label_key": "action.complete-idp-login",
+      "requires_auth": false,
+      "api_contracts": ["SPEC-070"],
+      "busy_state": "pending.idp-login",
+      "disabled_when": ["pending.any", "unsupported.account-recovery"],
+      "success_expectation": "The host receives a session response with the same storage boundary as password login.",
+      "error_expectation": "IdP completion errors are visible without logging callback query values."
+    },
+    {
       "id": "room.create",
       "label_key": "action.create-room",
       "requires_auth": true,
@@ -219,6 +333,16 @@
       "description": "A login or account registration request is in flight."
     },
     {
+      "id": "pending.recovery",
+      "kind": "async",
+      "description": "An account recovery or email verification request is in flight."
+    },
+    {
+      "id": "pending.idp-login",
+      "kind": "async",
+      "description": "An identity provider login start or completion request is in flight."
+    },
+    {
       "id": "pending.room",
       "kind": "async",
       "description": "A room creation request is in flight."
@@ -269,6 +393,21 @@
       "description": "Latest media metadata and content download summary are available."
     },
     {
+      "id": "data.recovery-state",
+      "kind": "data",
+      "description": "Redacted account recovery state is available without token values."
+    },
+    {
+      "id": "data.idp-redirect",
+      "kind": "data",
+      "description": "A host-owned identity provider redirect descriptor is available."
+    },
+    {
+      "id": "unsupported.account-recovery",
+      "kind": "data",
+      "description": "The selected server has not advertised SPEC-070 account recovery or IdP login capabilities."
+    },
+    {
       "id": "error.visible",
       "kind": "error",
       "description": "The most recent recoverable error is visible to the user."
@@ -277,18 +416,29 @@
   "text_keys": {
     "action.create-account": "Create account",
     "action.create-room": "Create",
+    "action.account-recovery": "Account recovery",
+    "action.complete-idp-login": "Complete IdP login",
     "action.login": "Login",
     "action.logout": "Logout",
     "action.open-room": "Open room",
     "action.refresh": "Refresh",
+    "action.request-email-verification": "Send verification email",
+    "action.request-password-reset": "Send password reset",
     "action.send-message": "Send",
+    "action.start-idp-login": "Start IdP login",
+    "action.submit-email-verification": "Verify email",
+    "action.submit-password-reset": "Reset password",
     "action.upload-and-download": "Upload and download",
     "app.title": "Houra MVP",
     "empty.timeline": "No events",
     "field.content-type": "Content type",
+    "field.email": "Email",
     "field.filename": "Filename",
+    "field.identity-provider": "Identity provider",
     "field.message": "Message",
+    "field.new-password": "New password",
     "field.password": "Password",
+    "field.recovery-token": "Recovery code",
     "field.room-name": "Room name",
     "field.server": "Server",
     "field.text-payload": "Text payload",
@@ -348,6 +498,54 @@
           "expectation": "The same localpart and password resume an authenticated session."
         }
       ]
+    },
+    {
+      "id": "product-mvp-account-recovery-vnext",
+      "description": "Optional Product MVP vNext UI flow for SPEC-070 account recovery and IdP login; not part of the current Product MVP happy path until evidence includes it.",
+      "steps": [
+        {
+          "id": "open-recovery",
+          "screen": "auth",
+          "action": "auth.open-account-recovery",
+          "expectation": "Recovery actions are available only when the server advertises SPEC-070 capabilities."
+        },
+        {
+          "id": "request-password-reset",
+          "screen": "account-recovery",
+          "action": "auth.request-password-reset",
+          "expectation": "The UI records redacted recovery state and does not reveal account existence."
+        },
+        {
+          "id": "submit-password-reset",
+          "screen": "account-recovery",
+          "action": "auth.submit-password-reset",
+          "expectation": "Password reset completes and returns the user to login rather than silently creating a session."
+        },
+        {
+          "id": "start-idp-login",
+          "screen": "account-recovery",
+          "action": "auth.start-idp-login",
+          "expectation": "The host receives a redirect descriptor and owns browser presentation."
+        },
+        {
+          "id": "complete-idp-login",
+          "screen": "account-recovery",
+          "action": "auth.complete-idp-login",
+          "expectation": "The host receives a session response and keeps token storage outside UI-free core."
+        },
+        {
+          "id": "request-email-verification",
+          "screen": "account-recovery",
+          "action": "auth.request-email-verification",
+          "expectation": "An authenticated account receives redacted verification state."
+        },
+        {
+          "id": "submit-email-verification",
+          "screen": "account-recovery",
+          "action": "auth.submit-email-verification",
+          "expectation": "The authenticated account records email ownership proof."
+        }
+      ]
     }
   ],
   "release_evidence": {
@@ -362,10 +560,12 @@
       "confirm duplicate-submit prevention for actions with disabled_when pending.any",
       "confirm recoverable error visibility for every action error_expectation",
       "run or manually record product-mvp-happy-path acceptance flow coverage",
+      "if SPEC-070 is included, record product-mvp-account-recovery-vnext coverage and advertised capability evidence",
       "record accessibility pass or explicit blocker for form labels, buttons, status, and focus order"
     ],
     "redaction_policy": [
       "do not record raw bearer tokens or refresh tokens",
+      "do not record reset tokens, email verification tokens, authorization codes, callback URL query values, or IdP session identifiers",
       "do not record database URLs or private local paths",
       "do not record machine-specific environment values",
       "record redacted server base URL shape only when needed"
@@ -374,12 +574,14 @@
       "Expo React Native, Flutter, Web, or native component hierarchy remains adapter-owned",
       "UI-free core evidence does not satisfy manual UI acceptance by itself",
       "Docker Compose deploy smoke is separate from UI surface adoption evidence",
+      "SPEC-070 account recovery and IdP login actions are optional vNext coverage and require advertised capability evidence",
       "Matrix full compliance is not claimed by this surface"
     ]
   },
   "limitations": [
     "This surface does not define marketing pages or onboarding copy outside the Product MVP operation flow.",
     "This surface does not define framework-specific navigation, component hierarchy, animations, or persistence APIs.",
-    "Federation, encrypted media, range/resumable media download, thumbnails, email verification, password reset, identity provider login, and Matrix full-spec coverage are outside this Product MVP surface."
+    "Federation, encrypted media, range/resumable media download, thumbnails, and Matrix full-spec coverage are outside this Product MVP surface.",
+    "SPEC-070 account recovery and IdP login are optional Product MVP vNext actions and are outside the current Product MVP happy path until a release candidate includes matching adoption evidence."
   ]
 }

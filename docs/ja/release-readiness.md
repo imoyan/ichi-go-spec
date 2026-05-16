@@ -32,6 +32,10 @@ checklist です。
 - Product MVP UI surface adoption evidence は、対象 `houra-spec` ref、consumer repo ref、
   screen / action mapping、duplicate-submit prevention、recoverable error display、
   accessibility 結果または blocker、acceptance flow coverage、redaction 方針を持つ
+- `SPEC-070` を含む release candidate では、advertised capability、
+  `product-mvp-account-recovery-vnext` flow coverage、reset token / email verification
+  token / authorization code / callback query / IdP session identifier の redaction 方針が
+  evidence に含まれている
 - README の `Implementation Adoption Reports` と日本語説明が矛盾していない
 - Matrix version、外部仕様、互換性 claim は source と `checked_at` を持つ snapshot として扱われている
 - pre-1.0 の contract / vector / design input 変更は `breaking` / `additive` /
