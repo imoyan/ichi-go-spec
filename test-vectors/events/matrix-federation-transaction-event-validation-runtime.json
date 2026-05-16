@@ -1,0 +1,208 @@
+{
+  "name": "matrix-federation-transaction-event-validation-runtime",
+  "contract": "SPEC-107",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/server-server-api/#transactions",
+      "https://spec.matrix.org/v1.18/server-server-api/#put_matrixfederationv1sendtxnid",
+      "https://spec.matrix.org/v1.18/rooms/v12/#authorization-rules"
+    ],
+    "checked_at": "2026-05-16T16:30:00+09:00",
+    "parent_contract": "SPEC-056",
+    "parser_helper_contract": "SPEC-099",
+    "gap_inventory_contract": "SPEC-074",
+    "lane_id": "transaction-pdu-edu-event-validation-breadth",
+    "request": {
+      "method": "PUT",
+      "path": "/_matrix/federation/v1/send/txn-validation-1",
+      "authorization": {
+        "scheme": "X-Matrix",
+        "origin": "remote.example.test",
+        "destination": "example.test",
+        "key": "ed25519:auto1",
+        "sig": "base64-request-signature"
+      },
+      "body": {
+        "origin": "remote.example.test",
+        "origin_server_ts": 1778408851000,
+        "pdus": [
+          {
+            "event_id": "$accepted:remote.example.test",
+            "type": "m.room.message",
+            "room_id": "!room:example.test",
+            "sender": "@alice:remote.example.test",
+            "origin_server_ts": 1778408851000,
+            "depth": 12,
+            "prev_events": [
+              "$prev:example.test"
+            ],
+            "auth_events": [
+              "$auth:example.test"
+            ],
+            "content": {
+              "msgtype": "m.text",
+              "body": "accepted over federation"
+            },
+            "hashes": {
+              "sha256": "base64-event-content-hash"
+            },
+            "signatures": {
+              "remote.example.test": {
+                "ed25519:auto1": "base64-event-signature"
+              }
+            }
+          },
+          {
+            "event_id": "$rejected:remote.example.test",
+            "type": "m.room.message",
+            "room_id": "!room:example.test",
+            "sender": "@mallory:evil.example.test",
+            "origin_server_ts": 1778408851001,
+            "depth": 13,
+            "prev_events": [
+              "$accepted:remote.example.test"
+            ],
+            "auth_events": [
+              "$auth:example.test"
+            ],
+            "content": {
+              "msgtype": "m.text",
+              "body": "wrong origin"
+            },
+            "hashes": {
+              "sha256": "base64-rejected-hash"
+            },
+            "signatures": {
+              "evil.example.test": {
+                "ed25519:auto1": "base64-rejected-signature"
+              }
+            }
+          },
+          {
+            "event_id": "$soft:remote.example.test",
+            "type": "m.room.message",
+            "room_id": "!room:example.test",
+            "sender": "@alice:remote.example.test",
+            "origin_server_ts": 1778408851002,
+            "depth": 14,
+            "prev_events": [
+              "$unknown-prev:remote.example.test"
+            ],
+            "auth_events": [
+              "$auth:example.test"
+            ],
+            "content": {
+              "msgtype": "m.text",
+              "body": "soft failed missing previous event"
+            },
+            "hashes": {
+              "sha256": "base64-soft-failed-hash"
+            },
+            "signatures": {
+              "remote.example.test": {
+                "ed25519:auto1": "base64-soft-failed-signature"
+              }
+            }
+          }
+        ],
+        "edus": [
+          {
+            "edu_type": "m.typing",
+            "content": {
+              "room_id": "!room:example.test",
+              "user_id": "@alice:remote.example.test",
+              "typing": true
+            }
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "pdus": {
+          "$accepted:remote.example.test": {},
+          "$rejected:remote.example.test": {
+            "error": "Event failed authorization"
+          },
+          "$soft:remote.example.test": {
+            "error": "Event soft-failed",
+            "soft_failed": true
+          }
+        }
+      }
+    },
+    "negative_cases": [
+      {
+        "id": "too-many-pdus",
+        "field": "pdus",
+        "count": 51,
+        "expected_status": 400,
+        "expected_error": "M_BAD_JSON"
+      },
+      {
+        "id": "too-many-edus",
+        "field": "edus",
+        "count": 101,
+        "expected_status": 400,
+        "expected_error": "M_BAD_JSON"
+      },
+      {
+        "id": "missing-pdu-signatures",
+        "field": "pdus[0].signatures",
+        "expected_status": 400,
+        "expected_error": "M_BAD_JSON"
+      },
+      {
+        "id": "missing-pdu-hash",
+        "field": "pdus[0].hashes.sha256",
+        "expected_status": 400,
+        "expected_error": "M_BAD_JSON"
+      },
+      {
+        "id": "invalid-signature-key-id",
+        "field": "pdus[0].signatures.remote.example.test.rsa:auto1",
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      }
+    ],
+    "resource_bounds": {
+      "max_pdu_count": 50,
+      "max_edu_count": 100,
+      "max_signature_server_count": 8,
+      "max_signature_key_count_per_server": 8,
+      "hash_material_required": true,
+      "signature_material_required": true,
+      "event_hash_calculation": false,
+      "cryptographic_signature_verification": false,
+      "full_auth_rule_execution": false,
+      "storage_mutation": false,
+      "outbound_federation_execution": false,
+      "versions_advertisement_widened": false
+    },
+    "release_evidence_rules": {
+      "representative_runtime": true,
+      "event_auth_claimed": false,
+      "soft_fail_policy_full_claimed": false,
+      "event_hash_calculation_claimed": false,
+      "signature_verification_claimed": false,
+      "advertisement_allowed": false
+    }
+  },
+  "expected": {
+    "accepted_event_id": "$accepted:remote.example.test",
+    "rejected_event_id": "$rejected:remote.example.test",
+    "soft_failed_event_id": "$soft:remote.example.test",
+    "pdu_count": 3,
+    "edu_count": 1,
+    "transaction_status": 200,
+    "hash_material_required": true,
+    "signature_material_required": true,
+    "event_hash_calculation_claimed": false,
+    "signature_verification_claimed": false,
+    "full_auth_rule_execution_claimed": false,
+    "versions_advertisement_widened": false,
+    "advertisement_allowed": false
+  }
+}
