@@ -1,0 +1,175 @@
+{
+  "name": "matrix-federation-pdu-edu-parser-helpers",
+  "contract": "SPEC-099",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/server-server-api/#transactions",
+      "https://spec.matrix.org/v1.18/server-server-api/#put_matrixfederationv1sendtxnid",
+      "https://spec.matrix.org/v1.18/rooms/v12/#authorization-rules"
+    ],
+    "checked_at": "2026-05-16T13:45:00+09:00",
+    "parent_contract": "SPEC-056",
+    "gap_inventory_contract": "SPEC-074",
+    "lane_id": "transaction-pdu-edu-event-validation-breadth",
+    "request_descriptor": {
+      "id": "federation-transaction-pdu-edu-parser",
+      "method": "PUT",
+      "path": "/_matrix/federation/v1/send/{txnId}",
+      "path_params": {
+        "txnId": "txn-parser-1"
+      },
+      "query_params": {},
+      "requires_auth": true,
+      "adopted_runtime_behavior": false,
+      "request_parser": "federation_transaction_descriptor",
+      "response_parser": "federation_transaction_response_descriptor"
+    },
+    "sample_transaction": {
+      "origin": "remote.example.test",
+      "origin_server_ts": 1778408851000,
+      "pdus": [
+        {
+          "event_id": "$event1:remote.example.test",
+          "type": "m.room.message",
+          "room_id": "!room:example.test",
+          "sender": "@alice:remote.example.test",
+          "origin_server_ts": 1778408851000,
+          "depth": 12,
+          "prev_events": [
+            "$prev:example.test"
+          ],
+          "auth_events": [
+            "$auth:example.test"
+          ],
+          "content": {
+            "msgtype": "m.text",
+            "body": "hello over federation"
+          },
+          "hashes": {
+            "sha256": "base64-event-content-hash"
+          },
+          "signatures": {
+            "remote.example.test": {
+              "ed25519:auto1": "base64-event-signature"
+            }
+          }
+        }
+      ],
+      "edus": [
+        {
+          "edu_type": "m.typing",
+          "content": {
+            "room_id": "!room:example.test",
+            "user_id": "@alice:remote.example.test",
+            "typing": true
+          }
+        },
+        {
+          "edu_type": "m.receipt",
+          "content": {
+            "!room:example.test": {
+              "m.read": {
+                "@alice:remote.example.test": {
+                  "event_ids": [
+                    "$event1:remote.example.test"
+                  ],
+                  "data": {
+                    "ts": 1778408851001
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "canonical_json_descriptor": {
+      "event_id": "$event1:remote.example.test",
+      "input_fields": [
+        "auth_events",
+        "content",
+        "depth",
+        "hashes",
+        "origin_server_ts",
+        "prev_events",
+        "room_id",
+        "sender",
+        "type"
+      ],
+      "private_key_present": false,
+      "hash_calculated": false,
+      "signature_verified": false
+    },
+    "sample_response": {
+      "pdus": {
+        "$event1:remote.example.test": {},
+        "$bad:remote.example.test": {
+          "error": "Event failed authorization"
+        }
+      }
+    },
+    "negative_cases": [
+      {
+        "id": "too-many-pdus",
+        "field": "pdus",
+        "count": 51,
+        "expected_error": "M_BAD_JSON"
+      },
+      {
+        "id": "too-many-edus",
+        "field": "edus",
+        "count": 101,
+        "expected_error": "M_BAD_JSON"
+      },
+      {
+        "id": "missing-pdu-signatures",
+        "field": "pdus[0].signatures",
+        "expected_error": "M_BAD_JSON"
+      },
+      {
+        "id": "invalid-signature-key-id",
+        "field": "pdus[0].signatures.remote.example.test.rsa:auto1",
+        "expected_error": "M_INVALID_PARAM"
+      }
+    ],
+    "resource_bounds": {
+      "max_pdu_count": 50,
+      "max_edu_count": 100,
+      "max_canonical_input_field_count": 32,
+      "max_signature_server_count": 8,
+      "max_signature_key_count_per_server": 8,
+      "max_normalized_pdu_descriptor_bytes": 16384,
+      "max_normalized_edu_descriptor_bytes": 8192,
+      "hash_calculation": false,
+      "signature_verification": false,
+      "auth_rule_execution": false,
+      "storage_mutation": false,
+      "outbound_federation_execution": false,
+      "versions_advertisement_widened": false
+    },
+    "release_evidence_rules": {
+      "parser_only": true,
+      "transaction_runtime_claimed": false,
+      "event_auth_claimed": false,
+      "soft_fail_policy_claimed": false,
+      "advertisement_allowed": false
+    }
+  },
+  "expected": {
+    "descriptor_count": 1,
+    "pdu_count": 1,
+    "edu_count": 2,
+    "canonical_input_field_count": 9,
+    "accepted_pdu_result_present": true,
+    "failed_pdu_result_present": true,
+    "hash_calculated": false,
+    "signature_verified": false,
+    "private_key_present": false,
+    "transaction_runtime_claimed": false,
+    "event_auth_claimed": false,
+    "soft_fail_policy_claimed": false,
+    "versions_advertisement_widened": false,
+    "advertisement_allowed": false
+  }
+}

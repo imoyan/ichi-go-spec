@@ -1,0 +1,219 @@
+{
+  "name": "matrix-federation-directory-query-openid-parser-helpers",
+  "contract": "SPEC-100",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/server-server-api/#get_matrixfederationv1publicrooms",
+      "https://spec.matrix.org/v1.18/server-server-api/#post_matrixfederationv1publicrooms",
+      "https://spec.matrix.org/v1.18/server-server-api/#get_matrixfederationv1hierarchyroomid",
+      "https://spec.matrix.org/v1.18/server-server-api/#querying-for-information",
+      "https://spec.matrix.org/v1.18/server-server-api/#openid"
+    ],
+    "checked_at": "2026-05-16T13:45:00+09:00",
+    "parent_contract": "SPEC-074",
+    "gap_inventory_contract": "SPEC-074",
+    "lane_id": "directory-spaces-query-openid-profile-breadth",
+    "request_descriptors": [
+      {
+        "id": "federation-public-rooms-get",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/publicRooms",
+        "query_params": {
+          "limit": 10,
+          "since": "token-a"
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "response_parser": "federation_public_rooms_response"
+      },
+      {
+        "id": "federation-public-rooms-post",
+        "method": "POST",
+        "path": "/_matrix/federation/v1/publicRooms",
+        "body": {
+          "limit": 10,
+          "filter": {
+            "generic_search_term": "houra"
+          },
+          "include_all_networks": false,
+          "third_party_instance_id": "irc"
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "response_parser": "federation_public_rooms_response"
+      },
+      {
+        "id": "federation-hierarchy",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/hierarchy/{roomId}",
+        "path_params": {
+          "roomId": "!space:example.test"
+        },
+        "query_params": {
+          "suggested_only": true
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "response_parser": "federation_hierarchy_response"
+      },
+      {
+        "id": "federation-query-directory",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/query/directory",
+        "query_params": {
+          "room_alias": "#general:example.test"
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "response_parser": "federation_directory_query_response"
+      },
+      {
+        "id": "federation-query-profile",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/query/profile",
+        "query_params": {
+          "user_id": "@alice:example.test"
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "response_parser": "federation_profile_query_response"
+      },
+      {
+        "id": "federation-openid-userinfo",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/openid/userinfo",
+        "query_params": {
+          "access_token": "redacted-token"
+        },
+        "requires_auth": false,
+        "adopted_runtime_behavior": false,
+        "response_parser": "federation_openid_userinfo_response"
+      }
+    ],
+    "sample_responses": {
+      "public_rooms": {
+        "chunk": [
+          {
+            "room_id": "!room:example.test",
+            "name": "Houra Public",
+            "topic": "Federation parser helpers",
+            "canonical_alias": "#houra:example.test",
+            "num_joined_members": 12,
+            "world_readable": true,
+            "guest_can_join": false,
+            "join_rule": "public",
+            "room_type": "m.space"
+          }
+        ],
+        "next_batch": "token-b",
+        "prev_batch": "token-a",
+        "total_room_count_estimate": 1
+      },
+      "hierarchy": {
+        "rooms": [
+          {
+            "room_id": "!space:example.test",
+            "name": "Houra Space",
+            "num_joined_members": 4,
+            "world_readable": true,
+            "guest_can_join": false,
+            "children_state": [
+              {
+                "type": "m.space.child",
+                "state_key": "!room:example.test",
+                "content": {
+                  "via": [
+                    "example.test"
+                  ],
+                  "suggested": true
+                }
+              }
+            ]
+          }
+        ],
+        "inaccessible_children": [
+          "!hidden:example.test"
+        ],
+        "next_batch": "hierarchy-next"
+      },
+      "directory_query": {
+        "room_id": "!room:example.test",
+        "servers": [
+          "example.test",
+          "remote.example.test"
+        ]
+      },
+      "profile_query": {
+        "displayname": "Alice",
+        "avatar_url": "mxc://example.test/avatar"
+      },
+      "generic_query": {
+        "query_type": "profile",
+        "response_object_present": true
+      },
+      "openid_userinfo": {
+        "sub": "@alice:example.test"
+      }
+    },
+    "negative_cases": [
+      {
+        "id": "public-rooms-missing-chunk",
+        "surface": "public_rooms",
+        "expected_error": "M_BAD_JSON"
+      },
+      {
+        "id": "hierarchy-negative-member-count",
+        "surface": "hierarchy.rooms[0].num_joined_members",
+        "expected_error": "M_BAD_JSON"
+      },
+      {
+        "id": "directory-query-missing-servers",
+        "surface": "query/directory.servers",
+        "expected_error": "M_BAD_JSON"
+      },
+      {
+        "id": "openid-userinfo-missing-sub",
+        "surface": "openid/userinfo.sub",
+        "expected_error": "M_UNAUTHORIZED"
+      }
+    ],
+    "resource_bounds": {
+      "max_public_room_summary_count": 50,
+      "max_hierarchy_room_summary_count": 50,
+      "max_children_state_event_count_per_room": 20,
+      "max_inaccessible_child_count": 50,
+      "max_server_list_count_per_directory_query": 20,
+      "max_generic_query_response_bytes": 16384,
+      "remote_network_fetch": false,
+      "visibility_decision": false,
+      "openid_token_verification": false,
+      "cache_persistence": false,
+      "versions_advertisement_widened": false
+    },
+    "release_evidence_rules": {
+      "parser_only": true,
+      "remote_directory_runtime_claimed": false,
+      "profile_privacy_policy_claimed": false,
+      "openid_trust_claimed": false,
+      "advertisement_allowed": false
+    }
+  },
+  "expected": {
+    "descriptor_count": 6,
+    "public_room_count": 1,
+    "hierarchy_room_count": 1,
+    "children_state_count": 1,
+    "directory_server_count": 2,
+    "openid_subject": "@alice:example.test",
+    "remote_network_fetch": false,
+    "visibility_decision": false,
+    "openid_token_verification": false,
+    "cache_persistence": false,
+    "remote_directory_runtime_claimed": false,
+    "profile_privacy_policy_claimed": false,
+    "openid_trust_claimed": false,
+    "versions_advertisement_widened": false,
+    "advertisement_allowed": false
+  }
+}
