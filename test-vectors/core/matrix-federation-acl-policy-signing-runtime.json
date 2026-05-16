@@ -1,0 +1,292 @@
+{
+  "name": "matrix-federation-acl-policy-signing-runtime",
+  "contract": "SPEC-110",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/server-server-api/#server-access-control-lists-acls-for-rooms",
+      "https://spec.matrix.org/v1.18/server-server-api/#get_matrixfederationv1eventeventid",
+      "https://spec.matrix.org/v1.18/policy-servers/",
+      "https://spec.matrix.org/v1.18/rooms/v12/#event-format"
+    ],
+    "checked_at": "2026-05-16T21:25:00+09:00",
+    "parser_helper_contract": "SPEC-103",
+    "gap_inventory_contract": "SPEC-074",
+    "lane_id": "server-acl-policy-server-event-signing-breadth",
+    "requests": [
+      {
+        "id": "federation-event-allowed",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/event/$policy:example.test",
+        "authorization": {
+          "scheme": "X-Matrix",
+          "origin": "remote.example.test",
+          "destination": "example.test",
+          "key": "ed25519:auto1",
+          "sig": "base64-request-signature"
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "origin": "example.test",
+            "origin_server_ts": 1778411100000,
+            "pdus": [
+              {
+                "event_id": "$policy:example.test",
+                "type": "m.room.server_acl",
+                "room_id": "!room:example.test",
+                "sender": "@server:example.test",
+                "origin_server_ts": 1778411100000,
+                "depth": 2,
+                "prev_events": [
+                  "$create:example.test"
+                ],
+                "auth_events": [
+                  "$auth:example.test"
+                ],
+                "content": {
+                  "allow": [
+                    "*"
+                  ],
+                  "deny": [
+                    "banned.example.test"
+                  ],
+                  "allow_ip_literals": false
+                },
+                "hashes": {
+                  "sha256": "base64-policy-event-hash"
+                },
+                "signatures": {
+                  "example.test": {
+                    "ed25519:auto1": "base64-policy-event-signature"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "policy-sign",
+        "method": "POST",
+        "path": "/_matrix/policy/v1/sign",
+        "body": {
+          "room_id": "!room:example.test",
+          "policy_id": "acl-1",
+          "event": {
+            "type": "m.room.server_acl",
+            "room_id": "!room:example.test",
+            "sender": "@server:example.test",
+            "content": {
+              "allow": [
+                "*"
+              ],
+              "deny": [
+                "banned.example.test"
+              ],
+              "allow_ip_literals": false
+            },
+            "hashes": {
+              "sha256": "base64-policy-event-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:auto1": "base64-policy-event-signature"
+              }
+            }
+          }
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "room_id": "!room:example.test",
+            "policy_id": "acl-1",
+            "policy_signature": "base64-policy-signature",
+            "event": {
+              "type": "m.room.server_acl",
+              "room_id": "!room:example.test",
+              "sender": "@server:example.test",
+              "content": {
+                "allow": [
+                  "*"
+                ],
+                "deny": [
+                  "banned.example.test"
+                ],
+                "allow_ip_literals": false
+              },
+              "hashes": {
+                "sha256": "base64-policy-event-hash"
+              },
+              "signatures": {
+                "example.test": {
+                  "ed25519:auto1": "base64-policy-event-signature"
+                }
+              }
+            }
+          }
+        }
+      }
+    ],
+    "negative_cases": [
+      {
+        "id": "federation-event-missing-authorization",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/event/$policy:example.test",
+        "expected_status": 401,
+        "expected_error": "M_UNAUTHORIZED"
+      },
+      {
+        "id": "federation-event-acl-denied",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/event/$policy:example.test",
+        "authorization": {
+          "scheme": "X-Matrix",
+          "origin": "banned.example.test",
+          "destination": "example.test",
+          "key": "ed25519:auto1",
+          "sig": "base64-request-signature"
+        },
+        "expected_status": 403,
+        "expected_error": "M_FORBIDDEN"
+      },
+      {
+        "id": "federation-event-invalid-id",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/event/not-an-event",
+        "authorization_ref": "federation-event-allowed",
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      },
+      {
+        "id": "federation-event-unknown",
+        "method": "GET",
+        "path": "/_matrix/federation/v1/event/$missing:example.test",
+        "authorization_ref": "federation-event-allowed",
+        "expected_status": 404,
+        "expected_error": "M_NOT_FOUND"
+      },
+      {
+        "id": "policy-sign-invalid-body",
+        "method": "POST",
+        "path": "/_matrix/policy/v1/sign",
+        "body": {
+          "room_id": "!room:example.test",
+          "policy_id": "acl-1",
+          "event": []
+        },
+        "expected_status": 400,
+        "expected_error": "M_BAD_JSON"
+      },
+      {
+        "id": "policy-sign-unsupported-room",
+        "method": "POST",
+        "path": "/_matrix/policy/v1/sign",
+        "body": {
+          "room_id": "!unknown:example.test",
+          "policy_id": "acl-1",
+          "event": {
+            "type": "m.room.server_acl",
+            "room_id": "!unknown:example.test",
+            "sender": "@server:example.test",
+            "content": {},
+            "hashes": {
+              "sha256": "base64-policy-event-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "ed25519:auto1": "base64-policy-event-signature"
+              }
+            }
+          }
+        },
+        "expected_status": 404,
+        "expected_error": "M_NOT_FOUND"
+      },
+      {
+        "id": "policy-sign-missing-hash",
+        "method": "POST",
+        "path": "/_matrix/policy/v1/sign",
+        "body": {
+          "room_id": "!room:example.test",
+          "policy_id": "acl-1",
+          "event": {
+            "type": "m.room.server_acl",
+            "room_id": "!room:example.test",
+            "sender": "@server:example.test",
+            "content": {},
+            "hashes": {},
+            "signatures": {
+              "example.test": {
+                "ed25519:auto1": "base64-policy-event-signature"
+              }
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": "M_BAD_JSON"
+      },
+      {
+        "id": "policy-sign-invalid-signature-key",
+        "method": "POST",
+        "path": "/_matrix/policy/v1/sign",
+        "body": {
+          "room_id": "!room:example.test",
+          "policy_id": "acl-1",
+          "event": {
+            "type": "m.room.server_acl",
+            "room_id": "!room:example.test",
+            "sender": "@server:example.test",
+            "content": {},
+            "hashes": {
+              "sha256": "base64-policy-event-hash"
+            },
+            "signatures": {
+              "example.test": {
+                "rsa:auto1": "base64-policy-event-signature"
+              }
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      }
+    ],
+    "resource_bounds": {
+      "max_acl_allow_entries": 20,
+      "max_acl_deny_entries": 20,
+      "max_policy_signing_payload_bytes": 65536,
+      "max_signature_server_count": 8,
+      "max_signature_key_count_per_server": 8,
+      "request_authorization_required": true,
+      "acl_fail_closed_on_denied_origin": true,
+      "policy_server_deployed": false,
+      "outbound_policy_server_calls": false,
+      "production_signing_key_storage": false,
+      "complete_room_policy_state_evaluation": false,
+      "cryptographic_hash_calculation_claimed": false,
+      "cryptographic_signature_verification_claimed": false,
+      "versions_advertisement_widened": false
+    },
+    "release_evidence_rules": {
+      "representative_runtime": true,
+      "acl_policy_full_claimed": false,
+      "policy_server_deployment_claimed": false,
+      "event_hash_calculation_claimed": false,
+      "signature_verification_claimed": false,
+      "advertisement_allowed": false
+    }
+  },
+  "expected": {
+    "request_count": 2,
+    "event_id": "$policy:example.test",
+    "policy_id": "acl-1",
+    "denied_origin": "banned.example.test",
+    "acl_fail_closed_on_denied_origin": true,
+    "policy_server_deployment_claimed": false,
+    "event_hash_calculation_claimed": false,
+    "signature_verification_claimed": false,
+    "versions_advertisement_widened": false,
+    "advertisement_allowed": false
+  }
+}
