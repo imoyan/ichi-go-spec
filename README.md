@@ -185,6 +185,7 @@ matching Product MVP contract/vector/design input also changed.
 - `contracts/SPEC-107-matrix-federation-transaction-event-validation-runtime.md`
 - `contracts/SPEC-108-matrix-federation-directory-query-openid-runtime.md`
 - `contracts/SPEC-109-matrix-federation-e2ee-device-media-runtime.md`
+- `contracts/SPEC-110-matrix-federation-acl-policy-signing-runtime.md`
 
 ## Shared Design Inputs
 
@@ -1691,6 +1692,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-107 | Matrix federation transaction event-validation representative runtime behavior | `test-vectors/events/matrix-federation-transaction-event-validation-runtime.json` |
 | SPEC-108 | Matrix federation directory, hierarchy, query, and OpenID representative runtime behavior | `test-vectors/core/matrix-federation-directory-query-openid-runtime.json` |
 | SPEC-109 | Matrix federation E2EE device, to-device, and media representative runtime behavior | `test-vectors/core/matrix-federation-e2ee-device-media-runtime.json` |
+| SPEC-110 | Matrix federation Server ACL, policy signing, and event hash/signature representative runtime behavior | `test-vectors/core/matrix-federation-acl-policy-signing-runtime.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
