@@ -41,6 +41,22 @@
 - Matrix や外部仕様に触れる場合は、source と `checked_at` をコピーせず、README と
   `contracts/SPEC-030-matrix-client-versions.md` の snapshot を参照する
 
+## Conformance report
+
+実装リポジトリが vector runner や acceptance runner の結果を残す場合は、`SPEC-113` の
+`conformance-report-v1` shape を使います。最低限、`houra-spec` ref / commit、実装 repo
+ref、runner name / command、target profile、vector path、contract id、feature profile、
+status、redacted failure detail、claim boundary を残します。
+
+status は `pass`、`fail`、`skipped`、`blocked`、`out_of_scope` です。`skipped`、
+`blocked`、`out_of_scope` は pass evidence ではありません。Product MVP release evidence や
+Matrix advertisement に使う場合は、別の adoption / release gate が excluded behavior と
+fail-closed 判断を説明している必要があります。
+
+stale spec ref、unknown vector、unknown contract id、profile mismatch、unredacted failure
+detail は report invalid として扱います。failure detail には bearer token、database URL、
+signed URL、private local path、key material、plaintext payload を記録しません。
+
 ## 実装側に残すもの
 
 storage、SDK convenience API、secure storage、token persistence、retry policy、

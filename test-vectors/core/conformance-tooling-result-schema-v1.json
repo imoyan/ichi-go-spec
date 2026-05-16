@@ -1,0 +1,130 @@
+{
+  "name": "conformance-tooling-result-schema-v1",
+  "contract": "SPEC-113",
+  "event": {
+    "schema_version": "conformance-report-v1",
+    "source_doc": "README.md",
+    "status_values": [
+      "pass",
+      "fail",
+      "skipped",
+      "blocked",
+      "out_of_scope"
+    ],
+    "required_report_fields": [
+      "schema_version",
+      "generated_at",
+      "houra_spec_ref",
+      "houra_spec_commit",
+      "implementation",
+      "runner",
+      "target",
+      "results",
+      "totals",
+      "claim_boundary",
+      "redaction"
+    ],
+    "required_result_fields": [
+      "vector_name",
+      "vector_path",
+      "contract",
+      "feature_profile",
+      "status"
+    ],
+    "sample_report": {
+      "schema_version": "conformance-report-v1",
+      "generated_at": "2026-05-17T08:10:00+09:00",
+      "houra_spec_ref": "houra-spec@222344fb73102354ef47c3d309b4ce95675dbf3a",
+      "houra_spec_commit": "222344fb73102354ef47c3d309b4ce95675dbf3a",
+      "implementation": {
+        "repo": "imoyan/houra-client",
+        "ref": "houra-client@sha-redacted",
+        "pull_request": "imoyan/houra-client#example",
+        "runtime": "expo-react-native"
+      },
+      "runner": {
+        "name": "houra-client-vector-runner",
+        "version": "v1",
+        "command": "npm run test:product-mvp-acceptance"
+      },
+      "target": {
+        "feature_profiles": [
+          "core",
+          "auth",
+          "rooms",
+          "events",
+          "messaging",
+          "sync",
+          "media"
+        ],
+        "matrix_domains": [],
+        "release_candidate": "next-product-mvp-release-candidate"
+      },
+      "results": [
+        {
+          "vector_name": "versions-basic",
+          "vector_path": "test-vectors/core/versions-basic.json",
+          "contract": "SPEC-001",
+          "feature_profile": "core",
+          "status": "pass",
+          "duration_ms": 4,
+          "artifact": "artifacts/conformance/core/versions-basic.json"
+        },
+        {
+          "vector_name": "matrix-client-versions-basic",
+          "vector_path": "test-vectors/core/matrix-client-versions-basic.json",
+          "contract": "SPEC-030",
+          "feature_profile": "core",
+          "status": "out_of_scope",
+          "failure_detail": {
+            "reason": "matrix-domain-not-in-product-mvp-target",
+            "redacted": true
+          }
+        },
+        {
+          "vector_name": "download-content-basic",
+          "vector_path": "test-vectors/media/download-content-basic.json",
+          "contract": "SPEC-020",
+          "feature_profile": "media",
+          "status": "blocked",
+          "failure_detail": {
+            "reason": "server-target-unavailable",
+            "redacted": true,
+            "omitted": [
+              "bearer_tokens",
+              "private_local_paths"
+            ]
+          }
+        }
+      ],
+      "totals": {
+        "pass": 1,
+        "fail": 0,
+        "skipped": 0,
+        "blocked": 1,
+        "out_of_scope": 1
+      },
+      "claim_boundary": {
+        "product_mvp_release_evidence_complete": false,
+        "matrix_versions_advertisement_widened": false,
+        "matrix_domain_support_claimed": false,
+        "shared_core_adoption_claimed": false,
+        "release_ready": false
+      },
+      "redaction": {
+        "secrets_redacted": true,
+        "raw_local_paths_redacted": true,
+        "failure_detail_redacted": true
+      }
+    }
+  },
+  "expected": {
+    "schema_defined": true,
+    "required_report_fields_traceable": true,
+    "required_result_fields_traceable": true,
+    "all_status_values_defined": true,
+    "sample_report_traceable_to_contract_vector_profile": true,
+    "claim_boundary_not_widened_by_report": true,
+    "redaction_required": true
+  }
+}
