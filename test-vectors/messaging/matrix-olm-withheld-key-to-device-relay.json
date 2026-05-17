@@ -1,0 +1,161 @@
+{
+  "name": "matrix-olm-withheld-key-to-device-relay",
+  "contract": "SPEC-130",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#send-to-device-messaging",
+    "withheld_key_source": "https://spec.matrix.org/v1.18/client-server-api/#mroomkeywithheld",
+    "room_key_request_source": "https://spec.matrix.org/v1.18/client-server-api/#mroom_key_request",
+    "forwarded_room_key_source": "https://spec.matrix.org/v1.18/client-server-api/#mforwarded_room_key",
+    "checked_at": "2026-05-17T19:25:00+09:00",
+    "required_contracts": [
+      "SPEC-050",
+      "SPEC-052",
+      "SPEC-079",
+      "SPEC-130"
+    ],
+    "local_olm_megolm_allowed": false,
+    "steps": [
+      {
+        "id": "relay-withheld-key",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/sendToDevice/m.room_key.withheld/txn-withheld-1",
+        "access_token": "token-alice-device1",
+        "event_type": "m.room_key.withheld",
+        "body": {
+          "messages": {
+            "@bob:example.test": {
+              "BOB1": {
+                "algorithm": "m.megolm.v1.aes-sha2",
+                "room_id": "!encrypted:example.test",
+                "sender_key": "alice-curve25519-device1",
+                "session_id": "megolm-session-1",
+                "code": "m.blacklisted",
+                "reason": "device is not trusted"
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "relay-room-key-request",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/sendToDevice/m.room_key_request/txn-key-request-1",
+        "access_token": "token-bob-device1",
+        "event_type": "m.room_key_request",
+        "body": {
+          "messages": {
+            "@alice:example.test": {
+              "DEVICE1": {
+                "action": "request",
+                "requesting_device_id": "BOB1",
+                "request_id": "request-megolm-session-1",
+                "body": {
+                  "algorithm": "m.megolm.v1.aes-sha2",
+                  "room_id": "!encrypted:example.test",
+                  "sender_key": "alice-curve25519-device1",
+                  "session_id": "megolm-session-1"
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "relay-forwarded-room-key",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/sendToDevice/m.forwarded_room_key/txn-forwarded-room-key-1",
+        "access_token": "token-alice-device1",
+        "event_type": "m.forwarded_room_key",
+        "body": {
+          "messages": {
+            "@bob:example.test": {
+              "BOB1": {
+                "algorithm": "m.megolm.v1.aes-sha2",
+                "room_id": "!encrypted:example.test",
+                "sender_key": "alice-curve25519-device1",
+                "session_id": "megolm-session-1",
+                "session_key": "opaque-forwarded-session-key",
+                "sender_claimed_ed25519_key": "alice-ed25519-device1",
+                "forwarding_curve25519_key_chain": [
+                  "alice-curve25519-device1"
+                ]
+              }
+            }
+          }
+        },
+        "expected_status": 200,
+        "server_must_not_decrypt": true
+      },
+      {
+        "id": "relay-room-key-request-cancellation",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/sendToDevice/m.room_key_request/txn-key-request-cancel-1",
+        "access_token": "token-bob-device1",
+        "event_type": "m.room_key_request",
+        "body": {
+          "messages": {
+            "@alice:example.test": {
+              "DEVICE1": {
+                "action": "request_cancellation",
+                "requesting_device_id": "BOB1",
+                "request_id": "request-megolm-session-1"
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "sync-relayed-to-device-events",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-bob-device1",
+        "expected_status": 200,
+        "expected_to_device_event_types": [
+          "m.room_key.withheld",
+          "m.forwarded_room_key"
+        ]
+      },
+      {
+        "id": "reject-malformed-withheld-key",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/sendToDevice/m.room_key.withheld/txn-withheld-bad",
+        "access_token": "token-alice-device1",
+        "event_type": "m.room_key.withheld",
+        "body": {
+          "messages": {
+            "@bob:example.test": {
+              "BOB1": {
+                "algorithm": "m.megolm.v1.aes-sha2",
+                "room_id": "!encrypted:example.test",
+                "sender_key": "alice-curve25519-device1"
+              }
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM"
+        }
+      }
+    ],
+    "required_evidence": [
+      "houra_spec_ref",
+      "houra_server_ref",
+      "event_types",
+      "device_ids",
+      "commands",
+      "per_step_pass_fail",
+      "versions_advertisement_widened_false"
+    ]
+  },
+  "expected": {
+    "relayed_event_type_count": 4,
+    "sync_visible_event_type_count": 2,
+    "malformed_payload_rejected": true,
+    "versions_advertisement_widened": false
+  }
+}
