@@ -116,6 +116,8 @@ matching Product MVP contract/vector/design input also changed.
   adoption-gate guidance.
 - `docs/matrix-compliance.md`: Matrix v1.18 compliance matrix, roadmap, and
   release-evidence notes.
+- `docs/releases/TEMPLATE.md`: release record template for pre-1.0 freeze
+  candidates, milestone tags, and claim-boundary evidence.
 - `tool/check_spec.dart`: local consistency check for contracts, vectors,
   design tokens, and UI surfaces.
 - `docs/architecture/`: non-contract architecture guidance, such as the

@@ -522,6 +522,7 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     'docs/adoption-status.md',
     'docs/shared-implementation-strategy.md',
     'docs/matrix-compliance.md',
+    'docs/releases/TEMPLATE.md',
   ];
 
   for (final path in docs) {
@@ -556,6 +557,7 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
       'docs/shared-implementation-strategy.md',
       'docs/matrix-compliance.md',
       'docs/adoption-status.md',
+      'docs/releases/TEMPLATE.md',
       'CHANGELOG.md',
     ])
       if (File(path).existsSync()) File(path).readAsStringSync(),
@@ -608,6 +610,10 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     'Adoption Status Board',
     'cross-repository adoption index',
     'not conformance proof',
+    'Release Record Template',
+    'docs/releases/<tag>.md',
+    'Product MVP claim boundary',
+    'Matrix compatibility claim boundary',
   ]) {
     if (!supportingDocsCorpus.contains(phrase)) {
       failures.add('Supporting docs must document $phrase.');
@@ -625,8 +631,12 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
   if (!readme.contains('docs/adoption-status.md')) {
     failures.add('README.md must link docs/adoption-status.md.');
   }
+  if (!readme.contains('docs/releases/TEMPLATE.md')) {
+    failures.add('README.md must link docs/releases/TEMPLATE.md.');
+  }
   checkReservedContractNumbers(contracts, failures);
   checkAdoptionStatusBoard(contracts, failures);
+  checkReleaseRecordTemplate(failures);
   checkJapaneseDocs(failures);
 
   final agents = File('AGENTS.md').readAsStringSync();
@@ -683,6 +693,9 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
   }
   if (!sourceOfTruth.contains('Matrix References Are Primary')) {
     failures.add('SOURCE_OF_TRUTH.md must document Matrix reference priority.');
+  }
+  if (!sourceOfTruth.contains('docs/releases/TEMPLATE.md')) {
+    failures.add('SOURCE_OF_TRUTH.md must document release records.');
   }
 
   final referencePolicy = File('REFERENCE_POLICY.md').readAsStringSync();
@@ -904,6 +917,39 @@ void checkAdoptionStatusBoard(
   }
 }
 
+void checkReleaseRecordTemplate(List<String> failures) {
+  final template = File('docs/releases/TEMPLATE.md');
+  if (!template.existsSync()) {
+    failures.add('Missing release record template: docs/releases/TEMPLATE.md.');
+    return;
+  }
+
+  final source = template.readAsStringSync();
+  for (final phrase in [
+    '# Release Record Template',
+    'docs/releases/<tag>.md',
+    'Release Identity',
+    'Compatibility and Claim Boundary',
+    'Compatibility classification: `breaking|additive|corrective`',
+    'Claim impact: `Product MVP|Matrix|both|neither`',
+    'Product MVP claim boundary',
+    'Matrix compatibility claim boundary',
+    'Changed Inputs',
+    'Implementation Adoption Evidence',
+    'Implementation repositories are evidence consumers only',
+    'Verification',
+    '`dart tool/check_spec.dart`',
+    '`git diff --check`',
+    'Known Exclusions and Blockers',
+    'Japanese Reader Surface',
+    'Publication Notes',
+  ]) {
+    if (!source.contains(phrase)) {
+      failures.add('docs/releases/TEMPLATE.md must document $phrase.');
+    }
+  }
+}
+
 void checkJapaneseDocs(List<String> failures) {
   const requiredDocs = {
     'docs/ja/README.md',
@@ -950,6 +996,9 @@ void checkJapaneseDocs(List<String> failures) {
     'Matrix v1.18 release candidate',
     'blocker / non-blocker',
     'known untracked drift',
+    'docs/releases/TEMPLATE.md',
+    'docs/releases/<tag>.md',
+    'Product MVP と Matrix compatibility の claim boundary',
   ]) {
     if (!readinessSource.contains(phrase)) {
       failures.add('docs/ja/release-readiness.md must document $phrase.');

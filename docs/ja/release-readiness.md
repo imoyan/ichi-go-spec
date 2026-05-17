@@ -60,6 +60,11 @@ release 前 checklist を更新することで担保します。
   `test-vectors/core/product-mvp-release-candidate-plan.json` を確認し、
   `imoyan/houra-client#121`、`imoyan/houra-client#122`、`imoyan/houra-server#227`
   が対象 ref、commands、結果、blocker、claim boundary を記録するまで tag を切らない
+- freeze candidate、milestone release、または tag を切る前に
+  [`docs/releases/TEMPLATE.md`](../releases/TEMPLATE.md) を
+  `docs/releases/<tag>.md` にコピーし、対象 ref、変更された contracts / vectors /
+  design inputs、互換性分類、claim impact、verification、known exclusions、
+  Product MVP と Matrix compatibility の claim boundary を別々に記録する
 - OSS 公開前には `test-vectors/core/oss-publication-readiness-plan.json` を確認し、
   `LICENSE`、`SECURITY.md`、GitHub private vulnerability reporting、GitHub Releases、
   GitHub topics、Context7、OpenSSF、package / container registry の順序と
