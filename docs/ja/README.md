@@ -66,6 +66,12 @@ release readiness は広げず、UI role management、sample runner compatibilit
 production external adapter delivery、legal PII taxonomy、client approval UI、sample runner
 compatibility とは別の scope として扱います。
 
+`SPEC-128` の multilingual handoff は、Product MVP server が canonical source language と
+reviewed confirmed translation を分け、audience に出す translation を confirmed state に限定する
+境界です。server implementation evidence が揃うまで Product MVP release readiness は広げず、
+translation provider integration、automatic quality judgment、client review UI、sample runner
+compatibility とは別の scope として扱います。
+
 ## 書き方
 
 日本語ページは、GitHub の表示で読みやすいように短い段落とリンク中心にします。

@@ -1,0 +1,102 @@
+{
+  "name": "product-mvp-multilingual-handoff-boundary",
+  "contract": "SPEC-128",
+  "event": {
+    "target": "Product MVP multilingual handoff server boundary",
+    "spec_issue": "imoyan/houra-spec#345",
+    "implementation_issue": "imoyan/houra-server#339",
+    "checked_at": "2026-05-17T18:10:00+09:00",
+    "supported_locales": ["en", "ja", "es", "pt-BR"],
+    "sample_message": {
+      "message_id": "msg-001",
+      "source_locale": "en",
+      "source_text": "Your repair visit is scheduled for Tuesday.",
+      "target_locale": "ja",
+      "audience": "customer",
+      "confirmed_translation": "修理訪問は火曜日に予定されています。",
+      "review_actor": "reviewer-1",
+      "provider_draft": {
+        "raw_model_output": "火曜日に修理訪問がスケジュールされています。 raw-model-output",
+        "provider_prompt": "Translate this customer notice with internal glossary",
+        "provider_secret": "translation-provider-secret",
+        "local_trace_path": "/Users/alice/private/translation.log"
+      }
+    },
+    "cases": [
+      {
+        "id": "confirmed-translation-returned",
+        "translation_state": "confirmed",
+        "expected_status": "ok",
+        "expected_export": {
+          "message_id": "msg-001",
+          "source_locale": "en",
+          "target_locale": "ja",
+          "audience": "customer",
+          "translation": "修理訪問は火曜日に予定されています。",
+          "review_actor": "reviewer-1"
+        }
+      },
+      {
+        "id": "pending-translation-blocked",
+        "translation_state": "pending_review",
+        "expected_status": "forbidden",
+        "expected_error": "translation_review_required"
+      },
+      {
+        "id": "raw-model-output-blocked",
+        "translation_state": "confirmed",
+        "confirmed_translation": "火曜日に修理訪問がスケジュールされています。 raw-model-output",
+        "expected_status": "forbidden",
+        "expected_error": "translation_raw_model_output"
+      },
+      {
+        "id": "duplicate-language-rejected",
+        "translation_state": "confirmed",
+        "duplicate_existing_target_locale": "ja",
+        "expected_status": "forbidden",
+        "expected_error": "translation_duplicate_locale"
+      },
+      {
+        "id": "unsupported-locale-rejected",
+        "translation_state": "confirmed",
+        "target_locale": "fr",
+        "expected_status": "forbidden",
+        "expected_error": "translation_unsupported_locale"
+      },
+      {
+        "id": "empty-export-rejected",
+        "translation_state": "confirmed",
+        "confirmed_translation": "   ",
+        "expected_status": "forbidden",
+        "expected_error": "translation_empty_export"
+      }
+    ],
+    "evidence_redaction": {
+      "forbidden_raw_values_must_be_absent": [
+        "raw-model-output",
+        "Translate this customer notice with internal glossary",
+        "translation-provider-secret",
+        "/Users/alice/private/translation.log"
+      ],
+      "artifact_may_include_locale_and_review_actor": true,
+      "artifact_must_not_include_forbidden_values": true
+    },
+    "claim_boundary": {
+      "product_mvp_readiness_widened": false,
+      "matrix_compatibility_widened": false,
+      "translation_provider_integration_claimed": false,
+      "client_review_ui_claimed": false
+    }
+  },
+  "expected": {
+    "supported_locale_count": 4,
+    "case_count": 6,
+    "success_case_count": 1,
+    "fail_closed_case_count": 5,
+    "confirmed_export_state_separated": true,
+    "provider_draft_state_separated": true,
+    "forbidden_raw_values_in_artifact": false,
+    "product_mvp_readiness_widened": false,
+    "matrix_compatibility_widened": false
+  }
+}
