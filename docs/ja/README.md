@@ -55,6 +55,11 @@ handoff evidence、trust copy、media key / room key / recovery key / plaintext 
 decrypted thumbnail の redaction 方針が揃うまで fail-closed として扱います。この flow だけで
 encrypted-room や complete E2EE support claim は広げません。
 
+`SPEC-126` の role projection は、Product MVP server が同一 subject を role / audience
+ごとの allowlist で返すための境界です。server implementation evidence が揃うまで Product MVP
+release readiness は広げず、UI role management、sample runner compatibility、enterprise RBAC
+とは別の scope として扱います。
+
 ## 書き方
 
 日本語ページは、GitHub の表示で読みやすいように短い段落とリンク中心にします。
