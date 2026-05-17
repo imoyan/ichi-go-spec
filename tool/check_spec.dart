@@ -12772,7 +12772,104 @@ void checkProductMvpReleaseCandidatePlan(
     'imoyan/houra-spec#200',
     'imoyan/houra-spec#203',
     'imoyan/houra-spec#204',
+    'imoyan/houra-spec#319',
+    'imoyan/houra-spec#320',
+    'imoyan/houra-spec#321',
+    'imoyan/houra-spec#340',
+    'imoyan/houra-spec#343',
+    'imoyan/houra-spec#345',
+    'imoyan/houra-spec#346',
   }, failures);
+  final candidateFeatures = eventMap['candidate_feature_evidence'];
+  if (candidateFeatures is! List || candidateFeatures.length != 4) {
+    failures.add('${relative(file)} candidate feature evidence invalid.');
+  } else {
+    final featureIds = <String>{};
+    final featureContracts = <String>{};
+    final featureRefs = <String>{};
+    for (final item in candidateFeatures) {
+      if (item is! Map ||
+          item['id'] is! String ||
+          item['contracts'] is! List ||
+          item['spec_refs'] is! List ||
+          item['implementation_refs'] is! List ||
+          item['release_candidate_decision'] is! String ||
+          item['required_evidence_before_advertisement'] is! List) {
+        failures.add('${relative(file)} candidate feature shape invalid.');
+        continue;
+      }
+      final decision = item['release_candidate_decision'] as String;
+      if (!decision.contains('fail-closed') &&
+          !decision.contains('candidate-review-required')) {
+        failures.add('${relative(file)} candidate feature decision invalid.');
+      }
+      final requiredEvidence =
+          item['required_evidence_before_advertisement'] as List;
+      if (requiredEvidence.isEmpty ||
+          requiredEvidence.any((input) => input is! String || input.isEmpty)) {
+        failures.add('${relative(file)} candidate feature evidence invalid.');
+      }
+      final contracts = readStringList(item['contracts']);
+      final specRefs = readStringList(item['spec_refs']);
+      final implementationRefs = readStringList(item['implementation_refs']);
+      if (contracts == null ||
+          contracts.isEmpty ||
+          contracts.any((contract) => contract.isEmpty) ||
+          specRefs == null ||
+          specRefs.isEmpty ||
+          specRefs.any((ref) => ref.isEmpty) ||
+          implementationRefs == null ||
+          implementationRefs.isEmpty ||
+          implementationRefs.any((ref) => ref.isEmpty)) {
+        failures.add('${relative(file)} candidate feature refs invalid.');
+        continue;
+      }
+      featureIds.add(item['id'] as String);
+      featureContracts.addAll(contracts);
+      featureRefs.addAll(specRefs);
+      featureRefs.addAll(implementationRefs);
+    }
+    if (!featureIds.containsAll({
+      'product-mvp-vnext-account-recovery-idp',
+      'product-mvp-vnext-media-transfer',
+      'product-mvp-vnext-encrypted-media',
+      'product-mvp-server-boundary-additions',
+    })) {
+      failures.add('${relative(file)} candidate feature ids incomplete.');
+    }
+    if (!featureContracts.containsAll({
+      'SPEC-070',
+      'SPEC-071',
+      'SPEC-072',
+      'SPEC-126',
+      'SPEC-127',
+      'SPEC-128',
+      'SPEC-129',
+    })) {
+      failures.add('${relative(file)} candidate feature contracts incomplete.');
+    }
+    if (!featureRefs.containsAll({
+      'imoyan/houra-spec#319',
+      'imoyan/houra-spec#320',
+      'imoyan/houra-spec#321',
+      'imoyan/houra-spec#340',
+      'imoyan/houra-spec#343',
+      'imoyan/houra-spec#345',
+      'imoyan/houra-spec#346',
+      'imoyan/houra-client#184',
+      'imoyan/houra-client#186',
+      'imoyan/houra-client#192',
+      'imoyan/houra-client#193',
+      'imoyan/houra-client#195',
+      'imoyan/houra-server#254',
+      'imoyan/houra-server#337',
+      'imoyan/houra-server#338',
+      'imoyan/houra-server#339',
+      'imoyan/houra-server#340',
+    })) {
+      failures.add('${relative(file)} candidate feature refs incomplete.');
+    }
+  }
   requireStringListIncludes(file, eventMap, 'required_commands', {
     'dart tool/check_spec.dart',
     'git diff --check',
@@ -12788,6 +12885,7 @@ void checkProductMvpReleaseCandidatePlan(
   if (expected is! Map ||
       expected['required_repositories_traceable'] != true ||
       expected['evidence_lanes_split'] != true ||
+      expected['candidate_feature_evidence_traceable'] != true ||
       expected['implementation_follow_ups_traceable'] != true ||
       expected['matrix_full_compliance_not_claimed'] != true ||
       expected['rc_tag_blocked_until_evidence_complete'] != true) {

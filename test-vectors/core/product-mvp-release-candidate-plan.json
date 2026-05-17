@@ -87,6 +87,99 @@
         ]
       }
     ],
+    "candidate_feature_evidence": [
+      {
+        "id": "product-mvp-vnext-account-recovery-idp",
+        "contracts": [
+          "SPEC-070"
+        ],
+        "spec_refs": [
+          "imoyan/houra-spec#319"
+        ],
+        "implementation_refs": [
+          "imoyan/houra-client#184"
+        ],
+        "release_candidate_decision": "optional-fail-closed-until-capability-advertisement-and-client-evidence-are-current",
+        "required_evidence_before_advertisement": [
+          "server capability advertisement evidence",
+          "client UI hidden or disabled state when unsupported",
+          "client recoverable error display evidence",
+          "duplicate-submit prevention evidence",
+          "token and callback redaction evidence"
+        ]
+      },
+      {
+        "id": "product-mvp-vnext-media-transfer",
+        "contracts": [
+          "SPEC-071"
+        ],
+        "spec_refs": [
+          "imoyan/houra-spec#320"
+        ],
+        "implementation_refs": [
+          "imoyan/houra-client#186"
+        ],
+        "release_candidate_decision": "optional-fail-closed-until-media-capability-and-client-evidence-are-current",
+        "required_evidence_before_advertisement": [
+          "media metadata capability evidence",
+          "client thumbnail range and resume UI gating evidence",
+          "progress retry and recoverable error evidence",
+          "duplicate-submit prevention evidence",
+          "signed URL local path and media key redaction evidence"
+        ]
+      },
+      {
+        "id": "product-mvp-vnext-encrypted-media",
+        "contracts": [
+          "SPEC-072"
+        ],
+        "spec_refs": [
+          "imoyan/houra-spec#321"
+        ],
+        "implementation_refs": [
+          "imoyan/houra-client#192",
+          "imoyan/houra-client#193",
+          "imoyan/houra-client#195",
+          "imoyan/houra-server#254"
+        ],
+        "release_candidate_decision": "optional-fail-closed-until-encrypted-attachment-capability-and-crypto-handoff-evidence-are-current",
+        "required_evidence_before_advertisement": [
+          "encrypted attachment capability evidence",
+          "client missing-key wrong-key redacted and recoverable-error evidence",
+          "crypto-adapter handoff evidence",
+          "duplicate-submit prevention evidence",
+          "media key room key recovery key plaintext byte and decrypted thumbnail redaction evidence"
+        ]
+      },
+      {
+        "id": "product-mvp-server-boundary-additions",
+        "contracts": [
+          "SPEC-126",
+          "SPEC-127",
+          "SPEC-128",
+          "SPEC-129"
+        ],
+        "spec_refs": [
+          "imoyan/houra-spec#340",
+          "imoyan/houra-spec#343",
+          "imoyan/houra-spec#345",
+          "imoyan/houra-spec#346"
+        ],
+        "implementation_refs": [
+          "imoyan/houra-server#337",
+          "imoyan/houra-server#338",
+          "imoyan/houra-server#339",
+          "imoyan/houra-server#340"
+        ],
+        "release_candidate_decision": "candidate-review-required-before-product-mvp-release-claim",
+        "required_evidence_before_advertisement": [
+          "implementation adoption report with exact server ref",
+          "representative vector command results",
+          "redacted evidence artifact check",
+          "Product MVP claim boundary and excluded UI sample and Matrix claims"
+        ]
+      }
+    ],
     "release_blockers": [
       "imoyan/houra-client#121",
       "imoyan/houra-client#122",
@@ -96,7 +189,14 @@
       "imoyan/houra-spec#199",
       "imoyan/houra-spec#200",
       "imoyan/houra-spec#203",
-      "imoyan/houra-spec#204"
+      "imoyan/houra-spec#204",
+      "imoyan/houra-spec#319",
+      "imoyan/houra-spec#320",
+      "imoyan/houra-spec#321",
+      "imoyan/houra-spec#340",
+      "imoyan/houra-spec#343",
+      "imoyan/houra-spec#345",
+      "imoyan/houra-spec#346"
     ],
     "required_commands": [
       "dart tool/check_spec.dart",
@@ -114,6 +214,7 @@
   "expected": {
     "required_repositories_traceable": true,
     "evidence_lanes_split": true,
+    "candidate_feature_evidence_traceable": true,
     "implementation_follow_ups_traceable": true,
     "matrix_full_compliance_not_claimed": true,
     "rc_tag_blocked_until_evidence_complete": true
