@@ -1,0 +1,128 @@
+{
+  "name": "matrix-client-server-auth-refresh-fallback-account-lifecycle",
+  "contract": "SPEC-122",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv1loginget_token",
+      "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3refresh",
+      "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3accountdeactivate",
+      "https://spec.matrix.org/v1.18/client-server-api/#login-fallback"
+    ],
+    "checked_at": "2026-05-17T12:00:00+09:00",
+    "parent_contract": "SPEC-032",
+    "parent_contracts": ["SPEC-032", "SPEC-033", "SPEC-034", "SPEC-068"],
+    "gap_inventory_contract": "SPEC-073",
+    "lane_id": "auth-refresh-fallback-account-lifecycle",
+    "spec_issue": "imoyan/houra-spec#270",
+    "implementation_issue": "imoyan/houra-labs#133",
+    "parent_issue": "imoyan/houra-server#252",
+    "request_descriptors": [
+      {
+        "id": "get-login-token",
+        "method": "POST",
+        "path": "/_matrix/client/v1/login/get_token",
+        "requires_auth": true,
+        "body": {
+          "device_id": "DEVICE1"
+        },
+        "adopted_runtime_behavior": false,
+        "unsupported_reason": "complex_auth_flow_requires_separate_adoption",
+        "response_parser": "login_token"
+      },
+      {
+        "id": "refresh-token",
+        "method": "POST",
+        "path": "/_matrix/client/v3/refresh",
+        "requires_auth": false,
+        "body": {
+          "refresh_token": "old-refresh-token"
+        },
+        "adopted_runtime_behavior": true,
+        "response_parser": "refresh_response"
+      },
+      {
+        "id": "account-deactivate",
+        "method": "POST",
+        "path": "/_matrix/client/v3/account/deactivate",
+        "requires_auth": true,
+        "body": {
+          "id_server": "id.example.test"
+        },
+        "adopted_runtime_behavior": false,
+        "unsupported_reason": "requires_storage_mutation_verification",
+        "response_parser": "deactivate_response"
+      }
+    ],
+    "sample_responses": {
+      "login_token": {
+        "login_token": "syt_alice_login_token",
+        "expires_in_ms": 120000
+      },
+      "refresh_response": {
+        "access_token": "syt_alice_new_access_token",
+        "refresh_token": "syt_alice_new_refresh_token",
+        "expires_in_ms": 3600000
+      },
+      "refresh_response_without_expiry": {
+        "access_token": "syt_alice_new_access_token_2",
+        "refresh_token": "syt_alice_new_refresh_token_2"
+      },
+      "deactivate_response": {
+        "id_server_unbind_result": "success"
+      },
+      "deactivate_response_no_support": {
+        "id_server_unbind_result": "no-support"
+      }
+    },
+    "fail_closed_cases": [
+      "malformed_refresh_body",
+      "expired_refresh_token",
+      "missing_access_token",
+      "get_token_runtime_not_adopted",
+      "deactivate_runtime_not_adopted",
+      "versions_advertisement_not_widened"
+    ],
+    "resource_bounds": {
+      "token_rotation_required": true,
+      "access_token_invalidation_on_rotation": true,
+      "storage_mutation_for_deactivation": false,
+      "oauth_flow_runtime": false,
+      "complete_uia_breadth_claimed": false,
+      "device_token_invalidation_breadth": false,
+      "versions_advertisement_widened": false
+    },
+    "release_evidence_rules": {
+      "get_token": {
+        "parser_only": true,
+        "runtime_behavior_adopted": false
+      },
+      "refresh": {
+        "parser_only": false,
+        "runtime_behavior_adopted": true,
+        "bounded_runtime": true
+      },
+      "deactivate": {
+        "parser_only": true,
+        "runtime_behavior_adopted": false
+      },
+      "oauth_flow_claimed": false,
+      "full_uia_claimed": false,
+      "versions_advertisement_widened": false,
+      "client_server_support_claim_widened": false
+    }
+  },
+  "expected": {
+    "descriptor_count": 3,
+    "parser_count": 3,
+    "refresh_runtime_adopted": true,
+    "get_token_runtime_adopted": false,
+    "deactivate_runtime_adopted": false,
+    "refresh_new_access_token_present": true,
+    "refresh_new_refresh_token_present": true,
+    "deactivate_id_server_unbind_result_present": true,
+    "oauth_flow_claimed": false,
+    "full_uia_claimed": false,
+    "versions_advertisement_widened": false
+  }
+}

@@ -1,0 +1,216 @@
+{
+  "name": "matrix-application-service-query-user-room-namespace-runtime",
+  "contract": "SPEC-116",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/application-service-api/#get_matrixappv1usersuserid",
+      "https://spec.matrix.org/v1.18/application-service-api/#get_matrixappv1roomsroomalias",
+      "https://spec.matrix.org/v1.18/application-service-api/#authorization"
+    ],
+    "checked_at": "2026-05-17T12:00:00+09:00",
+    "parent_contract": "SPEC-058",
+    "parser_helper_contract": "SPEC-105",
+    "gap_inventory_contract": "SPEC-075",
+    "lane_id": "query-user-room-alias-and-namespace-ownership-breadth",
+    "implementation_issue": "imoyan/houra-server#255",
+    "requests": [
+      {
+        "id": "user_query_success",
+        "method": "GET",
+        "path": "/_matrix/app/v1/users/@_bridge_alice:example.test",
+        "path_params": {
+          "userId": "@_bridge_alice:example.test"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token": "hs_token_redacted"
+        },
+        "namespace_context": {
+          "exclusive": true,
+          "namespace": "users",
+          "regex": "@_bridge_.*:example.test"
+        },
+        "response": {
+          "status": 200,
+          "body": {}
+        }
+      },
+      {
+        "id": "room_alias_query_success",
+        "method": "GET",
+        "path": "/_matrix/app/v1/rooms/%23_bridge_lobby:example.test",
+        "path_params": {
+          "roomAlias": "#_bridge_lobby:example.test"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token": "hs_token_redacted"
+        },
+        "namespace_context": {
+          "exclusive": true,
+          "namespace": "aliases",
+          "regex": "#_bridge_.*:example.test"
+        },
+        "response": {
+          "status": 200,
+          "body": {}
+        }
+      },
+      {
+        "id": "namespace_resolution_order_exclusive_first",
+        "method": "GET",
+        "path": "/_matrix/app/v1/users/@_bridge_shared:example.test",
+        "path_params": {
+          "userId": "@_bridge_shared:example.test"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token": "hs_token_redacted"
+        },
+        "namespace_context": {
+          "exclusive": true,
+          "namespace": "users",
+          "regex": "@_bridge_.*:example.test",
+          "local_user_exists": true,
+          "exclusive_checked_before_local": true
+        },
+        "response": {
+          "status": 200,
+          "body": {}
+        }
+      }
+    ],
+    "negative_cases": [
+      {
+        "id": "user_query_namespace_miss",
+        "method": "GET",
+        "path": "/_matrix/app/v1/users/@alice:example.test",
+        "path_params": {
+          "userId": "@alice:example.test"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token": "hs_token_redacted"
+        },
+        "namespace_context": {
+          "exclusive": true,
+          "namespace": "users",
+          "regex": "@_bridge_.*:example.test"
+        },
+        "expected_status": 404,
+        "expected_error": "M_NOT_FOUND"
+      },
+      {
+        "id": "room_alias_query_namespace_miss",
+        "method": "GET",
+        "path": "/_matrix/app/v1/rooms/%23general:example.test",
+        "path_params": {
+          "roomAlias": "#general:example.test"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token": "hs_token_redacted"
+        },
+        "namespace_context": {
+          "exclusive": true,
+          "namespace": "aliases",
+          "regex": "#_bridge_.*:example.test"
+        },
+        "expected_status": 404,
+        "expected_error": "M_NOT_FOUND"
+      },
+      {
+        "id": "missing_hs_token",
+        "method": "GET",
+        "path": "/_matrix/app/v1/users/@_bridge_alice:example.test",
+        "path_params": {
+          "userId": "@_bridge_alice:example.test"
+        },
+        "expected_status": 401,
+        "expected_error": "M_UNAUTHORIZED"
+      },
+      {
+        "id": "invalid_hs_token",
+        "method": "GET",
+        "path": "/_matrix/app/v1/users/@_bridge_alice:example.test",
+        "path_params": {
+          "userId": "@_bridge_alice:example.test"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token": "wrong_token"
+        },
+        "expected_status": 403,
+        "expected_error": "M_FORBIDDEN"
+      },
+      {
+        "id": "malformed_user_id",
+        "method": "GET",
+        "path": "/_matrix/app/v1/users/not-a-user-id",
+        "path_params": {
+          "userId": "not-a-user-id"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token": "hs_token_redacted"
+        },
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      },
+      {
+        "id": "malformed_room_alias",
+        "method": "GET",
+        "path": "/_matrix/app/v1/rooms/not-a-room-alias",
+        "path_params": {
+          "roomAlias": "not-a-room-alias"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token": "hs_token_redacted"
+        },
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      }
+    ],
+    "resource_bounds": {
+      "request_authorization_required": true,
+      "exclusive_namespace_checked_before_local": true,
+      "virtual_user_creation_during_query": false,
+      "third_party_network_queries_claimed": false,
+      "appservice_ping_claimed": false,
+      "outbound_federation_execution": false,
+      "complete_namespace_conflict_resolution_claimed": false,
+      "client_server_masquerading_claimed": false,
+      "versions_advertisement_widened": false
+    },
+    "fail_closed_cases": [
+      "hs_token_bypass_attempt",
+      "user_outside_namespace_returns_404",
+      "alias_outside_namespace_returns_404",
+      "malformed_identifier_not_silent",
+      "local_user_not_leaked_through_query"
+    ],
+    "release_evidence_rules": {
+      "runtime_behavior_adopted": true,
+      "full_as_api_claimed": false,
+      "third_party_network_claimed": false,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "positive_request_count": 3,
+    "negative_case_count": 6,
+    "user_query_success_status": 200,
+    "room_alias_query_success_status": 200,
+    "namespace_miss_status": 404,
+    "missing_token_status": 401,
+    "invalid_token_status": 403,
+    "malformed_identifier_status": 400,
+    "exclusive_namespace_checked_before_local": true,
+    "local_user_not_leaked": true,
+    "full_as_api_claimed": false,
+    "third_party_network_claimed": false,
+    "versions_advertisement_widened": false
+  }
+}

@@ -1,0 +1,270 @@
+{
+  "name": "matrix-application-service-transaction-event-delivery-runtime",
+  "contract": "SPEC-124",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/application-service-api/#put_matrixappv1transactionstxnid",
+      "https://spec.matrix.org/v1.18/application-service-api/#pushing-events",
+      "https://spec.matrix.org/v1.18/application-service-api/#unknown-routes"
+    ],
+    "checked_at": "2026-05-17T12:00:00+09:00",
+    "parent_contract": "SPEC-058",
+    "parser_artifact_contract": "SPEC-105",
+    "gap_inventory_contract": "SPEC-075",
+    "lane_id": "transaction-event-delivery-legacy-route-unknown-route-breadth",
+    "parent_issue": "imoyan/houra-server#254",
+    "runtime_scenarios": [
+      {
+        "id": "transaction_delivery_success",
+        "description": "Homeserver delivers a transaction with events to the appservice and receives HTTP 200",
+        "request": {
+          "method": "PUT",
+          "path": "/_matrix/app/v1/transactions/txn-delivery-1",
+          "query_params": {
+            "access_token": "[REDACTED-HS-TOKEN]"
+          },
+          "body": {
+            "events": [
+              {
+                "type": "m.room.message",
+                "event_id": "$msg1:example.test",
+                "room_id": "!room:example.test",
+                "sender": "@alice:example.test",
+                "origin_server_ts": 1778430000000,
+                "content": {
+                  "msgtype": "m.text",
+                  "body": "Hello from the room"
+                }
+              }
+            ]
+          }
+        },
+        "expected_status": 200,
+        "expected_body": {}
+      },
+      {
+        "id": "ephemeral_batch_with_receive_ephemeral",
+        "description": "When receive_ephemeral is true, the transaction body includes an ephemeral array with typing/receipt/presence events",
+        "registration_flag": "receive_ephemeral: true",
+        "request": {
+          "method": "PUT",
+          "path": "/_matrix/app/v1/transactions/txn-ephemeral-1",
+          "query_params": {
+            "access_token": "[REDACTED-HS-TOKEN]"
+          },
+          "body": {
+            "events": [
+              {
+                "type": "m.room.message",
+                "event_id": "$msg2:example.test",
+                "room_id": "!room:example.test",
+                "sender": "@alice:example.test",
+                "origin_server_ts": 1778430001000,
+                "content": {
+                  "msgtype": "m.text",
+                  "body": "Second message"
+                }
+              }
+            ],
+            "ephemeral": [
+              {
+                "type": "m.typing",
+                "room_id": "!room:example.test",
+                "content": {
+                  "user_ids": ["@alice:example.test"]
+                }
+              },
+              {
+                "type": "m.receipt",
+                "room_id": "!room:example.test",
+                "content": {
+                  "$msg1:example.test": {
+                    "m.read": {
+                      "@alice:example.test": {
+                        "ts": 1778430000500
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "expected_status": 200,
+        "expected_body": {}
+      },
+      {
+        "id": "duplicate_txn_id_ignored",
+        "description": "Appservice returns 200 without reprocessing when it receives a txnId it has already processed",
+        "request": {
+          "method": "PUT",
+          "path": "/_matrix/app/v1/transactions/txn-delivery-1",
+          "query_params": {
+            "access_token": "[REDACTED-HS-TOKEN]"
+          },
+          "body": {
+            "events": [
+              {
+                "type": "m.room.message",
+                "event_id": "$msg1:example.test",
+                "room_id": "!room:example.test",
+                "sender": "@alice:example.test",
+                "origin_server_ts": 1778430000000,
+                "content": {
+                  "msgtype": "m.text",
+                  "body": "Hello from the room"
+                }
+              }
+            ]
+          }
+        },
+        "note": "txn-delivery-1 was already processed in transaction_delivery_success scenario",
+        "expected_status": 200,
+        "expected_body": {},
+        "idempotency_enforced": true,
+        "reprocessing_occurred": false
+      },
+      {
+        "id": "retry_on_500_response",
+        "description": "Homeserver retries delivery with backoff when the appservice returns HTTP 500",
+        "request": {
+          "method": "PUT",
+          "path": "/_matrix/app/v1/transactions/txn-retry-1",
+          "query_params": {
+            "access_token": "[REDACTED-HS-TOKEN]"
+          },
+          "body": {
+            "events": [
+              {
+                "type": "m.room.message",
+                "event_id": "$msg3:example.test",
+                "room_id": "!room:example.test",
+                "sender": "@bob:example.test",
+                "origin_server_ts": 1778430002000,
+                "content": {
+                  "msgtype": "m.text",
+                  "body": "Retry me"
+                }
+              }
+            ]
+          }
+        },
+        "appservice_response_sequence": [
+          {"attempt": 1, "status": 500},
+          {"attempt": 2, "status": 500},
+          {"attempt": 3, "status": 200}
+        ],
+        "backoff_seconds": [1, 5, 30],
+        "expected_final_status": 200,
+        "retry_count": 3
+      },
+      {
+        "id": "legacy_route_fallback",
+        "description": "Homeserver falls back to legacy transaction path when v1 returns 404",
+        "v1_request": {
+          "method": "PUT",
+          "path": "/_matrix/app/v1/transactions/txn-legacy-1",
+          "query_params": {
+            "access_token": "[REDACTED-HS-TOKEN]"
+          },
+          "body": {
+            "events": []
+          }
+        },
+        "v1_response_status": 404,
+        "legacy_request": {
+          "method": "PUT",
+          "path": "/_matrix/app/unstable/transactions/txn-legacy-1",
+          "query_params": {
+            "access_token": "[REDACTED-HS-TOKEN]"
+          },
+          "body": {
+            "events": []
+          }
+        },
+        "legacy_response_status": 200,
+        "v1_attempted_first": true,
+        "expected_final_status": 200
+      },
+      {
+        "id": "unknown_route_404",
+        "description": "Request to an unsupported appservice route returns 404 M_UNRECOGNIZED",
+        "request": {
+          "method": "GET",
+          "path": "/_matrix/app/v1/unknown/path",
+          "query_params": {
+            "access_token": "[REDACTED-HS-TOKEN]"
+          }
+        },
+        "expected_status": 404,
+        "expected_body": {
+          "errcode": "M_UNRECOGNIZED",
+          "error": "Unknown route."
+        },
+        "silent_200_allowed": false
+      },
+      {
+        "id": "unknown_method_405",
+        "description": "Request using an unsupported HTTP method on an adopted route returns 405 M_UNRECOGNIZED",
+        "request": {
+          "method": "DELETE",
+          "path": "/_matrix/app/v1/transactions/txn-delete-attempt",
+          "query_params": {
+            "access_token": "[REDACTED-HS-TOKEN]"
+          }
+        },
+        "expected_status": 405,
+        "expected_body": {
+          "errcode": "M_UNRECOGNIZED",
+          "error": "Method not allowed."
+        }
+      }
+    ],
+    "resource_bounds": {
+      "max_events_per_transaction": 100,
+      "max_retry_attempts": 3,
+      "retry_backoff_seconds": [1, 5, 30],
+      "idempotency_required": true,
+      "transaction_ordering_required": true,
+      "ephemeral_requires_receive_ephemeral_flag": true,
+      "third_party_network_event_push": false,
+      "appservice_ping_delivery": false,
+      "virtual_user_client_server_sync": false,
+      "versions_advertisement_widened": false
+    },
+    "fail_closed_cases": [
+      "duplicate_txn_redelivery",
+      "missing_txn_id",
+      "transaction_body_not_json",
+      "events_field_missing",
+      "ephemeral_without_receive_ephemeral_flag",
+      "unknown_route_not_silent"
+    ],
+    "release_evidence_rules": {
+      "runtime_behavior_adopted": true,
+      "full_as_api_claimed": false,
+      "versions_advertisement_widened": false,
+      "third_party_network_claimed": false,
+      "appservice_ping_claimed": false,
+      "virtual_user_sync_claimed": false
+    }
+  },
+  "expected": {
+    "scenario_count": 7,
+    "transaction_delivery_success": true,
+    "ephemeral_delivered_with_receive_ephemeral_true": true,
+    "ephemeral_omitted_without_receive_ephemeral_flag": true,
+    "duplicate_txn_redelivery_prevented": true,
+    "retry_on_non_2xx_enforced": true,
+    "max_retry_attempts": 3,
+    "retry_backoff_seconds": [1, 5, 30],
+    "legacy_route_fallback_attempted_after_v1_404": true,
+    "unknown_route_returns_m_unrecognized": true,
+    "unknown_method_returns_405": true,
+    "silent_200_for_unknown_route_allowed": false,
+    "third_party_network_claimed": false,
+    "full_as_api_claimed": false,
+    "versions_advertisement_widened": false
+  }
+}

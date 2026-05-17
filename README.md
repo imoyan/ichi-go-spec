@@ -194,6 +194,14 @@ matching Product MVP contract/vector/design input also changed.
 - `contracts/SPEC-110-matrix-federation-acl-policy-signing-runtime.md`
 - `contracts/SPEC-111-matrix-federation-leave-knock-runtime.md`
 - `contracts/SPEC-112-matrix-federation-event-retrieval-runtime.md`
+- `contracts/SPEC-116-matrix-application-service-query-user-room-namespace-runtime.md`
+- `contracts/SPEC-117-matrix-application-service-third-party-network-directory-breadth.md`
+- `contracts/SPEC-118-matrix-application-service-ping-liveness-breadth.md`
+- `contracts/SPEC-120-matrix-application-service-cs-extension-sync-device-breadth.md`
+- `contracts/SPEC-121-matrix-application-service-bridge-security-observability-breadth.md`
+- `contracts/SPEC-122-matrix-client-server-auth-refresh-fallback-account-lifecycle.md`
+- `contracts/SPEC-123-matrix-application-service-registration-namespace-lifecycle-runtime.md`
+- `contracts/SPEC-124-matrix-application-service-transaction-event-delivery-runtime.md`
 
 ## Shared Design Inputs
 

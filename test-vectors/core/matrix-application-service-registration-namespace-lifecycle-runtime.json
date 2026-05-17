@@ -1,0 +1,208 @@
+{
+  "name": "matrix-application-service-registration-namespace-lifecycle-runtime",
+  "contract": "SPEC-123",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/application-service-api/#registration",
+      "https://spec.matrix.org/v1.18/application-service-api/#namespaces",
+      "https://spec.matrix.org/v1.18/application-service-api/#homeserver---application-service-authorization",
+      "https://spec.matrix.org/v1.18/application-service-api/#application-service---homeserver-authorization"
+    ],
+    "checked_at": "2026-05-17T12:00:00+09:00",
+    "parent_contract": "SPEC-058",
+    "parser_artifact_contract": "SPEC-105",
+    "gap_inventory_contract": "SPEC-075",
+    "lane_id": "registration-namespace-token-lifecycle-breadth",
+    "parent_issue": "imoyan/houra-server#253",
+    "runtime_scenarios": [
+      {
+        "id": "unique_id_enforcement",
+        "description": "Server rejects a registration set where two appservices share the same id",
+        "registrations": [
+          {
+            "id": "bridge-a",
+            "url": "http://bridge-a.example.test",
+            "as_token": "[REDACTED]",
+            "hs_token": "[REDACTED]",
+            "sender_localpart": "bridge-a-bot",
+            "namespaces": {}
+          },
+          {
+            "id": "bridge-a",
+            "url": "http://bridge-b.example.test",
+            "as_token": "[REDACTED]",
+            "hs_token": "[REDACTED]",
+            "sender_localpart": "bridge-b-bot",
+            "namespaces": {}
+          }
+        ],
+        "expected_result": "rejected",
+        "expected_error": "duplicate_appservice_id"
+      },
+      {
+        "id": "unique_as_token_enforcement",
+        "description": "Server rejects a registration set where two appservices share the same as_token",
+        "registrations": [
+          {
+            "id": "bridge-x",
+            "url": "http://bridge-x.example.test",
+            "as_token": "[REDACTED]",
+            "hs_token": "[REDACTED]",
+            "sender_localpart": "bridge-x-bot",
+            "namespaces": {}
+          },
+          {
+            "id": "bridge-y",
+            "url": "http://bridge-y.example.test",
+            "as_token": "[REDACTED-SAME]",
+            "hs_token": "[REDACTED]",
+            "sender_localpart": "bridge-y-bot",
+            "namespaces": {}
+          }
+        ],
+        "note": "as_token values represented as distinct REDACTED placeholders; server must compare actual values",
+        "expected_result": "rejected",
+        "expected_error": "duplicate_as_token"
+      },
+      {
+        "id": "exclusive_namespace_conflict",
+        "description": "Server rejects a registration set where two appservices claim overlapping exclusive user namespaces",
+        "registrations": [
+          {
+            "id": "bridge-irc",
+            "url": "http://bridge-irc.example.test",
+            "as_token": "[REDACTED]",
+            "hs_token": "[REDACTED]",
+            "sender_localpart": "irc-bot",
+            "namespaces": {
+              "users": [
+                {
+                  "exclusive": true,
+                  "regex": "@irc_.*"
+                }
+              ]
+            }
+          },
+          {
+            "id": "bridge-irc2",
+            "url": "http://bridge-irc2.example.test",
+            "as_token": "[REDACTED]",
+            "hs_token": "[REDACTED]",
+            "sender_localpart": "irc2-bot",
+            "namespaces": {
+              "users": [
+                {
+                  "exclusive": true,
+                  "regex": "@irc_freenode_.*"
+                }
+              ]
+            }
+          }
+        ],
+        "expected_result": "rejected",
+        "expected_error": "exclusive_namespace_overlap"
+      },
+      {
+        "id": "hs_token_validation",
+        "description": "Inbound homeserver-to-appservice request with invalid hs_token is rejected",
+        "request": {
+          "method": "PUT",
+          "path": "/_matrix/app/v1/transactions/txn-1",
+          "query_params": {
+            "access_token": "invalid-hs-token"
+          },
+          "body": {
+            "events": []
+          }
+        },
+        "expected_status": 401,
+        "expected_error": "M_UNKNOWN_TOKEN"
+      },
+      {
+        "id": "sender_localpart_boundary",
+        "description": "Regular user registration attempt using a sender_localpart reserved by an appservice is rejected",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/client/v3/register",
+          "body": {
+            "username": "bridge-a-bot",
+            "password": "hunter2"
+          }
+        },
+        "expected_status": 400,
+        "expected_error": "M_EXCLUSIVE"
+      },
+      {
+        "id": "malformed_registration_rejection",
+        "description": "Registration file missing required fields is rejected on load",
+        "registration": {
+          "id": "bridge-incomplete",
+          "url": "http://bridge-incomplete.example.test",
+          "namespaces": {}
+        },
+        "missing_fields": ["as_token", "hs_token", "sender_localpart"],
+        "expected_result": "rejected",
+        "expected_error": "missing_required_registration_fields"
+      },
+      {
+        "id": "token_redaction_in_artifacts",
+        "description": "Log lines and release artifacts must not contain raw token values",
+        "artifact_sample": {
+          "id": "bridge-a",
+          "url": "http://bridge-a.example.test",
+          "as_token": "[REDACTED]",
+          "hs_token": "[REDACTED]",
+          "sender_localpart": "bridge-a-bot"
+        },
+        "expected_result": "accepted",
+        "raw_token_in_artifact_allowed": false
+      }
+    ],
+    "resource_bounds": {
+      "max_appservices_per_server": 10,
+      "token_redaction_required": true,
+      "restart_reload_required": true,
+      "duplicate_id_rejection": true,
+      "duplicate_as_token_rejection": true,
+      "exclusive_namespace_conflict_detection": true,
+      "rate_limited_throttle_enforcement": false,
+      "ephemeral_batching": false,
+      "third_party_network_protocols": false,
+      "token_rotation_at_runtime": false,
+      "versions_advertisement_widened": false
+    },
+    "fail_closed_cases": [
+      "duplicate_appservice_id",
+      "duplicate_as_token",
+      "exclusive_namespace_overlap",
+      "invalid_hs_token",
+      "sender_localpart_bypass_attempt",
+      "missing_required_registration_fields",
+      "token_in_log_artifact"
+    ],
+    "release_evidence_rules": {
+      "runtime_behavior_adopted": true,
+      "full_as_api_claimed": false,
+      "versions_advertisement_widened": false,
+      "rate_limited_enforcement_claimed": false,
+      "ephemeral_batching_claimed": false,
+      "third_party_network_claimed": false,
+      "token_rotation_claimed": false
+    }
+  },
+  "expected": {
+    "scenario_count": 7,
+    "unique_id_enforced": true,
+    "unique_as_token_enforced": true,
+    "exclusive_namespace_conflict_detected": true,
+    "hs_token_validation_enforced": true,
+    "sender_localpart_boundary_enforced": true,
+    "malformed_registration_rejected": true,
+    "raw_token_in_artifact_allowed": false,
+    "rate_limited_enforcement_claimed": false,
+    "ephemeral_batching_claimed": false,
+    "full_as_api_claimed": false,
+    "versions_advertisement_widened": false
+  }
+}
