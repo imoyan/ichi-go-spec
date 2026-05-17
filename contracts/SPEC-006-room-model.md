@@ -2,6 +2,8 @@
 
 Status: draft
 Feature profile: rooms
+Contract type: endpoint
+Matrix domain: none
 Canonical: yes
 
 ## Purpose

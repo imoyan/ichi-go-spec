@@ -2,6 +2,8 @@
 
 Status: draft
 Feature profile: core
+Contract type: endpoint
+Matrix domain: Server-Server API
 Canonical: yes
 
 ## Purpose

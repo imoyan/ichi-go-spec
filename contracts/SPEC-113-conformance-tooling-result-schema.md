@@ -2,6 +2,8 @@
 
 Status: draft
 Feature profile: core
+Contract type: schema
+Matrix domain: Appendices/common rules
 Canonical: yes
 
 ## Purpose

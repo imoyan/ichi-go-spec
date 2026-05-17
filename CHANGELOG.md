@@ -6,9 +6,152 @@ focused on the current baseline. Compatibility classification, contracts,
 vectors, and design inputs follow the same definitions as `SOURCE_OF_TRUTH.md`
 "Pre-1.0 Compatibility Policy".
 
-The most recent Implementation Adoption Reports remain in `README.md`. Older
-entries are preserved here verbatim and are referenced by their `v0.2.0-pre.X`
-release targets.
+Implementation Adoption Reports are preserved here and are referenced by their
+`v0.2.0-pre.X` release targets. README links here instead of carrying the
+release history inline.
+
+## Recent Implementation Adoption Reports
+
+These entries were moved from README during the governance cleanup tracked by
+imoyan/houra-spec#351. They remain adoption evidence only and do not widen
+Product MVP or Matrix support claims.
+
+Earlier Implementation Adoption Reports for `v0.2.0-pre.X` releases
+(`v0.2.0-pre.3` through `v0.2.0-pre.14`, covering the Flutter lab,
+TypeScript server/client MVP, PostgreSQL, Expo React Native, binary
+media download, account registration, UI surface, manual UI acceptance,
+maintenance, release alignment, deployment hardening, and client UI
+robustness adoptions) are also preserved in this file. The entries that were
+current in README at the time of imoyan/houra-spec#351 follow below.
+
+### Matrix client versions server adoption
+
+- Spec behavior input inspected: `v0.2.0-pre.17`
+- Compatibility classification: implementation adoption evidence update for the
+  first Matrix Client-Server compatibility endpoint.
+- Public behavior impact: server now implements `GET /_matrix/client/versions`
+  from `SPEC-030`; existing `/_houra/client/**` behavior is unchanged.
+- Changed contracts: none.
+- Changed vector files: none.
+- Changed design inputs: none.
+- Matrix reference: Matrix Specification 1.18 remains a reference snapshot
+  only; this records one Matrix Client-Server endpoint adoption and is not
+  Matrix full compliance.
+- Started at: 2026-05-09T15:56:54+09:00
+- Ended at: 2026-05-09T15:57:46+09:00
+- Elapsed seconds: 52
+- Timezone: Asia/Tokyo
+- Codex usage: unavailable in the local Codex App session.
+
+Server Matrix client versions evidence:
+
+- Implementation repository: `imoyan/houra-server`
+- Implementation issue: `imoyan/houra-server#21`
+- Implementation pull request: `imoyan/houra-server#22`
+- Implementation commit inspected:
+  `c1a13410ba2d8e93d6af6dedfcee93b1675794d9`
+- Implementation release: `v0.2.0-pre.14`
+- Release URL:
+  `https://github.com/imoyan/houra-server/releases/tag/v0.2.0-pre.14`
+- Scope: unauthenticated `GET /_matrix/client/versions`, CI vector input update
+  to `houra-spec` v0.2.0-pre.17, and implementation record.
+
+Observed checks:
+
+| Check | Result | Notes |
+|---|---|---|
+| `houra-server` local `npm run typecheck` | pass | TypeScript typecheck |
+| `houra-server` local `npm run build` | pass | TypeScript build |
+| `houra-server` local `HOURA_SPEC_ROOT=../houra-spec npm test` | pass | 46 passed, 1 skipped; includes `SPEC-030` vector |
+| `houra-server` local `npm run test:postgres` | skipped | `HOURA_TEST_DATABASE_URL` was not set |
+| `houra-server` local `npm run test:ops` | pass | Deploy smoke only: Docker Compose startup, migration, backup/restore, and restart persistence smoke; this row is not Product MVP happy path evidence |
+| `houra-server` GitHub Actions `CI / test` | pass | PR #22, includes vector and ops smoke |
+
+No implementation repository was used as a behavior source. This record only
+confirms that `houra-server` consumes `SPEC-030` as read-only input and adopts
+the first Matrix Client-Server compatibility endpoint.
+
+### Matrix client versions server adoption readiness
+
+- Release target: `v0.2.0-pre.18`
+- Compatibility classification: workflow/adoption evidence update for
+  `houra-server` Matrix client versions adoption.
+- Changed public behavior profiles: none in this repository.
+- Changed contracts: none.
+- Changed vector files: none.
+- Changed design inputs: none.
+- Implementation evidence added: `houra-server` v0.2.0-pre.14 adoption of
+  `SPEC-030`.
+- Completion claim: Matrix full compliance is not claimed; only the
+  `GET /_matrix/client/versions` server adoption is recorded.
+
+### Matrix client versions client adoption
+
+- Spec behavior input inspected: `v0.2.0-pre.18`
+- Compatibility classification: implementation adoption evidence update for the
+  first Matrix Client-Server compatibility endpoint.
+- Public behavior impact: client core now exposes `HouraClient.matrixVersions()`
+  for `GET /_matrix/client/versions`; existing Houra client methods and
+  bearer-token persistence are unchanged.
+- Changed contracts: none.
+- Changed vector files: none.
+- Changed design inputs: none.
+- Matrix reference: Matrix Specification 1.18 remains a reference snapshot
+  only; this records one Matrix Client-Server endpoint adoption and is not
+  Matrix full compliance.
+- Started at: 2026-05-09T16:06:45+09:00
+- Ended at: 2026-05-09T16:07:52+09:00
+- Elapsed seconds: 67
+- Timezone: Asia/Tokyo
+- Codex usage: unavailable in the local Codex App session.
+
+Client Matrix client versions evidence:
+
+- Implementation repository: `imoyan/houra-client`
+- Implementation issue: `imoyan/houra-client#33`
+- Implementation pull request: `imoyan/houra-client#34`
+- Implementation commit inspected:
+  `265537e2b1c33c29c977da89215031278bf7fe6a`
+- Implementation release: `v0.2.0-pre.16`
+- Release URL:
+  `https://github.com/imoyan/houra-client/releases/tag/v0.2.0-pre.16`
+- Server target commit for live e2e smoke: `houra-server` v0.2.0-pre.14
+- Scope: `HouraClient.matrixVersions()`, `MatrixVersionsResponse`, vector
+  conformance for `matrix-client-versions-basic`, live e2e Matrix versions
+  smoke, and CI input updates to `houra-spec` v0.2.0-pre.18 and
+  `houra-server` v0.2.0-pre.14.
+
+Observed checks:
+
+| Check | Result | Notes |
+|---|---|---|
+| `houra-client` local `npm audit --omit=dev` | pass | 0 vulnerabilities |
+| `houra-client` local `npm run typecheck` | pass | Core and Expo app typecheck |
+| `houra-client` local `npm run build` | pass | TypeScript build |
+| `houra-client` local `HOURA_SPEC_ROOT=../houra-spec npm test` | pass | 52 passed, 1 live e2e skipped by default; includes `SPEC-030` vector |
+| `houra-client` local Expo config/export | pass | `npx expo config --type public` and iOS export to `/tmp/houra-client-expo-export` |
+| `houra-client` local live e2e | pass | Product MVP behavior evidence against Docker Compose `houra-server` v0.2.0-pre.14; Compose startup itself is deploy smoke evidence |
+| `houra-client` GitHub Actions `CI / test` | pass | PR #34, includes `SPEC-030` vector |
+| `houra-client` GitHub Actions `CI / e2e` | pass | PR #34, pinned `houra-server` v0.2.0-pre.14 |
+
+No implementation repository was used as a behavior source. This record only
+confirms that `houra-client` consumes `SPEC-030` as read-only input and adopts
+the first Matrix Client-Server compatibility endpoint in the UI-free core.
+
+### Matrix client versions client adoption readiness
+
+- Release target: `v0.2.0-pre.19`
+- Compatibility classification: workflow/adoption evidence update for
+  `houra-client` Matrix client versions adoption.
+- Changed public behavior profiles: none in this repository.
+- Changed contracts: none.
+- Changed vector files: none.
+- Changed design inputs: none.
+- Implementation evidence added: `houra-client` v0.2.0-pre.16 adoption of
+  `SPEC-030`.
+- Completion claim: Matrix full compliance is not claimed; only the
+  `GET /_matrix/client/versions` client adoption is recorded.
+
 
 ## Gap Lane Contract Additions
 

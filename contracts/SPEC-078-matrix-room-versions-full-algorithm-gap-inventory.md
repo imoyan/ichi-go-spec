@@ -2,6 +2,8 @@
 
 Status: draft
 Feature profile: rooms
+Contract type: gap-inventory
+Matrix domain: Room Versions
 Canonical: yes
 
 ## Purpose

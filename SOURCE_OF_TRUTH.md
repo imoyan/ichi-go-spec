@@ -44,6 +44,11 @@ updated unless the contract is changed first.
 ## Versioning
 
 - Contracts are draft profiles until a pre-1.0 release decision is made.
+- `Status: draft` describes the contract document state only. It does not mean
+  the behavior is unadopted, and it must not be used as the source for
+  implementation adoption, release readiness, or Matrix advertisement status.
+  Adoption and claim state are recorded through release evidence, implementation
+  reports, and the relevant gate contracts.
 - Public APIs may be added only after a matching `SPEC-*` contract and vector
   exist here.
 - Release notes should describe changed feature profiles, not implementation
@@ -56,7 +61,8 @@ Before freezing a pre-1.0 spec baseline:
 - Every covered behavior has a `contracts/SPEC-*.md` entry and at least one
   matching `test-vectors/**/*.json` fixture.
 - `CONTRACT_MODULE_MAP.md`, `FEATURE_PROFILES.md`, and `MODULE_DEPENDENCIES.md`
-  match the frozen contract set.
+  match the frozen contract set, including feature profile, contract type, and
+  Matrix domain metadata.
 - `design/theme.schema.json` validates every committed `design/themes/*.json`
   token file, and `design/ui.surface.schema.json` validates every committed
   `design/ui-surfaces/*.json` surface file.
@@ -186,9 +192,10 @@ without changing the canonical source-of-truth priority.
 
 GitHub Releases may anchor published specification refs, but Context7, OpenSSF
 Scorecard, OpenSSF Best Practices Badge, GitHub topics, package registries, and
-container registries are non-normative signals. They must not supersede
-contracts, vectors, design inputs, UI surfaces, or release evidence in this
-repository.
+container registries are non-normative signals. GitHub private vulnerability
+reporting is a public-listing prerequisite and must be enabled before treating
+the repository as OSS-ready. None of these signals may supersede contracts,
+vectors, design inputs, UI surfaces, or release evidence in this repository.
 
 Implementation packages, app artifacts, and container images are owned by their
 implementation repositories and require their own readiness evidence before

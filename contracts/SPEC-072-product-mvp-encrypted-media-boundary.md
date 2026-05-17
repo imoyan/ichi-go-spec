@@ -2,6 +2,8 @@
 
 Status: draft
 Feature profile: media
+Contract type: boundary
+Matrix domain: none
 Canonical: yes
 
 ## Purpose

@@ -2,6 +2,8 @@
 
 Status: draft
 Feature profile: messaging
+Contract type: boundary
+Matrix domain: Olm & Megolm
 Canonical: yes
 
 ## Purpose

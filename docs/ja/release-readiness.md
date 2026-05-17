@@ -5,6 +5,8 @@ checklist です。
 
 英語の contract text は正本です。日本語は正本ではありませんが、採用者が release の意味を
 理解するために重要です。
+日本語面の確認は contract ごとの注記必須化ではなく、`docs/ja/` の主要ガイドとこの
+release 前 checklist を更新することで担保します。
 
 ## 対象 release
 
@@ -23,7 +25,7 @@ checklist です。
 - [`docs/ja/README.md`](README.md)
 - [`docs/ja/adoption-guide.md`](adoption-guide.md)
 - [`docs/ja/matrix-v1-18.md`](matrix-v1-18.md)
-- 変更した `contracts/SPEC-*.md` 内の短い Japanese reader note
+- 必要に応じて、変更した `contracts/SPEC-*.md` から辿れる `docs/ja/` の主要ガイド
 - 変更した `design/` の UI surface / theme に対応する README または `docs/ja/` の説明
 
 - 変更された `contracts/SPEC-*.md` が README または `docs/ja/` から辿れる
@@ -44,7 +46,7 @@ checklist です。
   missing-key / wrong-key / redacted / recoverable-error state coverage、bounded trust copy、
   media key / room key / recovery key / signed URL / local filesystem path / plaintext media
   bytes / decrypted thumbnail / cache filename の redaction 方針が evidence に含まれている
-- README の `Implementation Adoption Reports` と日本語説明が矛盾していない
+- `CHANGELOG.md` の Implementation Adoption Reports と日本語説明が矛盾していない
 - Matrix version、外部仕様、互換性 claim は source と `checked_at` を持つ snapshot として扱われている
 - pre-1.0 の contract / vector / design input 変更は `breaking` / `additive` /
   `corrective` に分類され、breaking / deprecation の場合は replacement または
@@ -59,8 +61,9 @@ checklist です。
   `imoyan/houra-client#121`、`imoyan/houra-client#122`、`imoyan/houra-server#227`
   が対象 ref、commands、結果、blocker、claim boundary を記録するまで tag を切らない
 - OSS 公開前には `test-vectors/core/oss-publication-readiness-plan.json` を確認し、
-  `LICENSE`、`SECURITY.md`、GitHub Releases、GitHub topics、Context7、OpenSSF、
-  package / container registry の順序と non-normative boundary が記録されている
+  `LICENSE`、`SECURITY.md`、GitHub private vulnerability reporting、GitHub Releases、
+  GitHub topics、Context7、OpenSSF、package / container registry の順序と
+  non-normative boundary が記録されている
   ことを確認する
 - Houra Product MVP claim と Matrix compatibility claim は別々に扱われ、片方の
   evidence だけで他方の support claim を広げていない

@@ -13,18 +13,54 @@ const profiles = {
 
 const fullClientProfiles = profiles;
 
+const contractTypes = {
+  'boundary',
+  'endpoint',
+  'gap-inventory',
+  'gate',
+  'schema',
+};
+
 const matrixDomains = {
   'Appendices/common rules',
   'Application Service API',
   'Client-Server API',
-  'Client-Server API; Room Versions',
   'Identity Service API',
+  'none',
   'Olm & Megolm',
   'Push Gateway API',
   'Room Versions',
   'Server-Server API',
-  'Server-Server API; Room Versions',
 };
+
+const reservedContractIds = {
+  'SPEC-005',
+  'SPEC-012',
+  'SPEC-013',
+  'SPEC-014',
+  'SPEC-015',
+  'SPEC-016',
+  'SPEC-017',
+  'SPEC-018',
+  'SPEC-019',
+  'SPEC-021',
+  'SPEC-022',
+  'SPEC-023',
+  'SPEC-024',
+  'SPEC-025',
+  'SPEC-026',
+  'SPEC-027',
+  'SPEC-028',
+  'SPEC-029',
+  'SPEC-067',
+  'SPEC-087',
+  'SPEC-088',
+  'SPEC-089',
+  'SPEC-119',
+};
+
+final contractTypeById = <String, String>{};
+final contractMatrixDomainById = <String, String>{};
 
 const negativeVectorProfiles = {
   'auth',
@@ -333,6 +369,8 @@ void checkBoundary(List<String> failures) {
 }
 
 Map<String, String> readContracts(List<String> failures) {
+  contractTypeById.clear();
+  contractMatrixDomainById.clear();
   final root = Directory('contracts');
   if (!root.existsSync()) {
     failures.add('Missing contracts directory.');
@@ -358,6 +396,38 @@ Map<String, String> readContracts(List<String> failures) {
     }
     if (!source.contains('Canonical: yes')) {
       failures.add('${relative(file)} must declare canonical status.');
+    }
+
+    final typeMatch = RegExp(
+      r'^Contract type: ([a-z-]+)$',
+      multiLine: true,
+    ).firstMatch(source);
+    if (typeMatch == null) {
+      failures.add('${relative(file)} must declare a contract type.');
+    } else {
+      final type = typeMatch.group(1)!;
+      if (!contractTypes.contains(type)) {
+        failures.add('${relative(file)} uses unknown contract type: $type');
+      } else {
+        contractTypeById[id] = type;
+      }
+    }
+
+    final matrixDomainMatch = RegExp(
+      r'^Matrix domain: ([A-Za-z0-9 &/().-]+)$',
+      multiLine: true,
+    ).firstMatch(source);
+    if (matrixDomainMatch == null) {
+      failures.add('${relative(file)} must declare a Matrix domain.');
+    } else {
+      final matrixDomain = matrixDomainMatch.group(1)!;
+      if (!matrixDomains.contains(matrixDomain)) {
+        failures.add(
+          '${relative(file)} uses unknown Matrix domain: $matrixDomain',
+        );
+      } else {
+        contractMatrixDomainById[id] = matrixDomain;
+      }
     }
 
     final profileMatch = RegExp(
@@ -391,6 +461,8 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     'MODULE_DEPENDENCIES.md',
     'CONTRACT_MODULE_MAP.md',
     'AGENTS.md',
+    'docs/shared-implementation-strategy.md',
+    'docs/matrix-compliance.md',
   ];
 
   for (final path in docs) {
@@ -402,7 +474,7 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     final source = file.readAsStringSync();
     for (final match in RegExp(r'\bSPEC-\d{3}\b').allMatches(source)) {
       final id = match.group(0)!;
-      if (!contracts.containsKey(id)) {
+      if (!contracts.containsKey(id) && !reservedContractIds.contains(id)) {
         failures.add('$path references missing contract: $id');
       }
     }
@@ -419,6 +491,15 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
   }
 
   final readme = File('README.md').readAsStringSync();
+  final supportingDocsCorpus = [
+    readme,
+    for (final path in [
+      'docs/shared-implementation-strategy.md',
+      'docs/matrix-compliance.md',
+      'CHANGELOG.md',
+    ])
+      if (File(path).existsSync()) File(path).readAsStringSync(),
+  ].join('\n');
   for (final phrase in [
     'Stateful vector metadata',
     'Houra MVP 100% Readiness Criteria',
@@ -460,13 +541,20 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     'next-touch rule',
     'planned adoption gate',
   ]) {
-    if (!readme.contains(phrase)) {
-      failures.add('README.md must document $phrase.');
+    if (!supportingDocsCorpus.contains(phrase)) {
+      failures.add('Supporting docs must document $phrase.');
     }
   }
-  if (!readme.contains('UI Surface Contract')) {
+  if (!supportingDocsCorpus.contains('UI Surface Contract')) {
     failures.add('README.md must document UI Surface Contract.');
   }
+  if (!readme.contains('docs/shared-implementation-strategy.md')) {
+    failures.add('README.md must link docs/shared-implementation-strategy.md.');
+  }
+  if (!readme.contains('docs/matrix-compliance.md')) {
+    failures.add('README.md must link docs/matrix-compliance.md.');
+  }
+  checkReservedContractNumbers(contracts, failures);
   checkJapaneseDocs(failures);
 
   final agents = File('AGENTS.md').readAsStringSync();
@@ -503,6 +591,10 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
       'Adoption evidence',
       'Matrix reference snapshot',
       'Clean-room confirmed',
+      'Compatibility classification',
+      'breaking|additive|corrective',
+      'Claim impact',
+      'Product MVP|Matrix|both|neither',
     ]) {
       if (!source.contains(phrase)) {
         failures.add('PR template must document $phrase.');
@@ -522,6 +614,50 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
   if (!referencePolicy.contains('Codex-facing repository instructions')) {
     failures.add('REFERENCE_POLICY.md must point to AGENTS.md.');
   }
+}
+
+void checkReservedContractNumbers(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  for (final id in reservedContractIds) {
+    if (contracts.containsKey(id)) {
+      failures.add('$id is listed as reserved but has a contract file.');
+    }
+  }
+  final registry = File('CONTRACT_MODULE_MAP.md').readAsStringSync();
+  if (!registry.contains('## Reserved Contract Numbers')) {
+    failures.add('CONTRACT_MODULE_MAP.md must list reserved contract numbers.');
+    return;
+  }
+  for (final id in reservedContractIds) {
+    if (!reservedContractIdDocumented(id, registry)) {
+      failures.add('CONTRACT_MODULE_MAP.md must document reserved $id.');
+    }
+  }
+}
+
+bool reservedContractIdDocumented(String id, String registry) {
+  if (registry.contains(id)) {
+    return true;
+  }
+  final number = int.parse(id.substring('SPEC-'.length));
+  if (number >= 12 &&
+      number <= 19 &&
+      registry.contains('`SPEC-012` through `SPEC-019`')) {
+    return true;
+  }
+  if (number >= 21 &&
+      number <= 29 &&
+      registry.contains('`SPEC-021` through `SPEC-029`')) {
+    return true;
+  }
+  if (number >= 87 &&
+      number <= 89 &&
+      registry.contains('`SPEC-087` through `SPEC-089`')) {
+    return true;
+  }
+  return false;
 }
 
 void checkJapaneseDocs(List<String> failures) {
@@ -635,7 +771,7 @@ Map<String, String> checkProfileMap(
       continue;
     }
     final parts = line.split('|').map((part) => part.trim()).toList();
-    if (parts.length < 6) {
+    if (parts.length < 7) {
       failures.add('Malformed contract map row: $line');
       continue;
     }
@@ -660,15 +796,28 @@ Map<String, String> checkProfileMap(
         '${contracts[id]}',
       );
     }
-    if (!matrixDomains.contains(parts[3])) {
+    final contractType = contractTypeById[id];
+    if (contractType != null && parts[3] != contractType) {
       failures.add(
-        'Contract map Matrix domain is unknown for $id: ${parts[3]}',
+        'Contract map type mismatch for $id: ${parts[3]} != $contractType',
       );
     }
-    if (parts[4].isEmpty) {
+    final matrixDomain = contractMatrixDomainById[id];
+    if (matrixDomain != null && parts[4] != matrixDomain) {
+      failures.add(
+        'Contract map Matrix domain mismatch for $id: '
+        '${parts[4]} != $matrixDomain',
+      );
+    }
+    if (!matrixDomains.contains(parts[4])) {
+      failures.add(
+        'Contract map Matrix domain is unknown for $id: ${parts[4]}',
+      );
+    }
+    if (parts[5].isEmpty) {
       failures.add('Contract map current Matrix alignment is empty for $id.');
     }
-    if (parts.length < 6 || parts[5].isEmpty) {
+    if (parts.length < 7 || parts[6].isEmpty) {
       failures.add('Contract map next compliance action is empty for $id.');
     }
     if (parts[2] != contracts[id]) {
@@ -12860,6 +13009,7 @@ void checkOssPublicationReadinessPlan(
     if (!surfaceIds.containsAll({
       'license',
       'security-policy',
+      'private-vulnerability-reporting',
       'release-notes',
       'github-topics',
       'context7-config',
@@ -12908,7 +13058,7 @@ void checkOssPublicationReadinessPlan(
     }
   }
   requireStringListIncludes(file, eventMap, 'publication_order', {
-    'complete repository surfaces: LICENSE, SECURITY.md, README release boundary, GitHub topics, release notes template',
+    'complete repository surfaces: LICENSE, SECURITY.md, GitHub private vulnerability reporting, README release boundary, GitHub topics, release notes template',
     'create a GitHub Release anchor for the chosen pre-release or stable ref',
     'register non-normative documentation index entries such as Context7 only after the public docs URL is stable',
     'enable non-normative trust signals such as OpenSSF Scorecard and Best Practices Badge after security and release process surfaces exist',
@@ -12985,7 +13135,9 @@ void checkConformanceToolingResultSchema(
   if (event is! Map ||
       event['schema_version'] != 'conformance-report-v1' ||
       event['source_doc'] != 'README.md') {
-    failures.add('${relative(schemaFile)} conformance schema metadata invalid.');
+    failures.add(
+      '${relative(schemaFile)} conformance schema metadata invalid.',
+    );
     return;
   }
   final eventMap = event.cast<String, Object?>();
@@ -13237,7 +13389,9 @@ void checkSharedCoreAdoptionEvidenceSchema(
   if (event is! Map ||
       event['schema_version'] != 'shared-core-adoption-evidence-v1' ||
       event['source_doc'] != 'README.md') {
-    failures.add('${relative(schemaFile)} shared-core schema metadata invalid.');
+    failures.add(
+      '${relative(schemaFile)} shared-core schema metadata invalid.',
+    );
     return;
   }
   final eventMap = event.cast<String, Object?>();
@@ -13293,7 +13447,9 @@ void checkSharedCoreAdoptionEvidenceSchema(
           item['required_contracts'] is! List ||
           item['required_vectors'] is! List ||
           item['adapter_owned_responsibilities'] is! List) {
-        failures.add('${relative(schemaFile)} initial candidate shape invalid.');
+        failures.add(
+          '${relative(schemaFile)} initial candidate shape invalid.',
+        );
         continue;
       }
       final candidate = item.cast<String, Object?>();
@@ -13456,7 +13612,8 @@ void checkSharedCoreAdoptionEvidenceSchema(
       negativeExpected['unredacted_diagnostics_rejected'] != true ||
       negativeExpected['missing_rollback_rejected'] != true ||
       negativeExpected['adapter_owned_shared_behavior_rejected'] != true ||
-      negativeExpected['claim_boundary_widened_without_gate_rejected'] != true) {
+      negativeExpected['claim_boundary_widened_without_gate_rejected'] !=
+          true) {
     failures.add('${relative(negativeFile)} expected negative result invalid.');
   }
 }

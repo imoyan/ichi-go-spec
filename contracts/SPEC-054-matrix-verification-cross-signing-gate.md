@@ -2,6 +2,8 @@
 
 Status: draft
 Feature profile: messaging
+Contract type: gate
+Matrix domain: Client-Server API
 Canonical: yes
 
 ## Purpose
