@@ -197,6 +197,7 @@ matching Product MVP contract/vector/design input also changed.
 - `contracts/SPEC-113-conformance-tooling-result-schema.md`
 - `contracts/SPEC-114-shared-core-adoption-evidence-schema.md`
 - `contracts/SPEC-115-matrix-application-service-masquerade-timestamp-runtime.md`
+- `contracts/SPEC-116-matrix-application-service-virtual-user-directory-device-runtime.md`
 
 ## Shared Design Inputs
 
@@ -1813,6 +1814,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-111 | Matrix federation leave and knock representative runtime behavior | `test-vectors/events/matrix-federation-leave-knock-runtime.json` |
 | SPEC-112 | Matrix federation event retrieval, missing-events, state response, and timestamp lookup representative runtime behavior | `test-vectors/events/matrix-federation-event-retrieval-runtime.json` |
 | SPEC-115 | Matrix Application Service `as_token` masquerading and timestamp massaging representative runtime behavior | `test-vectors/core/matrix-application-service-masquerade-timestamp-runtime.json` |
+| SPEC-116 | Matrix Application Service virtual-user sync, appservice directory visibility, and device metadata representative runtime behavior | `test-vectors/core/matrix-application-service-virtual-user-directory-device-runtime.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this

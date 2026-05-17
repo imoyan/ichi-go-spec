@@ -1,0 +1,303 @@
+{
+  "name": "matrix-application-service-virtual-user-directory-device-runtime",
+  "contract": "SPEC-116",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/application-service-api/#client-server-api-extensions",
+      "https://spec.matrix.org/v1.18/client-server-api/#syncing",
+      "https://spec.matrix.org/v1.18/client-server-api/#room-directory",
+      "https://spec.matrix.org/v1.18/client-server-api/#device-management"
+    ],
+    "checked_at": "2026-05-17T10:20:00+09:00",
+    "parser_helper_contract": "SPEC-105",
+    "gap_inventory_contract": "SPEC-075",
+    "lane_id": "client-server-extension-sync-directory-device-cross-signing-breadth",
+    "source_issue": "imoyan/houra-spec#335",
+    "implementation_issue": "imoyan/houra-server#239",
+    "appservice_registration": {
+      "id": "bridge-example",
+      "sender_user_id": "@_bridge:example.test",
+      "as_token_ref": "redacted-as-token",
+      "users_namespace": {
+        "exclusive": true,
+        "regex": "^@_bridge_.+:example\\.test$"
+      },
+      "device_id_bound": 255,
+      "network_id_bound": 255
+    },
+    "requests": [
+      {
+        "id": "sync-virtual-user-empty-envelope",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "query": {
+          "user_id": "@_bridge_alice:example.test",
+          "timeout": "0"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-as-token",
+          "token_kind": "application_service"
+        },
+        "response": {
+          "status": 200,
+          "body_assertions": {
+            "has_next_batch": true,
+            "rooms_join_is_object": true,
+            "versions_advertisement_widened": false
+          }
+        }
+      },
+      {
+        "id": "directory-visibility-appservice-network",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/directory/list/appservice/irc/!room:example.test",
+        "query": {
+          "user_id": "@_bridge_alice:example.test"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-as-token",
+          "token_kind": "application_service"
+        },
+        "body": {
+          "visibility": "public"
+        },
+        "response": {
+          "status": 200,
+          "stored_visibility_assertions": {
+            "network_id": "irc",
+            "room_id": "!room:example.test",
+            "visibility": "public"
+          }
+        }
+      },
+      {
+        "id": "device-update-virtual-user",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/devices/BRIDGEDEVICE1",
+        "query": {
+          "user_id": "@_bridge_alice:example.test"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-as-token",
+          "token_kind": "application_service"
+        },
+        "body": {
+          "display_name": "Bridge device"
+        },
+        "response": {
+          "status": 200,
+          "stored_device_assertions": {
+            "user_id": "@_bridge_alice:example.test",
+            "device_id": "BRIDGEDEVICE1",
+            "display_name": "Bridge device"
+          }
+        }
+      },
+      {
+        "id": "device-delete-virtual-user",
+        "method": "DELETE",
+        "path": "/_matrix/client/v3/devices/BRIDGEDEVICE1",
+        "query": {
+          "user_id": "@_bridge_alice:example.test"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-as-token",
+          "token_kind": "application_service"
+        },
+        "response": {
+          "status": 200,
+          "stored_device_assertions": {
+            "user_id": "@_bridge_alice:example.test",
+            "device_id": "BRIDGEDEVICE1",
+            "deleted": true
+          }
+        }
+      },
+      {
+        "id": "bulk-device-delete-virtual-user",
+        "method": "POST",
+        "path": "/_matrix/client/v3/delete_devices",
+        "query": {
+          "user_id": "@_bridge_alice:example.test"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-as-token",
+          "token_kind": "application_service"
+        },
+        "body": {
+          "devices": [
+            "BRIDGEDEVICE1",
+            "BRIDGEDEVICE2"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "stored_device_assertions": {
+            "user_id": "@_bridge_alice:example.test",
+            "deleted_device_ids": [
+              "BRIDGEDEVICE1",
+              "BRIDGEDEVICE2"
+            ]
+          }
+        }
+      }
+    ],
+    "negative_cases": [
+      {
+        "id": "normal-user-token-cannot-sync-as-virtual-user",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "query": {
+          "user_id": "@_bridge_alice:example.test",
+          "timeout": "0"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-user-token",
+          "token_kind": "normal_user"
+        },
+        "expected_status": 403,
+        "expected_error": "M_FORBIDDEN"
+      },
+      {
+        "id": "virtual-user-outside-namespace",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "query": {
+          "user_id": "@alice:example.test",
+          "timeout": "0"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-as-token",
+          "token_kind": "application_service"
+        },
+        "expected_status": 403,
+        "expected_error": "M_EXCLUSIVE"
+      },
+      {
+        "id": "directory-invalid-room-id",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/directory/list/appservice/irc/not-a-room-id",
+        "query": {
+          "user_id": "@_bridge_alice:example.test"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-as-token",
+          "token_kind": "application_service"
+        },
+        "body": {
+          "visibility": "public"
+        },
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      },
+      {
+        "id": "device-update-without-user-id",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/devices/BRIDGEDEVICE1",
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-as-token",
+          "token_kind": "application_service"
+        },
+        "body": {
+          "display_name": "Bridge device"
+        },
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      },
+      {
+        "id": "device-update-invalid-device-id",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/devices/",
+        "query": {
+          "user_id": "@_bridge_alice:example.test"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-as-token",
+          "token_kind": "application_service"
+        },
+        "body": {
+          "display_name": "Bridge device"
+        },
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      },
+      {
+        "id": "legacy-events-unsupported",
+        "method": "GET",
+        "path": "/_matrix/client/v3/events",
+        "query": {
+          "user_id": "@_bridge_alice:example.test"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-as-token",
+          "token_kind": "application_service"
+        },
+        "expected_status": 404,
+        "expected_error": "M_UNRECOGNIZED"
+      },
+      {
+        "id": "cross-signing-upload-unsupported",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/device_signing/upload",
+        "query": {
+          "user_id": "@_bridge_alice:example.test"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-as-token",
+          "token_kind": "application_service"
+        },
+        "body": {
+          "master_key": {
+            "user_id": "@_bridge_alice:example.test",
+            "usage": [
+              "master"
+            ],
+            "keys": {
+              "ed25519:master": "redacted-public-key"
+            }
+          }
+        },
+        "expected_status": 403,
+        "expected_error": "M_FORBIDDEN"
+      }
+    ],
+    "claim_boundaries": {
+      "virtual_user_sync_adopted": true,
+      "appservice_directory_visibility_adopted": true,
+      "virtual_user_device_metadata_adopted": true,
+      "legacy_events_adopted": false,
+      "cross_signing_upload_adopted": false,
+      "full_sync_fanout_claimed": false,
+      "bridge_protocol_behavior_claimed": false,
+      "application_service_api_advertisement_allowed": false,
+      "versions_advertisement_widened": false
+    },
+    "redaction": {
+      "raw_as_token_in_artifacts": false,
+      "raw_hs_token_in_artifacts": false,
+      "private_bridge_urls_in_artifacts": false
+    }
+  },
+  "expected": {
+    "namespace_virtual_user_enforced": true,
+    "virtual_user_sync_envelope_bounded": true,
+    "directory_visibility_bounded": true,
+    "device_metadata_lifecycle_bounded": true,
+    "cross_signing_upload_not_adopted": true,
+    "support_claim_not_widened": true,
+    "versions_advertisement_widened": false
+  }
+}
