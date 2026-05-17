@@ -33,6 +33,16 @@ const matrixDomains = {
   'Server-Server API',
 };
 
+const adoptionStates = {
+  'adopted',
+  'blocked',
+  'evidence-only',
+  'planned',
+  'tracked',
+};
+
+const claimImpacts = {'both', 'Matrix', 'neither', 'Product MVP'};
+
 const reservedContractIds = {
   'SPEC-005',
   'SPEC-012',
@@ -509,6 +519,7 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     'MODULE_DEPENDENCIES.md',
     'CONTRACT_MODULE_MAP.md',
     'AGENTS.md',
+    'docs/adoption-status.md',
     'docs/shared-implementation-strategy.md',
     'docs/matrix-compliance.md',
   ];
@@ -544,6 +555,7 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     for (final path in [
       'docs/shared-implementation-strategy.md',
       'docs/matrix-compliance.md',
+      'docs/adoption-status.md',
       'CHANGELOG.md',
     ])
       if (File(path).existsSync()) File(path).readAsStringSync(),
@@ -593,6 +605,9 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     'MSC',
     'endpoint path or section anchor',
     'room version',
+    'Adoption Status Board',
+    'cross-repository adoption index',
+    'not conformance proof',
   ]) {
     if (!supportingDocsCorpus.contains(phrase)) {
       failures.add('Supporting docs must document $phrase.');
@@ -607,7 +622,11 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
   if (!readme.contains('docs/matrix-compliance.md')) {
     failures.add('README.md must link docs/matrix-compliance.md.');
   }
+  if (!readme.contains('docs/adoption-status.md')) {
+    failures.add('README.md must link docs/adoption-status.md.');
+  }
   checkReservedContractNumbers(contracts, failures);
+  checkAdoptionStatusBoard(contracts, failures);
   checkJapaneseDocs(failures);
 
   final agents = File('AGENTS.md').readAsStringSync();
@@ -725,6 +744,164 @@ bool reservedContractIdDocumented(String id, String registry) {
     return true;
   }
   return false;
+}
+
+void checkAdoptionStatusBoard(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  final boardFile = File('docs/adoption-status.md');
+  if (!boardFile.existsSync()) {
+    failures.add('Missing adoption status board: docs/adoption-status.md.');
+    return;
+  }
+  final board = boardFile.readAsStringSync();
+  for (final phrase in [
+    '# Adoption Status Board',
+    'CONTRACT_MODULE_MAP.md',
+    'CHANGELOG.md',
+    'not conformance proof',
+    'Runtime support remains fail-closed',
+    'Primary reference',
+    'Repository anchor',
+    '| Primary reference | Repository anchor | Contract type | Matrix domain | Server refs | Client refs | Labs refs | Adoption state | Claim impact |',
+  ]) {
+    if (!board.contains(phrase)) {
+      failures.add('docs/adoption-status.md must document $phrase.');
+    }
+  }
+
+  final expectedRefsById = <String, Set<String>>{};
+  final registry = File('CONTRACT_MODULE_MAP.md');
+  if (registry.existsSync()) {
+    for (final line in registry.readAsLinesSync()) {
+      if (!line.startsWith('| ') || line.startsWith('|---')) {
+        continue;
+      }
+      final parts = line.split('|').map((part) => part.trim()).toList();
+      if (parts.length < 8 || parts[1] == 'Primary reference') {
+        continue;
+      }
+      final id = RegExp(r'\bSPEC-\d{3}\b').firstMatch(parts[2])?.group(0);
+      if (id == null) {
+        continue;
+      }
+      expectedRefsById[id] = {
+        for (final match in RegExp(
+          r'(?:imoyan/)?(houra-(?:server|client|labs)#\d+)',
+        ).allMatches(line))
+          match.group(1)!,
+      };
+    }
+  }
+  final changelogRefs = <String>{};
+  final changelog = File('CHANGELOG.md');
+  if (changelog.existsSync()) {
+    changelogRefs.addAll(
+      RegExp(r'(?:imoyan/)?(houra-(?:server|client|labs)#\d+)')
+          .allMatches(changelog.readAsStringSync())
+          .map((match) => match.group(1)!),
+    );
+  }
+
+  final seen = <String>{};
+  for (final line in board.split('\n')) {
+    if (!line.startsWith('| ') ||
+        line.startsWith('|---') ||
+        line.startsWith('| Primary reference |')) {
+      continue;
+    }
+    final parts = line.split('|').map((part) => part.trim()).toList();
+    if (parts.length < 11) {
+      failures.add('Malformed adoption status row: $line');
+      continue;
+    }
+    final primaryReference = parts[1];
+    final repositoryAnchor = parts[2];
+    final id = RegExp(r'\bSPEC-\d{3}\b').firstMatch(repositoryAnchor)?.group(0);
+    if (id == null || !contracts.containsKey(id)) {
+      failures.add(
+        'Adoption status references missing contract: $repositoryAnchor',
+      );
+      continue;
+    }
+    if (!seen.add(id)) {
+      failures.add('docs/adoption-status.md lists $id more than once.');
+    }
+    final expectedPrimaryReference = contractPrimaryReferenceById[id];
+    if (expectedPrimaryReference != null &&
+        primaryReference != expectedPrimaryReference) {
+      failures.add(
+        'Adoption status primary reference mismatch for $id: '
+        '$primaryReference != $expectedPrimaryReference',
+      );
+    }
+    final expectedRepositoryAnchor = contractRepositoryAnchorById[id];
+    if (expectedRepositoryAnchor != null &&
+        repositoryAnchor != expectedRepositoryAnchor) {
+      failures.add(
+        'Adoption status repository anchor mismatch for $id: '
+        '$repositoryAnchor != $expectedRepositoryAnchor',
+      );
+    }
+
+    final contractType = contractTypeById[id];
+    if (contractType != null && parts[3] != contractType) {
+      failures.add(
+        'Adoption status type mismatch for $id: ${parts[3]} != $contractType',
+      );
+    }
+
+    final matrixDomain = contractMatrixDomainById[id];
+    if (matrixDomain != null && parts[4] != matrixDomain) {
+      failures.add(
+        'Adoption status Matrix domain mismatch for $id: '
+        '${parts[4]} != $matrixDomain',
+      );
+    }
+
+    for (final entry in [
+      ('houra-server', parts[5]),
+      ('houra-client', parts[6]),
+      ('houra-labs', parts[7]),
+    ]) {
+      final repo = entry.$1;
+      final cell = entry.$2;
+      if (cell == '-') {
+        continue;
+      }
+      for (final token in cell.split('<br>')) {
+        final ref = token.replaceAll('`', '').trim();
+        if (!RegExp('^$repo#\\d+\$').hasMatch(ref)) {
+          failures.add('Adoption status invalid $repo ref for $id: $token');
+          continue;
+        }
+        final expectedRefs = expectedRefsById[id];
+        if (expectedRefs != null &&
+            !expectedRefs.contains(ref) &&
+            !changelogRefs.contains(ref)) {
+          failures.add(
+            'Adoption status ref for $id is not in CONTRACT_MODULE_MAP.md or CHANGELOG.md: $ref',
+          );
+        }
+      }
+    }
+
+    if (!adoptionStates.contains(parts[8])) {
+      failures.add('Adoption status state is unknown for $id: ${parts[8]}');
+    }
+    if (!claimImpacts.contains(parts[9])) {
+      failures.add(
+        'Adoption status claim impact is unknown for $id: ${parts[9]}',
+      );
+    }
+  }
+
+  for (final id in contracts.keys) {
+    if (!seen.contains(id)) {
+      failures.add('docs/adoption-status.md does not list $id.');
+    }
+  }
 }
 
 void checkJapaneseDocs(List<String> failures) {

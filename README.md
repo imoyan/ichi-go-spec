@@ -110,6 +110,8 @@ matching Product MVP contract/vector/design input also changed.
   type, Matrix domain, and reserved number notes.
 - `CHANGELOG.md`: Implementation Adoption Reports and pre-release readiness
   summaries.
+- `docs/adoption-status.md`: cross-repository adoption status board for
+  contract, implementation-reference, and claim-impact lookup.
 - `docs/shared-implementation-strategy.md`: shared implementation strategy and
   adoption-gate guidance.
 - `docs/matrix-compliance.md`: Matrix v1.18 compliance matrix, roadmap, and
