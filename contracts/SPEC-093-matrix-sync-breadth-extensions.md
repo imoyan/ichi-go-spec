@@ -1,9 +1,11 @@
-# SPEC-093: Matrix Sync Breadth Extensions
+# Matrix v1.18 / Client-Server API / sync query and response sections
 
 Status: draft
 Feature profile: sync
 Contract type: boundary
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / sync query and response sections
+Repository anchor: SPEC-093 Matrix Sync Breadth Extensions
 Canonical: yes
 
 ## Purpose

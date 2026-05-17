@@ -1,9 +1,11 @@
-# SPEC-037: Matrix Client-Server Sync MVP
+# Matrix v1.18 / Client-Server API / GET /_matrix/client/v3/sync
 
 Status: draft
 Feature profile: sync
 Contract type: endpoint
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / GET /_matrix/client/v3/sync
+Repository anchor: SPEC-037 Matrix Client-Server Sync MVP
 Canonical: yes
 
 ## Purpose

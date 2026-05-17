@@ -1,9 +1,11 @@
-# SPEC-060: Matrix Push Gateway Boundary
+# Matrix v1.18 / Push Gateway API / POST /_matrix/push/v1/notify
 
 Status: draft
 Feature profile: core
 Contract type: endpoint
 Matrix domain: Push Gateway API
+Primary reference: Matrix v1.18 / Push Gateway API / POST /_matrix/push/v1/notify
+Repository anchor: SPEC-060 Matrix Push Gateway Boundary
 Canonical: yes
 
 ## Purpose

@@ -1,9 +1,11 @@
-# SPEC-039: Matrix Client-Server MVP Live E2E Gate
+# Matrix v1.18 / Client-Server API / Client-Server endpoint smoke gate
 
 Status: draft
 Feature profile: core
 Contract type: gate
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / Client-Server endpoint smoke gate
+Repository anchor: SPEC-039 Matrix Client-Server MVP Live E2E Gate
 Canonical: yes
 
 ## Purpose

@@ -1,9 +1,11 @@
-# SPEC-107: Matrix Federation Transaction Event Validation Runtime
+# Matrix v1.18 / Server-Server API / federation transaction event validation
 
 Status: draft
 Feature profile: events
 Contract type: boundary
 Matrix domain: Server-Server API
+Primary reference: Matrix v1.18 / Server-Server API / federation transaction event validation
+Repository anchor: SPEC-107 Matrix Federation Transaction Event Validation Runtime
 Canonical: yes
 
 ## Purpose

@@ -1,9 +1,11 @@
-# SPEC-002: Error Model
+# Houra public API / Error model
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: none
+Primary reference: Houra public API / Error model
+Repository anchor: SPEC-002 Error model
 Canonical: yes
 
 ## Purpose

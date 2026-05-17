@@ -1,9 +1,11 @@
-# SPEC-049: Matrix Moderation, Reporting, and Admin Controls
+# Matrix v1.18 / Client-Server API / room moderation, redaction, reporting, and admin endpoints
 
 Status: draft
 Feature profile: rooms
 Contract type: endpoint
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / room moderation, redaction, reporting, and admin endpoints
+Repository anchor: SPEC-049 Matrix Moderation, Reporting, and Admin Controls
 Canonical: yes
 
 ## Purpose

@@ -1,9 +1,11 @@
-# SPEC-063: Matrix Complement-Compatible CI Lane
+# Matrix v1.18 / Appendices/common rules / Complement-compatible homeserver CI lane
 
 Status: draft
 Feature profile: core
 Contract type: gate
 Matrix domain: Appendices/common rules
+Primary reference: Matrix v1.18 / Appendices/common rules / Complement-compatible homeserver CI lane
+Repository anchor: SPEC-063 Matrix Complement-Compatible CI Lane
 Canonical: yes
 
 ## Purpose

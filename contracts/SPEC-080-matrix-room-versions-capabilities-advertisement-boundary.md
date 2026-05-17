@@ -1,9 +1,11 @@
-# SPEC-080: Matrix Room Versions Capabilities Advertisement Boundary
+# Matrix v1.18 / Room Versions / room versions capabilities advertisement
 
 Status: draft
 Feature profile: rooms
 Contract type: boundary
 Matrix domain: Room Versions
+Primary reference: Matrix v1.18 / Room Versions / room versions capabilities advertisement
+Repository anchor: SPEC-080 Matrix Room Versions Capabilities Advertisement Boundary
 Canonical: yes
 
 ## Purpose

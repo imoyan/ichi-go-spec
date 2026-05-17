@@ -1,9 +1,11 @@
-# SPEC-090: Matrix Client-Server Relations, Threads, and Reactions
+# Matrix v1.18 / Client-Server API / relations, threads, and reactions endpoints
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / relations, threads, and reactions endpoints
+Repository anchor: SPEC-090 Matrix Client-Server Relations, Threads, and Reactions
 Canonical: yes
 
 ## Purpose

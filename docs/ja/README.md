@@ -6,6 +6,17 @@
 日本語ドキュメントは正本を置き換えませんが、実装採用者が仕様を読み違えないための
 重要な reader surface として維持します。
 
+## Matrix 参照を先に読む
+
+Matrix に対応する作業では、`SPEC-*` を読者向けの番号体系として使いません。Matrix 側の
+参照は、Matrix spec version、API domain、endpoint path または section anchor、MSC 番号、
+room version など、公式 Matrix 仕様側の識別子を先に書きます。既存の `SPEC-*` 名は、
+release evidence や実装採用記録のリンクを壊さず置き換えられるまで、このリポジトリ内の
+ファイル名・リンク用アンカーとしてだけ残します。
+各 contract header の `Primary reference` が、読者が最初に見る Matrix または Houra 側の
+参照です。contract の H1 も `Primary reference` に合わせ、既存の `SPEC-*` は
+`Repository anchor` に下げます。
+
 ## まず読むもの
 
 - 実装採用者向けガイド: [`adoption-guide.md`](adoption-guide.md)
@@ -38,41 +49,42 @@ Product MVP は `/_houra/client/**`、Product MVP UI surface、adoption evidence
 release notes evidence を中心に確認します。片方の evidence だけで他方の support claim を
 広げません。
 
-`SPEC-070` の account recovery / IdP login は Product MVP vNext の optional flow です。
+Product MVP vNext の account recovery / IdP login は optional flow です。
 現行 Product MVP happy path には含めず、server capability、UI surface adoption evidence、
 token / authorization code / callback query の redaction 方針が揃うまで fail-closed として
 扱います。
 
-`SPEC-071` の media transfer は thumbnails、range request、resumable download の
+Product MVP vNext の media transfer は thumbnails、range request、resumable download の
 optional flow です。現行 Product MVP happy path には含めず、media metadata capability、
 UI surface adoption evidence、signed URL / local path / plaintext bytes の redaction 方針が
-揃うまで fail-closed として扱います。encrypted attachment は `SPEC-072` 側で分けます。
+揃うまで fail-closed として扱います。encrypted attachment は別の Product MVP vNext flow として
+分けます。
 
-`SPEC-072` の encrypted media attachment は metadata validation、ciphertext download /
+Product MVP vNext の encrypted media attachment は metadata validation、ciphertext download /
 decrypt handoff、missing / wrong key、redaction、recoverable error の optional flow です。
 現行 Product MVP happy path には含めず、encrypted attachment capability、crypto-adapter
 handoff evidence、trust copy、media key / room key / recovery key / plaintext bytes /
 decrypted thumbnail の redaction 方針が揃うまで fail-closed として扱います。この flow だけで
 encrypted-room や complete E2EE support claim は広げません。
 
-`SPEC-126` の role projection は、Product MVP server が同一 subject を role / audience
+Product MVP role projection は、Product MVP server が同一 subject を role / audience
 ごとの allowlist で返すための境界です。server implementation evidence が揃うまで Product MVP
 release readiness は広げず、UI role management、sample runner compatibility、enterprise RBAC
 とは別の scope として扱います。
 
-`SPEC-127` の PII redaction handoff は、Product MVP server が raw report を外部 handoff
+Product MVP PII redaction handoff は、Product MVP server が raw report を外部 handoff
 候補にする前に classification、redaction、human approval、approved handoff を分けて扱うための
 境界です。server implementation evidence が揃うまで Product MVP release readiness は広げず、
 production external adapter delivery、legal PII taxonomy、client approval UI、sample runner
 compatibility とは別の scope として扱います。
 
-`SPEC-128` の multilingual handoff は、Product MVP server が canonical source language と
+Product MVP multilingual handoff は、Product MVP server が canonical source language と
 reviewed confirmed translation を分け、audience に出す translation を confirmed state に限定する
 境界です。server implementation evidence が揃うまで Product MVP release readiness は広げず、
 translation provider integration、automatic quality judgment、client review UI、sample runner
 compatibility とは別の scope として扱います。
 
-`SPEC-129` の offline queue replay は、Product MVP server が接続復帰後の replay を
+Product MVP offline queue replay は、Product MVP server が接続復帰後の replay を
 idempotency key、dedup、payload drift rejection、raw device data exclusion で扱うための
 境界です。server implementation evidence が揃うまで Product MVP release readiness は広げず、
 device-local queue implementation、mobile retry UI、external queue service、sample runner

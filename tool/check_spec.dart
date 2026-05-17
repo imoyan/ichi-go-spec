@@ -61,6 +61,8 @@ const reservedContractIds = {
 
 final contractTypeById = <String, String>{};
 final contractMatrixDomainById = <String, String>{};
+final contractPrimaryReferenceById = <String, String>{};
+final contractRepositoryAnchorById = <String, String>{};
 
 const negativeVectorProfiles = {
   'auth',
@@ -371,6 +373,8 @@ void checkBoundary(List<String> failures) {
 Map<String, String> readContracts(List<String> failures) {
   contractTypeById.clear();
   contractMatrixDomainById.clear();
+  contractPrimaryReferenceById.clear();
+  contractRepositoryAnchorById.clear();
   final root = Directory('contracts');
   if (!root.existsSync()) {
     failures.add('Missing contracts directory.');
@@ -388,8 +392,12 @@ Map<String, String> readContracts(List<String> failures) {
 
     final id = idMatch.group(1)!;
     final source = file.readAsStringSync();
-    if (!source.startsWith('# $id:')) {
-      failures.add('${relative(file)} must start with "# $id:".');
+    final headingMatch = RegExp(
+      r'^# (.+)$',
+      multiLine: true,
+    ).firstMatch(source);
+    if (headingMatch == null) {
+      failures.add('${relative(file)} must start with a primary heading.');
     }
     if (!source.contains('Status: draft')) {
       failures.add('${relative(file)} must declare draft status.');
@@ -427,6 +435,46 @@ Map<String, String> readContracts(List<String> failures) {
         );
       } else {
         contractMatrixDomainById[id] = matrixDomain;
+      }
+    }
+
+    final primaryReferenceMatch = RegExp(
+      r'^Primary reference: (.+)$',
+      multiLine: true,
+    ).firstMatch(source);
+    if (primaryReferenceMatch == null) {
+      failures.add('${relative(file)} must declare a primary reference.');
+    } else {
+      final primaryReference = primaryReferenceMatch.group(1)!;
+      if (primaryReference.contains(id)) {
+        failures.add('${relative(file)} primary reference must not use $id.');
+      } else {
+        contractPrimaryReferenceById[id] = primaryReference;
+      }
+    }
+
+    if (headingMatch != null && primaryReferenceMatch != null) {
+      final heading = headingMatch.group(1)!;
+      final primaryReference = primaryReferenceMatch.group(1)!;
+      if (heading != primaryReference) {
+        failures.add('${relative(file)} H1 must match Primary reference.');
+      }
+    }
+
+    final repositoryAnchorMatch = RegExp(
+      r'^Repository anchor: (.+)$',
+      multiLine: true,
+    ).firstMatch(source);
+    if (repositoryAnchorMatch == null) {
+      failures.add('${relative(file)} must declare a repository anchor.');
+    } else {
+      final repositoryAnchor = repositoryAnchorMatch.group(1)!;
+      if (!repositoryAnchor.startsWith(id)) {
+        failures.add(
+          '${relative(file)} repository anchor must start with $id.',
+        );
+      } else {
+        contractRepositoryAnchorById[id] = repositoryAnchor;
       }
     }
 
@@ -540,6 +588,11 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
     'parse / normalize / validate / authorize',
     'next-touch rule',
     'planned adoption gate',
+    'reader-facing numbering system',
+    'official Matrix identifiers',
+    'MSC',
+    'endpoint path or section anchor',
+    'room version',
   ]) {
     if (!supportingDocsCorpus.contains(phrase)) {
       failures.add('Supporting docs must document $phrase.');
@@ -609,6 +662,9 @@ void checkDocs(Map<String, String> contracts, List<String> failures) {
   if (!sourceOfTruth.contains('MVP Readiness Boundary')) {
     failures.add('SOURCE_OF_TRUTH.md must document MVP Readiness Boundary.');
   }
+  if (!sourceOfTruth.contains('Matrix References Are Primary')) {
+    failures.add('SOURCE_OF_TRUTH.md must document Matrix reference priority.');
+  }
 
   final referencePolicy = File('REFERENCE_POLICY.md').readAsStringSync();
   if (!referencePolicy.contains('Codex-facing repository instructions')) {
@@ -629,6 +685,17 @@ void checkReservedContractNumbers(
   if (!registry.contains('## Reserved Contract Numbers')) {
     failures.add('CONTRACT_MODULE_MAP.md must list reserved contract numbers.');
     return;
+  }
+  for (final phrase in [
+    'Primary reference',
+    'repository links',
+    'MSC number',
+    'endpoint path or section anchor',
+    'room version',
+  ]) {
+    if (!registry.contains(phrase)) {
+      failures.add('CONTRACT_MODULE_MAP.md must document $phrase.');
+    }
   }
   for (final id in reservedContractIds) {
     if (!reservedContractIdDocumented(id, registry)) {
@@ -684,6 +751,10 @@ void checkJapaneseDocs(List<String> failures) {
     'Product MVP release candidate',
     'Matrix v1.18 release candidate',
     'support claim',
+    'Matrix 参照を先に読む',
+    '読者向けの番号体系として使いません',
+    '公式 Matrix 仕様側の識別子',
+    'endpoint path または section anchor',
     'adoption-guide.md',
     'release-readiness.md',
     'matrix-v1-18.md',
@@ -766,19 +837,61 @@ Map<String, String> checkProfileMap(
   final seen = <String>{};
   final profileMap = <String, String>{};
   int? previousMatrixBreadthContractNumber;
+  final source = file.readAsStringSync();
+  if (!source.contains('| Primary reference | Repository anchor |')) {
+    failures.add(
+      'CONTRACT_MODULE_MAP.md must lead with Primary reference and Repository anchor.',
+    );
+  }
   for (final line in file.readAsLinesSync()) {
-    if (!line.startsWith('| SPEC-')) {
+    if (!line.startsWith('| ') || !line.contains('SPEC-')) {
       continue;
     }
     final parts = line.split('|').map((part) => part.trim()).toList();
-    if (parts.length < 7) {
+    if (parts.length < 9) {
       failures.add('Malformed contract map row: $line');
       continue;
     }
-    final id = RegExp(r'\bSPEC-\d{3}\b').firstMatch(parts[1])?.group(0);
+    final primaryReference = parts[1];
+    final id = RegExp(r'\bSPEC-\d{3}\b').firstMatch(parts[2])?.group(0);
     if (id == null || !contracts.containsKey(id)) {
-      failures.add('Contract map references missing contract: ${parts[1]}');
+      failures.add('Contract map references missing contract: ${parts[2]}');
       continue;
+    }
+    if (primaryReference.isEmpty || primaryReference.contains(id)) {
+      failures.add('Contract map primary reference is invalid for $id.');
+    }
+    final contractPrimaryReference = contractPrimaryReferenceById[id];
+    if (contractPrimaryReference != null &&
+        primaryReference != contractPrimaryReference) {
+      failures.add(
+        'Contract map primary reference mismatch for $id: '
+        '$primaryReference != $contractPrimaryReference',
+      );
+    }
+    final contractRepositoryAnchor = contractRepositoryAnchorById[id];
+    if (contractRepositoryAnchor != null &&
+        parts[2] != contractRepositoryAnchor) {
+      failures.add(
+        'Contract map repository anchor mismatch for $id: '
+        '${parts[2]} != $contractRepositoryAnchor',
+      );
+    }
+    final matrixDomain = contractMatrixDomainById[id];
+    if (matrixDomain == null) {
+      failures.add('Contract map missing contract Matrix domain for $id.');
+      continue;
+    }
+    if (matrixDomain == 'none') {
+      if (!primaryReference.startsWith('Houra ')) {
+        failures.add(
+          'Contract map primary reference for $id must use an Houra label.',
+        );
+      }
+    } else if (!primaryReference.startsWith('Matrix v1.18 / $matrixDomain /')) {
+      failures.add(
+        'Contract map primary reference for $id must start with Matrix v1.18 / $matrixDomain /.',
+      );
     }
     final numericId = int.parse(id.substring('SPEC-'.length));
     if (numericId >= 73) {
@@ -790,40 +903,39 @@ Map<String, String> checkProfileMap(
       }
       previousMatrixBreadthContractNumber = numericId;
     }
-    if (parts[2] != contracts[id]) {
+    if (parts[3] != contracts[id]) {
       failures.add(
-        'Contract map profile mismatch for $id: ${parts[2]} != '
+        'Contract map profile mismatch for $id: ${parts[3]} != '
         '${contracts[id]}',
       );
     }
     final contractType = contractTypeById[id];
-    if (contractType != null && parts[3] != contractType) {
+    if (contractType != null && parts[4] != contractType) {
       failures.add(
-        'Contract map type mismatch for $id: ${parts[3]} != $contractType',
+        'Contract map type mismatch for $id: ${parts[4]} != $contractType',
       );
     }
-    final matrixDomain = contractMatrixDomainById[id];
-    if (matrixDomain != null && parts[4] != matrixDomain) {
+    if (parts[5] != matrixDomain) {
       failures.add(
         'Contract map Matrix domain mismatch for $id: '
-        '${parts[4]} != $matrixDomain',
+        '${parts[5]} != $matrixDomain',
       );
     }
-    if (!matrixDomains.contains(parts[4])) {
+    if (!matrixDomains.contains(parts[5])) {
       failures.add(
-        'Contract map Matrix domain is unknown for $id: ${parts[4]}',
+        'Contract map Matrix domain is unknown for $id: ${parts[5]}',
       );
     }
-    if (parts[5].isEmpty) {
+    if (parts[6].isEmpty) {
       failures.add('Contract map current Matrix alignment is empty for $id.');
     }
-    if (parts.length < 7 || parts[6].isEmpty) {
+    if (parts[7].isEmpty) {
       failures.add('Contract map next compliance action is empty for $id.');
     }
-    if (parts[2] != contracts[id]) {
+    if (parts[3] != contracts[id]) {
       continue;
     }
-    profileMap[id] = parts[2];
+    profileMap[id] = parts[3];
     seen.add(id);
   }
 

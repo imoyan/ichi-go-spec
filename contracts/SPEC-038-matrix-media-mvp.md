@@ -1,9 +1,11 @@
-# SPEC-038: Matrix Client-Server Media MVP
+# Matrix v1.18 / Client-Server API / media upload and download endpoints
 
 Status: draft
 Feature profile: media
 Contract type: endpoint
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / media upload and download endpoints
+Repository anchor: SPEC-038 Matrix Client-Server Media MVP
 Canonical: yes
 
 ## Purpose

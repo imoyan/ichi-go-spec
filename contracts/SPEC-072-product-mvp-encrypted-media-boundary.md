@@ -1,9 +1,11 @@
-# SPEC-072: Product MVP Encrypted Media Attachment Boundary
+# Houra Product MVP / Encrypted Media Attachment Boundary
 
 Status: draft
 Feature profile: media
 Contract type: boundary
 Matrix domain: none
+Primary reference: Houra Product MVP / Encrypted Media Attachment Boundary
+Repository anchor: SPEC-072 Product MVP Encrypted Media Attachment Boundary
 Canonical: yes
 
 ## Purpose

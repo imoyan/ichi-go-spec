@@ -1,9 +1,11 @@
-# SPEC-106: Matrix Identity Service Parser Artifact Breadth
+# Matrix v1.18 / Identity Service API / identity service parser artifact breadth
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Identity Service API
+Primary reference: Matrix v1.18 / Identity Service API / identity service parser artifact breadth
+Repository anchor: SPEC-106 Matrix Identity Service Parser Artifact Breadth
 Canonical: yes
 
 ## Purpose

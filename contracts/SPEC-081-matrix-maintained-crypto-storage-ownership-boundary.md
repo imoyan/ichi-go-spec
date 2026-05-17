@@ -1,9 +1,11 @@
-# SPEC-081: Matrix Maintained Crypto Stack and Storage Ownership Boundary
+# Matrix v1.18 / Olm & Megolm / maintained crypto stack and storage ownership
 
 Status: draft
 Feature profile: messaging
 Contract type: boundary
 Matrix domain: Olm & Megolm
+Primary reference: Matrix v1.18 / Olm & Megolm / maintained crypto stack and storage ownership
+Repository anchor: SPEC-081 Matrix Maintained Crypto Stack and Storage Ownership Boundary
 Canonical: yes
 
 ## Purpose

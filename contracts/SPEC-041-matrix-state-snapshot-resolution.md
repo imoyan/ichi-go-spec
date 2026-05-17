@@ -1,9 +1,11 @@
-# SPEC-041: Matrix State Snapshot and State Resolution Vectors
+# Matrix v1.18 / Room Versions / Matrix State Snapshot and State Resolution Vectors
 
 Status: draft
 Feature profile: events
 Contract type: boundary
 Matrix domain: Room Versions
+Primary reference: Matrix v1.18 / Room Versions / Matrix State Snapshot and State Resolution Vectors
+Repository anchor: SPEC-041 Matrix State Snapshot and State Resolution Vectors
 Canonical: yes
 
 ## Purpose

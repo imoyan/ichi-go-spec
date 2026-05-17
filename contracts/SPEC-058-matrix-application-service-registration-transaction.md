@@ -1,9 +1,11 @@
-# SPEC-058: Matrix Application Service Registration and Transaction
+# Matrix v1.18 / Application Service API / registration and username availability endpoints
 
 Status: draft
 Feature profile: core
 Contract type: endpoint
 Matrix domain: Application Service API
+Primary reference: Matrix v1.18 / Application Service API / registration and username availability endpoints
+Repository anchor: SPEC-058 Matrix Application Service Registration and Transaction
 Canonical: yes
 
 ## Purpose

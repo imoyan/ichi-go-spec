@@ -1,9 +1,11 @@
-# SPEC-057: Matrix Federation Backfill, Event Auth, and State Interop
+# Matrix v1.18 / Server-Server API / backfill, event auth, state, and state_ids endpoints
 
 Status: draft
 Feature profile: events
 Contract type: endpoint
 Matrix domain: Server-Server API
+Primary reference: Matrix v1.18 / Server-Server API / backfill, event auth, state, and state_ids endpoints
+Repository anchor: SPEC-057 Matrix Federation Backfill, Event Auth, and State Interop
 Canonical: yes
 
 ## Purpose

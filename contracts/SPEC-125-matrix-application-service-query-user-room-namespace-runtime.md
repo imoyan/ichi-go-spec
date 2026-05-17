@@ -1,9 +1,11 @@
-# SPEC-125: Matrix Application Service Query User Room Namespace Runtime
+# Matrix v1.18 / Application Service API / appservice user and room alias query runtime
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Application Service API
+Primary reference: Matrix v1.18 / Application Service API / appservice user and room alias query runtime
+Repository anchor: SPEC-125 Matrix Application Service Query User Room Namespace Runtime
 Canonical: yes
 
 ## Purpose

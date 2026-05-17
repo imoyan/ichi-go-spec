@@ -1,9 +1,11 @@
-# SPEC-083: Matrix Room Version Event Decision Artifacts
+# Matrix v1.18 / Room Versions / room version event decision artifacts
 
 Status: draft
 Feature profile: events
 Contract type: boundary
 Matrix domain: Room Versions
+Primary reference: Matrix v1.18 / Room Versions / room version event decision artifacts
+Repository anchor: SPEC-083 Matrix Room Version Event Decision Artifacts
 Canonical: yes
 
 ## Purpose

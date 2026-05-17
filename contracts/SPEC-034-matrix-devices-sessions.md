@@ -1,9 +1,11 @@
-# SPEC-034: Matrix Client-Server Devices and Sessions
+# Matrix v1.18 / Client-Server API / device management and session lifecycle endpoints
 
 Status: draft
 Feature profile: auth
 Contract type: endpoint
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / device management and session lifecycle endpoints
+Repository anchor: SPEC-034 Matrix Client-Server Devices and Sessions
 Canonical: yes
 
 ## Purpose

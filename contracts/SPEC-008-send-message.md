@@ -1,9 +1,11 @@
-# SPEC-008: Send Message
+# Houra public API / Send message
 
 Status: draft
 Feature profile: messaging
 Contract type: endpoint
 Matrix domain: none
+Primary reference: Houra public API / Send message
+Repository anchor: SPEC-008 Send message
 Canonical: yes
 
 ## Purpose

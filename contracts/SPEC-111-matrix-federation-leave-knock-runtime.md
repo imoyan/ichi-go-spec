@@ -1,9 +1,11 @@
-# SPEC-111: Matrix Federation Leave and Knock Runtime
+# Matrix v1.18 / Server-Server API / federation leave and knock runtime
 
 Status: draft
 Feature profile: events
 Contract type: boundary
 Matrix domain: Server-Server API
+Primary reference: Matrix v1.18 / Server-Server API / federation leave and knock runtime
+Repository anchor: SPEC-111 Matrix Federation Leave and Knock Runtime
 Canonical: yes
 
 ## Purpose

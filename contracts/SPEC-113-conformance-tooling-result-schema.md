@@ -1,9 +1,11 @@
-# SPEC-113: Conformance Tooling Result Schema
+# Matrix v1.18 / Appendices/common rules / conformance tooling result schema
 
 Status: draft
 Feature profile: core
 Contract type: schema
 Matrix domain: Appendices/common rules
+Primary reference: Matrix v1.18 / Appendices/common rules / conformance tooling result schema
+Repository anchor: SPEC-113 Conformance Tooling Result Schema
 Canonical: yes
 
 ## Purpose

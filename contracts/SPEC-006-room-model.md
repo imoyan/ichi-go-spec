@@ -1,9 +1,11 @@
-# SPEC-006: Room Model
+# Houra public API / Room model
 
 Status: draft
 Feature profile: rooms
 Contract type: endpoint
 Matrix domain: none
+Primary reference: Houra public API / Room model
+Repository anchor: SPEC-006 Room model
 Canonical: yes
 
 ## Purpose

@@ -1,9 +1,11 @@
-# SPEC-069: Matrix Device Key Query
+# Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query
 
 Status: draft
 Feature profile: auth
 Contract type: boundary
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query
+Repository anchor: SPEC-069 Matrix Device Key Query
 Canonical: yes
 
 ## Purpose

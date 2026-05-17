@@ -1,9 +1,11 @@
-# SPEC-061: Matrix Federation Interop Smoke
+# Matrix v1.18 / Server-Server API / federation interop smoke gate
 
 Status: draft
 Feature profile: events
 Contract type: gate
 Matrix domain: Server-Server API
+Primary reference: Matrix v1.18 / Server-Server API / federation interop smoke gate
+Repository anchor: SPEC-061 Matrix Federation Interop Smoke
 Canonical: yes
 
 ## Purpose

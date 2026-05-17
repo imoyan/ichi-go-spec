@@ -1,9 +1,11 @@
-# SPEC-071: Product MVP Media Transfer Boundary
+# Houra Product MVP / Media Transfer Boundary
 
 Status: draft
 Feature profile: media
 Contract type: boundary
 Matrix domain: none
+Primary reference: Houra Product MVP / Media Transfer Boundary
+Repository anchor: SPEC-071 Product MVP Media Transfer Boundary
 Canonical: yes
 
 ## Purpose

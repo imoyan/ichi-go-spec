@@ -1,9 +1,11 @@
-# SPEC-009: Room List
+# Houra public API / Room list
 
 Status: draft
 Feature profile: sync
 Contract type: endpoint
 Matrix domain: none
+Primary reference: Houra public API / Room list
+Repository anchor: SPEC-009 Room list
 Canonical: yes
 
 ## Purpose

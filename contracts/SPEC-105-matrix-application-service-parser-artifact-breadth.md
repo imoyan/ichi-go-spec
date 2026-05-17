@@ -1,9 +1,11 @@
-# SPEC-105: Matrix Application Service Parser Artifact Breadth
+# Matrix v1.18 / Application Service API / appservice parser artifact breadth
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Application Service API
+Primary reference: Matrix v1.18 / Application Service API / appservice parser artifact breadth
+Repository anchor: SPEC-105 Matrix Application Service Parser Artifact Breadth
 Canonical: yes
 
 ## Purpose

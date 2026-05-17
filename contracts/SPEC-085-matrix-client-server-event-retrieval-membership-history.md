@@ -1,9 +1,11 @@
-# SPEC-085: Matrix Client-Server Event Retrieval and Membership History
+# Matrix v1.18 / Client-Server API / event retrieval and membership history endpoints
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / event retrieval and membership history endpoints
+Repository anchor: SPEC-085 Matrix Client-Server Event Retrieval and Membership History
 Canonical: yes
 
 ## Purpose

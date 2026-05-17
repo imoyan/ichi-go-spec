@@ -1,9 +1,11 @@
-# SPEC-108: Matrix Federation Directory, Query, and OpenID Runtime
+# Matrix v1.18 / Server-Server API / federation directory, query, and OpenID runtime
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Server-Server API
+Primary reference: Matrix v1.18 / Server-Server API / federation directory, query, and OpenID runtime
+Repository anchor: SPEC-108 Matrix Federation Directory, Query, and OpenID Runtime
 Canonical: yes
 
 ## Purpose

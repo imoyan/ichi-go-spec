@@ -1,9 +1,11 @@
-# SPEC-097: Matrix Federation Version, Key Lifecycle, and Request Auth
+# Matrix v1.18 / Server-Server API / federation version, key lifecycle, and request auth
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Server-Server API
+Primary reference: Matrix v1.18 / Server-Server API / federation version, key lifecycle, and request auth
+Repository anchor: SPEC-097 Matrix Federation Version, Key Lifecycle, and Request Auth
 Canonical: yes
 
 ## Purpose

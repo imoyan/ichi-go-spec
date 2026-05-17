@@ -1,9 +1,11 @@
-# SPEC-033: Matrix Client-Server Registration
+# Matrix v1.18 / Client-Server API / registration and username availability endpoints
 
 Status: draft
 Feature profile: auth
 Contract type: endpoint
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / registration and username availability endpoints
+Repository anchor: SPEC-033 Matrix Client-Server Registration
 Canonical: yes
 
 ## Purpose

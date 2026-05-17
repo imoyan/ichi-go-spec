@@ -1,9 +1,11 @@
-# SPEC-095: Matrix Media Repository Breadth
+# Matrix v1.18 / Client-Server API / media repository endpoint breadth
 
 Status: draft
 Feature profile: media
 Contract type: boundary
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / media repository endpoint breadth
+Repository anchor: SPEC-095 Matrix Media Repository Breadth
 Canonical: yes
 
 ## Purpose

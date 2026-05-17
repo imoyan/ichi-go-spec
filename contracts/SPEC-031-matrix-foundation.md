@@ -1,9 +1,11 @@
-# SPEC-031: Matrix Foundation Common Rules
+# Matrix v1.18 / Appendices/common rules / identifiers, timestamps, namespacing, errors, and content URIs
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Appendices/common rules
+Primary reference: Matrix v1.18 / Appendices/common rules / identifiers, timestamps, namespacing, errors, and content URIs
+Repository anchor: SPEC-031 Matrix Foundation Common Rules
 Canonical: yes
 
 ## Purpose

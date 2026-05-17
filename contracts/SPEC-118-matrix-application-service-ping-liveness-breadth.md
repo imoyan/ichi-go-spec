@@ -1,9 +1,11 @@
-# SPEC-118: Matrix Application Service Ping and Liveness Breadth
+# Matrix v1.18 / Application Service API / appservice ping liveness endpoints
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Application Service API
+Primary reference: Matrix v1.18 / Application Service API / appservice ping liveness endpoints
+Repository anchor: SPEC-118 Matrix Application Service Ping Liveness Breadth
 Canonical: yes
 
 ## Purpose

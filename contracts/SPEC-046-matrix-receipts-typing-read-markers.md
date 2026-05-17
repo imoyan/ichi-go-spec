@@ -1,9 +1,11 @@
-# SPEC-046: Matrix Receipts, Typing, and Read Markers
+# Matrix v1.18 / Client-Server API / typing, receipt, and read marker endpoints
 
 Status: draft
 Feature profile: sync
 Contract type: endpoint
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / typing, receipt, and read marker endpoints
+Repository anchor: SPEC-046 Matrix Receipts, Typing, and Read Markers
 Canonical: yes
 
 ## Purpose

@@ -1,9 +1,11 @@
-# SPEC-011: Basic Sync
+# Houra public API / Basic sync
 
 Status: draft
 Feature profile: sync
 Contract type: endpoint
 Matrix domain: none
+Primary reference: Houra public API / Basic sync
+Repository anchor: SPEC-011 Basic sync
 Canonical: yes
 
 ## Purpose

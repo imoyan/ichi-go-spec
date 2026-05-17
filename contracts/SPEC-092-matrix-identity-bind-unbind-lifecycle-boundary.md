@@ -1,9 +1,11 @@
-# SPEC-092: Matrix Identity Bind and Unbind Lifecycle Boundary
+# Matrix v1.18 / Identity Service API / bind and unbind lifecycle endpoints
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Identity Service API
+Primary reference: Matrix v1.18 / Identity Service API / bind and unbind lifecycle endpoints
+Repository anchor: SPEC-092 Matrix Identity Bind and Unbind Lifecycle Boundary
 Canonical: yes
 
 ## Purpose

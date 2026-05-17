@@ -1,9 +1,11 @@
-# SPEC-084: Matrix Room Version Federation Cross-Domain Validation
+# Matrix v1.18 / Room Versions / room-version-aware federation validation
 
 Status: draft
 Feature profile: events
 Contract type: boundary
 Matrix domain: Room Versions
+Primary reference: Matrix v1.18 / Room Versions / room-version-aware federation validation
+Repository anchor: SPEC-084 Matrix Room Version Federation Cross-Domain Validation
 Canonical: yes
 
 ## Purpose

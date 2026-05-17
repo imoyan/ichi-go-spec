@@ -1,9 +1,11 @@
-# SPEC-020: Media
+# Houra public API / Media
 
 Status: draft
 Feature profile: media
 Contract type: endpoint
 Matrix domain: none
+Primary reference: Houra public API / Media
+Repository anchor: SPEC-020 Media
 Canonical: yes
 
 ## Purpose

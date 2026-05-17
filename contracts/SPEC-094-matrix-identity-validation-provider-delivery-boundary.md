@@ -1,9 +1,11 @@
-# SPEC-094: Matrix Identity Validation Provider Delivery Boundary
+# Matrix v1.18 / Identity Service API / validation provider delivery flows
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Identity Service API
+Primary reference: Matrix v1.18 / Identity Service API / validation provider delivery flows
+Repository anchor: SPEC-094 Matrix Identity Validation Provider Delivery Boundary
 Canonical: yes
 
 ## Purpose

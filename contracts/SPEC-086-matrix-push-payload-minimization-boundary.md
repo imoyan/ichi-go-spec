@@ -1,9 +1,11 @@
-# SPEC-086: Matrix Push Payload Minimization Boundary
+# Matrix v1.18 / Push Gateway API / push payload minimization
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Push Gateway API
+Primary reference: Matrix v1.18 / Push Gateway API / push payload minimization
+Repository anchor: SPEC-086 Matrix Push Payload Minimization Boundary
 Canonical: yes
 
 ## Purpose

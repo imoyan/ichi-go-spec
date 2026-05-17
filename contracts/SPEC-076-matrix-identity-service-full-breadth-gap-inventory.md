@@ -1,9 +1,11 @@
-# SPEC-076: Matrix Identity Service Full-Breadth Gap Inventory
+# Matrix v1.18 / Identity Service API / full-breadth gap inventory
 
 Status: draft
 Feature profile: core
 Contract type: gap-inventory
 Matrix domain: Identity Service API
+Primary reference: Matrix v1.18 / Identity Service API / full-breadth gap inventory
+Repository anchor: SPEC-076 Matrix Identity Service Full-Breadth Gap Inventory
 Canonical: yes
 
 ## Purpose

@@ -1,9 +1,11 @@
-# SPEC-116: Matrix Application Service Virtual User Directory and Device Runtime
+# Matrix v1.18 / Application Service API / appservice virtual user sync, directory, and device runtime
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Application Service API
+Primary reference: Matrix v1.18 / Application Service API / appservice virtual user sync, directory, and device runtime
+Repository anchor: SPEC-116 Matrix Application Service Virtual User Directory and Device Runtime
 Canonical: yes
 
 ## Purpose

@@ -1,9 +1,11 @@
-# SPEC-077: Matrix Push Gateway Full-Breadth Gap Inventory
+# Matrix v1.18 / Push Gateway API / full-breadth gap inventory
 
 Status: draft
 Feature profile: core
 Contract type: gap-inventory
 Matrix domain: Push Gateway API
+Primary reference: Matrix v1.18 / Push Gateway API / full-breadth gap inventory
+Repository anchor: SPEC-077 Matrix Push Gateway Full-Breadth Gap Inventory
 Canonical: yes
 
 ## Purpose

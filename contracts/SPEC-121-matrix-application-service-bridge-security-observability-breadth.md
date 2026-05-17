@@ -1,9 +1,11 @@
-# SPEC-121: Matrix Application Service Bridge Security, Observability, and Release Evidence Breadth
+# Matrix v1.18 / Application Service API / appservice bridge security and observability evidence
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Application Service API
+Primary reference: Matrix v1.18 / Application Service API / appservice bridge security and observability evidence
+Repository anchor: SPEC-121 Matrix Application Service Bridge Security Observability Breadth
 Canonical: yes
 
 ## Purpose

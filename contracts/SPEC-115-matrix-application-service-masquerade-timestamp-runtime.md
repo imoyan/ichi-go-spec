@@ -1,9 +1,11 @@
-# SPEC-115: Matrix Application Service Masquerade and Timestamp Runtime
+# Matrix v1.18 / Application Service API / appservice masquerade and timestamp runtime
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Application Service API
+Primary reference: Matrix v1.18 / Application Service API / appservice masquerade and timestamp runtime
+Repository anchor: SPEC-115 Matrix Application Service Masquerade and Timestamp Runtime
 Canonical: yes
 
 ## Purpose

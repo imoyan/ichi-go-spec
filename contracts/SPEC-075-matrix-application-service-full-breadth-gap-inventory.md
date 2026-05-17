@@ -1,9 +1,11 @@
-# SPEC-075: Matrix Application Service Full-Breadth Gap Inventory
+# Matrix v1.18 / Application Service API / full-breadth gap inventory
 
 Status: draft
 Feature profile: core
 Contract type: gap-inventory
 Matrix domain: Application Service API
+Primary reference: Matrix v1.18 / Application Service API / full-breadth gap inventory
+Repository anchor: SPEC-075 Matrix Application Service Full-Breadth Gap Inventory
 Canonical: yes
 
 ## Purpose

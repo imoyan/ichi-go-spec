@@ -1,9 +1,11 @@
-# SPEC-055: Matrix Federation Discovery and Signing Keys
+# Matrix v1.18 / Server-Server API / server discovery and signing key endpoints
 
 Status: draft
 Feature profile: core
 Contract type: endpoint
 Matrix domain: Server-Server API
+Primary reference: Matrix v1.18 / Server-Server API / server discovery and signing key endpoints
+Repository anchor: SPEC-055 Matrix Federation Discovery and Signing Keys
 Canonical: yes
 
 ## Purpose

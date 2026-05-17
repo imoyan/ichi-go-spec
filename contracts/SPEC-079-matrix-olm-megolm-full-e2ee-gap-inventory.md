@@ -1,9 +1,11 @@
-# SPEC-079: Matrix Olm and Megolm Full E2EE Gap Inventory
+# Matrix v1.18 / Olm & Megolm / full E2EE gap inventory
 
 Status: draft
 Feature profile: messaging
 Contract type: gap-inventory
 Matrix domain: Olm & Megolm
+Primary reference: Matrix v1.18 / Olm & Megolm / full E2EE gap inventory
+Repository anchor: SPEC-079 Matrix Olm and Megolm Full E2EE Gap Inventory
 Canonical: yes
 
 ## Purpose

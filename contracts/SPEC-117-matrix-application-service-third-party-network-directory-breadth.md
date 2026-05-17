@@ -1,9 +1,11 @@
-# SPEC-117: Matrix Application Service Third-Party Network Directory Breadth
+# Matrix v1.18 / Application Service API / appservice third-party network directory endpoints
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Application Service API
+Primary reference: Matrix v1.18 / Application Service API / appservice third-party network directory endpoints
+Repository anchor: SPEC-117 Matrix Application Service Third-Party Network Directory Breadth
 Canonical: yes
 
 ## Purpose

@@ -1,9 +1,11 @@
-# SPEC-047: Matrix Filters, Presence, and Capabilities
+# Matrix v1.18 / Client-Server API / filter, presence, and capabilities endpoints
 
 Status: draft
 Feature profile: sync
 Contract type: endpoint
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / filter, presence, and capabilities endpoints
+Repository anchor: SPEC-047 Matrix Filters, Presence, and Capabilities
 Canonical: yes
 
 ## Purpose
