@@ -1,0 +1,231 @@
+{
+  "name": "matrix-application-service-masquerade-timestamp-runtime",
+  "contract": "SPEC-115",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/application-service-api/#client-server-api-extensions",
+      "https://spec.matrix.org/v1.18/application-service-api/#identity-assertion",
+      "https://spec.matrix.org/v1.18/application-service-api/#timestamp-massaging"
+    ],
+    "checked_at": "2026-05-17T08:50:00+09:00",
+    "parser_helper_contract": "SPEC-105",
+    "gap_inventory_contract": "SPEC-075",
+    "lane_id": "client-server-extension-masquerade-timestamp-admin-breadth",
+    "source_issue": "imoyan/houra-spec#334",
+    "implementation_issue": "imoyan/houra-server#238",
+    "appservice_registration": {
+      "id": "bridge-example",
+      "sender_user_id": "@_bridge:example.test",
+      "as_token_ref": "redacted-as-token",
+      "users_namespace": {
+        "exclusive": true,
+        "regex": "^@_bridge_.+:example\\.test$"
+      },
+      "device_id_bound": 255
+    },
+    "requests": [
+      {
+        "id": "send-event-masqueraded-user-with-ts",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/send/m.room.message/as-txn-1",
+        "query": {
+          "user_id": "@_bridge_alice:example.test",
+          "device_id": "BRIDGEDEVICE1",
+          "ts": "1778411100123"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-as-token",
+          "token_kind": "application_service"
+        },
+        "body": {
+          "msgtype": "m.text",
+          "body": "bridged message"
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "event_id": "$as-event-1:example.test"
+          },
+          "stored_event_assertions": {
+            "sender": "@_bridge_alice:example.test",
+            "origin_server_ts": 1778411100123,
+            "transaction_id": "as-txn-1",
+            "device_id": "BRIDGEDEVICE1"
+          }
+        }
+      },
+      {
+        "id": "state-event-masqueraded-user-with-ts",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/state/m.room.topic/",
+        "query": {
+          "user_id": "@_bridge_alice:example.test",
+          "ts": "1778411100999"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-as-token",
+          "token_kind": "application_service"
+        },
+        "body": {
+          "topic": "Bridge topic"
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "event_id": "$as-state-1:example.test"
+          },
+          "stored_event_assertions": {
+            "sender": "@_bridge_alice:example.test",
+            "origin_server_ts": 1778411100999,
+            "state_key": ""
+          }
+        }
+      },
+      {
+        "id": "sender-localpart-without-user-id",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/send/m.room.message/as-txn-2",
+        "query": {
+          "ts": "1778411101222"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-as-token",
+          "token_kind": "application_service"
+        },
+        "body": {
+          "msgtype": "m.notice",
+          "body": "sender localpart message"
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "event_id": "$as-event-2:example.test"
+          },
+          "stored_event_assertions": {
+            "sender": "@_bridge:example.test",
+            "origin_server_ts": 1778411101222
+          }
+        }
+      }
+    ],
+    "negative_cases": [
+      {
+        "id": "unknown-as-token",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/send/m.room.message/as-txn-unknown",
+        "query": {
+          "user_id": "@_bridge_alice:example.test"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-unknown-token",
+          "token_kind": "unknown"
+        },
+        "expected_status": 401,
+        "expected_error": "M_UNKNOWN_TOKEN"
+      },
+      {
+        "id": "normal-user-token-cannot-use-as-user-id",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/send/m.room.message/user-txn-1",
+        "query": {
+          "user_id": "@_bridge_alice:example.test"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-user-token",
+          "token_kind": "normal_user"
+        },
+        "expected_status": 403,
+        "expected_error": "M_FORBIDDEN"
+      },
+      {
+        "id": "masqueraded-user-outside-namespace",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/send/m.room.message/as-txn-outside",
+        "query": {
+          "user_id": "@alice:example.test"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-as-token",
+          "token_kind": "application_service"
+        },
+        "expected_status": 403,
+        "expected_error": "M_EXCLUSIVE"
+      },
+      {
+        "id": "device-id-without-user-id",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/send/m.room.message/as-txn-device",
+        "query": {
+          "device_id": "BRIDGEDEVICE1"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-as-token",
+          "token_kind": "application_service"
+        },
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      },
+      {
+        "id": "invalid-ts-fractional",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/send/m.room.message/as-txn-bad-ts",
+        "query": {
+          "user_id": "@_bridge_alice:example.test",
+          "ts": "1778411100.123"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token_ref": "redacted-as-token",
+          "token_kind": "application_service"
+        },
+        "expected_status": 400,
+        "expected_error": "M_INVALID_PARAM"
+      },
+      {
+        "id": "application-service-login-unsupported",
+        "method": "POST",
+        "path": "/_matrix/client/v3/login",
+        "body": {
+          "type": "m.login.application_service",
+          "identifier": {
+            "type": "m.id.user",
+            "user": "@_bridge_alice:example.test"
+          }
+        },
+        "expected_status": 403,
+        "expected_error": "M_FORBIDDEN"
+      }
+    ],
+    "claim_boundaries": {
+      "application_service_login_adopted": false,
+      "normal_user_auth_bypass_allowed": false,
+      "admin_controls_widened": false,
+      "room_version_auth_widened": false,
+      "bridge_protocol_behavior_claimed": false,
+      "application_service_api_advertisement_allowed": false,
+      "versions_advertisement_widened": false
+    },
+    "redaction": {
+      "raw_as_token_in_artifacts": false,
+      "raw_hs_token_in_artifacts": false,
+      "private_bridge_urls_in_artifacts": false
+    }
+  },
+  "expected": {
+    "as_token_identity_assertion_bounded": true,
+    "namespace_masquerade_enforced": true,
+    "device_id_requires_namespaced_user_id": true,
+    "timestamp_massaging_bounded": true,
+    "application_service_login_not_adopted": true,
+    "support_claim_not_widened": true,
+    "versions_advertisement_widened": false
+  }
+}
