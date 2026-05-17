@@ -121,3 +121,11 @@ Adoption states:
 | Matrix v1.18 / Olm & Megolm / Olm and Megolm to-device key event relay | SPEC-130 Matrix Olm Withheld-Key To-Device Relay Boundary | boundary | Olm & Megolm | `houra-server#252` | - | - | tracked | Matrix |
 
 The board intentionally keeps implementation references lightweight. Detailed release evidence stays in `CHANGELOG.md`, and open roadmap or exclusion reasoning stays in `docs/matrix-compliance.md`.
+
+Product MVP feature-addition candidate review for the next release candidate is
+tracked in `imoyan/houra-spec#366` and
+`test-vectors/core/product-mvp-release-candidate-plan.json`. Closed
+implementation refs in this board remain adoption pointers until that candidate
+review records current refs, commands, pass/fail results, redaction checks, and
+claim boundaries. Capability-gated vNext flows and server-owned Product MVP
+boundaries stay fail-closed when that evidence is missing or stale.

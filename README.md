@@ -355,6 +355,16 @@ Blocking evidence lanes for the candidate:
   `imoyan/houra-client#122`.
 - Docker Compose deploy smoke evidence is tracked by `imoyan/houra-server#227`.
 
+Feature-addition candidate review for the candidate is tracked by
+`imoyan/houra-spec#366`. The current candidate set includes Product MVP vNext
+account recovery / IdP login, media transfer, encrypted media attachment, and
+the server-owned role projection, PII redaction handoff, multilingual handoff,
+and offline queue replay boundaries. These refs are bundled for RC review, but
+they do not become advertised release behavior until the plan names current
+implementation refs, command results, redaction checks, and explicit Product MVP
+claim boundaries. Missing capability advertisement or stale client/server
+evidence keeps the candidate fail-closed.
+
 The implementation metrics and adoption report schema follow-up
 `imoyan/houra-spec#204` is complete for the current schema. The Matrix release
 evidence bundle follow-up `imoyan/houra-spec#200` is also complete, but Matrix
