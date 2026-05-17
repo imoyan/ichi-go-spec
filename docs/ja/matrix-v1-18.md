@@ -78,6 +78,12 @@ bridge evidence の lane に分ける inventory です。これは Application S
 bridge protocol behavior の実装完了ではなく、`SPEC-058` の代表 subset と full
 Application Service claim を分けるための fail-closed 記録です。
 
+`SPEC-115` は、このうち Client-Server extension lane から切り出した server-runtime
+boundary です。`as_token` identity assertion、namespace 内の `user_id` / `device_id`
+masquerading、`ts` timestamp massaging を代表 runtime として扱いますが、
+`m.login.application_service`、bridge admin、normal user auth bypass、Room Version auth
+変更、Application Service API advertisement は扱いません。
+
 `SPEC-076` は、`houra-server#138` の Identity Service full-breadth gap を
 service / account / terms、key / signature、lookup / privacy、validation /
 provider delivery、bind / unbind lifecycle、invitation storage、ephemeral

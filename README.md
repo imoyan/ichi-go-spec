@@ -196,6 +196,7 @@ matching Product MVP contract/vector/design input also changed.
 - `contracts/SPEC-112-matrix-federation-event-retrieval-runtime.md`
 - `contracts/SPEC-113-conformance-tooling-result-schema.md`
 - `contracts/SPEC-114-shared-core-adoption-evidence-schema.md`
+- `contracts/SPEC-115-matrix-application-service-masquerade-timestamp-runtime.md`
 
 ## Shared Design Inputs
 
@@ -1811,6 +1812,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-110 | Matrix federation Server ACL, policy signing, and event hash/signature representative runtime behavior | `test-vectors/core/matrix-federation-acl-policy-signing-runtime.json` |
 | SPEC-111 | Matrix federation leave and knock representative runtime behavior | `test-vectors/events/matrix-federation-leave-knock-runtime.json` |
 | SPEC-112 | Matrix federation event retrieval, missing-events, state response, and timestamp lookup representative runtime behavior | `test-vectors/events/matrix-federation-event-retrieval-runtime.json` |
+| SPEC-115 | Matrix Application Service `as_token` masquerading and timestamp massaging representative runtime behavior | `test-vectors/core/matrix-application-service-masquerade-timestamp-runtime.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
