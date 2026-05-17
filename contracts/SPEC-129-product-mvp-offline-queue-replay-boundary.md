@@ -1,4 +1,4 @@
-# SPEC-128: Product MVP Offline Queue Replay Boundary
+# SPEC-129: Product MVP Offline Queue Replay Boundary
 
 Status: draft
 Feature profile: core

@@ -1,6 +1,6 @@
 {
   "name": "product-mvp-offline-queue-replay-boundary",
-  "contract": "SPEC-128",
+  "contract": "SPEC-129",
   "event": {
     "target": "Product MVP offline queue replay server boundary",
     "spec_issue": "imoyan/houra-spec#346",

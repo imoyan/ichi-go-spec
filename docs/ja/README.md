@@ -66,7 +66,13 @@ release readiness は広げず、UI role management、sample runner compatibilit
 production external adapter delivery、legal PII taxonomy、client approval UI、sample runner
 compatibility とは別の scope として扱います。
 
-`SPEC-128` の offline queue replay は、Product MVP server が接続復帰後の replay を
+`SPEC-128` の multilingual handoff は、Product MVP server が canonical source language と
+reviewed confirmed translation を分け、audience に出す translation を confirmed state に限定する
+境界です。server implementation evidence が揃うまで Product MVP release readiness は広げず、
+translation provider integration、automatic quality judgment、client review UI、sample runner
+compatibility とは別の scope として扱います。
+
+`SPEC-129` の offline queue replay は、Product MVP server が接続復帰後の replay を
 idempotency key、dedup、payload drift rejection、raw device data exclusion で扱うための
 境界です。server implementation evidence が揃うまで Product MVP release readiness は広げず、
 device-local queue implementation、mobile retry UI、external queue service、sample runner
