@@ -60,6 +60,12 @@ encrypted-room や complete E2EE support claim は広げません。
 release readiness は広げず、UI role management、sample runner compatibility、enterprise RBAC
 とは別の scope として扱います。
 
+`SPEC-127` の PII redaction handoff は、Product MVP server が raw report を外部 handoff
+候補にする前に classification、redaction、human approval、approved handoff を分けて扱うための
+境界です。server implementation evidence が揃うまで Product MVP release readiness は広げず、
+production external adapter delivery、legal PII taxonomy、client approval UI、sample runner
+compatibility とは別の scope として扱います。
+
 ## 書き方
 
 日本語ページは、GitHub の表示で読みやすいように短い段落とリンク中心にします。

@@ -1,0 +1,150 @@
+{
+  "name": "product-mvp-pii-redaction-handoff-boundary",
+  "contract": "SPEC-127",
+  "event": {
+    "target": "Product MVP PII redaction handoff server boundary",
+    "spec_issue": "imoyan/houra-spec#343",
+    "implementation_issue": "imoyan/houra-server#340",
+    "checked_at": "2026-05-17T17:40:00+09:00",
+    "limits": {
+      "max_raw_report_bytes": 8192,
+      "max_redacted_payload_bytes": 4096
+    },
+    "sample_report": {
+      "report_id": "handoff-001",
+      "raw_report": {
+        "case_title": "Kitchen faucet repair",
+        "summary": "Water leak under sink",
+        "customer_email": "customer@example.test",
+        "customer_phone": "+1-555-0100",
+        "postal_address": "123 Private St",
+        "freeform_note": "Call customer@example.test before visiting",
+        "provider_token": "provider-token-secret",
+        "local_log_path": "/Users/alice/private/houra.log",
+        "debug_trace": "trace-secret-001"
+      },
+      "classification": {
+        "case_title": "public",
+        "summary": "public",
+        "customer_email": "customer_contact",
+        "customer_phone": "customer_contact",
+        "postal_address": "customer_contact",
+        "freeform_note": "sensitive_note",
+        "provider_token": "provider_secret",
+        "local_log_path": "local_path",
+        "debug_trace": "internal_diagnostic"
+      },
+      "redacted_payload": {
+        "case_title": "Kitchen faucet repair",
+        "summary": "Water leak under sink",
+        "customer_contact": "[redacted:customer_contact]",
+        "note": "[redacted:sensitive_note]"
+      }
+    },
+    "allowed_classifications": [
+      "public",
+      "customer_contact",
+      "sensitive_note",
+      "credential",
+      "local_path",
+      "provider_secret",
+      "internal_diagnostic"
+    ],
+    "cases": [
+      {
+        "id": "approved-redacted-handoff",
+        "review_state": "approved",
+        "redacted_payload_ref": "sample_report.redacted_payload",
+        "expected_status": "ok",
+        "expected_handoff_state": "approved_for_handoff",
+        "expected_export_fields": ["case_title", "summary", "customer_contact", "note"],
+        "omitted_or_replaced_fields": [
+          "customer_email",
+          "customer_phone",
+          "postal_address",
+          "freeform_note",
+          "provider_token",
+          "local_log_path",
+          "debug_trace"
+        ]
+      },
+      {
+        "id": "unreviewed-handoff-forbidden",
+        "review_state": "pending",
+        "redacted_payload_ref": "sample_report.redacted_payload",
+        "expected_status": "forbidden",
+        "expected_error": "handoff_review_required"
+      },
+      {
+        "id": "unredacted-export-forbidden",
+        "review_state": "approved",
+        "redacted_payload": {
+          "case_title": "Kitchen faucet repair",
+          "customer_email": "customer@example.test"
+        },
+        "expected_status": "forbidden",
+        "expected_error": "handoff_unredacted_value"
+      },
+      {
+        "id": "renamed-raw-value-forbidden",
+        "review_state": "approved",
+        "redacted_payload": {
+          "case_title": "Kitchen faucet repair",
+          "contact": "customer@example.test"
+        },
+        "expected_status": "forbidden",
+        "expected_error": "handoff_renamed_raw_value"
+      },
+      {
+        "id": "unknown-classification-forbidden",
+        "review_state": "approved",
+        "classification_patch": {
+          "freeform_note": "maybe_sensitive"
+        },
+        "redacted_payload_ref": "sample_report.redacted_payload",
+        "expected_status": "forbidden",
+        "expected_error": "handoff_unknown_classification"
+      },
+      {
+        "id": "oversized-payload-forbidden",
+        "review_state": "approved",
+        "redacted_payload": {
+          "case_title": "Kitchen faucet repair",
+          "summary": "oversized"
+        },
+        "oversized_payload": true,
+        "expected_status": "forbidden",
+        "expected_error": "handoff_payload_too_large"
+      }
+    ],
+    "evidence_redaction": {
+      "forbidden_raw_values_must_be_absent": [
+        "customer@example.test",
+        "+1-555-0100",
+        "123 Private St",
+        "provider-token-secret",
+        "/Users/alice/private/houra.log",
+        "trace-secret-001"
+      ],
+      "artifact_may_include_field_names": true,
+      "artifact_must_not_include_forbidden_values": true
+    },
+    "claim_boundary": {
+      "product_mvp_readiness_widened": false,
+      "matrix_compatibility_widened": false,
+      "external_adapter_delivery_claimed": false,
+      "client_approval_ui_claimed": false
+    }
+  },
+  "expected": {
+    "classification_count": 7,
+    "case_count": 6,
+    "success_case_count": 1,
+    "fail_closed_case_count": 5,
+    "raw_internal_state_separated": true,
+    "redacted_export_state_separated": true,
+    "forbidden_raw_values_in_artifact": false,
+    "product_mvp_readiness_widened": false,
+    "matrix_compatibility_widened": false
+  }
+}
