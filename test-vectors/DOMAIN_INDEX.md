@@ -1,0 +1,387 @@
+# Test Vector Domain Index
+
+This index keeps the existing `test-vectors/<feature-profile>/` paths stable while making Matrix domain coverage searchable. It is an inventory, not a path migration. Implementation evidence may continue to cite existing vector paths; Matrix-facing planning should start from `Matrix domain` and `Primary reference`.
+
+Physical vector relocation is deferred until a separate migration can preserve implementation evidence and consumer paths.
+
+## Summary
+
+| Matrix domain | Vector count | Contract count |
+|---|---:|---:|
+| none | 75 | 18 |
+| Client-Server API | 144 | 29 |
+| Server-Server API | 26 | 14 |
+| Room Versions | 20 | 12 |
+| Olm & Megolm | 4 | 4 |
+| Application Service API | 15 | 12 |
+| Identity Service API | 9 | 6 |
+| Push Gateway API | 9 | 5 |
+| Appendices/common rules | 19 | 7 |
+
+## Inventory
+
+### none
+
+| Primary reference | Repository anchor | Feature profile | Vector path | Vector name |
+|---|---|---|---|---|
+| Houra Product MVP / Account Recovery and IdP Login Boundary | SPEC-070 Product MVP Account Recovery and IdP Login Boundary | auth | `test-vectors/auth/product-mvp-account-recovery-capabilities-basic.json` | `product-mvp-account-recovery-capabilities-basic` |
+| Houra Product MVP / Account Recovery and IdP Login Boundary | SPEC-070 Product MVP Account Recovery and IdP Login Boundary | auth | `test-vectors/auth/product-mvp-account-recovery-idp-deferred.json` | `product-mvp-account-recovery-idp-deferred` |
+| Houra Product MVP / Account Recovery and IdP Login Boundary | SPEC-070 Product MVP Account Recovery and IdP Login Boundary | auth | `test-vectors/auth/product-mvp-account-recovery-unsupported-fail-closed.json` | `product-mvp-account-recovery-unsupported-fail-closed` |
+| Houra Product MVP / Account Recovery and IdP Login Boundary | SPEC-070 Product MVP Account Recovery and IdP Login Boundary | auth | `test-vectors/auth/product-mvp-email-verification-request-basic.json` | `product-mvp-email-verification-request-basic` |
+| Houra Product MVP / Account Recovery and IdP Login Boundary | SPEC-070 Product MVP Account Recovery and IdP Login Boundary | auth | `test-vectors/auth/product-mvp-email-verification-submit-basic.json` | `product-mvp-email-verification-submit-basic` |
+| Houra Product MVP / Account Recovery and IdP Login Boundary | SPEC-070 Product MVP Account Recovery and IdP Login Boundary | auth | `test-vectors/auth/product-mvp-idp-login-complete-basic.json` | `product-mvp-idp-login-complete-basic` |
+| Houra Product MVP / Account Recovery and IdP Login Boundary | SPEC-070 Product MVP Account Recovery and IdP Login Boundary | auth | `test-vectors/auth/product-mvp-idp-login-start-basic.json` | `product-mvp-idp-login-start-basic` |
+| Houra Product MVP / Account Recovery and IdP Login Boundary | SPEC-070 Product MVP Account Recovery and IdP Login Boundary | auth | `test-vectors/auth/product-mvp-password-reset-request-basic.json` | `product-mvp-password-reset-request-basic` |
+| Houra Product MVP / Account Recovery and IdP Login Boundary | SPEC-070 Product MVP Account Recovery and IdP Login Boundary | auth | `test-vectors/auth/product-mvp-password-reset-submit-basic.json` | `product-mvp-password-reset-submit-basic` |
+| Houra Product MVP / Encrypted Media Attachment Boundary | SPEC-072 Product MVP Encrypted Media Attachment Boundary | media | `test-vectors/media/product-mvp-encrypted-media-capability-basic.json` | `product-mvp-encrypted-media-capability-basic` |
+| Houra Product MVP / Encrypted Media Attachment Boundary | SPEC-072 Product MVP Encrypted Media Attachment Boundary | media | `test-vectors/media/product-mvp-encrypted-media-deferred.json` | `product-mvp-encrypted-media-deferred` |
+| Houra Product MVP / Encrypted Media Attachment Boundary | SPEC-072 Product MVP Encrypted Media Attachment Boundary | media | `test-vectors/media/product-mvp-encrypted-media-download-handoff-basic.json` | `product-mvp-encrypted-media-download-handoff-basic` |
+| Houra Product MVP / Encrypted Media Attachment Boundary | SPEC-072 Product MVP Encrypted Media Attachment Boundary | media | `test-vectors/media/product-mvp-encrypted-media-metadata-validation-basic.json` | `product-mvp-encrypted-media-metadata-validation-basic` |
+| Houra Product MVP / Encrypted Media Attachment Boundary | SPEC-072 Product MVP Encrypted Media Attachment Boundary | media | `test-vectors/media/product-mvp-encrypted-media-missing-key.json` | `product-mvp-encrypted-media-missing-key` |
+| Houra Product MVP / Encrypted Media Attachment Boundary | SPEC-072 Product MVP Encrypted Media Attachment Boundary | media | `test-vectors/media/product-mvp-encrypted-media-recoverable-error.json` | `product-mvp-encrypted-media-recoverable-error` |
+| Houra Product MVP / Encrypted Media Attachment Boundary | SPEC-072 Product MVP Encrypted Media Attachment Boundary | media | `test-vectors/media/product-mvp-encrypted-media-redacted-attachment.json` | `product-mvp-encrypted-media-redacted-attachment` |
+| Houra Product MVP / Encrypted Media Attachment Boundary | SPEC-072 Product MVP Encrypted Media Attachment Boundary | media | `test-vectors/media/product-mvp-encrypted-media-wrong-key.json` | `product-mvp-encrypted-media-wrong-key` |
+| Houra Product MVP / Media Transfer Boundary | SPEC-071 Product MVP Media Transfer Boundary | media | `test-vectors/media/product-mvp-media-transfer-capabilities-basic.json` | `product-mvp-media-transfer-capabilities-basic` |
+| Houra Product MVP / Media Transfer Boundary | SPEC-071 Product MVP Media Transfer Boundary | media | `test-vectors/media/product-mvp-media-transfer-deferred.json` | `product-mvp-media-transfer-deferred` |
+| Houra Product MVP / Media Transfer Boundary | SPEC-071 Product MVP Media Transfer Boundary | media | `test-vectors/media/product-mvp-media-transfer-unsupported-fail-closed.json` | `product-mvp-media-transfer-unsupported-fail-closed` |
+| Houra Product MVP / Media Transfer Boundary | SPEC-071 Product MVP Media Transfer Boundary | media | `test-vectors/media/product-mvp-range-download-basic.json` | `product-mvp-range-download-basic` |
+| Houra Product MVP / Media Transfer Boundary | SPEC-071 Product MVP Media Transfer Boundary | media | `test-vectors/media/product-mvp-range-download-unsatisfied.json` | `product-mvp-range-download-unsatisfied` |
+| Houra Product MVP / Media Transfer Boundary | SPEC-071 Product MVP Media Transfer Boundary | media | `test-vectors/media/product-mvp-resumable-download-stale-validator.json` | `product-mvp-resumable-download-stale-validator` |
+| Houra Product MVP / Media Transfer Boundary | SPEC-071 Product MVP Media Transfer Boundary | media | `test-vectors/media/product-mvp-resumable-download-state-basic.json` | `product-mvp-resumable-download-state-basic` |
+| Houra Product MVP / Media Transfer Boundary | SPEC-071 Product MVP Media Transfer Boundary | media | `test-vectors/media/product-mvp-thumbnail-basic.json` | `product-mvp-thumbnail-basic` |
+| Houra Product MVP / Media Transfer Boundary | SPEC-071 Product MVP Media Transfer Boundary | media | `test-vectors/media/product-mvp-thumbnail-invalid-size.json` | `product-mvp-thumbnail-invalid-size` |
+| Houra Product MVP / Multilingual Handoff Boundary | SPEC-128 Product MVP Multilingual Handoff Boundary | core | `test-vectors/core/product-mvp-multilingual-handoff-boundary.json` | `product-mvp-multilingual-handoff-boundary` |
+| Houra Product MVP / Offline Queue Replay Boundary | SPEC-129 Product MVP Offline Queue Replay Boundary | core | `test-vectors/core/product-mvp-offline-queue-replay-boundary.json` | `product-mvp-offline-queue-replay-boundary` |
+| Houra Product MVP / PII Redaction Handoff Boundary | SPEC-127 Product MVP PII Redaction Handoff Boundary | core | `test-vectors/core/product-mvp-pii-redaction-handoff-boundary.json` | `product-mvp-pii-redaction-handoff-boundary` |
+| Houra Product MVP / Role Projection Boundary | SPEC-126 Product MVP Role Projection Boundary | core | `test-vectors/core/product-mvp-role-projection-boundary.json` | `product-mvp-role-projection-boundary` |
+| Houra public API / Basic sync | SPEC-011 Basic sync | sync | `test-vectors/sync/basic-sync.json` | `basic-sync` |
+| Houra public API / Basic sync | SPEC-011 Basic sync | sync | `test-vectors/sync/malformed-sync-event.json` | `malformed-sync-event` |
+| Houra public API / Basic sync | SPEC-011 Basic sync | sync | `test-vectors/sync/missing-next-batch.json` | `missing-next-batch` |
+| Houra public API / Discovery / Versions | SPEC-001 Discovery / Versions | core | `test-vectors/core/versions-basic.json` | `versions-basic` |
+| Houra public API / Error model | SPEC-002 Error model | core | `test-vectors/core/error-basic.json` | `error-basic` |
+| Houra public API / Event model | SPEC-007 Event model | events | `test-vectors/events/bad-event-payload.json` | `bad-event-payload` |
+| Houra public API / Event model | SPEC-007 Event model | events | `test-vectors/events/event-basic.json` | `event-basic` |
+| Houra public API / Login flow discovery | SPEC-003 Login flow discovery | auth | `test-vectors/auth/login-flows-basic.json` | `login-flows-basic` |
+| Houra public API / Login/session | SPEC-004 Login/session | auth | `test-vectors/auth/auth-error-basic.json` | `auth-error-basic` |
+| Houra public API / Login/session | SPEC-004 Login/session | auth | `test-vectors/auth/logout-basic.json` | `logout-basic` |
+| Houra public API / Login/session | SPEC-004 Login/session | auth | `test-vectors/auth/logout-empty-response.json` | `logout-empty-response` |
+| Houra public API / Login/session | SPEC-004 Login/session | auth | `test-vectors/auth/logout-token-invalid-after-logout.json` | `logout-token-invalid-after-logout` |
+| Houra public API / Login/session | SPEC-004 Login/session | auth | `test-vectors/auth/password-login-basic.json` | `password-login-basic` |
+| Houra public API / Login/session | SPEC-004 Login/session | auth | `test-vectors/auth/password-login-failure.json` | `password-login-failure` |
+| Houra public API / Login/session | SPEC-004 Login/session | auth | `test-vectors/auth/register-basic.json` | `register-basic` |
+| Houra public API / Login/session | SPEC-004 Login/session | auth | `test-vectors/auth/register-duplicate-user.json` | `register-duplicate-user` |
+| Houra public API / Login/session | SPEC-004 Login/session | auth | `test-vectors/auth/register-invalid-password.json` | `register-invalid-password` |
+| Houra public API / Login/session | SPEC-004 Login/session | auth | `test-vectors/auth/register-invalid.json` | `register-invalid` |
+| Houra public API / Login/session | SPEC-004 Login/session | auth | `test-vectors/auth/whoami-basic.json` | `whoami-basic` |
+| Houra public API / Media | SPEC-020 Media | media | `test-vectors/media/auth-required-content-missing-token.json` | `auth-required-content-missing-token` |
+| Houra public API / Media | SPEC-020 Media | media | `test-vectors/media/auth-required-content.json` | `auth-required-content` |
+| Houra public API / Media | SPEC-020 Media | media | `test-vectors/media/auth-required-download.json` | `auth-required-download` |
+| Houra public API / Media | SPEC-020 Media | media | `test-vectors/media/download-content-basic.json` | `download-content-basic` |
+| Houra public API / Media | SPEC-020 Media | media | `test-vectors/media/download-metadata-basic.json` | `download-metadata-basic` |
+| Houra public API / Media | SPEC-020 Media | media | `test-vectors/media/invalid-upload-base64.json` | `invalid-upload-base64` |
+| Houra public API / Media | SPEC-020 Media | media | `test-vectors/media/missing-download-url.json` | `missing-download-url` |
+| Houra public API / Media | SPEC-020 Media | media | `test-vectors/media/missing-media-content.json` | `missing-media-content` |
+| Houra public API / Media | SPEC-020 Media | media | `test-vectors/media/missing-media.json` | `missing-media` |
+| Houra public API / Media | SPEC-020 Media | media | `test-vectors/media/upload-basic.json` | `upload-basic` |
+| Houra public API / Room list | SPEC-009 Room list | sync | `test-vectors/sync/empty-room-list.json` | `empty-room-list` |
+| Houra public API / Room list | SPEC-009 Room list | sync | `test-vectors/sync/room-list-basic.json` | `room-list-basic` |
+| Houra public API / Room model | SPEC-006 Room model | rooms | `test-vectors/rooms/create-room-basic.json` | `create-room-basic` |
+| Houra public API / Room model | SPEC-006 Room model | rooms | `test-vectors/rooms/join-room-basic.json` | `join-room-basic` |
+| Houra public API / Room model | SPEC-006 Room model | rooms | `test-vectors/rooms/leave-room-basic.json` | `leave-room-basic` |
+| Houra public API / Room model | SPEC-006 Room model | rooms | `test-vectors/rooms/missing-room-id.json` | `missing-room-id` |
+| Houra public API / Room model | SPEC-006 Room model | rooms | `test-vectors/rooms/room-state-basic.json` | `room-state-basic` |
+| Houra public API / Room model | SPEC-006 Room model | rooms | `test-vectors/rooms/unknown-membership.json` | `unknown-membership` |
+| Houra public API / Send message | SPEC-008 Send message | messaging | `test-vectors/messaging/send-text-basic.json` | `send-text-basic` |
+| Houra public API / Send message | SPEC-008 Send message | messaging | `test-vectors/messaging/send-text-conflict.json` | `send-text-conflict` |
+| Houra public API / Send message | SPEC-008 Send message | messaging | `test-vectors/messaging/send-text-retry.json` | `send-text-retry` |
+| Houra public API / Timeline | SPEC-010 Timeline | sync | `test-vectors/sync/timeline-basic.json` | `timeline-basic` |
+| Houra public API / Timeline | SPEC-010 Timeline | sync | `test-vectors/sync/timeline-empty-page.json` | `timeline-empty-page` |
+| Houra public API / Timeline | SPEC-010 Timeline | sync | `test-vectors/sync/timeline-first-page.json` | `timeline-first-page` |
+| Houra public API / Timeline | SPEC-010 Timeline | sync | `test-vectors/sync/timeline-invalid-token.json` | `timeline-invalid-token` |
+| Houra public API / Timeline | SPEC-010 Timeline | sync | `test-vectors/sync/timeline-next-page.json` | `timeline-next-page` |
+
+### Client-Server API
+
+| Primary reference | Repository anchor | Feature profile | Vector path | Vector name |
+|---|---|---|---|---|
+| Matrix v1.18 / Client-Server API / .well-known client, support, and policy metadata | SPEC-082 Matrix Client Well-Known Discovery, Support, and Policy Boundary | core | `test-vectors/core/matrix-client-well-known-discovery-support-policy.json` | `matrix-client-well-known-discovery-support-policy` |
+| Matrix v1.18 / Client-Server API / Client-Server endpoint smoke gate | SPEC-039 Matrix Client-Server MVP Live E2E Gate | core | `test-vectors/core/matrix-client-server-mvp-live-e2e-gate.json` | `matrix-client-server-mvp-live-e2e-gate` |
+| Matrix v1.18 / Client-Server API / Client-Server endpoint smoke gate | SPEC-039 Matrix Client-Server MVP Live E2E Gate | core | `test-vectors/core/product-mvp-release-candidate-plan.json` | `product-mvp-release-candidate-plan` |
+| Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-create-room-basic.json` | `matrix-create-room-basic` |
+| Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-create-room-missing-token.json` | `matrix-create-room-missing-token` |
+| Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-join-room-basic.json` | `matrix-join-room-basic` |
+| Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-join-room-not-found.json` | `matrix-join-room-not-found` |
+| Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-leave-room-basic.json` | `matrix-leave-room-basic` |
+| Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-room-state-basic.json` | `matrix-room-state-basic` |
+| Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-room-state-forbidden.json` | `matrix-room-state-forbidden` |
+| Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-room-state-invalid-token.json` | `matrix-room-state-invalid-token` |
+| Matrix v1.18 / Client-Server API / device management and session lifecycle endpoints | SPEC-034 Matrix Client-Server Devices and Sessions | auth | `test-vectors/auth/matrix-device-delete-basic.json` | `matrix-device-delete-basic` |
+| Matrix v1.18 / Client-Server API / device management and session lifecycle endpoints | SPEC-034 Matrix Client-Server Devices and Sessions | auth | `test-vectors/auth/matrix-device-delete-owner-scope.json` | `matrix-device-delete-owner-scope` |
+| Matrix v1.18 / Client-Server API / device management and session lifecycle endpoints | SPEC-034 Matrix Client-Server Devices and Sessions | auth | `test-vectors/auth/matrix-device-delete-uia-required.json` | `matrix-device-delete-uia-required` |
+| Matrix v1.18 / Client-Server API / device management and session lifecycle endpoints | SPEC-034 Matrix Client-Server Devices and Sessions | auth | `test-vectors/auth/matrix-device-detail-basic.json` | `matrix-device-detail-basic` |
+| Matrix v1.18 / Client-Server API / device management and session lifecycle endpoints | SPEC-034 Matrix Client-Server Devices and Sessions | auth | `test-vectors/auth/matrix-device-detail-not-found.json` | `matrix-device-detail-not-found` |
+| Matrix v1.18 / Client-Server API / device management and session lifecycle endpoints | SPEC-034 Matrix Client-Server Devices and Sessions | auth | `test-vectors/auth/matrix-device-token-invalid-after-delete.json` | `matrix-device-token-invalid-after-delete` |
+| Matrix v1.18 / Client-Server API / device management and session lifecycle endpoints | SPEC-034 Matrix Client-Server Devices and Sessions | auth | `test-vectors/auth/matrix-device-update-basic.json` | `matrix-device-update-basic` |
+| Matrix v1.18 / Client-Server API / device management and session lifecycle endpoints | SPEC-034 Matrix Client-Server Devices and Sessions | auth | `test-vectors/auth/matrix-device-update-not-found.json` | `matrix-device-update-not-found` |
+| Matrix v1.18 / Client-Server API / device management and session lifecycle endpoints | SPEC-034 Matrix Client-Server Devices and Sessions | auth | `test-vectors/auth/matrix-devices-delete-bulk-basic.json` | `matrix-devices-delete-bulk-basic` |
+| Matrix v1.18 / Client-Server API / device management and session lifecycle endpoints | SPEC-034 Matrix Client-Server Devices and Sessions | auth | `test-vectors/auth/matrix-devices-delete-bulk-uia-required.json` | `matrix-devices-delete-bulk-uia-required` |
+| Matrix v1.18 / Client-Server API / device management and session lifecycle endpoints | SPEC-034 Matrix Client-Server Devices and Sessions | auth | `test-vectors/auth/matrix-devices-list-basic.json` | `matrix-devices-list-basic` |
+| Matrix v1.18 / Client-Server API / device management and session lifecycle endpoints | SPEC-034 Matrix Client-Server Devices and Sessions | auth | `test-vectors/auth/matrix-devices-missing-token.json` | `matrix-devices-missing-token` |
+| Matrix v1.18 / Client-Server API / end-to-end encryption client integration boundary | SPEC-050 Matrix Crypto Adapter Boundary | core | `test-vectors/core/matrix-crypto-adapter-boundary.json` | `matrix-crypto-adapter-boundary` |
+| Matrix v1.18 / Client-Server API / end-to-end encryption client integration boundary | SPEC-050 Matrix Crypto Adapter Boundary | core | `test-vectors/core/matrix-crypto-adoption-decision-checklist.json` | `matrix-crypto-adoption-decision-checklist` |
+| Matrix v1.18 / Client-Server API / event retrieval and membership history endpoints | SPEC-085 Matrix Client-Server Event Retrieval and Membership History | core | `test-vectors/core/matrix-client-server-event-retrieval-membership-history.json` | `matrix-client-server-event-retrieval-membership-history` |
+| Matrix v1.18 / Client-Server API / filter, presence, and capabilities endpoints | SPEC-047 Matrix Filters, Presence, and Capabilities | sync | `test-vectors/sync/matrix-capabilities-basic.json` | `matrix-capabilities-basic` |
+| Matrix v1.18 / Client-Server API / filter, presence, and capabilities endpoints | SPEC-047 Matrix Filters, Presence, and Capabilities | sync | `test-vectors/sync/matrix-capabilities-missing-token.json` | `matrix-capabilities-missing-token` |
+| Matrix v1.18 / Client-Server API / filter, presence, and capabilities endpoints | SPEC-047 Matrix Filters, Presence, and Capabilities | sync | `test-vectors/sync/matrix-filter-create-read-basic.json` | `matrix-filter-create-read-basic` |
+| Matrix v1.18 / Client-Server API / filter, presence, and capabilities endpoints | SPEC-047 Matrix Filters, Presence, and Capabilities | sync | `test-vectors/sync/matrix-filter-user-mismatch.json` | `matrix-filter-user-mismatch` |
+| Matrix v1.18 / Client-Server API / filter, presence, and capabilities endpoints | SPEC-047 Matrix Filters, Presence, and Capabilities | sync | `test-vectors/sync/matrix-presence-set-get-basic.json` | `matrix-presence-set-get-basic` |
+| Matrix v1.18 / Client-Server API / filter, presence, and capabilities endpoints | SPEC-047 Matrix Filters, Presence, and Capabilities | sync | `test-vectors/sync/matrix-presence-user-mismatch.json` | `matrix-presence-user-mismatch` |
+| Matrix v1.18 / Client-Server API / full-breadth gap inventory | SPEC-073 Matrix Client-Server Full-Breadth Gap Inventory | core | `test-vectors/core/matrix-client-server-full-breadth-gap-inventory.json` | `matrix-client-server-full-breadth-gap-inventory` |
+| Matrix v1.18 / Client-Server API / GET /_matrix/client/v3/sync | SPEC-037 Matrix Client-Server Sync MVP | sync | `test-vectors/sync/matrix-sync-empty-incremental.json` | `matrix-sync-empty-incremental` |
+| Matrix v1.18 / Client-Server API / GET /_matrix/client/v3/sync | SPEC-037 Matrix Client-Server Sync MVP | sync | `test-vectors/sync/matrix-sync-incremental-basic.json` | `matrix-sync-incremental-basic` |
+| Matrix v1.18 / Client-Server API / GET /_matrix/client/v3/sync | SPEC-037 Matrix Client-Server Sync MVP | sync | `test-vectors/sync/matrix-sync-initial-basic.json` | `matrix-sync-initial-basic` |
+| Matrix v1.18 / Client-Server API / GET /_matrix/client/v3/sync | SPEC-037 Matrix Client-Server Sync MVP | sync | `test-vectors/sync/matrix-sync-invalid-since.json` | `matrix-sync-invalid-since` |
+| Matrix v1.18 / Client-Server API / GET /_matrix/client/v3/sync | SPEC-037 Matrix Client-Server Sync MVP | sync | `test-vectors/sync/matrix-sync-invalid-token.json` | `matrix-sync-invalid-token` |
+| Matrix v1.18 / Client-Server API / GET /_matrix/client/v3/sync | SPEC-037 Matrix Client-Server Sync MVP | sync | `test-vectors/sync/matrix-sync-missing-token.json` | `matrix-sync-missing-token` |
+| Matrix v1.18 / Client-Server API / GET /_matrix/client/versions | SPEC-030 Matrix Client Versions | core | `test-vectors/core/matrix-client-versions-basic.json` | `matrix-client-versions-basic` |
+| Matrix v1.18 / Client-Server API / key upload and key claim endpoints | SPEC-051 Matrix Device, One-Time, and Fallback Keys | auth | `test-vectors/auth/matrix-keys-claim-invalid-algorithm.json` | `matrix-keys-claim-invalid-algorithm` |
+| Matrix v1.18 / Client-Server API / key upload and key claim endpoints | SPEC-051 Matrix Device, One-Time, and Fallback Keys | auth | `test-vectors/auth/matrix-keys-claim-one-time-fallback-basic.json` | `matrix-keys-claim-one-time-fallback-basic` |
+| Matrix v1.18 / Client-Server API / key upload and key claim endpoints | SPEC-051 Matrix Device, One-Time, and Fallback Keys | auth | `test-vectors/auth/matrix-keys-upload-device-one-time-fallback-basic.json` | `matrix-keys-upload-device-one-time-fallback-basic` |
+| Matrix v1.18 / Client-Server API / key upload and key claim endpoints | SPEC-051 Matrix Device, One-Time, and Fallback Keys | auth | `test-vectors/auth/matrix-keys-upload-malformed-device-keys.json` | `matrix-keys-upload-malformed-device-keys` |
+| Matrix v1.18 / Client-Server API / login token, refresh, and account deactivation endpoints | SPEC-122 Matrix Client-Server Auth Refresh Fallback Account Lifecycle | auth | `test-vectors/auth/matrix-client-server-auth-refresh-fallback-account-lifecycle.json` | `matrix-client-server-auth-refresh-fallback-account-lifecycle` |
+| Matrix v1.18 / Client-Server API / login, logout, and whoami endpoints | SPEC-032 Matrix Client-Server Auth Session | auth | `test-vectors/auth/matrix-login-flows-basic.json` | `matrix-login-flows-basic` |
+| Matrix v1.18 / Client-Server API / login, logout, and whoami endpoints | SPEC-032 Matrix Client-Server Auth Session | auth | `test-vectors/auth/matrix-logout-basic.json` | `matrix-logout-basic` |
+| Matrix v1.18 / Client-Server API / login, logout, and whoami endpoints | SPEC-032 Matrix Client-Server Auth Session | auth | `test-vectors/auth/matrix-password-login-basic.json` | `matrix-password-login-basic` |
+| Matrix v1.18 / Client-Server API / login, logout, and whoami endpoints | SPEC-032 Matrix Client-Server Auth Session | auth | `test-vectors/auth/matrix-password-login-failure.json` | `matrix-password-login-failure` |
+| Matrix v1.18 / Client-Server API / login, logout, and whoami endpoints | SPEC-032 Matrix Client-Server Auth Session | auth | `test-vectors/auth/matrix-whoami-basic.json` | `matrix-whoami-basic` |
+| Matrix v1.18 / Client-Server API / media repository endpoint breadth | SPEC-095 Matrix Media Repository Breadth | media | `test-vectors/media/matrix-media-repository-breadth.json` | `matrix-media-repository-breadth` |
+| Matrix v1.18 / Client-Server API / media upload and download endpoints | SPEC-038 Matrix Client-Server Media MVP | media | `test-vectors/media/matrix-media-download-basic.json` | `matrix-media-download-basic` |
+| Matrix v1.18 / Client-Server API / media upload and download endpoints | SPEC-038 Matrix Client-Server Media MVP | media | `test-vectors/media/matrix-media-download-filename-safety-negative.json` | `matrix-media-download-filename-safety-negative` |
+| Matrix v1.18 / Client-Server API / media upload and download endpoints | SPEC-038 Matrix Client-Server Media MVP | media | `test-vectors/media/matrix-media-download-missing-token.json` | `matrix-media-download-missing-token` |
+| Matrix v1.18 / Client-Server API / media upload and download endpoints | SPEC-038 Matrix Client-Server Media MVP | media | `test-vectors/media/matrix-media-download-not-found.json` | `matrix-media-download-not-found` |
+| Matrix v1.18 / Client-Server API / media upload and download endpoints | SPEC-038 Matrix Client-Server Media MVP | media | `test-vectors/media/matrix-media-download-with-filename-basic.json` | `matrix-media-download-with-filename-basic` |
+| Matrix v1.18 / Client-Server API / media upload and download endpoints | SPEC-038 Matrix Client-Server Media MVP | media | `test-vectors/media/matrix-media-upload-basic.json` | `matrix-media-upload-basic` |
+| Matrix v1.18 / Client-Server API / media upload and download endpoints | SPEC-038 Matrix Client-Server Media MVP | media | `test-vectors/media/matrix-media-upload-missing-token.json` | `matrix-media-upload-missing-token` |
+| Matrix v1.18 / Client-Server API / media upload and download endpoints | SPEC-038 Matrix Client-Server Media MVP | media | `test-vectors/media/matrix-media-upload-too-large.json` | `matrix-media-upload-too-large` |
+| Matrix v1.18 / Client-Server API / OAuth account management and device deletion flows | SPEC-068 Matrix OAuth Account Management and Device Deletion Flow | auth | `test-vectors/auth/matrix-oauth-account-deactivate-account-management-link.json` | `matrix-oauth-account-deactivate-account-management-link` |
+| Matrix v1.18 / Client-Server API / OAuth account management and device deletion flows | SPEC-068 Matrix OAuth Account Management and Device Deletion Flow | auth | `test-vectors/auth/matrix-oauth-adoption-boundary.json` | `matrix-oauth-adoption-boundary` |
+| Matrix v1.18 / Client-Server API / OAuth account management and device deletion flows | SPEC-068 Matrix OAuth Account Management and Device Deletion Flow | auth | `test-vectors/auth/matrix-oauth-auth-metadata-account-management-basic.json` | `matrix-oauth-auth-metadata-account-management-basic` |
+| Matrix v1.18 / Client-Server API / OAuth account management and device deletion flows | SPEC-068 Matrix OAuth Account Management and Device Deletion Flow | auth | `test-vectors/auth/matrix-oauth-current-device-deleted-token-invalid.json` | `matrix-oauth-current-device-deleted-token-invalid` |
+| Matrix v1.18 / Client-Server API / OAuth account management and device deletion flows | SPEC-068 Matrix OAuth Account Management and Device Deletion Flow | auth | `test-vectors/auth/matrix-oauth-device-delete-account-management-link.json` | `matrix-oauth-device-delete-account-management-link` |
+| Matrix v1.18 / Client-Server API / OAuth account management and device deletion flows | SPEC-068 Matrix OAuth Account Management and Device Deletion Flow | auth | `test-vectors/auth/matrix-oauth-device-delete-return-refresh-complete.json` | `matrix-oauth-device-delete-return-refresh-complete` |
+| Matrix v1.18 / Client-Server API / OAuth account management and device deletion flows | SPEC-068 Matrix OAuth Account Management and Device Deletion Flow | auth | `test-vectors/auth/matrix-oauth-generic-account-management-fallback.json` | `matrix-oauth-generic-account-management-fallback` |
+| Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-adoption-boundary.json` | `matrix-keys-query-adoption-boundary` |
+| Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-all-devices.json` | `matrix-keys-query-all-devices` |
+| Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-basic.json` | `matrix-keys-query-basic` |
+| Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-body-not-object.json` | `matrix-keys-query-body-not-object` |
+| Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-device-id-not-string.json` | `matrix-keys-query-device-id-not-string` |
+| Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-device-keys-not-object.json` | `matrix-keys-query-device-keys-not-object` |
+| Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-device-selection-not-array.json` | `matrix-keys-query-device-selection-not-array` |
+| Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-missing-device-keys.json` | `matrix-keys-query-missing-device-keys` |
+| Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-missing-token.json` | `matrix-keys-query-missing-token` |
+| Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-timeout-not-integer.json` | `matrix-keys-query-timeout-not-integer` |
+| Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-token-not-string.json` | `matrix-keys-query-token-not-string` |
+| Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-unknown-device-omitted.json` | `matrix-keys-query-unknown-device-omitted` |
+| Matrix v1.18 / Client-Server API / profile, account data, and room tag endpoints | SPEC-045 Matrix Profile, Account Data, and Room Tags | sync | `test-vectors/sync/matrix-account-data-global-basic.json` | `matrix-account-data-global-basic` |
+| Matrix v1.18 / Client-Server API / profile, account data, and room tag endpoints | SPEC-045 Matrix Profile, Account Data, and Room Tags | sync | `test-vectors/sync/matrix-account-data-room-basic.json` | `matrix-account-data-room-basic` |
+| Matrix v1.18 / Client-Server API / profile, account data, and room tag endpoints | SPEC-045 Matrix Profile, Account Data, and Room Tags | sync | `test-vectors/sync/matrix-account-data-user-mismatch.json` | `matrix-account-data-user-mismatch` |
+| Matrix v1.18 / Client-Server API / profile, account data, and room tag endpoints | SPEC-045 Matrix Profile, Account Data, and Room Tags | sync | `test-vectors/sync/matrix-profile-delete-basic.json` | `matrix-profile-delete-basic` |
+| Matrix v1.18 / Client-Server API / profile, account data, and room tag endpoints | SPEC-045 Matrix Profile, Account Data, and Room Tags | sync | `test-vectors/sync/matrix-profile-displayname-basic.json` | `matrix-profile-displayname-basic` |
+| Matrix v1.18 / Client-Server API / profile, account data, and room tag endpoints | SPEC-045 Matrix Profile, Account Data, and Room Tags | sync | `test-vectors/sync/matrix-profile-get-basic.json` | `matrix-profile-get-basic` |
+| Matrix v1.18 / Client-Server API / profile, account data, and room tag endpoints | SPEC-045 Matrix Profile, Account Data, and Room Tags | sync | `test-vectors/sync/matrix-room-tags-basic.json` | `matrix-room-tags-basic` |
+| Matrix v1.18 / Client-Server API / public rooms, directory aliases, and invites | SPEC-048 Matrix Room Directory, Aliases, and Invites | rooms | `test-vectors/rooms/matrix-public-rooms-basic.json` | `matrix-public-rooms-basic` |
+| Matrix v1.18 / Client-Server API / public rooms, directory aliases, and invites | SPEC-048 Matrix Room Directory, Aliases, and Invites | rooms | `test-vectors/rooms/matrix-public-rooms-filter-basic.json` | `matrix-public-rooms-filter-basic` |
+| Matrix v1.18 / Client-Server API / public rooms, directory aliases, and invites | SPEC-048 Matrix Room Directory, Aliases, and Invites | rooms | `test-vectors/rooms/matrix-room-alias-update-forbidden.json` | `matrix-room-alias-update-forbidden` |
+| Matrix v1.18 / Client-Server API / public rooms, directory aliases, and invites | SPEC-048 Matrix Room Directory, Aliases, and Invites | rooms | `test-vectors/rooms/matrix-room-aliases-basic.json` | `matrix-room-aliases-basic` |
+| Matrix v1.18 / Client-Server API / public rooms, directory aliases, and invites | SPEC-048 Matrix Room Directory, Aliases, and Invites | rooms | `test-vectors/rooms/matrix-room-directory-visibility-basic.json` | `matrix-room-directory-visibility-basic` |
+| Matrix v1.18 / Client-Server API / public rooms, directory aliases, and invites | SPEC-048 Matrix Room Directory, Aliases, and Invites | rooms | `test-vectors/rooms/matrix-room-invite-basic.json` | `matrix-room-invite-basic` |
+| Matrix v1.18 / Client-Server API / public rooms, directory aliases, and invites | SPEC-048 Matrix Room Directory, Aliases, and Invites | rooms | `test-vectors/rooms/matrix-room-invite-forbidden.json` | `matrix-room-invite-forbidden` |
+| Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-available-basic.json` | `matrix-registration-available-basic` |
+| Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-available-in-use.json` | `matrix-registration-available-in-use` |
+| Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-basic.json` | `matrix-registration-basic` |
+| Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-disabled.json` | `matrix-registration-disabled` |
+| Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-invalid-username.json` | `matrix-registration-invalid-username` |
+| Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-token-validity-basic.json` | `matrix-registration-token-validity-basic` |
+| Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-token-validity-invalid.json` | `matrix-registration-token-validity-invalid` |
+| Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-uia-required.json` | `matrix-registration-uia-required` |
+| Matrix v1.18 / Client-Server API / relations, threads, and reactions endpoints | SPEC-090 Matrix Client-Server Relations, Threads, and Reactions | core | `test-vectors/core/matrix-client-server-relations-threads-reactions.json` | `matrix-client-server-relations-threads-reactions` |
+| Matrix v1.18 / Client-Server API / room moderation, redaction, reporting, and admin endpoints | SPEC-049 Matrix Moderation, Reporting, and Admin Controls | rooms | `test-vectors/rooms/matrix-admin-account-moderation-basic.json` | `matrix-admin-account-moderation-basic` |
+| Matrix v1.18 / Client-Server API / room moderation, redaction, reporting, and admin endpoints | SPEC-049 Matrix Moderation, Reporting, and Admin Controls | rooms | `test-vectors/rooms/matrix-admin-account-moderation-forbidden.json` | `matrix-admin-account-moderation-forbidden` |
+| Matrix v1.18 / Client-Server API / room moderation, redaction, reporting, and admin endpoints | SPEC-049 Matrix Moderation, Reporting, and Admin Controls | rooms | `test-vectors/rooms/matrix-room-moderation-kick-ban-unban.json` | `matrix-room-moderation-kick-ban-unban` |
+| Matrix v1.18 / Client-Server API / room moderation, redaction, reporting, and admin endpoints | SPEC-049 Matrix Moderation, Reporting, and Admin Controls | rooms | `test-vectors/rooms/matrix-room-moderation-permission-denied.json` | `matrix-room-moderation-permission-denied` |
+| Matrix v1.18 / Client-Server API / room moderation, redaction, reporting, and admin endpoints | SPEC-049 Matrix Moderation, Reporting, and Admin Controls | rooms | `test-vectors/rooms/matrix-room-redaction-basic.json` | `matrix-room-redaction-basic` |
+| Matrix v1.18 / Client-Server API / room moderation, redaction, reporting, and admin endpoints | SPEC-049 Matrix Moderation, Reporting, and Admin Controls | rooms | `test-vectors/rooms/matrix-room-redaction-forbidden.json` | `matrix-room-redaction-forbidden` |
+| Matrix v1.18 / Client-Server API / room moderation, redaction, reporting, and admin endpoints | SPEC-049 Matrix Moderation, Reporting, and Admin Controls | rooms | `test-vectors/rooms/matrix-room-reporting-basic.json` | `matrix-room-reporting-basic` |
+| Matrix v1.18 / Client-Server API / send event and messages pagination endpoints | SPEC-036 Matrix Client-Server Send Event and Messages MVP | messaging | `test-vectors/messaging/matrix-messages-basic.json` | `matrix-messages-basic` |
+| Matrix v1.18 / Client-Server API / send event and messages pagination endpoints | SPEC-036 Matrix Client-Server Send Event and Messages MVP | messaging | `test-vectors/messaging/matrix-messages-forbidden.json` | `matrix-messages-forbidden` |
+| Matrix v1.18 / Client-Server API / send event and messages pagination endpoints | SPEC-036 Matrix Client-Server Send Event and Messages MVP | messaging | `test-vectors/messaging/matrix-messages-invalid-dir.json` | `matrix-messages-invalid-dir` |
+| Matrix v1.18 / Client-Server API / send event and messages pagination endpoints | SPEC-036 Matrix Client-Server Send Event and Messages MVP | messaging | `test-vectors/messaging/matrix-messages-next-page.json` | `matrix-messages-next-page` |
+| Matrix v1.18 / Client-Server API / send event and messages pagination endpoints | SPEC-036 Matrix Client-Server Send Event and Messages MVP | messaging | `test-vectors/messaging/matrix-send-event-malformed-payload.json` | `matrix-send-event-malformed-payload` |
+| Matrix v1.18 / Client-Server API / send event and messages pagination endpoints | SPEC-036 Matrix Client-Server Send Event and Messages MVP | messaging | `test-vectors/messaging/matrix-send-event-missing-token.json` | `matrix-send-event-missing-token` |
+| Matrix v1.18 / Client-Server API / send event and messages pagination endpoints | SPEC-036 Matrix Client-Server Send Event and Messages MVP | messaging | `test-vectors/messaging/matrix-send-event-text-basic.json` | `matrix-send-event-text-basic` |
+| Matrix v1.18 / Client-Server API / send event and messages pagination endpoints | SPEC-036 Matrix Client-Server Send Event and Messages MVP | messaging | `test-vectors/messaging/matrix-send-event-text-idempotent.json` | `matrix-send-event-text-idempotent` |
+| Matrix v1.18 / Client-Server API / server-side key backup endpoints | SPEC-053 Matrix Key Backup and Restore Gate | messaging | `test-vectors/messaging/matrix-key-backup-logout-relogin-recovery-gate.json` | `matrix-key-backup-logout-relogin-recovery-gate` |
+| Matrix v1.18 / Client-Server API / server-side key backup endpoints | SPEC-053 Matrix Key Backup and Restore Gate | messaging | `test-vectors/messaging/matrix-key-backup-owner-scope.json` | `matrix-key-backup-owner-scope` |
+| Matrix v1.18 / Client-Server API / server-side key backup endpoints | SPEC-053 Matrix Key Backup and Restore Gate | messaging | `test-vectors/messaging/matrix-key-backup-restore-missing-session.json` | `matrix-key-backup-restore-missing-session` |
+| Matrix v1.18 / Client-Server API / server-side key backup endpoints | SPEC-053 Matrix Key Backup and Restore Gate | messaging | `test-vectors/messaging/matrix-key-backup-session-upload-restore-basic.json` | `matrix-key-backup-session-upload-restore-basic` |
+| Matrix v1.18 / Client-Server API / server-side key backup endpoints | SPEC-053 Matrix Key Backup and Restore Gate | messaging | `test-vectors/messaging/matrix-key-backup-version-lifecycle.json` | `matrix-key-backup-version-lifecycle` |
+| Matrix v1.18 / Client-Server API / server-side key backup endpoints | SPEC-053 Matrix Key Backup and Restore Gate | messaging | `test-vectors/messaging/matrix-key-backup-wrong-version.json` | `matrix-key-backup-wrong-version` |
+| Matrix v1.18 / Client-Server API / sync query and response sections | SPEC-093 Matrix Sync Breadth Extensions | sync | `test-vectors/sync/matrix-sync-breadth-extensions.json` | `matrix-sync-breadth-extensions` |
+| Matrix v1.18 / Client-Server API / to-device messages and encrypted room event envelopes | SPEC-052 Matrix To-Device and Encrypted Room Gate | messaging | `test-vectors/messaging/matrix-e2ee-multi-device-send-receive-gate.json` | `matrix-e2ee-multi-device-send-receive-gate` |
+| Matrix v1.18 / Client-Server API / to-device messages and encrypted room event envelopes | SPEC-052 Matrix To-Device and Encrypted Room Gate | messaging | `test-vectors/messaging/matrix-encrypted-room-malformed-payload.json` | `matrix-encrypted-room-malformed-payload` |
+| Matrix v1.18 / Client-Server API / to-device messages and encrypted room event envelopes | SPEC-052 Matrix To-Device and Encrypted Room Gate | messaging | `test-vectors/messaging/matrix-encrypted-room-send-receive-basic.json` | `matrix-encrypted-room-send-receive-basic` |
+| Matrix v1.18 / Client-Server API / to-device messages and encrypted room event envelopes | SPEC-052 Matrix To-Device and Encrypted Room Gate | messaging | `test-vectors/messaging/matrix-to-device-missing-token.json` | `matrix-to-device-missing-token` |
+| Matrix v1.18 / Client-Server API / to-device messages and encrypted room event envelopes | SPEC-052 Matrix To-Device and Encrypted Room Gate | messaging | `test-vectors/messaging/matrix-to-device-send-basic.json` | `matrix-to-device-send-basic` |
+| Matrix v1.18 / Client-Server API / to-device messages and encrypted room event envelopes | SPEC-052 Matrix To-Device and Encrypted Room Gate | messaging | `test-vectors/messaging/matrix-to-device-sync-receive-basic.json` | `matrix-to-device-sync-receive-basic` |
+| Matrix v1.18 / Client-Server API / typing, receipt, and read marker endpoints | SPEC-046 Matrix Receipts, Typing, and Read Markers | sync | `test-vectors/sync/matrix-read-marker-direct-account-data-forbidden.json` | `matrix-read-marker-direct-account-data-forbidden` |
+| Matrix v1.18 / Client-Server API / typing, receipt, and read marker endpoints | SPEC-046 Matrix Receipts, Typing, and Read Markers | sync | `test-vectors/sync/matrix-read-markers-basic.json` | `matrix-read-markers-basic` |
+| Matrix v1.18 / Client-Server API / typing, receipt, and read marker endpoints | SPEC-046 Matrix Receipts, Typing, and Read Markers | sync | `test-vectors/sync/matrix-receipt-basic.json` | `matrix-receipt-basic` |
+| Matrix v1.18 / Client-Server API / typing, receipt, and read marker endpoints | SPEC-046 Matrix Receipts, Typing, and Read Markers | sync | `test-vectors/sync/matrix-receipt-invalid-thread.json` | `matrix-receipt-invalid-thread` |
+| Matrix v1.18 / Client-Server API / typing, receipt, and read marker endpoints | SPEC-046 Matrix Receipts, Typing, and Read Markers | sync | `test-vectors/sync/matrix-typing-basic.json` | `matrix-typing-basic` |
+| Matrix v1.18 / Client-Server API / typing, receipt, and read marker endpoints | SPEC-046 Matrix Receipts, Typing, and Read Markers | sync | `test-vectors/sync/matrix-typing-missing-token.json` | `matrix-typing-missing-token` |
+| Matrix v1.18 / Client-Server API / verification and cross-signing endpoints | SPEC-054 Matrix Verification and Cross-Signing Gate | messaging | `test-vectors/messaging/matrix-cross-signing-invalid-signature.json` | `matrix-cross-signing-invalid-signature` |
+| Matrix v1.18 / Client-Server API / verification and cross-signing endpoints | SPEC-054 Matrix Verification and Cross-Signing Gate | messaging | `test-vectors/messaging/matrix-cross-signing-key-lifecycle.json` | `matrix-cross-signing-key-lifecycle` |
+| Matrix v1.18 / Client-Server API / verification and cross-signing endpoints | SPEC-054 Matrix Verification and Cross-Signing Gate | messaging | `test-vectors/messaging/matrix-cross-signing-missing-token.json` | `matrix-cross-signing-missing-token` |
+| Matrix v1.18 / Client-Server API / verification and cross-signing endpoints | SPEC-054 Matrix Verification and Cross-Signing Gate | messaging | `test-vectors/messaging/matrix-verification-sas-mismatch-cancel.json` | `matrix-verification-sas-mismatch-cancel` |
+| Matrix v1.18 / Client-Server API / verification and cross-signing endpoints | SPEC-054 Matrix Verification and Cross-Signing Gate | messaging | `test-vectors/messaging/matrix-verification-sas-to-device-happy-path.json` | `matrix-verification-sas-to-device-happy-path` |
+| Matrix v1.18 / Client-Server API / verification and cross-signing endpoints | SPEC-054 Matrix Verification and Cross-Signing Gate | messaging | `test-vectors/messaging/matrix-wrong-device-failure-gate.json` | `matrix-wrong-device-failure-gate` |
+| Matrix v1.18 / Client-Server API / version advertisement release gate | SPEC-064 Matrix Version Advertisement Release Gate | core | `test-vectors/core/matrix-version-advertisement-allowed-with-evidence.json` | `matrix-version-advertisement-allowed-with-evidence` |
+| Matrix v1.18 / Client-Server API / version advertisement release gate | SPEC-064 Matrix Version Advertisement Release Gate | core | `test-vectors/core/matrix-version-advertisement-blocked-missing-evidence.json` | `matrix-version-advertisement-blocked-missing-evidence` |
+| Matrix v1.18 / Client-Server API / version advertisement release gate | SPEC-064 Matrix Version Advertisement Release Gate | core | `test-vectors/core/matrix-version-advertisement-ci-adoption.json` | `matrix-version-advertisement-ci-adoption` |
+
+### Server-Server API
+
+| Primary reference | Repository anchor | Feature profile | Vector path | Vector name |
+|---|---|---|---|---|
+| Matrix v1.18 / Server-Server API / backfill, event auth, state, and state_ids endpoints | SPEC-057 Matrix Federation Backfill, Event Auth, and State Interop | events | `test-vectors/events/matrix-federation-backfill-basic.json` | `matrix-federation-backfill-basic` |
+| Matrix v1.18 / Server-Server API / backfill, event auth, state, and state_ids endpoints | SPEC-057 Matrix Federation Backfill, Event Auth, and State Interop | events | `test-vectors/events/matrix-federation-event-auth-basic.json` | `matrix-federation-event-auth-basic` |
+| Matrix v1.18 / Server-Server API / backfill, event auth, state, and state_ids endpoints | SPEC-057 Matrix Federation Backfill, Event Auth, and State Interop | events | `test-vectors/events/matrix-federation-state-ids-basic.json` | `matrix-federation-state-ids-basic` |
+| Matrix v1.18 / Server-Server API / backfill, event auth, state, and state_ids endpoints | SPEC-057 Matrix Federation Backfill, Event Auth, and State Interop | events | `test-vectors/events/matrix-federation-state-resolution-interop-gate.json` | `matrix-federation-state-resolution-interop-gate` |
+| Matrix v1.18 / Server-Server API / federation ACL, policy, and signing runtime | SPEC-110 Matrix Federation ACL, Policy, and Signing Runtime | core | `test-vectors/core/matrix-federation-acl-policy-signing-runtime.json` | `matrix-federation-acl-policy-signing-runtime` |
+| Matrix v1.18 / Server-Server API / federation directory, query, and OpenID runtime | SPEC-108 Matrix Federation Directory, Query, and OpenID Runtime | core | `test-vectors/core/matrix-federation-directory-query-openid-runtime.json` | `matrix-federation-directory-query-openid-runtime` |
+| Matrix v1.18 / Server-Server API / federation E2EE device and media runtime | SPEC-109 Matrix Federation E2EE Device and Media Runtime | core | `test-vectors/core/matrix-federation-e2ee-device-media-runtime.json` | `matrix-federation-e2ee-device-media-runtime` |
+| Matrix v1.18 / Server-Server API / federation event retrieval runtime | SPEC-112 Matrix Federation Event Retrieval Runtime | events | `test-vectors/events/matrix-federation-event-retrieval-runtime.json` | `matrix-federation-event-retrieval-runtime` |
+| Matrix v1.18 / Server-Server API / federation interop smoke gate | SPEC-061 Matrix Federation Interop Smoke | events | `test-vectors/events/matrix-federation-compose-ci-lane.json` | `matrix-federation-compose-ci-lane` |
+| Matrix v1.18 / Server-Server API / federation interop smoke gate | SPEC-061 Matrix Federation Interop Smoke | events | `test-vectors/events/matrix-federation-reference-homeserver-smoke.json` | `matrix-federation-reference-homeserver-smoke` |
+| Matrix v1.18 / Server-Server API / federation interop smoke gate | SPEC-061 Matrix Federation Interop Smoke | events | `test-vectors/events/matrix-federation-two-homeserver-smoke.json` | `matrix-federation-two-homeserver-smoke` |
+| Matrix v1.18 / Server-Server API / federation leave and knock runtime | SPEC-111 Matrix Federation Leave and Knock Runtime | events | `test-vectors/events/matrix-federation-leave-knock-runtime.json` | `matrix-federation-leave-knock-runtime` |
+| Matrix v1.18 / Server-Server API / federation send, join, and invite endpoints | SPEC-056 Matrix Federation Transaction, Join, and Invite | events | `test-vectors/events/matrix-federation-invite-v2-basic.json` | `matrix-federation-invite-v2-basic` |
+| Matrix v1.18 / Server-Server API / federation send, join, and invite endpoints | SPEC-056 Matrix Federation Transaction, Join, and Invite | events | `test-vectors/events/matrix-federation-make-send-join-basic.json` | `matrix-federation-make-send-join-basic` |
+| Matrix v1.18 / Server-Server API / federation send, join, and invite endpoints | SPEC-056 Matrix Federation Transaction, Join, and Invite | events | `test-vectors/events/matrix-federation-send-transaction-basic.json` | `matrix-federation-send-transaction-basic` |
+| Matrix v1.18 / Server-Server API / federation send, join, and invite endpoints | SPEC-056 Matrix Federation Transaction, Join, and Invite | events | `test-vectors/events/matrix-federation-send-transaction-pdu-failure.json` | `matrix-federation-send-transaction-pdu-failure` |
+| Matrix v1.18 / Server-Server API / federation transaction event validation | SPEC-107 Matrix Federation Transaction Event Validation Runtime | events | `test-vectors/events/matrix-federation-transaction-event-validation-runtime.json` | `matrix-federation-transaction-event-validation-runtime` |
+| Matrix v1.18 / Server-Server API / federation transaction PDU and EDU parser helpers | SPEC-099 Matrix Federation PDU / EDU Parser Helpers | events | `test-vectors/events/matrix-federation-pdu-edu-parser-helpers.json` | `matrix-federation-pdu-edu-parser-helpers` |
+| Matrix v1.18 / Server-Server API / federation version, key lifecycle, and request auth | SPEC-097 Matrix Federation Version, Key Lifecycle, and Request Auth | core | `test-vectors/core/matrix-federation-version-key-lifecycle-request-auth.json` | `matrix-federation-version-key-lifecycle-request-auth` |
+| Matrix v1.18 / Server-Server API / full-breadth gap inventory | SPEC-074 Matrix Server-Server Full-Breadth Gap Inventory | core | `test-vectors/core/matrix-server-server-full-breadth-gap-inventory.json` | `matrix-server-server-full-breadth-gap-inventory` |
+| Matrix v1.18 / Server-Server API / public rooms, hierarchy, directory query, and OpenID endpoints | SPEC-100 Matrix Federation Directory / Query / OpenID Parser Helpers | core | `test-vectors/core/matrix-federation-directory-query-openid-parser-helpers.json` | `matrix-federation-directory-query-openid-parser-helpers` |
+| Matrix v1.18 / Server-Server API / server discovery and signing key endpoints | SPEC-055 Matrix Federation Discovery and Signing Keys | core | `test-vectors/core/matrix-federation-destination-resolution-failure.json` | `matrix-federation-destination-resolution-failure` |
+| Matrix v1.18 / Server-Server API / server discovery and signing key endpoints | SPEC-055 Matrix Federation Discovery and Signing Keys | core | `test-vectors/core/matrix-federation-key-query-basic.json` | `matrix-federation-key-query-basic` |
+| Matrix v1.18 / Server-Server API / server discovery and signing key endpoints | SPEC-055 Matrix Federation Discovery and Signing Keys | core | `test-vectors/core/matrix-federation-outbound-destination-controls.json` | `matrix-federation-outbound-destination-controls` |
+| Matrix v1.18 / Server-Server API / server discovery and signing key endpoints | SPEC-055 Matrix Federation Discovery and Signing Keys | core | `test-vectors/core/matrix-federation-signing-key-basic.json` | `matrix-federation-signing-key-basic` |
+| Matrix v1.18 / Server-Server API / server discovery and signing key endpoints | SPEC-055 Matrix Federation Discovery and Signing Keys | core | `test-vectors/core/matrix-federation-well-known-server-basic.json` | `matrix-federation-well-known-server-basic` |
+
+### Room Versions
+
+| Primary reference | Repository anchor | Feature profile | Vector path | Vector name |
+|---|---|---|---|---|
+| Matrix v1.18 / Room Versions / event format, hash, signature, and redaction rules | SPEC-103 Matrix Room Version Event Format, Hash, and Signature Helpers | events | `test-vectors/events/matrix-room-version-event-format-hash-signature.json` | `matrix-room-version-event-format-hash-signature` |
+| Matrix v1.18 / Room Versions / full-algorithm gap inventory | SPEC-078 Matrix Room Versions Full Algorithm Gap Inventory | rooms | `test-vectors/rooms/matrix-room-versions-full-algorithm-gap-inventory.json` | `matrix-room-versions-full-algorithm-gap-inventory` |
+| Matrix v1.18 / Room Versions / Matrix Event DAG and Auth Event References | SPEC-040 Matrix Event DAG and Auth Event References | events | `test-vectors/events/matrix-event-dag-auth-events-basic.json` | `matrix-event-dag-auth-events-basic` |
+| Matrix v1.18 / Room Versions / Matrix Event DAG and Auth Event References | SPEC-040 Matrix Event DAG and Auth Event References | events | `test-vectors/events/matrix-event-dag-auth-events-invalid.json` | `matrix-event-dag-auth-events-invalid` |
+| Matrix v1.18 / Room Versions / Matrix Room Alias, Upgrade, and Restart Persistence Gate | SPEC-044 Matrix Room Alias, Upgrade, and Restart Persistence Gate | rooms | `test-vectors/rooms/matrix-room-alias-lifecycle.json` | `matrix-room-alias-lifecycle` |
+| Matrix v1.18 / Room Versions / Matrix Room Alias, Upgrade, and Restart Persistence Gate | SPEC-044 Matrix Room Alias, Upgrade, and Restart Persistence Gate | rooms | `test-vectors/rooms/matrix-room-restart-persistence-gate.json` | `matrix-room-restart-persistence-gate` |
+| Matrix v1.18 / Room Versions / Matrix Room Alias, Upgrade, and Restart Persistence Gate | SPEC-044 Matrix Room Alias, Upgrade, and Restart Persistence Gate | rooms | `test-vectors/rooms/matrix-room-upgrade-representative.json` | `matrix-room-upgrade-representative` |
+| Matrix v1.18 / Room Versions / Matrix Room Auth Representative Vectors | SPEC-043 Matrix Room Auth Representative Vectors | events | `test-vectors/events/matrix-auth-membership-v12.json` | `matrix-auth-membership-v12` |
+| Matrix v1.18 / Room Versions / Matrix Room Auth Representative Vectors | SPEC-043 Matrix Room Auth Representative Vectors | events | `test-vectors/events/matrix-auth-power-levels-v12.json` | `matrix-auth-power-levels-v12` |
+| Matrix v1.18 / Room Versions / Matrix Room Auth Representative Vectors | SPEC-043 Matrix Room Auth Representative Vectors | events | `test-vectors/events/matrix-auth-redaction-v12.json` | `matrix-auth-redaction-v12` |
+| Matrix v1.18 / Room Versions / Matrix Room Versions 1-12 and Default Version Gate | SPEC-042 Matrix Room Versions 1-12 and Default Version Gate | rooms | `test-vectors/rooms/matrix-room-version-default-create-room.json` | `matrix-room-version-default-create-room` |
+| Matrix v1.18 / Room Versions / Matrix Room Versions 1-12 and Default Version Gate | SPEC-042 Matrix Room Versions 1-12 and Default Version Gate | rooms | `test-vectors/rooms/matrix-room-version-unsupported-create-room.json` | `matrix-room-version-unsupported-create-room` |
+| Matrix v1.18 / Room Versions / Matrix Room Versions 1-12 and Default Version Gate | SPEC-042 Matrix Room Versions 1-12 and Default Version Gate | rooms | `test-vectors/rooms/matrix-room-versions-supported.json` | `matrix-room-versions-supported` |
+| Matrix v1.18 / Room Versions / Matrix State Snapshot and State Resolution Vectors | SPEC-041 Matrix State Snapshot and State Resolution Vectors | events | `test-vectors/events/matrix-state-resolution-representative.json` | `matrix-state-resolution-representative` |
+| Matrix v1.18 / Room Versions / Matrix State Snapshot and State Resolution Vectors | SPEC-041 Matrix State Snapshot and State Resolution Vectors | events | `test-vectors/events/matrix-state-snapshot-basic.json` | `matrix-state-snapshot-basic` |
+| Matrix v1.18 / Room Versions / room version auth rule fixture runner | SPEC-101 Matrix Room Version Auth Rule Fixture Runner | events | `test-vectors/events/matrix-room-version-auth-rule-fixture-runner.json` | `matrix-room-version-auth-rule-fixture-runner` |
+| Matrix v1.18 / Room Versions / room version event decision artifacts | SPEC-083 Matrix Room Version Event Decision Artifacts | events | `test-vectors/events/matrix-room-version-event-decision-artifacts.json` | `matrix-room-version-event-decision-artifacts` |
+| Matrix v1.18 / Room Versions / room versions capabilities advertisement | SPEC-080 Matrix Room Versions Capabilities Advertisement Boundary | rooms | `test-vectors/rooms/matrix-room-versions-capabilities-advertisement-boundary.json` | `matrix-room-versions-capabilities-advertisement-boundary` |
+| Matrix v1.18 / Room Versions / room-version-aware federation validation | SPEC-084 Matrix Room Version Federation Cross-Domain Validation | events | `test-vectors/events/matrix-room-version-federation-cross-domain-validation.json` | `matrix-room-version-federation-cross-domain-validation` |
+| Matrix v1.18 / Room Versions / state resolution fixture runner | SPEC-104 Matrix Room Version State Resolution Fixture Runner | events | `test-vectors/events/matrix-room-version-state-resolution-fixture-runner.json` | `matrix-room-version-state-resolution-fixture-runner` |
+
+### Olm & Megolm
+
+| Primary reference | Repository anchor | Feature profile | Vector path | Vector name |
+|---|---|---|---|---|
+| Matrix v1.18 / Olm & Megolm / encrypted event, key, backup, verification, and cross-signing artifacts | SPEC-102 Matrix E2EE Parser Artifact Breadth | messaging | `test-vectors/messaging/matrix-e2ee-parser-artifact-breadth.json` | `matrix-e2ee-parser-artifact-breadth` |
+| Matrix v1.18 / Olm & Megolm / full E2EE gap inventory | SPEC-079 Matrix Olm and Megolm Full E2EE Gap Inventory | messaging | `test-vectors/messaging/matrix-olm-megolm-full-e2ee-gap-inventory.json` | `matrix-olm-megolm-full-e2ee-gap-inventory` |
+| Matrix v1.18 / Olm & Megolm / maintained crypto stack and storage ownership | SPEC-081 Matrix Maintained Crypto Stack and Storage Ownership Boundary | messaging | `test-vectors/messaging/matrix-maintained-crypto-storage-ownership-boundary.json` | `matrix-maintained-crypto-storage-ownership-boundary` |
+| Matrix v1.18 / Olm & Megolm / Olm and Megolm to-device key event relay | SPEC-130 Matrix Olm Withheld-Key To-Device Relay Boundary | messaging | `test-vectors/messaging/matrix-olm-withheld-key-to-device-relay.json` | `matrix-olm-withheld-key-to-device-relay` |
+
+### Application Service API
+
+| Primary reference | Repository anchor | Feature profile | Vector path | Vector name |
+|---|---|---|---|---|
+| Matrix v1.18 / Application Service API / appservice bridge security and observability evidence | SPEC-121 Matrix Application Service Bridge Security Observability Breadth | core | `test-vectors/core/matrix-application-service-bridge-security-observability-breadth.json` | `matrix-application-service-bridge-security-observability-breadth` |
+| Matrix v1.18 / Application Service API / appservice Client-Server extension sync and device endpoints | SPEC-120 Matrix Application Service CS Extension Sync Device Breadth | core | `test-vectors/core/matrix-application-service-cs-extension-sync-device-breadth.json` | `matrix-application-service-cs-extension-sync-device-breadth` |
+| Matrix v1.18 / Application Service API / appservice masquerade and timestamp runtime | SPEC-115 Matrix Application Service Masquerade and Timestamp Runtime | core | `test-vectors/core/matrix-application-service-masquerade-timestamp-runtime.json` | `matrix-application-service-masquerade-timestamp-runtime` |
+| Matrix v1.18 / Application Service API / appservice parser artifact breadth | SPEC-105 Matrix Application Service Parser Artifact Breadth | core | `test-vectors/core/matrix-application-service-parser-artifact-breadth.json` | `matrix-application-service-parser-artifact-breadth` |
+| Matrix v1.18 / Application Service API / appservice ping liveness endpoints | SPEC-118 Matrix Application Service Ping Liveness Breadth | core | `test-vectors/core/matrix-application-service-ping-liveness-breadth.json` | `matrix-application-service-ping-liveness-breadth` |
+| Matrix v1.18 / Application Service API / appservice third-party network directory endpoints | SPEC-117 Matrix Application Service Third-Party Network Directory Breadth | core | `test-vectors/core/matrix-application-service-third-party-network-directory-breadth.json` | `matrix-application-service-third-party-network-directory-breadth` |
+| Matrix v1.18 / Application Service API / appservice transaction event delivery runtime | SPEC-124 Matrix Application Service Transaction Event Delivery Runtime | core | `test-vectors/core/matrix-application-service-transaction-event-delivery-runtime.json` | `matrix-application-service-transaction-event-delivery-runtime` |
+| Matrix v1.18 / Application Service API / appservice user and room alias query runtime | SPEC-125 Matrix Application Service Query User Room Namespace Runtime | core | `test-vectors/core/matrix-application-service-query-user-room-namespace-runtime.json` | `matrix-application-service-query-user-room-namespace-runtime` |
+| Matrix v1.18 / Application Service API / appservice virtual user sync, directory, and device runtime | SPEC-116 Matrix Application Service Virtual User Directory and Device Runtime | core | `test-vectors/core/matrix-application-service-virtual-user-directory-device-runtime.json` | `matrix-application-service-virtual-user-directory-device-runtime` |
+| Matrix v1.18 / Application Service API / full-breadth gap inventory | SPEC-075 Matrix Application Service Full-Breadth Gap Inventory | core | `test-vectors/core/matrix-application-service-full-breadth-gap-inventory.json` | `matrix-application-service-full-breadth-gap-inventory` |
+| Matrix v1.18 / Application Service API / registration and username availability endpoints | SPEC-123 Matrix Application Service Registration Namespace Lifecycle Runtime | core | `test-vectors/core/matrix-application-service-registration-namespace-lifecycle-runtime.json` | `matrix-application-service-registration-namespace-lifecycle-runtime` |
+| Matrix v1.18 / Application Service API / registration and username availability endpoints | SPEC-058 Matrix Application Service Registration and Transaction | core | `test-vectors/core/matrix-appservice-namespace-ownership.json` | `matrix-appservice-namespace-ownership` |
+| Matrix v1.18 / Application Service API / registration and username availability endpoints | SPEC-058 Matrix Application Service Registration and Transaction | core | `test-vectors/core/matrix-appservice-query-user-room-basic.json` | `matrix-appservice-query-user-room-basic` |
+| Matrix v1.18 / Application Service API / registration and username availability endpoints | SPEC-058 Matrix Application Service Registration and Transaction | core | `test-vectors/core/matrix-appservice-registration-basic.json` | `matrix-appservice-registration-basic` |
+| Matrix v1.18 / Application Service API / registration and username availability endpoints | SPEC-058 Matrix Application Service Registration and Transaction | core | `test-vectors/core/matrix-appservice-transaction-basic.json` | `matrix-appservice-transaction-basic` |
+
+### Identity Service API
+
+| Primary reference | Repository anchor | Feature profile | Vector path | Vector name |
+|---|---|---|---|---|
+| Matrix v1.18 / Identity Service API / bind and unbind lifecycle endpoints | SPEC-092 Matrix Identity Bind and Unbind Lifecycle Boundary | core | `test-vectors/core/matrix-identity-bind-unbind-lifecycle-boundary.json` | `matrix-identity-bind-unbind-lifecycle-boundary` |
+| Matrix v1.18 / Identity Service API / full-breadth gap inventory | SPEC-076 Matrix Identity Service Full-Breadth Gap Inventory | core | `test-vectors/core/matrix-identity-service-full-breadth-gap-inventory.json` | `matrix-identity-service-full-breadth-gap-inventory` |
+| Matrix v1.18 / Identity Service API / identity lookup, validation, bind, and unbind endpoints | SPEC-059 Matrix Identity Service Boundary | core | `test-vectors/core/matrix-identity-lookup-hash-details-basic.json` | `matrix-identity-lookup-hash-details-basic` |
+| Matrix v1.18 / Identity Service API / identity lookup, validation, bind, and unbind endpoints | SPEC-059 Matrix Identity Service Boundary | core | `test-vectors/core/matrix-identity-service-boundary-basic.json` | `matrix-identity-service-boundary-basic` |
+| Matrix v1.18 / Identity Service API / identity lookup, validation, bind, and unbind endpoints | SPEC-059 Matrix Identity Service Boundary | core | `test-vectors/core/matrix-identity-unbind-auth-failures.json` | `matrix-identity-unbind-auth-failures` |
+| Matrix v1.18 / Identity Service API / identity lookup, validation, bind, and unbind endpoints | SPEC-059 Matrix Identity Service Boundary | core | `test-vectors/core/matrix-identity-validation-bind-basic.json` | `matrix-identity-validation-bind-basic` |
+| Matrix v1.18 / Identity Service API / identity public key and signature validation | SPEC-096 Matrix Identity Public Key and Signature Boundary | core | `test-vectors/core/matrix-identity-public-key-signature-boundary.json` | `matrix-identity-public-key-signature-boundary` |
+| Matrix v1.18 / Identity Service API / identity service parser artifact breadth | SPEC-106 Matrix Identity Service Parser Artifact Breadth | core | `test-vectors/core/matrix-identity-service-parser-artifact-breadth.json` | `matrix-identity-service-parser-artifact-breadth` |
+| Matrix v1.18 / Identity Service API / validation provider delivery flows | SPEC-094 Matrix Identity Validation Provider Delivery Boundary | core | `test-vectors/core/matrix-identity-validation-provider-delivery-boundary.json` | `matrix-identity-validation-provider-delivery-boundary` |
+
+### Push Gateway API
+
+| Primary reference | Repository anchor | Feature profile | Vector path | Vector name |
+|---|---|---|---|---|
+| Matrix v1.18 / Push Gateway API / full-breadth gap inventory | SPEC-077 Matrix Push Gateway Full-Breadth Gap Inventory | core | `test-vectors/core/matrix-push-gateway-full-breadth-gap-inventory.json` | `matrix-push-gateway-full-breadth-gap-inventory` |
+| Matrix v1.18 / Push Gateway API / POST /_matrix/push/v1/notify | SPEC-060 Matrix Push Gateway Boundary | core | `test-vectors/core/matrix-push-gateway-boundary-basic.json` | `matrix-push-gateway-boundary-basic` |
+| Matrix v1.18 / Push Gateway API / POST /_matrix/push/v1/notify | SPEC-060 Matrix Push Gateway Boundary | core | `test-vectors/core/matrix-push-gateway-destination-controls.json` | `matrix-push-gateway-destination-controls` |
+| Matrix v1.18 / Push Gateway API / POST /_matrix/push/v1/notify | SPEC-060 Matrix Push Gateway Boundary | core | `test-vectors/core/matrix-push-gateway-event-id-only.json` | `matrix-push-gateway-event-id-only` |
+| Matrix v1.18 / Push Gateway API / POST /_matrix/push/v1/notify | SPEC-060 Matrix Push Gateway Boundary | core | `test-vectors/core/matrix-push-gateway-notify-basic.json` | `matrix-push-gateway-notify-basic` |
+| Matrix v1.18 / Push Gateway API / POST /_matrix/push/v1/notify | SPEC-060 Matrix Push Gateway Boundary | core | `test-vectors/core/matrix-push-rules-pusher-delivery-failures.json` | `matrix-push-rules-pusher-delivery-failures` |
+| Matrix v1.18 / Push Gateway API / push notify payload and gateway endpoint | SPEC-091 Matrix Push Notify Payload and Gateway Endpoint Boundary | core | `test-vectors/core/matrix-push-notify-payload-gateway-endpoint-boundary.json` | `matrix-push-notify-payload-gateway-endpoint-boundary` |
+| Matrix v1.18 / Push Gateway API / push payload minimization | SPEC-086 Matrix Push Payload Minimization Boundary | core | `test-vectors/core/matrix-push-payload-minimization-boundary.json` | `matrix-push-payload-minimization-boundary` |
+| Matrix v1.18 / Push Gateway API / pusher, push rule, and redaction parser helpers | SPEC-098 Matrix Push Parser Helper Breadth | core | `test-vectors/core/matrix-push-parser-helper-breadth.json` | `matrix-push-parser-helper-breadth` |
+
+### Appendices/common rules
+
+| Primary reference | Repository anchor | Feature profile | Vector path | Vector name |
+|---|---|---|---|---|
+| Matrix v1.18 / Appendices/common rules / Complement-compatible homeserver CI lane | SPEC-063 Matrix Complement-Compatible CI Lane | core | `test-vectors/core/matrix-complement-ci-lane-setup.json` | `matrix-complement-ci-lane-setup` |
+| Matrix v1.18 / Appendices/common rules / Complement-compatible homeserver CI lane | SPEC-063 Matrix Complement-Compatible CI Lane | core | `test-vectors/core/matrix-complement-ci-pass-fail-report.json` | `matrix-complement-ci-pass-fail-report` |
+| Matrix v1.18 / Appendices/common rules / Complement-compatible homeserver CI lane | SPEC-063 Matrix Complement-Compatible CI Lane | core | `test-vectors/core/matrix-complement-ci-release-gate.json` | `matrix-complement-ci-release-gate` |
+| Matrix v1.18 / Appendices/common rules / conformance tooling result schema | SPEC-113 Conformance Tooling Result Schema | core | `test-vectors/core/conformance-tooling-result-negative-cases-v1.json` | `conformance-tooling-result-negative-cases-v1` |
+| Matrix v1.18 / Appendices/common rules / conformance tooling result schema | SPEC-113 Conformance Tooling Result Schema | core | `test-vectors/core/conformance-tooling-result-schema-v1.json` | `conformance-tooling-result-schema-v1` |
+| Matrix v1.18 / Appendices/common rules / domain coverage evidence report | SPEC-062 Matrix Domain Coverage Evidence Report | core | `test-vectors/core/matrix-domain-coverage-report-basic.json` | `matrix-domain-coverage-report-basic` |
+| Matrix v1.18 / Appendices/common rules / identifiers, timestamps, namespacing, errors, and content URIs | SPEC-031 Matrix Foundation Common Rules | core | `test-vectors/core/matrix-foundation-error-basic.json` | `matrix-foundation-error-basic` |
+| Matrix v1.18 / Appendices/common rules / identifiers, timestamps, namespacing, errors, and content URIs | SPEC-031 Matrix Foundation Common Rules | core | `test-vectors/core/matrix-foundation-identifiers-basic.json` | `matrix-foundation-identifiers-basic` |
+| Matrix v1.18 / Appendices/common rules / release notes evidence template | SPEC-065 Matrix Release Notes Evidence Template | core | `test-vectors/core/matrix-release-notes-evidence-template.json` | `matrix-release-notes-evidence-template` |
+| Matrix v1.18 / Appendices/common rules / release notes evidence template | SPEC-065 Matrix Release Notes Evidence Template | core | `test-vectors/core/pre-1-0-compatibility-change-policy.json` | `pre-1-0-compatibility-change-policy` |
+| Matrix v1.18 / Appendices/common rules / shared-core adoption evidence schema | SPEC-114 Shared-Core Adoption Evidence Schema | core | `test-vectors/core/shared-core-adoption-evidence-negative-cases-v1.json` | `shared-core-adoption-evidence-negative-cases-v1` |
+| Matrix v1.18 / Appendices/common rules / shared-core adoption evidence schema | SPEC-114 Shared-Core Adoption Evidence Schema | core | `test-vectors/core/shared-core-adoption-evidence-schema-v1.json` | `shared-core-adoption-evidence-schema-v1` |
+| Matrix v1.18 / Appendices/common rules / v1.18 release readiness gate | SPEC-066 Matrix v1.18 Release Readiness Gate | core | `test-vectors/core/matrix-v1-18-release-evidence-current-blocked-bundle.json` | `matrix-v1-18-release-evidence-current-blocked-bundle` |
+| Matrix v1.18 / Appendices/common rules / v1.18 release readiness gate | SPEC-066 Matrix v1.18 Release Readiness Gate | core | `test-vectors/core/matrix-v1-18-release-evidence-example-bundle.json` | `matrix-v1-18-release-evidence-example-bundle` |
+| Matrix v1.18 / Appendices/common rules / v1.18 release readiness gate | SPEC-066 Matrix v1.18 Release Readiness Gate | core | `test-vectors/core/matrix-v1-18-release-readiness-checklist.json` | `matrix-v1-18-release-readiness-checklist` |
+| Matrix v1.18 / Appendices/common rules / v1.18 release readiness gate | SPEC-066 Matrix v1.18 Release Readiness Gate | core | `test-vectors/core/matrix-v1-18-release-rollback-non-advertisement.json` | `matrix-v1-18-release-rollback-non-advertisement` |
+| Matrix v1.18 / Appendices/common rules / v1.18 release readiness gate | SPEC-066 Matrix v1.18 Release Readiness Gate | core | `test-vectors/core/matrix-v1-18-release-tag-ordering.json` | `matrix-v1-18-release-tag-ordering` |
+| Matrix v1.18 / Appendices/common rules / v1.18 release readiness gate | SPEC-066 Matrix v1.18 Release Readiness Gate | core | `test-vectors/core/oss-publication-readiness-plan.json` | `oss-publication-readiness-plan` |
+| Matrix v1.18 / Appendices/common rules / v1.18 release readiness gate | SPEC-066 Matrix v1.18 Release Readiness Gate | core | `test-vectors/core/spec-health-conformance-health-checklist.json` | `spec-health-conformance-health-checklist` |
