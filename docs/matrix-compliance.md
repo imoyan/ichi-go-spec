@@ -110,7 +110,7 @@ Canonical release evidence example bundle:
 
 Matrix v1.18 roadmap close-out snapshot:
 
-- Snapshot checked at: 2026-05-17T09:09:33+09:00.
+- Snapshot checked at: 2026-05-18T07:14:22+09:00.
 - #95 remains the parent Matrix v1.18 roadmap. #189 is the historical close-out
   snapshot lane; current issue sync is maintained here and in #95 so domain
   issues, implementation adoption refs, and release evidence do not drift.
@@ -150,11 +150,11 @@ Matrix v1.18 roadmap close-out snapshot:
   #97 through #101 link current pass/fail evidence and #95 records a
   publishable Matrix support claim or explicit blocked / out-of-scope decisions
   for the release candidate.
-- The current blocked bundle was refreshed at 2026-05-17T09:09:33+09:00 and
+- The current blocked bundle was refreshed at 2026-05-18T07:14:22+09:00 and
   records the same candidate set from `houra-spec`
-  83f81ce0f650933718f5ff97fd6d9ef6305b1041, `houra-server`
-  ceaf9beafe2331c9188989db95d171581e0976ed, and `houra-client`
-  cf60cf64b63f3db5facae4d1d6ba8636eee4860e. It links every excluded stable
+  39c3e98d8070dd86ef3440fe4a2f92fc9c2d0a89, `houra-server`
+  b3b3eb2d98b1eb924084f6f07a653a1c01b92b03, and `houra-client`
+  b7c31882dbc17c35a25215990e8b0ab86f38f777. It links every excluded stable
   domain to an explicit current-candidate release-scope decision:
   imoyan/houra-server#135 through imoyan/houra-server#142. Later child issues
   under the same domains track implementation breadth without changing that
@@ -245,7 +245,7 @@ Matrix v1.18 roadmap close-out snapshot:
   checklists are complete or because the current release candidate excludes the
   domain from advertisement. Close them only when #95 links current pass/fail
   evidence and records the intended release outcome for that domain.
-- Current-state refresh checked at 2026-05-17T09:09:33+09:00:
+- Current-state refresh checked at 2026-05-18T07:14:22+09:00:
   #97 through #101 remain intentionally open as domain-level release outcome
   trackers, not as missing `houra-spec` decomposition work. #97 and #98 have
   adopted-subset evidence in the current blocked bundle, while #99, #100, and
@@ -262,7 +262,7 @@ Matrix v1.18 roadmap close-out snapshot:
 
 Matrix readiness map:
 
-- Readiness map checked at: 2026-05-17T09:09:33+09:00.
+- Readiness map checked at: 2026-05-18T07:14:22+09:00.
 - The first publishable Matrix scope defaults to a Client-Server subset only.
   This still requires current pass/fail evidence, release notes, and
   `/versions` advertisement that name the included endpoint families exactly.

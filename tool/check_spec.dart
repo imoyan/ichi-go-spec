@@ -12026,10 +12026,10 @@ void checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(
   final refs = eventMap['candidate_refs'];
   if (refs is! Map ||
       refs['release_candidate'] !=
-          'houra-matrix-v1.18-current-blocked-2026-05-17' ||
-      refs['houra_spec_ref'] != '83f81ce0f650933718f5ff97fd6d9ef6305b1041' ||
-      refs['houra_server_ref'] != 'ceaf9beafe2331c9188989db95d171581e0976ed' ||
-      refs['houra_client_ref'] != 'cf60cf64b63f3db5facae4d1d6ba8636eee4860e') {
+          'houra-matrix-v1.18-current-blocked-2026-05-18' ||
+      refs['houra_spec_ref'] != '39c3e98d8070dd86ef3440fe4a2f92fc9c2d0a89' ||
+      refs['houra_server_ref'] != 'b3b3eb2d98b1eb924084f6f07a653a1c01b92b03' ||
+      refs['houra_client_ref'] != 'b7c31882dbc17c35a25215990e8b0ab86f38f777') {
     failures.add('${relative(file)} current candidate refs invalid.');
   }
 
