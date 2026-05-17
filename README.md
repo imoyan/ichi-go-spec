@@ -1824,6 +1824,7 @@ Use this contract-to-endpoint smoke table:
 | SPEC-115 | Matrix Application Service `as_token` masquerading and timestamp massaging representative runtime behavior | `test-vectors/core/matrix-application-service-masquerade-timestamp-runtime.json` |
 | SPEC-116 | Matrix Application Service virtual-user sync, appservice directory visibility, and device metadata representative runtime behavior | `test-vectors/core/matrix-application-service-virtual-user-directory-device-runtime.json` |
 | SPEC-126 | Product MVP role/audience projection boundary with allowlist, fail-closed, and redacted evidence checks | `test-vectors/core/product-mvp-role-projection-boundary.json` |
+| SPEC-127 | Product MVP PII redaction handoff boundary with classification, redaction, human approval, approved handoff, and fail-closed redaction evidence checks | `test-vectors/core/product-mvp-pii-redaction-handoff-boundary.json` |
 
 If a server response differs from this repository, fix the server by default. If
 the vectors are insufficient or the contract is ambiguous, update this
