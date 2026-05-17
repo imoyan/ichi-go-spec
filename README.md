@@ -100,6 +100,8 @@ matching Product MVP contract/vector/design input also changed.
 
 - `contracts/`: normative API behavior.
 - `test-vectors/`: request and response fixtures implementations must pass.
+  `test-vectors/DOMAIN_INDEX.md` groups fixtures by Matrix domain while keeping
+  existing feature-profile paths stable.
 - `design/`: shared platform-neutral theme tokens and UI surface definitions.
 - `SOURCE_OF_TRUTH.md`: precedence and change rules.
 - `REFERENCE_POLICY.md`: clean-room source policy.
