@@ -28,6 +28,12 @@
         "required_before_public_listing": true
       },
       {
+        "id": "private-vulnerability-reporting",
+        "path": "GitHub private vulnerability reporting",
+        "state": "must-be-enabled-before-public-listing",
+        "required_before_public_listing": true
+      },
+      {
         "id": "release-notes",
         "path": "GitHub Releases and CHANGELOG.md",
         "state": "required-for-release-anchor",
@@ -73,7 +79,7 @@
       }
     ],
     "publication_order": [
-      "complete repository surfaces: LICENSE, SECURITY.md, README release boundary, GitHub topics, release notes template",
+      "complete repository surfaces: LICENSE, SECURITY.md, GitHub private vulnerability reporting, README release boundary, GitHub topics, release notes template",
       "create a GitHub Release anchor for the chosen pre-release or stable ref",
       "register non-normative documentation index entries such as Context7 only after the public docs URL is stable",
       "enable non-normative trust signals such as OpenSSF Scorecard and Best Practices Badge after security and release process surfaces exist",

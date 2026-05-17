@@ -1,5 +1,13 @@
 # Module Dependencies
 
+This file describes dependency direction between MVP feature profiles only.
+Matrix domain coverage is a separate contract metadata axis recorded as
+`Matrix domain` in `contracts/SPEC-*.md` and `CONTRACT_MODULE_MAP.md`.
+Federation, Application Service, Identity Service, Push Gateway, Room Versions,
+Olm & Megolm, and release-evidence work should use that domain axis for
+coverage and adoption tracking instead of treating `core` as an implementation
+dependency bucket.
+
 Allowed direction:
 
 ```text

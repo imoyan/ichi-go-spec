@@ -35,14 +35,19 @@ that are intended as stable adoption points, do not cut the release until the
 matching Japanese documentation surface has been reviewed and updated for the
 changed contracts, vectors, design inputs, adoption evidence, and release notes.
 
+The Japanese reader surface is maintained primarily through `docs/ja/` and the
+short Japanese overview in `README.md`. Individual contract files may include a
+short `Japanese Guidance` section when it reduces adoption risk, but contract
+local Japanese notes are not required for every contract.
+
 When changing documentation:
 
 - Keep canonical normative requirements in English.
-- Add or update Japanese guidance in the same file when the change affects
-  readers, implementation adopters, release readiness, or public positioning.
-- Keep same-file Japanese sections short. Put longer Japanese guidance under
-  `docs/ja/` and link to the English canonical source instead of expanding
-  top-level README or contract files heavily.
+- Add or update `docs/ja/` guidance when the change affects readers,
+  implementation adopters, release readiness, or public positioning.
+- Keep any same-file Japanese sections short. Put longer Japanese guidance
+  under `docs/ja/` and link to the English canonical source instead of
+  expanding top-level README or contract files heavily.
 - Keep `docs/ja/` in the same repository so release tags freeze English
   canonical text and Japanese reader guidance together.
 - If Japanese text intentionally lags an English change, record the gap in the

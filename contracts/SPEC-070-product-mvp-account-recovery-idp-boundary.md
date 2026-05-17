@@ -2,6 +2,8 @@
 
 Status: draft
 Feature profile: auth
+Contract type: boundary
+Matrix domain: none
 Canonical: yes
 
 ## Purpose

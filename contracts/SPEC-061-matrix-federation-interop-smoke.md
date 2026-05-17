@@ -2,6 +2,8 @@
 
 Status: draft
 Feature profile: events
+Contract type: gate
+Matrix domain: Server-Server API
 Canonical: yes
 
 ## Purpose

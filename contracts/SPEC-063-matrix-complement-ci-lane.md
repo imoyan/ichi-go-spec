@@ -2,6 +2,8 @@
 
 Status: draft
 Feature profile: core
+Contract type: gate
+Matrix domain: Appendices/common rules
 Canonical: yes
 
 ## Purpose

@@ -2,6 +2,8 @@
 
 Status: draft
 Feature profile: sync
+Contract type: endpoint
+Matrix domain: Client-Server API
 Canonical: yes
 
 ## Purpose

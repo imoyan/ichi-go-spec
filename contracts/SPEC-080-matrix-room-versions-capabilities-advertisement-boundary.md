@@ -2,6 +2,8 @@
 
 Status: draft
 Feature profile: rooms
+Contract type: boundary
+Matrix domain: Room Versions
 Canonical: yes
 
 ## Purpose

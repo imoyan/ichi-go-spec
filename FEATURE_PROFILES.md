@@ -1,6 +1,14 @@
 # Feature Profiles
 
-Profiles are additive.
+Profiles are additive MVP feature slices. They are not the Matrix domain
+taxonomy.
+
+Each `contracts/SPEC-*.md` file also declares a machine-readable
+`Matrix domain`. Use that second axis for Matrix Client-Server, Server-Server,
+Room Versions, Olm & Megolm, Application Service, Identity Service, Push
+Gateway, and release-evidence coverage. A Product MVP or Houra-only contract
+uses `Matrix domain: none` unless it directly defines a Matrix compatibility
+surface.
 
 ```text
 core

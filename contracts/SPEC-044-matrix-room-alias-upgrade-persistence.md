@@ -2,6 +2,8 @@
 
 Status: draft
 Feature profile: rooms
+Contract type: gate
+Matrix domain: Room Versions
 Canonical: yes
 
 ## Purpose

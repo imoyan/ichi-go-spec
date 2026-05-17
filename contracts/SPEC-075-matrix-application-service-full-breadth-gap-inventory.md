@@ -2,6 +2,8 @@
 
 Status: draft
 Feature profile: core
+Contract type: gap-inventory
+Matrix domain: Application Service API
 Canonical: yes
 
 ## Purpose

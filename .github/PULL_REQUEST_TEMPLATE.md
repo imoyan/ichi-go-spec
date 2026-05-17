@@ -8,6 +8,11 @@
 
 - `test-vectors/...`
 
+## Compatibility and claim impact
+
+- Compatibility classification: breaking|additive|corrective
+- Claim impact: Product MVP|Matrix|both|neither
+
 ## Checks
 
 - [ ] `dart tool/check_spec.dart`
