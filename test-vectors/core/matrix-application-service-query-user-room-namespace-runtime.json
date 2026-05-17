@@ -1,6 +1,6 @@
 {
   "name": "matrix-application-service-query-user-room-namespace-runtime",
-  "contract": "SPEC-116",
+  "contract": "SPEC-125",
   "event": {
     "matrix_spec_version": "v1.18",
     "matrix_spec_sources": [

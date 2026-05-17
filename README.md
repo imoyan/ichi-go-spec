@@ -194,7 +194,7 @@ matching Product MVP contract/vector/design input also changed.
 - `contracts/SPEC-110-matrix-federation-acl-policy-signing-runtime.md`
 - `contracts/SPEC-111-matrix-federation-leave-knock-runtime.md`
 - `contracts/SPEC-112-matrix-federation-event-retrieval-runtime.md`
-- `contracts/SPEC-116-matrix-application-service-query-user-room-namespace-runtime.md`
+- `contracts/SPEC-125-matrix-application-service-query-user-room-namespace-runtime.md`
 - `contracts/SPEC-117-matrix-application-service-third-party-network-directory-breadth.md`
 - `contracts/SPEC-118-matrix-application-service-ping-liveness-breadth.md`
 - `contracts/SPEC-120-matrix-application-service-cs-extension-sync-device-breadth.md`

@@ -1,4 +1,4 @@
-# SPEC-116: Matrix Application Service Query User Room Namespace Runtime
+# SPEC-125: Matrix Application Service Query User Room Namespace Runtime
 
 Status: draft
 Feature profile: core
