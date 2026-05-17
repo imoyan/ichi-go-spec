@@ -10,6 +10,67 @@ The most recent Implementation Adoption Reports remain in `README.md`. Older
 entries are preserved here verbatim and are referenced by their `v0.2.0-pre.X`
 release targets.
 
+## Gap Lane Contract Additions
+
+### SPEC-113 through SPEC-121: CS-API and AS-API gap lane contracts (2026-05-17)
+
+Classification: additive
+
+Added nine contracts and their test vectors to address the remaining open gap
+lanes from `SPEC-073` (Client-Server) and `SPEC-075` (Application Service):
+
+- `SPEC-113`: CS-API auth/refresh/fallback/account lifecycle — child boundary
+  for `SPEC-073` Lane 2. Covers `POST /login/get_token` (parser-only),
+  `POST /refresh` (bounded runtime), and `POST /account/deactivate`
+  (parser-only). Referenced by `houra-labs#133` and `houra-server#252`.
+
+- `SPEC-114`: AS-API registration/namespace/lifecycle runtime — child boundary
+  for `SPEC-075` Lane 1. Adds representative runtime behavior (multi-registration
+  loading, exclusive namespace enforcement, token redaction, restart reload) on
+  top of the `SPEC-105` parser-only foundation. Referenced by `houra-server#253`.
+
+- `SPEC-115`: AS-API transaction/event delivery runtime — child boundary for
+  `SPEC-075` Lane 2. Covers `PUT /_matrix/app/v1/transactions/{txnId}`,
+  ephemeral batches, retry/backoff, idempotency, unknown route/method errors, and
+  legacy route fallback. Referenced by `houra-server#254`.
+
+- `SPEC-116`: AS-API query/user/room-alias/namespace runtime — child boundary
+  for `SPEC-075` Lane 3. Covers user and room-alias query endpoints, authorization
+  failures, namespace-miss 404, and exclusive-namespace-before-local resolution
+  order. Referenced by `houra-server#255`.
+
+- `SPEC-117`: AS-API third-party network directory breadth — child parser-only
+  boundary for `SPEC-075` Lane 4. Defines protocol metadata, location item, and
+  user item shapes for all five `/_matrix/app/v1/thirdparty/…` endpoints.
+  Referenced by `houra-labs#134`.
+
+- `SPEC-118`: AS-API ping/liveness breadth — child boundary for `SPEC-075` Lane 5.
+  Covers `POST /_matrix/app/v1/ping` and
+  `POST /_matrix/client/v1/appservice/{appserviceId}/ping` with `transaction_id`
+  passthrough, `duration_ms` reporting, failure propagation, and token redaction.
+  Referenced by `houra-server#256`.
+
+  parser/policy boundary for `SPEC-075` Lane 6. Parser-only for `as_token`
+  masquerade, `user_id`/`device_id` assertion, timestamp massaging, and
+  `m.login.application_service`; bounded runtime policy for namespace-owned
+  user/alias management without UIA. Referenced by `houra-server#257`.
+
+- `SPEC-120`: AS-API CS extension sync/device breadth — child parser-only
+  boundary for `SPEC-075` Lane 7. Covers virtual user sync, room directory listing,
+  device creation/deletion, and cross-signing key upload without UIA, with E2EE
+  evidence gate and OAuth-homeserver must-support-as_token policy.
+  Referenced by `houra-labs#135`.
+
+- `SPEC-121`: AS-API bridge security/observability breadth — child policy-and-
+  evidence boundary for `SPEC-075` Lane 8. Defines five security policies and five
+  release evidence requirements for any future bridge adoption PR. No runtime
+  behavior adopted.
+
+None of these contracts widen `GET /_matrix/client/versions` or change the
+`advertisement_allowed=false` decision for any domain. `houra-server#135` and
+`houra-server#137` remain open. Implementation follow-up issues are enumerated
+per contract in the adoption decision checklists above.
+
 ## Earlier Implementation Adoption Reports
 
 ### Flutter lab client initial adoption

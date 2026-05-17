@@ -1,0 +1,199 @@
+{
+  "name": "matrix-application-service-ping-liveness-breadth",
+  "contract": "SPEC-118",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/application-service-api/#post_matrixappv1ping",
+      "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv1appserviceappserviceidping"
+    ],
+    "checked_at": "2026-05-17T12:00:00+09:00",
+    "parent_contract": "SPEC-058",
+    "parser_helper_contract": "SPEC-105",
+    "gap_inventory_contract": "SPEC-075",
+    "lane_id": "ping-and-liveness-breadth",
+    "implementation_issue": "imoyan/houra-server#256",
+    "requests": [
+      {
+        "id": "ping_success",
+        "method": "POST",
+        "path": "/_matrix/client/v1/appservice/bridge-irc/ping",
+        "path_params": {
+          "appserviceId": "bridge-irc"
+        },
+        "body": {
+          "transaction_id": "txn-ping-001"
+        },
+        "appservice_response": {
+          "status": 200,
+          "body": {
+            "duration_ms": 42
+          }
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "duration_ms": 42
+          }
+        }
+      },
+      {
+        "id": "transaction_id_passthrough",
+        "method": "POST",
+        "path": "/_matrix/client/v1/appservice/bridge-irc/ping",
+        "path_params": {
+          "appserviceId": "bridge-irc"
+        },
+        "body": {
+          "transaction_id": "txn-passthrough-check"
+        },
+        "appservice_request_assertion": {
+          "body_contains": {
+            "transaction_id": "txn-passthrough-check"
+          }
+        },
+        "appservice_response": {
+          "status": 200,
+          "body": {}
+        },
+        "response": {
+          "status": 200,
+          "body": {}
+        }
+      }
+    ],
+    "negative_cases": [
+      {
+        "id": "ping_appservice_error",
+        "method": "POST",
+        "path": "/_matrix/client/v1/appservice/bridge-irc/ping",
+        "path_params": {
+          "appserviceId": "bridge-irc"
+        },
+        "body": {},
+        "appservice_response": {
+          "status": 500,
+          "body": {
+            "errcode": "M_UNKNOWN",
+            "error": "appservice internal error"
+          }
+        },
+        "expected_status": 502,
+        "expected_error": "M_UNKNOWN"
+      },
+      {
+        "id": "ping_appservice_timeout",
+        "method": "POST",
+        "path": "/_matrix/client/v1/appservice/bridge-irc/ping",
+        "path_params": {
+          "appserviceId": "bridge-irc"
+        },
+        "body": {},
+        "appservice_response": {
+          "simulated": "timeout"
+        },
+        "expected_status": 504,
+        "expected_error": "M_UNKNOWN"
+      },
+      {
+        "id": "ping_url_not_set",
+        "method": "POST",
+        "path": "/_matrix/client/v1/appservice/bridge-no-url/ping",
+        "path_params": {
+          "appserviceId": "bridge-no-url"
+        },
+        "body": {},
+        "appservice_context": {
+          "url": null
+        },
+        "expected_status": 400,
+        "expected_error": "M_URL_NOT_SET"
+      },
+      {
+        "id": "ping_wrong_as_token",
+        "method": "POST",
+        "path": "/_matrix/app/v1/ping",
+        "body": {
+          "transaction_id": "txn-wrong-token"
+        },
+        "authorization": {
+          "scheme": "Bearer",
+          "token": "wrong_hs_token"
+        },
+        "expected_status": 403,
+        "expected_error": "M_FORBIDDEN"
+      },
+      {
+        "id": "client_ping_unknown_appservice_id",
+        "method": "POST",
+        "path": "/_matrix/client/v1/appservice/unknown-bridge/ping",
+        "path_params": {
+          "appserviceId": "unknown-bridge"
+        },
+        "body": {},
+        "expected_status": 404,
+        "expected_error": "M_NOT_FOUND"
+      }
+    ],
+    "artifact_requirements": [
+      {
+        "id": "token_not_in_artifact",
+        "description": "hs_token must not appear in ping request or response artifacts",
+        "assertion": "hs_token_redacted_from_artifacts",
+        "expected_result": "enforced"
+      },
+      {
+        "id": "appservice_url_not_in_artifact",
+        "description": "appservice base URL must not appear in ping artifacts",
+        "assertion": "appservice_url_redacted_from_artifacts",
+        "expected_result": "enforced"
+      },
+      {
+        "id": "duration_ms_non_negative",
+        "description": "duration_ms when present must be a non-negative integer",
+        "assertion": "duration_ms_gte_zero",
+        "expected_result": "enforced"
+      }
+    ],
+    "resource_bounds": {
+      "request_authorization_required": true,
+      "token_redaction_in_artifacts_required": true,
+      "appservice_url_redaction_in_artifacts_required": true,
+      "general_availability_monitoring_claimed": false,
+      "push_delivery_liveness_beyond_single_ping_claimed": false,
+      "virtual_user_session_liveness_claimed": false,
+      "metric_collection_claimed": false,
+      "outbound_federation_execution": false,
+      "versions_advertisement_widened": false
+    },
+    "fail_closed_cases": [
+      "ping_url_not_set_not_silent",
+      "wrong_token_not_silent",
+      "unknown_appservice_id_not_silent",
+      "token_leaked_in_ping_artifact",
+      "duration_negative"
+    ],
+    "release_evidence_rules": {
+      "runtime_behavior_adopted": true,
+      "full_as_api_claimed": false,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "positive_request_count": 2,
+    "negative_case_count": 5,
+    "artifact_requirement_count": 3,
+    "ping_success_status": 200,
+    "duration_ms_forwarded": true,
+    "transaction_id_passed_through": true,
+    "appservice_error_propagated": true,
+    "appservice_timeout_propagated": true,
+    "url_not_set_error_immediate": true,
+    "unknown_appservice_id_status": 404,
+    "token_not_in_artifact": true,
+    "appservice_url_not_in_artifact": true,
+    "duration_ms_non_negative": true,
+    "full_as_api_claimed": false,
+    "versions_advertisement_widened": false
+  }
+}

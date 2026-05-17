@@ -1,0 +1,161 @@
+{
+  "name": "matrix-application-service-third-party-network-directory-breadth",
+  "contract": "SPEC-117",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/application-service-api/#get_matrixappv1thirdpartylocation",
+      "https://spec.matrix.org/v1.18/application-service-api/#get_matrixappv1thirdpartyprotocolprotocol",
+      "https://spec.matrix.org/v1.18/application-service-api/#get_matrixappv1thirdpartyuser",
+      "https://spec.matrix.org/v1.18/application-service-api/#get_matrixappv1thirdpartylocationprotocol",
+      "https://spec.matrix.org/v1.18/application-service-api/#get_matrixappv1thirdpartyuserprotocol"
+    ],
+    "checked_at": "2026-05-17T12:00:00+09:00",
+    "parent_contract": "SPEC-058",
+    "parser_helper_contract": "SPEC-105",
+    "gap_inventory_contract": "SPEC-075",
+    "lane_id": "third-party-network-directory-breadth",
+    "implementation_issue": "imoyan/houra-labs#134",
+    "request_descriptors": [
+      {
+        "id": "thirdparty-location-all",
+        "method": "GET",
+        "path": "/_matrix/app/v1/thirdparty/location",
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "unsupported_reason": "parser_only_boundary"
+      },
+      {
+        "id": "thirdparty-location-by-protocol",
+        "method": "GET",
+        "path": "/_matrix/app/v1/thirdparty/location/{protocol}",
+        "path_params": {
+          "protocol": "irc"
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "unsupported_reason": "parser_only_boundary"
+      },
+      {
+        "id": "thirdparty-protocol-metadata",
+        "method": "GET",
+        "path": "/_matrix/app/v1/thirdparty/protocol/{protocol}",
+        "path_params": {
+          "protocol": "irc"
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "unsupported_reason": "parser_only_boundary"
+      },
+      {
+        "id": "thirdparty-user-all",
+        "method": "GET",
+        "path": "/_matrix/app/v1/thirdparty/user",
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "unsupported_reason": "parser_only_boundary"
+      },
+      {
+        "id": "thirdparty-user-by-protocol",
+        "method": "GET",
+        "path": "/_matrix/app/v1/thirdparty/user/{protocol}",
+        "path_params": {
+          "protocol": "irc"
+        },
+        "requires_auth": true,
+        "adopted_runtime_behavior": false,
+        "unsupported_reason": "parser_only_boundary"
+      }
+    ],
+    "sample_responses": {
+      "protocol_metadata": {
+        "instances": [
+          {
+            "network_id": "freenode",
+            "desc": "Freenode IRC network",
+            "icon": "mxc://example.test/irc-freenode",
+            "fields": {
+              "network": "freenode"
+            }
+          }
+        ],
+        "user_fields": [
+          "nick"
+        ],
+        "location_fields": [
+          "channel"
+        ],
+        "icon": "mxc://example.test/irc-icon"
+      },
+      "location_item": {
+        "alias": "#_bridge_irc_freenode_general:example.test",
+        "protocol": "irc",
+        "fields": {
+          "channel": "#general",
+          "network": "freenode"
+        }
+      },
+      "user_item": {
+        "userid": "@_bridge_irc_freenode_alice:example.test",
+        "protocol": "irc",
+        "fields": {
+          "nick": "alice",
+          "network": "freenode"
+        },
+        "display_name": "alice (IRC)",
+        "avatar_url": "mxc://example.test/irc-default-avatar"
+      }
+    },
+    "malformed_artifacts": [
+      {
+        "id": "malformed_protocol_metadata",
+        "reason": "instances_not_array",
+        "expected_result": "rejected"
+      },
+      {
+        "id": "malformed_location_item",
+        "reason": "alias_not_well_formed_room_alias",
+        "expected_result": "rejected"
+      },
+      {
+        "id": "malformed_user_item",
+        "reason": "userid_not_well_formed_matrix_user_id",
+        "expected_result": "rejected"
+      }
+    ],
+    "resource_bounds": {
+      "runtime_query_adoption": false,
+      "bridge_protocol_runtime_claimed": false,
+      "room_directory_listing_for_third_party_claimed": false,
+      "real_third_party_provider_integration_claimed": false,
+      "outbound_bridge_connections_claimed": false,
+      "versions_advertisement_widened": false
+    },
+    "fail_closed_cases": [
+      "missing_hs_token",
+      "malformed_protocol_metadata",
+      "malformed_location_item",
+      "malformed_user_item",
+      "runtime_not_adopted"
+    ],
+    "release_evidence_rules": {
+      "parser_only": true,
+      "runtime_adopted": false,
+      "bridge_protocol_runtime_claimed": false,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "descriptor_count": 5,
+    "adopted_runtime_descriptor_count": 0,
+    "parser_only_descriptor_count": 5,
+    "sample_response_count": 3,
+    "malformed_artifact_count": 3,
+    "protocol_metadata_instances_is_array": true,
+    "location_alias_is_room_alias": true,
+    "user_userid_is_matrix_user_id": true,
+    "runtime_adopted": false,
+    "bridge_protocol_runtime_claimed": false,
+    "versions_advertisement_widened": false
+  }
+}

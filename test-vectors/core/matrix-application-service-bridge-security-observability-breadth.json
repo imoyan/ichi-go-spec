@@ -1,0 +1,109 @@
+{
+  "name": "matrix-application-service-bridge-security-observability-breadth",
+  "contract": "SPEC-121",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/application-service-api/",
+    "checked_at": "2026-05-17T12:00:00+09:00",
+    "parent_contracts": ["SPEC-058", "SPEC-075", "SPEC-062", "SPEC-065"],
+    "gap_inventory_contract": "SPEC-075",
+    "lane_id": "bridge-external-url-security-observability-release-evidence-breadth",
+    "policy_entries": [
+      {
+        "id": "external_url_scheme_safety",
+        "description": "Client must not auto-open external_url; only https scheme may be presented; http and non-HTTP schemes must be suppressed or rendered inert",
+        "applies_to": ["client", "homeserver"],
+        "homeserver_must_not_follow_url": true,
+        "allowed_schemes": ["https"],
+        "suppressed_schemes": ["http", "ftp", "file", "data", "javascript"],
+        "must_appear_in_release_evidence": true
+      },
+      {
+        "id": "token_redaction_required",
+        "description": "as_token, hs_token, and registration file contents must be redacted in logs, traces, and release artifacts",
+        "redacted_fields": ["as_token", "hs_token", "registration_file_contents"],
+        "redaction_surfaces": ["server_logs", "structured_log_entries", "distributed_traces", "ci_artifacts", "test_reports", "release_bundles", "normalized_evidence_artifacts"],
+        "verification_required_before_adoption_pr": true
+      },
+      {
+        "id": "outbound_url_redaction_required",
+        "description": "Appservice endpoint URL must be redacted or masked in observable artifacts, trace spans, metric labels, and log entries",
+        "redacted_fields": ["appservice_url"],
+        "redaction_surfaces": ["observable_artifacts", "trace_spans", "metric_labels", "log_entries"]
+      },
+      {
+        "id": "trace_id_no_token",
+        "description": "Correlation trace IDs for homeserver-to-appservice requests must not include, encode, or embed token values",
+        "trace_id_must_be": "opaque_random_or_non_secret_structured_identifier",
+        "forbidden_in_trace_id": ["as_token", "hs_token", "registration_file_content"]
+      },
+      {
+        "id": "metrics_without_token_leak",
+        "description": "Appservice transaction metrics must use only the appservice id field as a label; tokens and endpoint URLs are forbidden from metric labels",
+        "allowed_metric_labels": ["appservice_id"],
+        "forbidden_metric_labels": ["as_token", "hs_token", "appservice_url"],
+        "observable_metrics": ["transaction_delivery_rate", "retry_count", "failure_count", "timeout_count"]
+      }
+    ],
+    "release_evidence_requirements": [
+      {
+        "id": "domain_coverage_ref_required",
+        "ref_contract": "SPEC-062",
+        "description": "Release must reference current SPEC-062 domain coverage report confirming Application Service domain is excluded from coverage claim"
+      },
+      {
+        "id": "advertisement_gate_ref_required",
+        "ref_contract": "SPEC-064",
+        "description": "Release must reference SPEC-064 confirming advertisement_allowed=false for Application Service API"
+      },
+      {
+        "id": "release_notes_ref_required",
+        "ref_contract": "SPEC-065",
+        "description": "Release must reference SPEC-065 release notes confirming appservice coverage status; exclusion must be explicitly stated if not included"
+      },
+      {
+        "id": "readiness_gate_ref_required",
+        "ref_contract": "SPEC-066",
+        "description": "Release must reference SPEC-066 readiness gate confirming appservice lane is resolved or explicitly excluded"
+      },
+      {
+        "id": "excluded_bridge_behaviors_listed",
+        "description": "Release notes and exclusion evidence must enumerate specific excluded bridge protocol behaviors; generic statements are insufficient",
+        "examples_of_required_exclusion_entries": [
+          "bridge_protocol_handshake",
+          "presence_sync_bridging",
+          "typing_notification_bridging",
+          "media_bridging",
+          "read_receipt_bridging"
+        ]
+      }
+    ],
+    "fail_closed_cases": [
+      "as_token_in_log",
+      "hs_token_in_log",
+      "appservice_url_in_trace",
+      "external_url_auto_opened",
+      "bridge_behavior_not_listed_as_excluded"
+    ],
+    "release_evidence_rules": {
+      "policy_only": true,
+      "runtime_adopted": false,
+      "full_as_api_claimed": false,
+      "bridge_protocol_claimed": false,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "policy_entry_count": 5,
+    "release_evidence_requirement_count": 5,
+    "fail_closed_case_count": 5,
+    "policy_only": true,
+    "runtime_adopted": false,
+    "full_as_api_claimed": false,
+    "bridge_protocol_claimed": false,
+    "raw_tokens_in_artifacts": false,
+    "external_url_auto_open_allowed": false,
+    "versions_advertisement_widened": false,
+    "application_service_support_claimed": false
+  }
+}
