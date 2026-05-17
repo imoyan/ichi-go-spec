@@ -1,9 +1,11 @@
-# SPEC-091: Matrix Push Notify Payload and Gateway Endpoint Boundary
+# Matrix v1.18 / Push Gateway API / push notify payload and gateway endpoint
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Push Gateway API
+Primary reference: Matrix v1.18 / Push Gateway API / push notify payload and gateway endpoint
+Repository anchor: SPEC-091 Matrix Push Notify Payload and Gateway Endpoint Boundary
 Canonical: yes
 
 ## Purpose

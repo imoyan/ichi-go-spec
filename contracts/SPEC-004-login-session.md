@@ -1,9 +1,11 @@
-# SPEC-004: Login / Session
+# Houra public API / Login/session
 
 Status: draft
 Feature profile: auth
 Contract type: endpoint
 Matrix domain: none
+Primary reference: Houra public API / Login/session
+Repository anchor: SPEC-004 Login/session
 Canonical: yes
 
 ## Purpose

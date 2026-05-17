@@ -1,9 +1,11 @@
-# SPEC-052: Matrix To-Device and Encrypted Room Gate
+# Matrix v1.18 / Client-Server API / to-device messages and encrypted room event envelopes
 
 Status: draft
 Feature profile: messaging
 Contract type: gate
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / to-device messages and encrypted room event envelopes
+Repository anchor: SPEC-052 Matrix To-Device and Encrypted Room Gate
 Canonical: yes
 
 ## Purpose

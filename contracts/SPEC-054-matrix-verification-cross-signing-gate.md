@@ -1,9 +1,11 @@
-# SPEC-054: Matrix Verification and Cross-Signing Gate
+# Matrix v1.18 / Client-Server API / verification and cross-signing endpoints
 
 Status: draft
 Feature profile: messaging
 Contract type: gate
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / verification and cross-signing endpoints
+Repository anchor: SPEC-054 Matrix Verification and Cross-Signing Gate
 Canonical: yes
 
 ## Purpose

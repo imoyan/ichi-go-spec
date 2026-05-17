@@ -1,9 +1,11 @@
-# SPEC-032: Matrix Client-Server Auth Session
+# Matrix v1.18 / Client-Server API / login, logout, and whoami endpoints
 
 Status: draft
 Feature profile: auth
 Contract type: endpoint
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / login, logout, and whoami endpoints
+Repository anchor: SPEC-032 Matrix Client-Server Auth Session
 Canonical: yes
 
 ## Purpose

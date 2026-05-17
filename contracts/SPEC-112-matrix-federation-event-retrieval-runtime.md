@@ -1,9 +1,11 @@
-# SPEC-112: Matrix Federation Event Retrieval Runtime
+# Matrix v1.18 / Server-Server API / federation event retrieval runtime
 
 Status: draft
 Feature profile: events
 Contract type: boundary
 Matrix domain: Server-Server API
+Primary reference: Matrix v1.18 / Server-Server API / federation event retrieval runtime
+Repository anchor: SPEC-112 Matrix Federation Event Retrieval Runtime
 Canonical: yes
 
 ## Purpose

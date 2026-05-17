@@ -1,9 +1,11 @@
-# SPEC-042: Matrix Room Versions 1-12 and Default Version Gate
+# Matrix v1.18 / Room Versions / Matrix Room Versions 1-12 and Default Version Gate
 
 Status: draft
 Feature profile: rooms
 Contract type: gate
 Matrix domain: Room Versions
+Primary reference: Matrix v1.18 / Room Versions / Matrix Room Versions 1-12 and Default Version Gate
+Repository anchor: SPEC-042 Matrix Room Versions 1-12 and Default Version Gate
 Canonical: yes
 
 ## Purpose

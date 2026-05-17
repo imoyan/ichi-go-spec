@@ -1,9 +1,11 @@
-# SPEC-040: Matrix Event DAG and Auth Event References
+# Matrix v1.18 / Room Versions / Matrix Event DAG and Auth Event References
 
 Status: draft
 Feature profile: events
 Contract type: boundary
 Matrix domain: Room Versions
+Primary reference: Matrix v1.18 / Room Versions / Matrix Event DAG and Auth Event References
+Repository anchor: SPEC-040 Matrix Event DAG and Auth Event References
 Canonical: yes
 
 ## Purpose

@@ -1,9 +1,11 @@
-# SPEC-123: Matrix Application Service Registration Namespace Lifecycle Runtime
+# Matrix v1.18 / Application Service API / registration and username availability endpoints
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Application Service API
+Primary reference: Matrix v1.18 / Application Service API / registration and username availability endpoints
+Repository anchor: SPEC-123 Matrix Application Service Registration Namespace Lifecycle Runtime
 Canonical: yes
 
 ## Purpose

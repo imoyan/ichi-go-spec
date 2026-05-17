@@ -1,9 +1,11 @@
-# SPEC-030: Matrix Client Versions
+# Matrix v1.18 / Client-Server API / GET /_matrix/client/versions
 
 Status: draft
 Feature profile: core
 Contract type: endpoint
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / GET /_matrix/client/versions
+Repository anchor: SPEC-030 Matrix Client Versions
 Canonical: yes
 
 ## Purpose

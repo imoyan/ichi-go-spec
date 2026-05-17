@@ -1,9 +1,11 @@
-# SPEC-102: Matrix E2EE Parser Artifact Breadth
+# Matrix v1.18 / Olm & Megolm / encrypted event, key, backup, verification, and cross-signing artifacts
 
 Status: draft
 Feature profile: messaging
 Contract type: boundary
 Matrix domain: Olm & Megolm
+Primary reference: Matrix v1.18 / Olm & Megolm / encrypted event, key, backup, verification, and cross-signing artifacts
+Repository anchor: SPEC-102 Matrix E2EE Parser Artifact Breadth
 Canonical: yes
 
 ## Purpose

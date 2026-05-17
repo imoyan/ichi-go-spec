@@ -1,9 +1,11 @@
-# SPEC-035: Matrix Client-Server Room Membership and State MVP
+# Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints
 
 Status: draft
 Feature profile: rooms
 Contract type: endpoint
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints
+Repository anchor: SPEC-035 Matrix Client-Server Room Membership and State MVP
 Canonical: yes
 
 ## Purpose

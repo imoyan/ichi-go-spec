@@ -1,9 +1,11 @@
-# SPEC-109: Matrix Federation E2EE Device and Media Runtime
+# Matrix v1.18 / Server-Server API / federation E2EE device and media runtime
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Server-Server API
+Primary reference: Matrix v1.18 / Server-Server API / federation E2EE device and media runtime
+Repository anchor: SPEC-109 Matrix Federation E2EE Device and Media Runtime
 Canonical: yes
 
 ## Purpose

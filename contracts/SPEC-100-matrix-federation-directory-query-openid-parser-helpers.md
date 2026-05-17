@@ -1,9 +1,11 @@
-# SPEC-100: Matrix Federation Directory / Query / OpenID Parser Helpers
+# Matrix v1.18 / Server-Server API / public rooms, hierarchy, directory query, and OpenID endpoints
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Server-Server API
+Primary reference: Matrix v1.18 / Server-Server API / public rooms, hierarchy, directory query, and OpenID endpoints
+Repository anchor: SPEC-100 Matrix Federation Directory / Query / OpenID Parser Helpers
 Canonical: yes
 
 ## Purpose

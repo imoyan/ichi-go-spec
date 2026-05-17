@@ -1,9 +1,11 @@
-# SPEC-103: Matrix Room Version Event Format, Hash, and Signature Helpers
+# Matrix v1.18 / Room Versions / event format, hash, signature, and redaction rules
 
 Status: draft
 Feature profile: events
 Contract type: boundary
 Matrix domain: Room Versions
+Primary reference: Matrix v1.18 / Room Versions / event format, hash, signature, and redaction rules
+Repository anchor: SPEC-103 Matrix Room Version Event Format, Hash, and Signature Helpers
 Canonical: yes
 
 ## Purpose

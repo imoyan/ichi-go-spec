@@ -1,9 +1,11 @@
-# SPEC-048: Matrix Room Directory, Aliases, and Invites
+# Matrix v1.18 / Client-Server API / public rooms, directory aliases, and invites
 
 Status: draft
 Feature profile: rooms
 Contract type: endpoint
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / public rooms, directory aliases, and invites
+Repository anchor: SPEC-048 Matrix Room Directory, Aliases, and Invites
 Canonical: yes
 
 ## Purpose

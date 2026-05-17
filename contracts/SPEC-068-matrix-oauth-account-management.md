@@ -1,9 +1,11 @@
-# SPEC-068: Matrix OAuth Account Management and Device Deletion Flow
+# Matrix v1.18 / Client-Server API / OAuth account management and device deletion flows
 
 Status: draft
 Feature profile: auth
 Contract type: endpoint
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / OAuth account management and device deletion flows
+Repository anchor: SPEC-068 Matrix OAuth Account Management and Device Deletion Flow
 Canonical: yes
 
 ## Purpose

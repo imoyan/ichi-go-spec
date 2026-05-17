@@ -1,9 +1,11 @@
-# SPEC-001: Discovery / Versions
+# Houra public API / Discovery / Versions
 
 Status: draft
 Feature profile: core
 Contract type: endpoint
 Matrix domain: none
+Primary reference: Houra public API / Discovery / Versions
+Repository anchor: SPEC-001 Discovery / Versions
 Canonical: yes
 
 ## Purpose

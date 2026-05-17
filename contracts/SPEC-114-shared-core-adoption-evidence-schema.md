@@ -1,9 +1,11 @@
-# SPEC-114: Shared-Core Adoption Evidence Schema
+# Matrix v1.18 / Appendices/common rules / shared-core adoption evidence schema
 
 Status: draft
 Feature profile: core
 Contract type: schema
 Matrix domain: Appendices/common rules
+Primary reference: Matrix v1.18 / Appendices/common rules / shared-core adoption evidence schema
+Repository anchor: SPEC-114 Shared-Core Adoption Evidence Schema
 Canonical: yes
 
 ## Purpose

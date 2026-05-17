@@ -1,9 +1,11 @@
-# SPEC-070: Product MVP Account Recovery and IdP Login Boundary
+# Houra Product MVP / Account Recovery and IdP Login Boundary
 
 Status: draft
 Feature profile: auth
 Contract type: boundary
 Matrix domain: none
+Primary reference: Houra Product MVP / Account Recovery and IdP Login Boundary
+Repository anchor: SPEC-070 Product MVP Account Recovery and IdP Login Boundary
 Canonical: yes
 
 ## Purpose

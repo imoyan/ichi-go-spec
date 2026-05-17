@@ -1,9 +1,11 @@
-# SPEC-110: Matrix Federation ACL, Policy, and Signing Runtime
+# Matrix v1.18 / Server-Server API / federation ACL, policy, and signing runtime
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Server-Server API
+Primary reference: Matrix v1.18 / Server-Server API / federation ACL, policy, and signing runtime
+Repository anchor: SPEC-110 Matrix Federation ACL, Policy, and Signing Runtime
 Canonical: yes
 
 ## Purpose

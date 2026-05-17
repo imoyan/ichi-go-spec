@@ -1,9 +1,11 @@
-# SPEC-003: Login Flow Discovery
+# Houra public API / Login flow discovery
 
 Status: draft
 Feature profile: auth
 Contract type: endpoint
 Matrix domain: none
+Primary reference: Houra public API / Login flow discovery
+Repository anchor: SPEC-003 Login flow discovery
 Canonical: yes
 
 ## Purpose

@@ -1,9 +1,11 @@
-# SPEC-053: Matrix Key Backup and Restore Gate
+# Matrix v1.18 / Client-Server API / server-side key backup endpoints
 
 Status: draft
 Feature profile: messaging
 Contract type: gate
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / server-side key backup endpoints
+Repository anchor: SPEC-053 Matrix Key Backup and Restore Gate
 Canonical: yes
 
 ## Purpose

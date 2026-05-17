@@ -1,9 +1,11 @@
-# SPEC-045: Matrix Profile, Account Data, and Room Tags
+# Matrix v1.18 / Client-Server API / profile, account data, and room tag endpoints
 
 Status: draft
 Feature profile: sync
 Contract type: endpoint
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / profile, account data, and room tag endpoints
+Repository anchor: SPEC-045 Matrix Profile, Account Data, and Room Tags
 Canonical: yes
 
 ## Purpose

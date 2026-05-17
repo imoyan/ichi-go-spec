@@ -1,9 +1,11 @@
-# SPEC-099: Matrix Federation PDU / EDU Parser Helpers
+# Matrix v1.18 / Server-Server API / federation transaction PDU and EDU parser helpers
 
 Status: draft
 Feature profile: events
 Contract type: boundary
 Matrix domain: Server-Server API
+Primary reference: Matrix v1.18 / Server-Server API / federation transaction PDU and EDU parser helpers
+Repository anchor: SPEC-099 Matrix Federation PDU / EDU Parser Helpers
 Canonical: yes
 
 ## Purpose

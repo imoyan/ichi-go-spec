@@ -1,9 +1,11 @@
-# SPEC-130: Matrix Olm Withheld-Key To-Device Relay Boundary
+# Matrix v1.18 / Olm & Megolm / Olm and Megolm to-device key event relay
 
 Status: draft
 Feature profile: messaging
 Contract type: boundary
 Matrix domain: Olm & Megolm
+Primary reference: Matrix v1.18 / Olm & Megolm / Olm and Megolm to-device key event relay
+Repository anchor: SPEC-130 Matrix Olm Withheld-Key To-Device Relay Boundary
 Canonical: yes
 
 ## Purpose

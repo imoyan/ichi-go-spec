@@ -1,9 +1,11 @@
-# SPEC-120: Matrix Application Service CS Extension Sync, Device, and Cross-Signing Breadth
+# Matrix v1.18 / Application Service API / appservice Client-Server extension sync and device endpoints
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Application Service API
+Primary reference: Matrix v1.18 / Application Service API / appservice Client-Server extension sync and device endpoints
+Repository anchor: SPEC-120 Matrix Application Service CS Extension Sync Device Breadth
 Canonical: yes
 
 ## Purpose

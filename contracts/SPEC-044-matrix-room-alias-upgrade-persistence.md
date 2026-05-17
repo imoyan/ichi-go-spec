@@ -1,9 +1,11 @@
-# SPEC-044: Matrix Room Alias, Upgrade, and Restart Persistence Gate
+# Matrix v1.18 / Room Versions / Matrix Room Alias, Upgrade, and Restart Persistence Gate
 
 Status: draft
 Feature profile: rooms
 Contract type: gate
 Matrix domain: Room Versions
+Primary reference: Matrix v1.18 / Room Versions / Matrix Room Alias, Upgrade, and Restart Persistence Gate
+Repository anchor: SPEC-044 Matrix Room Alias, Upgrade, and Restart Persistence Gate
 Canonical: yes
 
 ## Purpose

@@ -1,9 +1,11 @@
-# SPEC-043: Matrix Room Auth Representative Vectors
+# Matrix v1.18 / Room Versions / Matrix Room Auth Representative Vectors
 
 Status: draft
 Feature profile: events
 Contract type: boundary
 Matrix domain: Room Versions
+Primary reference: Matrix v1.18 / Room Versions / Matrix Room Auth Representative Vectors
+Repository anchor: SPEC-043 Matrix Room Auth Representative Vectors
 Canonical: yes
 
 ## Purpose

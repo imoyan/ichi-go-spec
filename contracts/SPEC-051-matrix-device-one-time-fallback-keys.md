@@ -1,9 +1,11 @@
-# SPEC-051: Matrix Device, One-Time, and Fallback Keys
+# Matrix v1.18 / Client-Server API / key upload and key claim endpoints
 
 Status: draft
 Feature profile: auth
 Contract type: endpoint
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / key upload and key claim endpoints
+Repository anchor: SPEC-051 Matrix Device, One-Time, and Fallback Keys
 Canonical: yes
 
 ## Purpose

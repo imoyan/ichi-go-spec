@@ -1,9 +1,11 @@
-# SPEC-124: Matrix Application Service Transaction Event Delivery Runtime
+# Matrix v1.18 / Application Service API / appservice transaction event delivery runtime
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Application Service API
+Primary reference: Matrix v1.18 / Application Service API / appservice transaction event delivery runtime
+Repository anchor: SPEC-124 Matrix Application Service Transaction Event Delivery Runtime
 Canonical: yes
 
 ## Purpose

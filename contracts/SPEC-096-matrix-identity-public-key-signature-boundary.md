@@ -1,9 +1,11 @@
-# SPEC-096: Matrix Identity Public Key and Signature Boundary
+# Matrix v1.18 / Identity Service API / identity public key and signature validation
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Identity Service API
+Primary reference: Matrix v1.18 / Identity Service API / identity public key and signature validation
+Repository anchor: SPEC-096 Matrix Identity Public Key and Signature Boundary
 Canonical: yes
 
 ## Purpose

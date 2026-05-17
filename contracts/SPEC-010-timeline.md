@@ -1,9 +1,11 @@
-# SPEC-010: Timeline
+# Houra public API / Timeline
 
 Status: draft
 Feature profile: sync
 Contract type: endpoint
 Matrix domain: none
+Primary reference: Houra public API / Timeline
+Repository anchor: SPEC-010 Timeline
 Canonical: yes
 
 ## Purpose

@@ -1,9 +1,11 @@
-# SPEC-128: Product MVP Multilingual Handoff Boundary
+# Houra Product MVP / Multilingual Handoff Boundary
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: none
+Primary reference: Houra Product MVP / Multilingual Handoff Boundary
+Repository anchor: SPEC-128 Product MVP Multilingual Handoff Boundary
 Canonical: yes
 
 ## Purpose

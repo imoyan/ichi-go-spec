@@ -1,9 +1,11 @@
-# SPEC-078: Matrix Room Versions Full Algorithm Gap Inventory
+# Matrix v1.18 / Room Versions / full-algorithm gap inventory
 
 Status: draft
 Feature profile: rooms
 Contract type: gap-inventory
 Matrix domain: Room Versions
+Primary reference: Matrix v1.18 / Room Versions / full-algorithm gap inventory
+Repository anchor: SPEC-078 Matrix Room Versions Full Algorithm Gap Inventory
 Canonical: yes
 
 ## Purpose

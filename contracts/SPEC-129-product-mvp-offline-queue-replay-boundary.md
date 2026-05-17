@@ -1,9 +1,11 @@
-# SPEC-129: Product MVP Offline Queue Replay Boundary
+# Houra Product MVP / Offline Queue Replay Boundary
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: none
+Primary reference: Houra Product MVP / Offline Queue Replay Boundary
+Repository anchor: SPEC-129 Product MVP Offline Queue Replay Boundary
 Canonical: yes
 
 ## Purpose

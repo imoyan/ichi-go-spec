@@ -1,9 +1,11 @@
-# SPEC-050: Matrix Crypto Adapter Boundary
+# Matrix v1.18 / Client-Server API / end-to-end encryption client integration boundary
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / end-to-end encryption client integration boundary
+Repository anchor: SPEC-050 Matrix Crypto Adapter Boundary
 Canonical: yes
 
 ## Purpose

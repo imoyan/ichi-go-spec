@@ -1,9 +1,11 @@
-# SPEC-066: Matrix v1.18 Release Readiness Gate
+# Matrix v1.18 / Appendices/common rules / v1.18 release readiness gate
 
 Status: draft
 Feature profile: core
 Contract type: gate
 Matrix domain: Appendices/common rules
+Primary reference: Matrix v1.18 / Appendices/common rules / v1.18 release readiness gate
+Repository anchor: SPEC-066 Matrix v1.18 Release Readiness Gate
 Canonical: yes
 
 ## Purpose

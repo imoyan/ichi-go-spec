@@ -1,9 +1,11 @@
-# SPEC-059: Matrix Identity Service Boundary
+# Matrix v1.18 / Identity Service API / identity lookup, validation, bind, and unbind endpoints
 
 Status: draft
 Feature profile: core
 Contract type: endpoint
 Matrix domain: Identity Service API
+Primary reference: Matrix v1.18 / Identity Service API / identity lookup, validation, bind, and unbind endpoints
+Repository anchor: SPEC-059 Matrix Identity Service Boundary
 Canonical: yes
 
 ## Purpose

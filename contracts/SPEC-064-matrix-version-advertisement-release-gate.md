@@ -1,9 +1,11 @@
-# SPEC-064: Matrix Version Advertisement Release Gate
+# Matrix v1.18 / Client-Server API / version advertisement release gate
 
 Status: draft
 Feature profile: core
 Contract type: gate
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / version advertisement release gate
+Repository anchor: SPEC-064 Matrix Version Advertisement Release Gate
 Canonical: yes
 
 ## Purpose

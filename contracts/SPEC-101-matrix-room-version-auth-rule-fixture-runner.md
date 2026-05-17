@@ -1,9 +1,11 @@
-# SPEC-101: Matrix Room Version Auth Rule Fixture Runner
+# Matrix v1.18 / Room Versions / room version auth rule fixture runner
 
 Status: draft
 Feature profile: events
 Contract type: boundary
 Matrix domain: Room Versions
+Primary reference: Matrix v1.18 / Room Versions / room version auth rule fixture runner
+Repository anchor: SPEC-101 Matrix Room Version Auth Rule Fixture Runner
 Canonical: yes
 
 ## Purpose

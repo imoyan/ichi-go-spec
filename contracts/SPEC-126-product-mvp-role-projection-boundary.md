@@ -1,9 +1,11 @@
-# SPEC-126: Product MVP Role Projection Boundary
+# Houra Product MVP / Role Projection Boundary
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: none
+Primary reference: Houra Product MVP / Role Projection Boundary
+Repository anchor: SPEC-126 Product MVP Role Projection Boundary
 Canonical: yes
 
 ## Purpose

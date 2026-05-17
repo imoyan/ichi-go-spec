@@ -1,9 +1,11 @@
-# SPEC-036: Matrix Client-Server Send Event and Messages MVP
+# Matrix v1.18 / Client-Server API / send event and messages pagination endpoints
 
 Status: draft
 Feature profile: messaging
 Contract type: endpoint
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / send event and messages pagination endpoints
+Repository anchor: SPEC-036 Matrix Client-Server Send Event and Messages MVP
 Canonical: yes
 
 ## Purpose

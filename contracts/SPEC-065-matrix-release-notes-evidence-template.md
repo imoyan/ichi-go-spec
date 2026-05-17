@@ -1,9 +1,11 @@
-# SPEC-065: Matrix Release Notes Evidence Template
+# Matrix v1.18 / Appendices/common rules / release notes evidence template
 
 Status: draft
 Feature profile: core
 Contract type: schema
 Matrix domain: Appendices/common rules
+Primary reference: Matrix v1.18 / Appendices/common rules / release notes evidence template
+Repository anchor: SPEC-065 Matrix Release Notes Evidence Template
 Canonical: yes
 
 ## Purpose

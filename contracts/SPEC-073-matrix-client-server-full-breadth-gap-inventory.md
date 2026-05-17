@@ -1,9 +1,11 @@
-# SPEC-073: Matrix Client-Server Full-Breadth Gap Inventory
+# Matrix v1.18 / Client-Server API / full-breadth gap inventory
 
 Status: draft
 Feature profile: core
 Contract type: gap-inventory
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / full-breadth gap inventory
+Repository anchor: SPEC-073 Matrix Client-Server Full-Breadth Gap Inventory
 Canonical: yes
 
 ## Purpose

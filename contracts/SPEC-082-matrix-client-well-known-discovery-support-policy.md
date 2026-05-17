@@ -1,9 +1,11 @@
-# SPEC-082: Matrix Client Well-Known Discovery, Support, and Policy Boundary
+# Matrix v1.18 / Client-Server API / .well-known client, support, and policy metadata
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Client-Server API
+Primary reference: Matrix v1.18 / Client-Server API / .well-known client, support, and policy metadata
+Repository anchor: SPEC-082 Matrix Client Well-Known Discovery, Support, and Policy Boundary
 Canonical: yes
 
 ## Purpose

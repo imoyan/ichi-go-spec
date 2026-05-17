@@ -1,9 +1,11 @@
-# SPEC-098: Matrix Push Parser Helper Breadth
+# Matrix v1.18 / Push Gateway API / pusher, push rule, and redaction parser helpers
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: Push Gateway API
+Primary reference: Matrix v1.18 / Push Gateway API / pusher, push rule, and redaction parser helpers
+Repository anchor: SPEC-098 Matrix Push Parser Helper Breadth
 Canonical: yes
 
 ## Purpose

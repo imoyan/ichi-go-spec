@@ -1,9 +1,11 @@
-# SPEC-127: Product MVP PII Redaction Handoff Boundary
+# Houra Product MVP / PII Redaction Handoff Boundary
 
 Status: draft
 Feature profile: core
 Contract type: boundary
 Matrix domain: none
+Primary reference: Houra Product MVP / PII Redaction Handoff Boundary
+Repository anchor: SPEC-127 Product MVP PII Redaction Handoff Boundary
 Canonical: yes
 
 ## Purpose

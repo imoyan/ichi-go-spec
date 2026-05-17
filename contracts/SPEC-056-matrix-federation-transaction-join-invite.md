@@ -1,9 +1,11 @@
-# SPEC-056: Matrix Federation Transaction, Join, and Invite
+# Matrix v1.18 / Server-Server API / federation send, join, and invite endpoints
 
 Status: draft
 Feature profile: events
 Contract type: endpoint
 Matrix domain: Server-Server API
+Primary reference: Matrix v1.18 / Server-Server API / federation send, join, and invite endpoints
+Repository anchor: SPEC-056 Matrix Federation Transaction, Join, and Invite
 Canonical: yes
 
 ## Purpose

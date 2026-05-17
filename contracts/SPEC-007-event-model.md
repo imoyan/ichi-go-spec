@@ -1,9 +1,11 @@
-# SPEC-007: Event Model
+# Houra public API / Event model
 
 Status: draft
 Feature profile: events
 Contract type: boundary
 Matrix domain: none
+Primary reference: Houra public API / Event model
+Repository anchor: SPEC-007 Event model
 Canonical: yes
 
 ## Purpose

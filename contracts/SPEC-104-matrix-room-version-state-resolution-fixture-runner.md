@@ -1,9 +1,11 @@
-# SPEC-104: Matrix Room Version State Resolution Fixture Runner
+# Matrix v1.18 / Room Versions / state resolution fixture runner
 
 Status: draft
 Feature profile: events
 Contract type: boundary
 Matrix domain: Room Versions
+Primary reference: Matrix v1.18 / Room Versions / state resolution fixture runner
+Repository anchor: SPEC-104 Matrix Room Version State Resolution Fixture Runner
 Canonical: yes
 
 ## Purpose

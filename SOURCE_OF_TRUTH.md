@@ -22,6 +22,26 @@ Priority order:
 If an implementation differs from this repository, the implementation should be
 updated unless the contract is changed first.
 
+## Matrix References Are Primary
+
+For Matrix-aligned work, do not use `SPEC-*` as the reader-facing numbering
+system. Use official Matrix identifiers first: dated Matrix spec version
+snapshot, API domain, endpoint path or section anchor, MSC number, and room
+version as applicable.
+
+Existing `SPEC-*` filenames and anchors are retained only for repository link
+stability, release evidence, and implementation adoption records that already
+cite them. New Matrix-facing docs, issue titles, PR bodies, release records, and
+adoption evidence should name the Matrix reference before the repository anchor.
+If a Matrix reference changes, is superseded, or is split, update the Matrix
+reference without inventing a replacement local number.
+
+Every contract header must include `Primary reference`. For Matrix-aligned
+contracts this field must begin with the Matrix spec version and API domain; for
+Houra-only contracts it must use a Product MVP or Houra public API label.
+The contract H1 must match `Primary reference`, while the existing `SPEC-*`
+value must be kept in `Repository anchor` for file paths and historical refs.
+
 ## Contract Changes
 
 - Change or add a contract before changing implementation behavior.
@@ -49,7 +69,7 @@ updated unless the contract is changed first.
   implementation adoption, release readiness, or Matrix advertisement status.
   Adoption and claim state are recorded through release evidence, implementation
   reports, and the relevant gate contracts.
-- Public APIs may be added only after a matching `SPEC-*` contract and vector
+- Public APIs may be added only after a matching contract entry and vector
   exist here.
 - Release notes should describe changed feature profiles, not implementation
   internals.
@@ -72,10 +92,10 @@ Before freezing a pre-1.0 spec baseline:
 
 Change handling before freeze:
 
-- Breaking changes must update the relevant `SPEC-*`, vectors, and profile map
-  in the same spec PR.
-- Additive changes must add a `SPEC-*` section or new contract plus matching
-  vectors before any SDK surface is added.
+- Breaking changes must update the relevant contract entry, vectors, and
+  profile map in the same spec PR.
+- Additive changes must add a new contract entry or contract section plus
+  matching vectors before any SDK surface is added.
 - Corrections may clarify wording without a vector change only when expected
   public behavior does not change.
 - Any contract, vector, or design token change that affects bundled assets or
@@ -90,14 +110,14 @@ new tag and handled as follows:
 
 - Breaking changes alter expected public behavior for an existing contract,
   vector, or design token. They require a focused spec PR that updates the
-  affected `SPEC-*`, vectors, and profile map together, plus implementation
+  affected contract entry, vectors, and profile map together, plus implementation
   follow-up issues or PRs when bundled assets or implementation behavior are
   affected.
   During pre-1.0, they are allowed only when the release notes label the change
   as breaking and the affected implementation repositories have an explicit
   follow-up path.
 - Additive changes introduce new behavior without changing existing vector
-  expectations. They require a new contract section or `SPEC-*` plus matching
+  expectations. They require a new contract section or contract entry plus matching
   vectors before any implementation exposes client-server behavior, or a
   `design/ui-surfaces/*.json` change before any implementation exposes a new
   shared Product MVP UI surface.

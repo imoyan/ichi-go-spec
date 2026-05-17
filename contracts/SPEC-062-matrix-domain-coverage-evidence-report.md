@@ -1,9 +1,11 @@
-# SPEC-062: Matrix Domain Coverage Evidence Report
+# Matrix v1.18 / Appendices/common rules / domain coverage evidence report
 
 Status: draft
 Feature profile: core
 Contract type: schema
 Matrix domain: Appendices/common rules
+Primary reference: Matrix v1.18 / Appendices/common rules / domain coverage evidence report
+Repository anchor: SPEC-062 Matrix Domain Coverage Evidence Report
 Canonical: yes
 
 ## Purpose
