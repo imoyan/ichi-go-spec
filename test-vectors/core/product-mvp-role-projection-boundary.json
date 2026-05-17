@@ -1,0 +1,132 @@
+{
+  "name": "product-mvp-role-projection-boundary",
+  "contract": "SPEC-126",
+  "event": {
+    "target": "Product MVP role projection server boundary",
+    "spec_issue": "imoyan/houra-spec#340",
+    "implementation_issue": "imoyan/houra-server#337",
+    "checked_at": "2026-05-17T16:45:00+09:00",
+    "subject_schema": {
+      "required": ["subject_id", "owner_customer_id", "attributes"],
+      "public_fields": ["subject_id", "display_name", "status"],
+      "operational_fields": ["assigned_worker_id", "workflow_state"],
+      "customer_private_fields": ["customer_note"],
+      "admin_audit_fields": ["audit_state"],
+      "forbidden_raw_fields": ["internal_note", "billing_account_id", "secret_token", "debug_trace"]
+    },
+    "sample_subject": {
+      "subject_id": "case-001",
+      "owner_customer_id": "customer-a",
+      "attributes": {
+        "display_name": "Repair case 001",
+        "status": "active",
+        "assigned_worker_id": "worker-7",
+        "workflow_state": "scheduled",
+        "customer_note": "customer-visible note",
+        "audit_state": "reviewed",
+        "internal_note": "internal-only note must not leak",
+        "billing_account_id": "billing-account-secret",
+        "secret_token": "projection-secret-token",
+        "debug_trace": "debug-trace-secret",
+        "other_customer_note": "customer-b private note must not leak"
+      }
+    },
+    "role_allowlists": {
+      "admin": ["subject_id", "display_name", "status", "assigned_worker_id", "workflow_state", "audit_state"],
+      "worker": ["subject_id", "display_name", "status", "assigned_worker_id", "workflow_state"],
+      "customer": ["subject_id", "display_name", "status", "customer_note"],
+      "guest": ["subject_id", "display_name", "status"]
+    },
+    "cases": [
+      {
+        "id": "admin-projection",
+        "role": "admin",
+        "audience_customer_id": "customer-a",
+        "expected_status": "ok",
+        "expected_fields": ["subject_id", "display_name", "status", "assigned_worker_id", "workflow_state", "audit_state"],
+        "forbidden_fields_absent": ["customer_note", "internal_note", "billing_account_id", "secret_token", "debug_trace", "other_customer_note"]
+      },
+      {
+        "id": "worker-projection",
+        "role": "worker",
+        "audience_customer_id": "customer-a",
+        "expected_status": "ok",
+        "expected_fields": ["subject_id", "display_name", "status", "assigned_worker_id", "workflow_state"],
+        "forbidden_fields_absent": ["customer_note", "audit_state", "internal_note", "billing_account_id", "secret_token", "debug_trace", "other_customer_note"]
+      },
+      {
+        "id": "customer-own-projection",
+        "role": "customer",
+        "audience_customer_id": "customer-a",
+        "expected_status": "ok",
+        "expected_fields": ["subject_id", "display_name", "status", "customer_note"],
+        "forbidden_fields_absent": ["assigned_worker_id", "workflow_state", "audit_state", "internal_note", "billing_account_id", "secret_token", "debug_trace", "other_customer_note"]
+      },
+      {
+        "id": "guest-projection",
+        "role": "guest",
+        "audience_customer_id": "customer-a",
+        "expected_status": "ok",
+        "expected_fields": ["subject_id", "display_name", "status"],
+        "forbidden_fields_absent": ["assigned_worker_id", "workflow_state", "customer_note", "audit_state", "internal_note", "billing_account_id", "secret_token", "debug_trace", "other_customer_note"]
+      },
+      {
+        "id": "customer-cross-tenant-forbidden",
+        "role": "customer",
+        "audience_customer_id": "customer-b",
+        "expected_status": "forbidden",
+        "expected_error": "projection_cross_customer_forbidden"
+      },
+      {
+        "id": "unknown-role-forbidden",
+        "role": "auditor",
+        "audience_customer_id": "customer-a",
+        "expected_status": "forbidden",
+        "expected_error": "projection_unknown_role"
+      },
+      {
+        "id": "tampered-allowlist-forbidden",
+        "role": "worker",
+        "audience_customer_id": "customer-a",
+        "tampered_allowlist": ["subject_id", "display_name", "secret_token"],
+        "expected_status": "forbidden",
+        "expected_error": "projection_config_tampered"
+      },
+      {
+        "id": "empty-projection-forbidden",
+        "role": "guest",
+        "audience_customer_id": "customer-a",
+        "tampered_allowlist": [],
+        "expected_status": "forbidden",
+        "expected_error": "projection_empty"
+      }
+    ],
+    "evidence_redaction": {
+      "forbidden_raw_values_must_be_absent": [
+        "internal-only note must not leak",
+        "billing-account-secret",
+        "projection-secret-token",
+        "debug-trace-secret",
+        "customer-b private note must not leak"
+      ],
+      "artifact_may_include_field_names": true,
+      "artifact_must_not_include_forbidden_values": true
+    },
+    "claim_boundary": {
+      "product_mvp_readiness_widened": false,
+      "matrix_compatibility_widened": false,
+      "enterprise_rbac_claimed": false,
+      "ui_role_management_claimed": false
+    }
+  },
+  "expected": {
+    "role_count": 4,
+    "case_count": 8,
+    "success_case_count": 4,
+    "fail_closed_case_count": 4,
+    "allowlist_based": true,
+    "forbidden_raw_values_in_artifact": false,
+    "product_mvp_readiness_widened": false,
+    "matrix_compatibility_widened": false
+  }
+}
