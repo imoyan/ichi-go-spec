@@ -1,0 +1,152 @@
+{
+  "name": "product-mvp-offline-queue-replay-boundary",
+  "contract": "SPEC-129",
+  "event": {
+    "target": "Product MVP offline queue replay server boundary",
+    "spec_issue": "imoyan/houra-spec#346",
+    "implementation_issue": "imoyan/houra-server#338",
+    "checked_at": "2026-05-17T18:05:00+09:00",
+    "limits": {
+      "max_idempotency_key_bytes": 128,
+      "max_normalized_payload_bytes": 8192
+    },
+    "sample_replay": {
+      "replay_id": "offline-replay-001",
+      "idempotency_key": "offline-replay-key-001",
+      "replay_source": {
+        "kind": "field_report",
+        "client_queue": "offline"
+      },
+      "payload": {
+        "case_id": "case-001",
+        "report_type": "field_status",
+        "status": "needs_follow_up",
+        "summary": "Leak observed under sink",
+        "observed_at": "2026-05-17T08:00:00Z"
+      },
+      "raw_device_payload": {
+        "gps_coordinates": "35.681236,139.767125",
+        "sensor_dump": "accelerometer-secret-sample",
+        "local_queue_path": "/Users/alice/Library/Application Support/Houra/offline.db",
+        "device_cache_key": "device-cache-secret",
+        "bearer_token": "offline-device-token-secret",
+        "debug_trace": "offline-debug-trace-secret"
+      }
+    },
+    "forbidden_payload_fields": [
+      "gps_coordinates",
+      "sensor_dump",
+      "local_queue_path",
+      "device_cache_key",
+      "bearer_token",
+      "debug_trace",
+      "raw_device_payload"
+    ],
+    "server_owned_fields": [
+      "accepted_state",
+      "deduplicated_state",
+      "created_at",
+      "replay_result_id"
+    ],
+    "cases": [
+      {
+        "id": "first-replay-accepted",
+        "idempotency_key_ref": "sample_replay.idempotency_key",
+        "payload_ref": "sample_replay.payload",
+        "expected_status": "ok",
+        "expected_replay_state": "accepted",
+        "expected_result_fields": ["case_id", "report_type", "status", "summary", "observed_at"],
+        "forbidden_fields_absent": [
+          "gps_coordinates",
+          "sensor_dump",
+          "local_queue_path",
+          "device_cache_key",
+          "bearer_token",
+          "debug_trace",
+          "raw_device_payload"
+        ]
+      },
+      {
+        "id": "duplicate-replay-deduplicated",
+        "idempotency_key_ref": "sample_replay.idempotency_key",
+        "payload_ref": "sample_replay.payload",
+        "repeat_after_case": "first-replay-accepted",
+        "expected_status": "ok",
+        "expected_replay_state": "deduplicated",
+        "must_return_original_result": true,
+        "must_not_create_second_operation": true
+      },
+      {
+        "id": "missing-idempotency-key-forbidden",
+        "payload_ref": "sample_replay.payload",
+        "expected_status": "forbidden",
+        "expected_error": "replay_idempotency_key_required"
+      },
+      {
+        "id": "raw-device-payload-forbidden",
+        "idempotency_key": "offline-replay-key-raw-device",
+        "payload": {
+          "case_id": "case-001",
+          "report_type": "field_status",
+          "status": "needs_follow_up",
+          "gps_coordinates": "35.681236,139.767125"
+        },
+        "expected_status": "forbidden",
+        "expected_error": "replay_raw_device_data"
+      },
+      {
+        "id": "payload-drift-forbidden",
+        "idempotency_key_ref": "sample_replay.idempotency_key",
+        "repeat_after_case": "first-replay-accepted",
+        "payload_patch": {
+          "status": "completed"
+        },
+        "expected_status": "forbidden",
+        "expected_error": "replay_payload_drift"
+      },
+      {
+        "id": "server-owned-state-forbidden",
+        "idempotency_key": "offline-replay-key-server-owned",
+        "payload": {
+          "case_id": "case-001",
+          "report_type": "field_status",
+          "status": "needs_follow_up",
+          "accepted_state": "accepted"
+        },
+        "expected_status": "forbidden",
+        "expected_error": "replay_server_owned_state"
+      }
+    ],
+    "evidence_redaction": {
+      "forbidden_raw_values_must_be_absent": [
+        "35.681236,139.767125",
+        "accelerometer-secret-sample",
+        "/Users/alice/Library/Application Support/Houra/offline.db",
+        "device-cache-secret",
+        "offline-device-token-secret",
+        "offline-debug-trace-secret"
+      ],
+      "artifact_may_include_field_names": true,
+      "artifact_must_not_include_forbidden_values": true
+    },
+    "claim_boundary": {
+      "product_mvp_readiness_widened": false,
+      "matrix_compatibility_widened": false,
+      "device_local_queue_claimed": false,
+      "mobile_retry_ui_claimed": false,
+      "external_queue_service_claimed": false
+    }
+  },
+  "expected": {
+    "case_count": 6,
+    "success_case_count": 2,
+    "fail_closed_case_count": 4,
+    "idempotency_required": true,
+    "duplicate_replay_deduplicated": true,
+    "payload_drift_rejected": true,
+    "raw_device_payload_excluded": true,
+    "forbidden_raw_values_in_artifact": false,
+    "product_mvp_readiness_widened": false,
+    "matrix_compatibility_widened": false
+  }
+}

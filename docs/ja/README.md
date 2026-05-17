@@ -72,6 +72,12 @@ reviewed confirmed translation を分け、audience に出す translation を co
 translation provider integration、automatic quality judgment、client review UI、sample runner
 compatibility とは別の scope として扱います。
 
+`SPEC-129` の offline queue replay は、Product MVP server が接続復帰後の replay を
+idempotency key、dedup、payload drift rejection、raw device data exclusion で扱うための
+境界です。server implementation evidence が揃うまで Product MVP release readiness は広げず、
+device-local queue implementation、mobile retry UI、external queue service、sample runner
+compatibility とは別の scope として扱います。
+
 ## 書き方
 
 日本語ページは、GitHub の表示で読みやすいように短い段落とリンク中心にします。
