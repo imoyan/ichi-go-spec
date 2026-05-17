@@ -178,6 +178,13 @@ candidate requires a focused spec PR first. If the change affects bundled design
 assets, UI surface conformance, or expected implementation behavior, create the
 matching implementation follow-up issue or PR after the spec PR is merged.
 
+For future freeze candidates, milestone releases, and release tags, copy
+`docs/releases/TEMPLATE.md` to `docs/releases/<tag>.md` before cutting the tag.
+The release record must name the candidate ref, changed contracts, vectors,
+design inputs, compatibility classification, claim impact, verification,
+implementation adoption evidence, known exclusions, and the separate Product MVP
+and Matrix compatibility claim boundaries.
+
 ## MVP Readiness Boundary
 
 `full-client` readiness means the covered Houra MVP public contract is
