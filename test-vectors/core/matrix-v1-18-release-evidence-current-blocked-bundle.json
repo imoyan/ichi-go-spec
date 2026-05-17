@@ -5,7 +5,7 @@
     "matrix_spec_version": "v1.18",
     "matrix_spec_source": "https://spec.matrix.org/v1.18/",
     "matrix_release_source": "https://matrix.org/blog/2026/03/26/matrix-v1.18-release/",
-    "checked_at": "2026-05-17T09:09:33+09:00",
+    "checked_at": "2026-05-18T07:14:22+09:00",
     "bundle_contracts": [
       "SPEC-062",
       "SPEC-063",
@@ -14,19 +14,19 @@
       "SPEC-066"
     ],
     "candidate_refs": {
-      "release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-17",
-      "houra_spec_ref": "83f81ce0f650933718f5ff97fd6d9ef6305b1041",
-      "houra_server_ref": "ceaf9beafe2331c9188989db95d171581e0976ed",
-      "houra_client_ref": "cf60cf64b63f3db5facae4d1d6ba8636eee4860e"
+      "release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-18",
+      "houra_spec_ref": "39c3e98d8070dd86ef3440fe4a2f92fc9c2d0a89",
+      "houra_server_ref": "b3b3eb2d98b1eb924084f6f07a653a1c01b92b03",
+      "houra_client_ref": "b7c31882dbc17c35a25215990e8b0ab86f38f777"
     },
     "evidence_sources": {
       "server": {
         "repo": "houra-server",
         "issue": "imoyan/houra-server#321",
         "pull_request": "imoyan/houra-server#327",
-        "merge_commit": "ceaf9beafe2331c9188989db95d171581e0976ed",
-        "head_under_test": "ceaf9beafe2331c9188989db95d171581e0976ed",
-        "spec_ref_under_test": "83f81ce0f650933718f5ff97fd6d9ef6305b1041",
+        "merge_commit": "b3b3eb2d98b1eb924084f6f07a653a1c01b92b03",
+        "head_under_test": "b3b3eb2d98b1eb924084f6f07a653a1c01b92b03",
+        "spec_ref_under_test": "39c3e98d8070dd86ef3440fe4a2f92fc9c2d0a89",
         "checks": [
           "GitHub Actions CI / test pass",
           "HOURA_SPEC_ROOT=<spec> npm run test:release-notes pass",
@@ -41,9 +41,9 @@
         "repo": "houra-client",
         "issue": "imoyan/houra-client#205",
         "pull_request": "imoyan/houra-client#206",
-        "merge_commit": "cf60cf64b63f3db5facae4d1d6ba8636eee4860e",
-        "head_under_test": "cf60cf64b63f3db5facae4d1d6ba8636eee4860e",
-        "spec_ref_under_test": "83f81ce0f650933718f5ff97fd6d9ef6305b1041",
+        "merge_commit": "b7c31882dbc17c35a25215990e8b0ab86f38f777",
+        "head_under_test": "b7c31882dbc17c35a25215990e8b0ab86f38f777",
+        "spec_ref_under_test": "39c3e98d8070dd86ef3440fe4a2f92fc9c2d0a89",
         "checks": [
           "GitHub Actions test pass",
           "GitHub Actions e2e pass",
