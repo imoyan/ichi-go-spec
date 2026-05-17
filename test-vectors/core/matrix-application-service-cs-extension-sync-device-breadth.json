@@ -1,0 +1,126 @@
+{
+  "name": "matrix-application-service-cs-extension-sync-device-breadth",
+  "contract": "SPEC-120",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/application-service-api/#server-admin-style-permissions",
+    "checked_at": "2026-05-17T12:00:00+09:00",
+    "parent_contracts": ["SPEC-058", "SPEC-105", "SPEC-093", "SPEC-050"],
+    "gap_inventory_contract": "SPEC-075",
+    "lane_id": "client-server-extension-sync-directory-device-cross-signing-breadth",
+    "request_descriptors": [
+      {
+        "id": "virtual_user_sync",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "query_params": {
+          "user_id": "@virtual-user:example.test",
+          "filter": "0",
+          "timeout": 0
+        },
+        "auth": "as_token",
+        "normalized_fields": ["asserted_user_id", "filter_shape", "timeout_ms"],
+        "adopted_runtime_behavior": false,
+        "runtime_gate": ["SPEC-037", "SPEC-093"],
+        "note": "parser-only: virtual user sync descriptor; runtime gated on SPEC-037 and SPEC-093"
+      },
+      {
+        "id": "room_directory_list_appservice",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/directory/list/appservice/{networkId}/{roomId}",
+        "path_params": {
+          "networkId": "example_network",
+          "roomId": "!room:example.test"
+        },
+        "body": {
+          "visibility": "public"
+        },
+        "auth": "as_token",
+        "normalized_fields": ["network_id", "room_id", "visibility"],
+        "adopted_runtime_behavior": false,
+        "note": "parser-only: room directory listing for third-party network; runtime not adopted"
+      },
+      {
+        "id": "device_create_without_uia",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/devices/{deviceId}",
+        "path_params": {
+          "deviceId": "VIRTUALDEVICE01"
+        },
+        "query_params": {
+          "user_id": "@virtual-user:example.test"
+        },
+        "auth": "as_token",
+        "normalized_fields": ["asserted_user_id", "device_id", "uia_challenge_absent"],
+        "adopted_runtime_behavior": false,
+        "e2ee_evidence_gate": ["SPEC-050", "SPEC-051", "SPEC-052", "SPEC-053", "SPEC-054"],
+        "note": "parser-only: device creation without UIA; runtime gated on E2EE evidence"
+      },
+      {
+        "id": "device_delete_without_uia",
+        "method": "DELETE",
+        "path": "/_matrix/client/v3/devices/{deviceId}",
+        "path_params": {
+          "deviceId": "VIRTUALDEVICE01"
+        },
+        "query_params": {
+          "user_id": "@virtual-user:example.test"
+        },
+        "auth": "as_token",
+        "normalized_fields": ["asserted_user_id", "device_id", "uia_challenge_absent"],
+        "adopted_runtime_behavior": false,
+        "e2ee_evidence_gate": ["SPEC-050", "SPEC-051", "SPEC-052", "SPEC-053", "SPEC-054"],
+        "note": "parser-only: device deletion without UIA; runtime gated on E2EE evidence"
+      },
+      {
+        "id": "cross_signing_upload_without_uia",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/device_signing/upload",
+        "query_params": {
+          "user_id": "@virtual-user:example.test"
+        },
+        "auth": "as_token",
+        "normalized_fields": ["asserted_user_id", "master_key_shape", "self_signing_key_shape", "user_signing_key_shape", "uia_challenge_absent"],
+        "adopted_runtime_behavior": false,
+        "e2ee_evidence_gate": ["SPEC-050", "SPEC-051", "SPEC-052", "SPEC-053", "SPEC-054"],
+        "note": "parser-only: cross-signing key upload without UIA; runtime gated on E2EE evidence"
+      }
+    ],
+    "policy_entries": [
+      {
+        "id": "oauth_homeserver_must_support_as_token",
+        "description": "OAuth-only homeservers must still support as_token authentication for registered appservice routes",
+        "policy_type": "non_runtime_boundary",
+        "must_be_documented_in_release_evidence": true
+      }
+    ],
+    "fail_closed_cases": [
+      "virtual_user_sync_runtime_not_adopted",
+      "device_create_without_e2ee_evidence",
+      "cross_signing_without_e2ee_evidence",
+      "directory_list_runtime_not_adopted"
+    ],
+    "release_evidence_rules": {
+      "parser_only": true,
+      "runtime_adopted": false,
+      "e2ee_evidence_required_before_device_adoption": true,
+      "virtual_user_sync_requires_spec_037_and_spec_093": true,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "parser_only_descriptor_count": 5,
+    "policy_entry_count": 1,
+    "fail_closed_case_count": 4,
+    "adopted_runtime_behavior_for_any_descriptor": false,
+    "parser_only": true,
+    "runtime_adopted": false,
+    "e2ee_evidence_required_before_device_adoption": true,
+    "virtual_user_sync_runtime_claimed": false,
+    "room_directory_runtime_claimed": false,
+    "device_key_storage_claimed": false,
+    "cross_signing_correctness_claimed": false,
+    "versions_advertisement_widened": false,
+    "application_service_support_claimed": false
+  }
+}
