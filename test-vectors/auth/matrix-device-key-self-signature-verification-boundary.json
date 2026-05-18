@@ -1,0 +1,326 @@
+{
+  "name": "matrix-device-key-self-signature-verification-boundary",
+  "contract": "SPEC-147",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3keysupload",
+    "device_keys_source": "https://spec.matrix.org/v1.18/client-server-api/#device-keys",
+    "one_time_fallback_source": "https://spec.matrix.org/v1.18/client-server-api/#one-time-and-fallback-keys",
+    "signing_json_source": "https://spec.matrix.org/v1.18/appendices/#signing-json",
+    "checked_at": "2026-05-18T21:00:00+09:00",
+    "required_contracts": [
+      "SPEC-050",
+      "SPEC-051",
+      "SPEC-079",
+      "SPEC-141",
+      "SPEC-147"
+    ],
+    "local_olm_megolm_allowed": false,
+    "signature_primitive": "ed25519-over-canonical-json",
+    "steps": [
+      {
+        "id": "accept-device-keys-with-valid-self-signature",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "device_keys": {
+            "user_id": "@alice:example.test",
+            "device_id": "DEVICE1",
+            "algorithms": [
+              "m.olm.v1.curve25519-aes-sha2",
+              "m.megolm.v1.aes-sha2"
+            ],
+            "keys": {
+              "curve25519:DEVICE1": "alice-device1-curve25519-public",
+              "ed25519:DEVICE1": "alice-device1-ed25519-public"
+            },
+            "signatures": {
+              "@alice:example.test": {
+                "ed25519:DEVICE1": "valid-ed25519-self-signature"
+              }
+            }
+          }
+        },
+        "expected_status": 200,
+        "server_effect": {
+          "device_key_persisted": true
+        }
+      },
+      {
+        "id": "reject-device-keys-missing-signatures-field",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "device_keys": {
+            "user_id": "@alice:example.test",
+            "device_id": "DEVICE1",
+            "algorithms": [
+              "m.olm.v1.curve25519-aes-sha2"
+            ],
+            "keys": {
+              "curve25519:DEVICE1": "alice-device1-curve25519-public",
+              "ed25519:DEVICE1": "alice-device1-ed25519-public"
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_MISSING_PARAM"
+        }
+      },
+      {
+        "id": "reject-device-keys-empty-signatures-map",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "device_keys": {
+            "user_id": "@alice:example.test",
+            "device_id": "DEVICE1",
+            "algorithms": [
+              "m.olm.v1.curve25519-aes-sha2"
+            ],
+            "keys": {
+              "curve25519:DEVICE1": "alice-device1-curve25519-public",
+              "ed25519:DEVICE1": "alice-device1-ed25519-public"
+            },
+            "signatures": {}
+          }
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_MISSING_PARAM"
+        }
+      },
+      {
+        "id": "reject-device-keys-signatures-wrong-user-id",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "device_keys": {
+            "user_id": "@alice:example.test",
+            "device_id": "DEVICE1",
+            "algorithms": [
+              "m.olm.v1.curve25519-aes-sha2"
+            ],
+            "keys": {
+              "curve25519:DEVICE1": "alice-device1-curve25519-public",
+              "ed25519:DEVICE1": "alice-device1-ed25519-public"
+            },
+            "signatures": {
+              "@eve:other.example.test": {
+                "ed25519:DEVICE1": "valid-ed25519-self-signature"
+              }
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM"
+        }
+      },
+      {
+        "id": "reject-device-keys-signature-by-wrong-key-id",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "device_keys": {
+            "user_id": "@alice:example.test",
+            "device_id": "DEVICE1",
+            "algorithms": [
+              "m.olm.v1.curve25519-aes-sha2"
+            ],
+            "keys": {
+              "curve25519:DEVICE1": "alice-device1-curve25519-public",
+              "ed25519:DEVICE1": "alice-device1-ed25519-public"
+            },
+            "signatures": {
+              "@alice:example.test": {
+                "ed25519:NOT_THIS_DEVICE": "signature-by-different-device"
+              }
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_SIGNATURE"
+        }
+      },
+      {
+        "id": "reject-device-keys-cryptographically-invalid-signature",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "device_keys": {
+            "user_id": "@alice:example.test",
+            "device_id": "DEVICE1",
+            "algorithms": [
+              "m.olm.v1.curve25519-aes-sha2"
+            ],
+            "keys": {
+              "curve25519:DEVICE1": "alice-device1-curve25519-public",
+              "ed25519:DEVICE1": "alice-device1-ed25519-public"
+            },
+            "signatures": {
+              "@alice:example.test": {
+                "ed25519:DEVICE1": "tampered-ed25519-signature-that-does-not-verify"
+              }
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_SIGNATURE"
+        },
+        "server_effect": {
+          "device_key_persisted": false
+        }
+      },
+      {
+        "id": "reject-one-time-key-missing-signatures",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "one_time_keys": {
+            "signed_curve25519:otk-no-signatures": {
+              "key": "one-time-public-key-no-signatures"
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_MISSING_PARAM"
+        }
+      },
+      {
+        "id": "reject-one-time-key-invalid-signature",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "one_time_keys": {
+            "signed_curve25519:otk-bad-signature": {
+              "key": "one-time-public-key-bad-signature",
+              "signatures": {
+                "@alice:example.test": {
+                  "ed25519:DEVICE1": "tampered-otk-signature-that-does-not-verify"
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_SIGNATURE"
+        }
+      },
+      {
+        "id": "reject-fallback-key-missing-fallback-flag",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "fallback_keys": {
+            "signed_curve25519:fb-missing-flag": {
+              "key": "fallback-public-key-missing-flag",
+              "signatures": {
+                "@alice:example.test": {
+                  "ed25519:DEVICE1": "valid-fallback-signature"
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM"
+        }
+      },
+      {
+        "id": "reject-fallback-key-invalid-signature",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "fallback_keys": {
+            "signed_curve25519:fb-bad-signature": {
+              "key": "fallback-public-key-bad-signature",
+              "fallback": true,
+              "signatures": {
+                "@alice:example.test": {
+                  "ed25519:DEVICE1": "tampered-fallback-signature-that-does-not-verify"
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_SIGNATURE"
+        }
+      },
+      {
+        "id": "reject-mixed-upload-with-invalid-signature-stops-partial-persistence",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "one_time_keys": {
+            "signed_curve25519:otk-valid": {
+              "key": "one-time-public-key-valid",
+              "signatures": {
+                "@alice:example.test": {
+                  "ed25519:DEVICE1": "valid-otk-signature"
+                }
+              }
+            },
+            "signed_curve25519:otk-invalid": {
+              "key": "one-time-public-key-invalid",
+              "signatures": {
+                "@alice:example.test": {
+                  "ed25519:DEVICE1": "tampered-otk-signature"
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_SIGNATURE"
+        },
+        "server_effect": {
+          "otk_valid_persisted": false,
+          "otk_invalid_persisted": false
+        }
+      }
+    ],
+    "required_evidence": [
+      "houra_spec_ref",
+      "houra_server_ref",
+      "user_id",
+      "device_id",
+      "commands",
+      "per_step_pass_fail",
+      "versions_advertisement_widened_false"
+    ]
+  },
+  "expected": {
+    "valid_self_signature_accepted": true,
+    "missing_signatures_rejected": true,
+    "wrong_user_signatures_rejected": true,
+    "wrong_key_id_rejected": true,
+    "cryptographically_invalid_signature_rejected": true,
+    "otk_missing_signature_rejected": true,
+    "otk_invalid_signature_rejected": true,
+    "fallback_missing_flag_rejected": true,
+    "fallback_invalid_signature_rejected": true,
+    "partial_upload_persistence_blocked": true,
+    "versions_advertisement_widened": false
+  }
+}
