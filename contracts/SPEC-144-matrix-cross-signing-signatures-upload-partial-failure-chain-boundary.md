@@ -27,7 +27,7 @@ Olm/Megolm cryptography, derive trust, or widen
 ## Matrix reference
 
 - Matrix specification version: `v1.18`
-- Source: <https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3keysdevice_signinguploadrh>
+- Source: <https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3keysdevice_signingupload>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3keyssignaturesupload>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#cross-signing>
 - Checked at: 2026-05-18T18:30:00+09:00
