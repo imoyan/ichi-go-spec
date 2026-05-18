@@ -9,7 +9,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix domain | Vector count | Contract count |
 |---|---:|---:|
 | none | 77 | 20 |
-| Client-Server API | 173 | 41 |
+| Client-Server API | 174 | 41 |
 | Server-Server API | 28 | 15 |
 | Room Versions | 21 | 13 |
 | Olm & Megolm | 9 | 9 |
@@ -137,6 +137,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / end-to-end encryption client integration boundary | SPEC-050 Matrix Crypto Adapter Boundary | core | `test-vectors/core/matrix-crypto-adapter-boundary.json` | `matrix-crypto-adapter-boundary` |
 | Matrix v1.18 / Client-Server API / end-to-end encryption client integration boundary | SPEC-050 Matrix Crypto Adapter Boundary | core | `test-vectors/core/matrix-crypto-adoption-decision-checklist.json` | `matrix-crypto-adoption-decision-checklist` |
 | Matrix v1.18 / Client-Server API / event retrieval and membership history endpoints | SPEC-085 Matrix Client-Server Event Retrieval and Membership History | core | `test-vectors/core/matrix-client-server-event-retrieval-membership-history.json` | `matrix-client-server-event-retrieval-membership-history` |
+| Matrix v1.18 / Client-Server API / event retrieval and membership history endpoints | SPEC-085 Matrix Client-Server Event Retrieval and Membership History | core | `test-vectors/core/matrix-client-server-membership-listing-runtime.json` | `matrix-client-server-membership-listing-runtime` |
 | Matrix v1.18 / Client-Server API / filter, presence, and capabilities endpoints | SPEC-047 Matrix Filters, Presence, and Capabilities | sync | `test-vectors/sync/matrix-capabilities-basic.json` | `matrix-capabilities-basic` |
 | Matrix v1.18 / Client-Server API / filter, presence, and capabilities endpoints | SPEC-047 Matrix Filters, Presence, and Capabilities | sync | `test-vectors/sync/matrix-capabilities-missing-token.json` | `matrix-capabilities-missing-token` |
 | Matrix v1.18 / Client-Server API / filter, presence, and capabilities endpoints | SPEC-047 Matrix Filters, Presence, and Capabilities | sync | `test-vectors/sync/matrix-filter-create-read-basic.json` | `matrix-filter-create-read-basic` |

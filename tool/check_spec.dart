@@ -5715,10 +5715,18 @@ void checkMatrixClientServerEventRetrievalMembershipHistory(
   }
   const path =
       'test-vectors/core/matrix-client-server-event-retrieval-membership-history.json';
+  const runtimePath =
+      'test-vectors/core/matrix-client-server-membership-listing-runtime.json';
   final file = File(path);
   if (!file.existsSync()) {
     failures.add('Missing Matrix Client-Server event retrieval vector: $path');
     return;
+  }
+  final runtimeFile = File(runtimePath);
+  if (!runtimeFile.existsSync()) {
+    failures.add(
+      'Missing Matrix Client-Server membership listing runtime vector: $runtimePath',
+    );
   }
   final json = readJsonObject(file, failures);
   if (json == null) {
@@ -5871,6 +5879,104 @@ void checkMatrixClientServerEventRetrievalMembershipHistory(
     failures.add(
       '${relative(file)} expected event retrieval boundary invalid.',
     );
+  }
+
+  final runtimeJson = readJsonObject(runtimeFile, failures);
+  if (runtimeJson == null) {
+    return;
+  }
+  if (runtimeJson['contract'] != 'SPEC-085') {
+    failures.add('${relative(runtimeFile)} must reference SPEC-085.');
+  }
+  final runtimeEventMap = requireMatrixEventMap(
+    runtimeFile,
+    runtimeJson,
+    failures,
+  );
+  if (runtimeEventMap == null) {
+    return;
+  }
+  if (runtimeEventMap['matrix_spec_version'] != 'v1.18' ||
+      runtimeEventMap['matrix_spec_source'] !=
+          'https://spec.matrix.org/v1.18/client-server-api/' ||
+      runtimeEventMap['parent_contract'] != 'SPEC-073' ||
+      runtimeEventMap['spec_issue'] != 'imoyan/houra-spec#452' ||
+      runtimeEventMap['server_issue'] != 'imoyan/houra-server#420' ||
+      runtimeEventMap['parent_issue'] != 'imoyan/houra-server#135' ||
+      runtimeEventMap['boundary'] !=
+          'membership-listing-runtime-representative') {
+    failures.add(
+      '${relative(runtimeFile)} Matrix reference or issue refs invalid.',
+    );
+  }
+  final runtimeCheckedAt = runtimeEventMap['checked_at'];
+  if (runtimeCheckedAt is! String || !runtimeCheckedAt.contains('+09:00')) {
+    failures.add('${relative(runtimeFile)} checked_at must be JST.');
+  }
+  final runtimeRequests = runtimeEventMap['runtime_requests'];
+  if (runtimeRequests is! List || runtimeRequests.length != 2) {
+    failures.add('${relative(runtimeFile)} runtime requests invalid.');
+  } else {
+    final requestPaths = runtimeRequests
+        .whereType<Map>()
+        .map((request) => request['path'])
+        .toSet();
+    if (!requestPaths.contains(
+          '/_matrix/client/v3/rooms/!room:example.test/joined_members',
+        ) ||
+        !requestPaths.contains(
+          '/_matrix/client/v3/rooms/!room:example.test/members',
+        )) {
+      failures.add('${relative(runtimeFile)} runtime request paths invalid.');
+    }
+  }
+  final expectedResponses = runtimeEventMap['expected_responses'];
+  final runtimeJoinedMembers = expectedResponses is Map
+      ? expectedResponses['joined_members']
+      : null;
+  final runtimeJoined = runtimeJoinedMembers is Map
+      ? runtimeJoinedMembers['joined']
+      : null;
+  if (runtimeJoined is! Map ||
+      runtimeJoined['@alice:example.test'] is! Map ||
+      (runtimeJoined['@alice:example.test'] as Map)['display_name'] !=
+          'Alice') {
+    failures.add('${relative(runtimeFile)} joined_members response invalid.');
+  }
+  final runtimeMembers = expectedResponses is Map
+      ? expectedResponses['members']
+      : null;
+  final runtimeChunk = runtimeMembers is Map ? runtimeMembers['chunk'] : null;
+  if (runtimeChunk is! List ||
+      runtimeChunk.length != 1 ||
+      !_isMatrixMembershipEvent(runtimeChunk.first)) {
+    failures.add('${relative(runtimeFile)} members response invalid.');
+  }
+  requireStringListIncludes(runtimeFile, runtimeEventMap, 'out_of_scope', {
+    'historical membership listing',
+    'membership listing pagination and ordering',
+    'profile field completeness in member lists',
+    'knock and restricted-join membership listing breadth',
+    'lazy-loading membership semantics',
+    'full history visibility semantics',
+  }, failures);
+  final runtimeRules = runtimeEventMap['release_evidence_rules'];
+  if (runtimeRules is! Map ||
+      runtimeRules['representative_runtime_route_behavior_claimed'] != true ||
+      runtimeRules['parser_only'] != false ||
+      runtimeRules['full_membership_history_claimed'] != false ||
+      runtimeRules['versions_advertisement_widened'] != false ||
+      runtimeRules['client_server_support_claim_widened'] != false) {
+    failures.add('${relative(runtimeFile)} release evidence rules invalid.');
+  }
+  final runtimeExpected = runtimeJson['expected'];
+  if (runtimeExpected is! Map ||
+      runtimeExpected['runtime_request_count'] != 2 ||
+      runtimeExpected['joined_members_map_returned'] != true ||
+      runtimeExpected['members_chunk_events_returned'] != 1 ||
+      runtimeExpected['full_membership_history_claimed'] != false ||
+      runtimeExpected['versions_advertisement_widened'] != false) {
+    failures.add('${relative(runtimeFile)} expected runtime boundary invalid.');
   }
 }
 
