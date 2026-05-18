@@ -1,0 +1,268 @@
+{
+  "name": "matrix-room-keys-bulk-better-session-boundary",
+  "contract": "SPEC-143",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#server-side-key-backups",
+    "bulk_upload_source": "https://spec.matrix.org/v1.18/client-server-api/#put_matrixclientv3room_keyskeys",
+    "bulk_restore_source": "https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3room_keyskeys",
+    "per_room_upload_source": "https://spec.matrix.org/v1.18/client-server-api/#put_matrixclientv3room_keyskeysroomid",
+    "single_session_source": "https://spec.matrix.org/v1.18/client-server-api/#put_matrixclientv3room_keyskeysroomidsessionid",
+    "checked_at": "2026-05-18T18:00:00+09:00",
+    "required_contracts": [
+      "SPEC-050",
+      "SPEC-053",
+      "SPEC-079",
+      "SPEC-143"
+    ],
+    "local_olm_megolm_allowed": false,
+    "active_backup_version": "1",
+    "steps": [
+      {
+        "id": "bulk-upload-rooms-and-sessions",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/room_keys/keys?version=1",
+        "access_token": "token-alice-device1",
+        "body": {
+          "rooms": {
+            "!room-a:example.test": {
+              "sessions": {
+                "session-a1": {
+                  "first_message_index": 10,
+                  "forwarded_count": 0,
+                  "is_verified": false,
+                  "session_data": {
+                    "ciphertext": "opaque-cipher-a1",
+                    "ephemeral": "opaque-ephemeral-a1",
+                    "mac": "opaque-mac-a1"
+                  }
+                },
+                "session-a2": {
+                  "first_message_index": 0,
+                  "forwarded_count": 0,
+                  "is_verified": true,
+                  "session_data": {
+                    "ciphertext": "opaque-cipher-a2",
+                    "ephemeral": "opaque-ephemeral-a2",
+                    "mac": "opaque-mac-a2"
+                  }
+                }
+              }
+            },
+            "!room-b:example.test": {
+              "sessions": {
+                "session-b1": {
+                  "first_message_index": 5,
+                  "forwarded_count": 1,
+                  "is_verified": false,
+                  "session_data": {
+                    "ciphertext": "opaque-cipher-b1",
+                    "ephemeral": "opaque-ephemeral-b1",
+                    "mac": "opaque-mac-b1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 200,
+        "expected_body_contains_keys": [
+          "etag",
+          "count"
+        ],
+        "server_effect": {
+          "stored_session_count": 3,
+          "server_decrypted_session_data": false
+        }
+      },
+      {
+        "id": "bulk-restore-all-rooms",
+        "method": "GET",
+        "path": "/_matrix/client/v3/room_keys/keys?version=1",
+        "access_token": "token-alice-device1",
+        "expected_status": 200,
+        "expected_body_contains_room_ids": [
+          "!room-a:example.test",
+          "!room-b:example.test"
+        ],
+        "expected_body_session_count": 3
+      },
+      {
+        "id": "worse-session-upload-must-not-replace",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/room_keys/keys/!room-a:example.test/session-a1?version=1",
+        "access_token": "token-alice-device1",
+        "body": {
+          "first_message_index": 50,
+          "forwarded_count": 5,
+          "is_verified": false,
+          "session_data": {
+            "ciphertext": "opaque-cipher-a1-worse",
+            "ephemeral": "opaque-ephemeral-a1-worse",
+            "mac": "opaque-mac-a1-worse"
+          }
+        },
+        "expected_status": 200,
+        "server_effect": {
+          "stored_session_replaced": false,
+          "stored_first_message_index": 10
+        }
+      },
+      {
+        "id": "verified-session-must-replace-unverified",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/room_keys/keys/!room-a:example.test/session-a1?version=1",
+        "access_token": "token-alice-device1",
+        "body": {
+          "first_message_index": 20,
+          "forwarded_count": 3,
+          "is_verified": true,
+          "session_data": {
+            "ciphertext": "opaque-cipher-a1-verified",
+            "ephemeral": "opaque-ephemeral-a1-verified",
+            "mac": "opaque-mac-a1-verified"
+          }
+        },
+        "expected_status": 200,
+        "server_effect": {
+          "stored_session_replaced": true,
+          "stored_is_verified": true,
+          "stored_first_message_index": 20
+        }
+      },
+      {
+        "id": "verified-but-higher-index-must-not-replace-verified",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/room_keys/keys/!room-a:example.test/session-a1?version=1",
+        "access_token": "token-alice-device1",
+        "body": {
+          "first_message_index": 30,
+          "forwarded_count": 0,
+          "is_verified": true,
+          "session_data": {
+            "ciphertext": "opaque-cipher-a1-verified-higher-index",
+            "ephemeral": "opaque-ephemeral-a1-verified-higher-index",
+            "mac": "opaque-mac-a1-verified-higher-index"
+          }
+        },
+        "expected_status": 200,
+        "server_effect": {
+          "stored_session_replaced": false,
+          "stored_first_message_index": 20
+        }
+      },
+      {
+        "id": "restore-confirms-better-session-kept",
+        "method": "GET",
+        "path": "/_matrix/client/v3/room_keys/keys/!room-a:example.test/session-a1?version=1",
+        "access_token": "token-alice-device1",
+        "expected_status": 200,
+        "expected_body_contains": {
+          "is_verified": true,
+          "first_message_index": 20
+        }
+      },
+      {
+        "id": "bulk-upload-unknown-version-rejected",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/room_keys/keys?version=does-not-exist",
+        "access_token": "token-alice-device1",
+        "body": {
+          "rooms": {
+            "!room-a:example.test": {
+              "sessions": {
+                "session-a1": {
+                  "first_message_index": 0,
+                  "forwarded_count": 0,
+                  "is_verified": true,
+                  "session_data": {
+                    "ciphertext": "should-not-apply"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 404,
+        "expected_error": {
+          "errcode": "M_NOT_FOUND"
+        },
+        "server_effect": {
+          "partial_apply": false
+        }
+      },
+      {
+        "id": "cross-user-bulk-read-isolated",
+        "method": "GET",
+        "path": "/_matrix/client/v3/room_keys/keys?version=1",
+        "access_token": "token-bob-device1",
+        "expected_status": 404,
+        "expected_error": {
+          "errcode": "M_NOT_FOUND"
+        },
+        "server_effect": {
+          "alice_stored_session_count_unchanged": 3
+        }
+      },
+      {
+        "id": "reject-bulk-upload-missing-required-field",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/room_keys/keys?version=1",
+        "access_token": "token-alice-device1",
+        "body": {
+          "rooms": {
+            "!room-c:example.test": {
+              "sessions": {
+                "session-c1": {
+                  "forwarded_count": 0,
+                  "is_verified": false,
+                  "session_data": {
+                    "ciphertext": "opaque-cipher-c1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_MISSING_PARAM"
+        }
+      },
+      {
+        "id": "reject-non-object-rooms-map",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/room_keys/keys?version=1",
+        "access_token": "token-alice-device1",
+        "body": {
+          "rooms": "not-an-object"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_BAD_JSON"
+        }
+      }
+    ],
+    "required_evidence": [
+      "houra_spec_ref",
+      "houra_server_ref",
+      "backup_version",
+      "room_ids",
+      "session_ids",
+      "commands",
+      "per_step_pass_fail",
+      "versions_advertisement_widened_false"
+    ]
+  },
+  "expected": {
+    "bulk_upload_accepted": true,
+    "bulk_restore_returns_all_rooms": true,
+    "better_session_replacement_count": 1,
+    "worse_session_replacement_count": 0,
+    "unknown_version_rejected": true,
+    "cross_user_isolated": true,
+    "malformed_request_rejected_count": 2,
+    "server_decrypted_session_data": false,
+    "versions_advertisement_widened": false
+  }
+}
