@@ -110,7 +110,7 @@ Canonical release evidence example bundle:
 
 Matrix v1.18 roadmap close-out snapshot:
 
-- Snapshot checked at: 2026-05-18T07:14:22+09:00.
+- Snapshot checked at: 2026-05-18T09:35:03+09:00.
 - #95 remains the parent Matrix v1.18 roadmap. #189 is the historical close-out
   snapshot lane; current issue sync is maintained here and in #95 so domain
   issues, implementation adoption refs, and release evidence do not drift.
@@ -122,25 +122,25 @@ Matrix v1.18 roadmap close-out snapshot:
   imoyan/houra-server#106 through imoyan/houra-server#108. imoyan/houra-server#145
   records the current-candidate release-scope exclusion decisions that closed
   imoyan/houra-server#133 as an active Complement/full-breadth blocker.
-- Current open `houra-server` Matrix implementation gap trackers are 21 issues:
-  in `imoyan/houra-server`, Client-Server #135 and #153; Room Versions #140 and
-  #168 through #170; E2EE #141, #173, #174, and #252 through #255;
-  Server-Server #136 and #160; Application Service #137 and #238 through #240;
-  and Identity Service #138 and #164. Push Gateway #139, Appendices/common
-  #142, Server-Server #232 through #234, Client-Server #195 and #197,
-  Application Service #162, #163, and #235 through #237, and other former child
-  trackers not listed here are closed at this snapshot.
+- Current open `houra-server` Matrix release-scope trackers are now limited to
+  imoyan/houra-server#135 and imoyan/houra-server#136. PR #374 refreshed the
+  Client-Server full-breadth rollup evidence for #135, and PR #375 updated the
+  server CI spec checkout path without widening the Matrix claim surface. Former
+  child trackers for Client-Server breadth, Room Versions, E2EE, Application
+  Service, Identity Service, Push Gateway, and Appendices/common are closed at
+  this snapshot unless they are reopened by a narrower future release scope.
 - `houra-client` adoption refs named by #189 are closed:
   imoyan/houra-client#55 through imoyan/houra-client#66 and
   imoyan/houra-client#95 through imoyan/houra-client#97. No open
   `houra-client` issue remained in the checked issue list.
-- `houra-labs` remains an optional shared-core/parser exploration lane. The
-  checked issue list contains open shared-core and SDK artifact work
-  imoyan/houra-labs#157 through #163, but no current Matrix adoption blocker
-  for this release candidate. The earlier parser/shared-core issues
-  imoyan/houra-labs#56 through #77 are closed. These lab issues do not block
-  Matrix version advertisement unless a release candidate includes shared-core
-  artifacts as evidence.
+- `houra-labs` remains an optional shared-core/parser exploration lane, but the
+  checked issue and PR lists are empty. The #173 parent tracker and #174
+  through #180 evidence lanes are closed, including parser/normalizer inventory,
+  shared-core benchmark, capability advertisement, negative capability, and
+  theme-token sync evidence. Earlier parser/shared-core issues including
+  imoyan/houra-labs#56 through #77 are also closed. These lab records do not
+  widen Matrix version advertisement unless a later release candidate
+  deliberately includes shared-core artifacts as required evidence.
 - #200 records the current blocked release evidence bundle with real
   implementation refs and keeps Matrix version advertisement fail-closed.
   #201 records the `SPEC-068` OAuth account-management adoption boundary and
@@ -245,56 +245,57 @@ Matrix v1.18 roadmap close-out snapshot:
   checklists are complete or because the current release candidate excludes the
   domain from advertisement. Close them only when #95 links current pass/fail
   evidence and records the intended release outcome for that domain.
-- Current-state refresh checked at 2026-05-18T07:14:22+09:00:
+- Current-state refresh checked at 2026-05-18T09:35:03+09:00:
   #97 through #101 remain intentionally open as domain-level release outcome
   trackers, not as missing `houra-spec` decomposition work. #97 and #98 have
   adopted-subset evidence in the current blocked bundle, while #99, #100, and
   #101 keep full-breadth, E2EE, federation, Application Service, Identity
   Service, and Push Gateway claims out of scope until owner-repo leaf gates
-  provide same-candidate pass evidence. #314 records the fast `houra-spec`
-  verification baseline and local `.claude/` failure classification. #323 adds
-  the shared-core adoption evidence schema and keeps shared artifacts separate
-  from required dependencies. imoyan/houra-server#321 is closed by #327 and
-  imoyan/houra-client#205 is closed by #206, so the current #95 outcome is now
-  an explicit blocked / not-advertised release candidate rather than an
-  unresolved release-surface question. This note does not widen Matrix support
-  claims.
+  provide same-candidate pass evidence and an aligned `/versions` response.
+  #314 records the fast `houra-spec` verification baseline and local `.claude/`
+  failure classification. #323 adds the shared-core adoption evidence schema
+  and keeps shared artifacts separate from required dependencies.
+  imoyan/houra-server#321 is closed by #327, imoyan/houra-server#135 has the
+  PR #374 current rollup evidence, imoyan/houra-client#205 is closed by #206,
+  and `houra-labs` has no open issue or PR. The current #95 outcome remains an
+  explicit blocked / not-advertised release candidate rather than an unresolved
+  release-surface question. This note does not widen Matrix support claims.
 
 Matrix readiness map:
 
-- Readiness map checked at: 2026-05-18T07:14:22+09:00.
+- Readiness map checked at: 2026-05-18T09:35:03+09:00.
 - The first publishable Matrix scope defaults to a Client-Server subset only.
   This still requires current pass/fail evidence, release notes, and
   `/versions` advertisement that name the included endpoint families exactly.
   Until that evidence is refreshed, `/versions` remains empty and no Matrix
   support claim is allowed.
 - `houra-server#135` remains the release-blocker tracker for deciding whether
-  the Client-Server subset can be advertised. Its open child gap #153 is a
-  known non-advertised Client-Server breadth gap for the first subset unless a
-  later release candidate explicitly includes it with passing evidence. The
-  2026-05-16 Complement `TestLogin` narrow smoke reached the
-  Houra server and failed at the adopted registration UIA `401` challenge; it
-  is part of this known non-advertised Client-Server registration breadth, not
-  a support claim or advertisement blocker removal.
+  the Client-Server subset can be advertised. PR #374 records the current
+  Client-Server full-breadth rollup and keeps all SPEC-073 lanes
+  `follow-up-required`, with `client_server_full_breadth_claimed=false`,
+  `first_publishable_subset_advertised=false`, and
+  `versions_advertisement_widened=false`. The 2026-05-16 Complement
+  `TestLogin` narrow smoke reached the Houra server and failed at the adopted
+  registration UIA `401` challenge; it is part of known non-advertised
+  Client-Server registration breadth, not a support claim or advertisement
+  blocker removal.
 - Room Versions are explicitly out of scope for the first subset:
-  `houra-server#140` remains the known non-advertised domain gap, and #168
-  through #170 are post-release breadth issues unless the advertised scope is
-  widened.
-- E2EE is explicitly out of scope for the first subset: `houra-server#141`
-  remains the known non-advertised Olm/Megolm domain gap, and #173, #174, and
-  #252 through #255 are post-release breadth issues.
+  former `houra-server#140` and related child records remain release-scope
+  evidence only. Full room-version algorithms and domain-wide advertisement are
+  not claimed until #98 and #95 record a widened release outcome.
+- E2EE is explicitly out of scope for the first subset. Former
+  `houra-server#141` and related child records remain release-scope evidence
+  only; full E2EE support, local Olm/Megolm behavior, and E2EE advertisement
+  are not claimed until #100 and #95 record a widened release outcome.
 - Federation and ecosystem APIs are explicitly out of scope for the first
-  subset: Server-Server `houra-server#136`, Application Service
-  `houra-server#137`, and Identity Service `houra-server#138` remain known
-  non-advertised domain gaps. Open child issues #160, #164, and #238 through
-  #240 are post-release breadth issues. Push Gateway remains explicitly out of
-  advertised scope through the closed release-scope record `houra-server#139`;
-  it has no open server gap in this snapshot.
-- `houra-client` has no open issue in the checked issue list.
-  `houra-labs` has open shared-core / SDK artifact issues #157 through #163,
-  but no current Matrix adoption blocker for this candidate. Create new
-  adoption issues only when the selected release scope requires current client
-  evidence or shared-core/parser artifacts.
+  subset: Server-Server `houra-server#136` remains open as the current
+  release-scope tracker, while Application Service, Identity Service, and Push
+  Gateway are covered by closed release-scope records that do not advertise
+  support. Complement full breadth and full federation support are not claimed.
+- `houra-client` has no open issue or PR in the checked lists. `houra-labs` also
+  has no open issue or PR after closing #173 through #180. Create new adoption
+  issues only when the selected release scope requires current client evidence
+  or shared-core/parser artifacts.
 - Performance work starts after the claim boundary is stable. Prioritize
   verification speed and stability first: vector batch runtime, server smoke
   runtime, release evidence generation runtime, and Complement-compatible lane
