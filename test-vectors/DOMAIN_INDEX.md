@@ -9,7 +9,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix domain | Vector count | Contract count |
 |---|---:|---:|
 | none | 77 | 20 |
-| Client-Server API | 164 | 33 |
+| Client-Server API | 165 | 34 |
 | Server-Server API | 27 | 14 |
 | Room Versions | 21 | 13 |
 | Olm & Megolm | 5 | 5 |
@@ -164,6 +164,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / login, logout, and whoami endpoints | SPEC-032 Matrix Client-Server Auth Session | auth | `test-vectors/auth/matrix-whoami-basic.json` | `matrix-whoami-basic` |
 | Matrix v1.18 / Client-Server API / login, logout, and whoami endpoints | SPEC-032 Matrix Client-Server Auth Session | auth | `test-vectors/auth/matrix-whoami-guest-basic.json` | `matrix-whoami-guest-basic` |
 | Matrix v1.18 / Client-Server API / media repository endpoint breadth | SPEC-095 Matrix Media Repository Breadth | media | `test-vectors/media/matrix-media-repository-breadth.json` | `matrix-media-repository-breadth` |
+| Matrix v1.18 / Client-Server API / Guest Access and Room Previews | SPEC-141 Matrix Guest Room Preview Boundary | core | `test-vectors/core/matrix-guest-room-preview-boundary.json` | `matrix-guest-room-preview-boundary` |
 | Matrix v1.18 / Client-Server API / media upload and download endpoints | SPEC-038 Matrix Client-Server Media MVP | media | `test-vectors/media/matrix-media-download-basic.json` | `matrix-media-download-basic` |
 | Matrix v1.18 / Client-Server API / media upload and download endpoints | SPEC-038 Matrix Client-Server Media MVP | media | `test-vectors/media/matrix-media-download-filename-safety-negative.json` | `matrix-media-download-filename-safety-negative` |
 | Matrix v1.18 / Client-Server API / media upload and download endpoints | SPEC-038 Matrix Client-Server Media MVP | media | `test-vectors/media/matrix-media-download-missing-token.json` | `matrix-media-download-missing-token` |

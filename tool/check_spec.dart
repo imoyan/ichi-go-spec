@@ -128,6 +128,7 @@ void main() {
   checkMatrixClientServerFullBreadthGapInventory(contracts, failures);
   checkMatrixClientWellKnownDiscoverySupportPolicy(contracts, failures);
   checkMatrixClientServerEventRetrievalMembershipHistory(contracts, failures);
+  checkMatrixGuestRoomPreviewBoundary(contracts, failures);
   checkMatrixClientServerRelationsThreadsReactions(contracts, failures);
   checkMatrixCryptoAdapterBoundary(contracts, failures);
   checkMatrixDeviceOneTimeFallbackKeys(contracts, failures);
@@ -5818,6 +5819,176 @@ void checkMatrixClientServerEventRetrievalMembershipHistory(
     failures.add(
       '${relative(file)} expected event retrieval boundary invalid.',
     );
+  }
+}
+
+void checkMatrixGuestRoomPreviewBoundary(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  if (!contracts.containsKey('SPEC-141')) {
+    failures.add('Matrix guest room preview boundary SPEC-141 is required.');
+  }
+  const path = 'test-vectors/core/matrix-guest-room-preview-boundary.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix guest room preview vector: $path');
+    return;
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-141') {
+    failures.add('${relative(file)} must reference SPEC-141.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['matrix_spec_version'] != 'v1.18' ||
+      eventMap['matrix_spec_source'] !=
+          'https://spec.matrix.org/v1.18/client-server-api/' ||
+      eventMap['parent_contract'] != 'SPEC-073' ||
+      eventMap['spec_issue'] != 'imoyan/houra-spec#447' ||
+      eventMap['parent_issue'] != 'imoyan/houra-server#135' ||
+      eventMap['boundary'] != 'guest-room-preview') {
+    failures.add('${relative(file)} Matrix reference or issue refs invalid.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String || !checkedAt.contains('+09:00')) {
+    failures.add('${relative(file)} checked_at must be a dated JST snapshot.');
+  }
+
+  final preconditions = eventMap['preconditions'];
+  final historyVisibility =
+      preconditions is Map ? preconditions['history_visibility_event'] : null;
+  final historyContent =
+      historyVisibility is Map ? historyVisibility['content'] : null;
+  if (preconditions is! Map ||
+      preconditions['guest_access_token'] != 'token-guest' ||
+      preconditions['room_id'] != '!room:example.test' ||
+      historyVisibility is! Map ||
+      historyVisibility['type'] != 'm.room.history_visibility' ||
+      historyContent is! Map ||
+      historyContent['history_visibility'] != 'world_readable' ||
+      preconditions['guest_access_can_join_is_not_preview_permission'] != true) {
+    failures.add('${relative(file)} room preview preconditions invalid.');
+  }
+
+  const expectedPaths = {
+    '/_matrix/client/v3/rooms/{roomId}/initialSync',
+    '/_matrix/client/v3/events',
+  };
+  const expectedParsers = {
+    'room_preview_initial_sync',
+    'room_preview_events',
+  };
+  final descriptors = eventMap['request_descriptors'];
+  final seenPaths = <String>{};
+  final seenParsers = <String>{};
+  if (descriptors is! List || descriptors.length != expectedPaths.length) {
+    failures.add('${relative(file)} request descriptors invalid.');
+  } else {
+    for (final descriptor in descriptors) {
+      if (descriptor is! Map ||
+          descriptor['id'] is! String ||
+          descriptor['method'] != 'GET' ||
+          descriptor['path'] is! String ||
+          descriptor['requires_auth'] != true ||
+          descriptor['requires_guest_token'] != true ||
+          descriptor['room_preview_variant'] != true ||
+          descriptor['adopted_runtime_behavior'] != false) {
+        failures.add('${relative(file)} request descriptor shape invalid.');
+        continue;
+      }
+      final descriptorPath = descriptor['path'] as String;
+      if (!expectedPaths.contains(descriptorPath)) {
+        failures.add('${relative(file)} request descriptor path invalid.');
+      }
+      seenPaths.add(descriptorPath);
+      final parser = descriptor['response_parser'];
+      if (parser is! String || !expectedParsers.contains(parser)) {
+        failures.add('${relative(file)} response parser id invalid.');
+      } else {
+        seenParsers.add(parser);
+      }
+      if (descriptorPath == '/_matrix/client/v3/events') {
+        final queryParams = descriptor['query_params'];
+        if (queryParams is! Map ||
+            queryParams['room_id'] != '!room:example.test' ||
+            queryParams['from'] is! String ||
+            queryParams['timeout'] is! int) {
+          failures.add('${relative(file)} preview events query invalid.');
+        }
+      }
+    }
+    if (!seenPaths.containsAll(expectedPaths) ||
+        !seenParsers.containsAll(expectedParsers)) {
+      failures.add('${relative(file)} descriptor set incomplete.');
+    }
+  }
+
+  final responses = eventMap['sample_responses'];
+  if (responses is! Map) {
+    failures.add('${relative(file)} sample responses invalid.');
+  } else {
+    final initialSync = responses['room_preview_initial_sync'];
+    final messages = initialSync is Map ? initialSync['messages'] : null;
+    if (initialSync is! Map ||
+        initialSync['membership'] != 'leave' ||
+        messages is! Map ||
+        messages['chunk'] is! List ||
+        messages['start'] is! String ||
+        messages['end'] is! String) {
+      failures.add('${relative(file)} preview initial sync sample invalid.');
+    }
+    final previewEvents = responses['room_preview_events'];
+    final chunk = previewEvents is Map ? previewEvents['chunk'] : null;
+    if (previewEvents is! Map ||
+        previewEvents['start'] is! String ||
+        previewEvents['end'] is! String ||
+        chunk is! List ||
+        chunk.length != 1 ||
+        !_isMatrixClientEvent(chunk.single)) {
+      failures.add('${relative(file)} preview events sample invalid.');
+    }
+  }
+
+  requireStringListIncludes(file, eventMap, 'fail_closed_cases', {
+    'not_world_readable_forbidden',
+    'guest_access_can_join_not_sufficient_for_preview',
+    'missing_guest_token_forbidden',
+    'missing_room_id_rejected',
+    'normal_events_runtime_not_adopted',
+    'history_visibility_not_inferred',
+    'guest_specific_rate_limit_policy_out_of_scope',
+    'versions_advertisement_not_widened',
+  }, failures);
+
+  final rules = eventMap['release_evidence_rules'];
+  if (rules is! Map ||
+      rules['parser_only'] != true ||
+      rules['runtime_route_behavior_claimed'] != false ||
+      rules['normal_events_runtime_adopted'] != false ||
+      rules['guest_api_allowlist_breadth_claimed'] != false ||
+      rules['guest_specific_rate_limit_policy_claimed'] != false ||
+      rules['versions_advertisement_widened'] != false ||
+      rules['client_server_support_claim_widened'] != false) {
+    failures.add('${relative(file)} release evidence rules invalid.');
+  }
+
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['descriptor_count'] != 2 ||
+      expected['parser_count'] != 2 ||
+      expected['room_preview_events_chunk_parsed'] != true ||
+      expected['world_readable_required'] != true ||
+      expected['guest_access_can_join_not_sufficient'] != true ||
+      expected['runtime_route_behavior_claimed'] != false ||
+      expected['guest_api_allowlist_breadth_claimed'] != false ||
+      expected['versions_advertisement_widened'] != false) {
+    failures.add('${relative(file)} expected room preview boundary invalid.');
   }
 }
 

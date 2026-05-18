@@ -242,6 +242,11 @@ Matrix v1.18 roadmap close-out snapshot:
   `mxc://` URI helpers while keeping binary transfer, thumbnail generation,
   preview crawling, remote fetch, range requests, encrypted attachment behavior,
   and Matrix Client-Server advertisement fail-closed.
+- `SPEC-141` splits the guest room preview descriptor and preview `/events`
+  envelope boundary out of the `SPEC-073` Client-Server breadth tracker. It
+  records the `world_readable` precondition and keeps normal `/events` runtime,
+  full guest API allowlist breadth, guest-specific rate-limit policy, and Matrix
+  Client-Server advertisement fail-closed.
 - `SPEC-131` records the detailed Matrix v1.18 changelog-delta audit for
   `M_USER_LIMIT_EXCEEDED`, `m.recent_emoji`, invite blocking /
   `M_INVITE_BLOCKED`, media/rich-text presentation metadata, and Identity
