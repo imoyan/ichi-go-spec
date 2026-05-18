@@ -9,7 +9,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix domain | Vector count | Contract count |
 |---|---:|---:|
 | none | 76 | 19 |
-| Client-Server API | 153 | 33 |
+| Client-Server API | 155 | 33 |
 | Server-Server API | 27 | 14 |
 | Room Versions | 21 | 13 |
 | Olm & Megolm | 5 | 5 |
@@ -209,6 +209,8 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-invalid-username.json` | `matrix-registration-invalid-username` |
 | Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-token-validity-basic.json` | `matrix-registration-token-validity-basic` |
 | Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-token-validity-invalid.json` | `matrix-registration-token-validity-invalid` |
+| Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-terms-accepted.json` | `matrix-registration-terms-accepted` |
+| Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-terms-required.json` | `matrix-registration-terms-required` |
 | Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-uia-required.json` | `matrix-registration-uia-required` |
 | Matrix v1.18 / Client-Server API / relations, threads, and reactions endpoints | SPEC-090 Matrix Client-Server Relations, Threads, and Reactions | core | `test-vectors/core/matrix-client-server-relations-threads-reactions.json` | `matrix-client-server-relations-threads-reactions` |
 | Matrix v1.18 / Client-Server API / room moderation, redaction, reporting, and admin endpoints | SPEC-049 Matrix Moderation, Reporting, and Admin Controls | rooms | `test-vectors/rooms/matrix-admin-account-moderation-basic.json` | `matrix-admin-account-moderation-basic` |

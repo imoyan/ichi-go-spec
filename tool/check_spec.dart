@@ -778,6 +778,8 @@ void checkMatrixRegistration(
     'test-vectors/auth/matrix-registration-basic.json',
     'test-vectors/auth/matrix-registration-disabled.json',
     'test-vectors/auth/matrix-registration-invalid-username.json',
+    'test-vectors/auth/matrix-registration-terms-accepted.json',
+    'test-vectors/auth/matrix-registration-terms-required.json',
     'test-vectors/auth/matrix-registration-token-validity-basic.json',
     'test-vectors/auth/matrix-registration-token-validity-invalid.json',
     'test-vectors/auth/matrix-registration-uia-required.json',

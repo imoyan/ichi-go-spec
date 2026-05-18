@@ -31,7 +31,8 @@ compatibility contracts.
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3register>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3registeravailable>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv1registermloginregistration_tokenvalidity>
-- Checked at: 2026-05-10T09:40:00+09:00
+- Source: <https://spec.matrix.org/v1.18/client-server-api/#m-login-terms>
+- Checked at: 2026-05-18T17:56:03+09:00
 - Timezone: Asia/Tokyo
 
 ## Username availability
@@ -114,10 +115,30 @@ server returns `401` and an authentication response:
 If `session` is present, clients must send it back in the next `auth` object
 for this registration attempt.
 
-This contract permits `m.login.dummy` and `m.login.registration_token` as
-registration authentication stages. `m.login.terms`, email identity, MSISDN
-identity, SSO, and fallback flows require later contract coverage before they
-are advertised as supported behavior.
+This contract permits `m.login.dummy`, `m.login.registration_token`, and
+representative `m.login.terms` as registration authentication stages. Email
+identity, MSISDN identity, SSO, and fallback flows require later contract
+coverage before they are advertised as supported behavior.
+
+When a server requires `m.login.terms`, the `401` response must include a
+`params["m.login.terms"].policies` object. Each policy entry must include a
+non-empty `version` and at least one language translation object with non-empty
+`name` and `url` strings. Representative Houra compatibility uses HTTPS policy
+URLs. Full policy localization breadth, terms document persistence, and
+fallback HTML are outside this contract.
+
+Clients accept the presented terms by repeating the registration request with
+an `auth` object containing:
+
+```json
+{
+  "type": "m.login.terms",
+  "session": "reg-session-terms-1"
+}
+```
+
+The server may then complete registration if all required authentication stages
+for that registration attempt are satisfied.
 
 ## Registration response
 
