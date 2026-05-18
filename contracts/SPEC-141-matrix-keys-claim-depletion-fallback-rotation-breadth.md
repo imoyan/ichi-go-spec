@@ -1,11 +1,11 @@
-# Matrix v1.18 / Client-Server API / keys claim depletion, fallback rotation, and unknown-device omission boundary
+# Matrix v1.18 / Client-Server API / keys claim depletion, fallback rotation, and unknown-user/device omission boundary
 
 Status: draft
 Feature profile: auth
 Contract type: boundary
 Matrix domain: Client-Server API
-Primary reference: Matrix v1.18 / Client-Server API / keys claim depletion, fallback rotation, and unknown-device omission boundary
-Repository anchor: SPEC-141 Matrix Keys Claim Depletion Fallback Rotation Boundary
+Primary reference: Matrix v1.18 / Client-Server API / keys claim depletion, fallback rotation, and unknown-user/device omission boundary
+Repository anchor: SPEC-141 Matrix Keys Claim Depletion Fallback Rotation Omission Boundary
 Canonical: yes
 
 ## Purpose
