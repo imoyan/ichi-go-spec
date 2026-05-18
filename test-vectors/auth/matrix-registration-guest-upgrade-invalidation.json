@@ -1,0 +1,98 @@
+{
+  "name": "matrix-registration-guest-upgrade-invalidation",
+  "contract": "SPEC-033",
+  "issue": "imoyan/houra-spec#433",
+  "preconditions": {
+    "guest_user_id": "@guest1:example.test",
+    "guest_access_token": "token-guest",
+    "guest_device_id": "GUEST1",
+    "upgraded_access_token": "token-register",
+    "upgraded_device_id": "UPGRADED"
+  },
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/account/whoami",
+    "access_token": "token-guest"
+  },
+  "sequence": [
+    {
+      "name": "guest_registration",
+      "request": {
+        "method": "POST",
+        "path": "/_matrix/client/v3/register",
+        "query": {
+          "kind": "guest"
+        },
+        "body": {}
+      },
+      "expected": {
+        "status": 200,
+        "body_contains": {
+          "user_id": "@guest1:example.test",
+          "access_token": "token-guest",
+          "device_id": "GUEST1"
+        }
+      }
+    },
+    {
+      "name": "guest_upgrade",
+      "request": {
+        "method": "POST",
+        "path": "/_matrix/client/v3/register",
+        "body": {
+          "username": "guest1",
+          "password": "correct horse battery staple",
+          "guest_access_token": "token-guest",
+          "device_id": "UPGRADED"
+        }
+      },
+      "expected": {
+        "status": 200,
+        "body_contains": {
+          "user_id": "@guest1:example.test",
+          "access_token": "token-register",
+          "device_id": "UPGRADED"
+        }
+      }
+    },
+    {
+      "name": "old_guest_token_rejected",
+      "request": {
+        "method": "GET",
+        "path": "/_matrix/client/v3/account/whoami",
+        "access_token": "token-guest"
+      },
+      "expected": {
+        "status": 401,
+        "body_contains": {
+          "errcode": "M_UNKNOWN_TOKEN"
+        },
+        "old_guest_session_invalidated": true
+      }
+    },
+    {
+      "name": "upgraded_token_is_non_guest",
+      "request": {
+        "method": "GET",
+        "path": "/_matrix/client/v3/account/whoami",
+        "access_token": "token-register"
+      },
+      "expected": {
+        "status": 200,
+        "body_contains": {
+          "user_id": "@guest1:example.test",
+          "device_id": "UPGRADED",
+          "is_guest": false
+        }
+      }
+    }
+  ],
+  "expected": {
+    "versions_advertisement_widened": false,
+    "excluded_breadth": [
+      "room preview event stream",
+      "guest-specific API allowlist",
+      "guest-specific rate-limit policy"
+    ]
+  }
+}

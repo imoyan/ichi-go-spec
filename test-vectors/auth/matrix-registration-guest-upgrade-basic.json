@@ -30,7 +30,6 @@
     "uia_required": false,
     "versions_advertisement_widened": false,
     "excluded_breadth": [
-      "guest session invalidation persistence breadth",
       "room preview event stream",
       "guest-specific API allowlist",
       "guest-specific rate-limit policy"

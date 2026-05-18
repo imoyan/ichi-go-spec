@@ -9,7 +9,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix domain | Vector count | Contract count |
 |---|---:|---:|
 | none | 77 | 20 |
-| Client-Server API | 161 | 33 |
+| Client-Server API | 162 | 33 |
 | Server-Server API | 27 | 14 |
 | Room Versions | 21 | 13 |
 | Olm & Megolm | 5 | 5 |
@@ -212,6 +212,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-disabled.json` | `matrix-registration-disabled` |
 | Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-guest-basic.json` | `matrix-registration-guest-basic` |
 | Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-guest-upgrade-basic.json` | `matrix-registration-guest-upgrade-basic` |
+| Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-guest-upgrade-invalidation.json` | `matrix-registration-guest-upgrade-invalidation` |
 | Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-guest-upgrade-negative.json` | `matrix-registration-guest-upgrade-negative` |
 | Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-invalid-username.json` | `matrix-registration-invalid-username` |
 | Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-token-validity-basic.json` | `matrix-registration-token-validity-basic` |
