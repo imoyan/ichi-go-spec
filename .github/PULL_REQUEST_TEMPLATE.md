@@ -1,5 +1,11 @@
 ## Purpose
 
+## Lane
+
+- target_lane:
+- promotion_path:
+- claim_boundary:
+
 ## Contract references
 
 - SPEC-

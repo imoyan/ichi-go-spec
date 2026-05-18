@@ -63,6 +63,16 @@ here before changing an implementation.
 
 - For implementation-facing behavior changes, open or use a focused GitHub
   issue before editing contracts or vectors.
+- Before accepting a feature request as spec work, decide whether it should
+  start in `houra-labs`. Experimental, runtime-dependent, heuristic,
+  measurement-heavy, future-protocol, or shared-core API-shape work should
+  usually begin in labs and only move here after the contract, vector,
+  evidence, redaction, fail-closed, or shared-boundary decision is clear.
+- New feature issues should state `target_lane`, `promotion_path`, and
+  `claim_boundary`. Typical lanes are `labs`, `spec`, `client`, `server`, and
+  `shared-core`; typical promotion is `labs -> spec -> production`; and
+  claim boundaries should be `experiment-only`, `fail-closed`, or
+  `advertised`.
 - Start from the relevant `contracts/SPEC-*.md`, then update matching
   `test-vectors/` and design schema or UI surface files when the contract
   change affects them.
@@ -93,6 +103,21 @@ here before changing an implementation.
 - Record implementation adoption evidence in `README.md` when another Houra
   repository adopts a spec change; implementation repositories remain
   non-canonical.
+
+## Labs Promotion Boundary
+
+- Use `houra-labs` for exploratory work such as WebRTC latency optimization,
+  runtime measurements, topology or heuristic comparison, future Matrix major
+  version spikes, and shared-core API shape trials.
+- Do not use labs output as normative behavior. Labs may provide hypotheses,
+  measurement evidence, and candidate APIs, but this repository must translate
+  any adopted behavior into contracts, vectors, schemas, or evidence gates.
+- If a user asks for a feature directly in this repository and the behavior is
+  still uncertain, first ask whether it belongs in labs or route it to labs
+  when that is the safer boundary.
+- Production repositories should consume only spec-defined behavior. They must
+  not directly port labs prototypes or widen capability / compatibility claims
+  from labs results alone.
 
 ## Contract Update Rules
 
