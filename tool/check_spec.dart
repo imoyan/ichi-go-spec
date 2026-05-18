@@ -826,6 +826,9 @@ void checkMatrixRegistration(
         excluded.contains('guest session invalidation persistence breadth') ||
         !excluded.contains('room preview event stream') ||
         !excluded.contains('guest-specific rate-limit policy') ||
+        !excluded.contains(
+          'guest-specific API allowlist breadth beyond representative createRoom rejection',
+        ) ||
         excluded.contains('guest-specific API allowlist')) {
       failures.add('${relative(guestUpgradeFile)} guest upgrade boundary invalid.');
     }
@@ -879,6 +882,9 @@ void checkMatrixRegistration(
         excluded.contains('guest session invalidation persistence breadth') ||
         !excluded.contains('room preview event stream') ||
         !excluded.contains('guest-specific rate-limit policy') ||
+        !excluded.contains(
+          'guest-specific API allowlist breadth beyond representative createRoom rejection',
+        ) ||
         excluded.contains('guest-specific API allowlist')) {
       failures.add(
         '${relative(guestUpgradeNegativeFile)} guest upgrade negative boundary invalid.',
@@ -956,6 +962,9 @@ void checkMatrixRegistration(
         excluded.contains('guest session invalidation persistence breadth') ||
         !excluded.contains('room preview event stream') ||
         !excluded.contains('guest-specific rate-limit policy') ||
+        !excluded.contains(
+          'guest-specific API allowlist breadth beyond representative createRoom rejection',
+        ) ||
         excluded.contains('guest-specific API allowlist')) {
       failures.add(
         '${relative(guestUpgradeInvalidationFile)} guest upgrade invalidation boundary invalid.',
@@ -1538,6 +1547,9 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
         !outOfScope.contains('guest-to-user upgrade with guest_access_token') ||
         !outOfScope.contains('room preview event stream') ||
         !outOfScope.contains('guest-specific rate-limit policy') ||
+        !outOfScope.contains(
+          'guest-specific API allowlist breadth beyond representative createRoom rejection',
+        ) ||
         outOfScope.contains('guest-specific API allowlist')) {
       failures.add('${relative(guestJoinForbiddenFile)} guest access boundary notes invalid.');
     }
@@ -1577,6 +1589,9 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
         !outOfScope.contains('guest-to-user upgrade with guest_access_token') ||
         !outOfScope.contains('room preview event stream') ||
         !outOfScope.contains('guest-specific rate-limit policy') ||
+        !outOfScope.contains(
+          'guest-specific API allowlist breadth beyond representative createRoom rejection',
+        ) ||
         outOfScope.contains('guest-specific API allowlist')) {
       failures.add('${relative(guestJoinCanJoinFile)} guest can_join boundary invalid.');
     }
@@ -1596,24 +1611,31 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
       errcode: 'M_GUEST_ACCESS_FORBIDDEN',
     );
     final preconditions = guestApiAllowlistVector['preconditions'];
-    final allowedPaths =
-        preconditions is Map ? preconditions['allowed_representative_paths'] : null;
+    final representativePaths = preconditions is Map
+        ? preconditions['previously_adopted_representative_guest_paths']
+        : null;
     final expected = guestApiAllowlistVector['expected'];
     final notes = guestApiAllowlistVector['notes'];
     final outOfScope = notes is Map ? notes['out_of_scope'] : null;
     if (preconditions is! Map ||
         preconditions['guest_user_id'] != '@guest1:example.test' ||
         preconditions['guest_access_token'] != 'token-guest' ||
-        allowedPaths is! List ||
-        !allowedPaths.contains('GET /_matrix/client/v3/account/whoami') ||
+        representativePaths is! List ||
+        !representativePaths.contains('GET /_matrix/client/v3/account/whoami') ||
         expected is! Map ||
-        expected['guest_api_allowlist_enforced'] != true ||
+        expected['representative_guest_create_room_rejection_enforced'] != true ||
+        expected['full_guest_api_allowlist_breadth_claimed'] != false ||
         expected['versions_advertisement_widened'] != false ||
         notes is! Map ||
+        notes['representative_fail_closed_boundary_only'] != true ||
         notes['representative_non_allowlist_path_rejected'] != true ||
+        notes['broader_guest_api_allowlist_breadth_out_of_scope'] != true ||
         outOfScope is! List ||
         !outOfScope.contains('room preview event stream') ||
         !outOfScope.contains('guest-specific rate-limit policy') ||
+        !outOfScope.contains(
+          'guest-specific API allowlist breadth beyond representative createRoom rejection',
+        ) ||
         outOfScope.contains('guest-specific API allowlist')) {
       failures.add('${relative(guestApiAllowlistFile)} guest API allowlist boundary invalid.');
     }

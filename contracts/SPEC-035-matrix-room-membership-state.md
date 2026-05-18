@@ -135,11 +135,13 @@ a room that already has current `m.room.guest_access` state with
 `content.guest_access = can_join`.
 
 Guest-to-user upgrade with `guest_access_token` is covered by `SPEC-033`.
-This contract also defines the representative guest-specific API allowlist
-boundary: guest tokens may use the adopted guest registration, whoami, and
-`m.room.guest_access=can_join` join paths, while representative non-allowlist
-state-changing paths such as `POST /_matrix/client/v3/createRoom` must fail
-closed with `403` and `M_GUEST_ACCESS_FORBIDDEN`.
+This contract does not define full guest-specific API allowlist breadth. It
+only records a representative fail-closed boundary: guest tokens can be shown to
+be rejected from the non-allowlist state-changing
+`POST /_matrix/client/v3/createRoom` path with `403` and
+`M_GUEST_ACCESS_FORBIDDEN`. Broader guest-specific API allowlist breadth beyond
+that representative createRoom rejection remains out of scope until a later
+contract adds endpoint-family coverage.
 
 Room preview event streams and guest-specific rate-limit policy remain outside
 this contract.
