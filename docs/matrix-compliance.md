@@ -150,10 +150,10 @@ Matrix v1.18 roadmap close-out snapshot:
   #97 through #101 link current pass/fail evidence and #95 records a
   publishable Matrix support claim or explicit blocked / out-of-scope decisions
   for the release candidate.
-- The current blocked bundle was refreshed at 2026-05-18T22:42:09+09:00 and
+- The current blocked bundle was refreshed at 2026-05-18T23:05:01+09:00 and
   records the same candidate set from `houra-spec`
-  ed28dd9bfd9aca8d75c177c217f9bf7068ea136c, `houra-server`
-  cf562cc18ddfba8461161d50c644b84c4de4df64, and `houra-client`
+  6976cb51284abe06dbaf177a604601dec273e564, `houra-server`
+  8cad4fb4937ea8733852f717ad1e582e2b06e72b, and `houra-client`
   5154a2c519d113f030dc0e9369d06060005ebd49. It links every excluded stable
   domain to an explicit current-candidate release-scope decision:
   imoyan/houra-server#135 through imoyan/houra-server#142. Later child issues
@@ -163,7 +163,8 @@ Matrix v1.18 roadmap close-out snapshot:
   domain. Release readiness remains blocked by fail-closed Matrix version
   advertisement; `GET /_matrix/client/versions` still returns no Matrix
   versions and no publishable Matrix support claim is allowed. The refreshed
-  refs include imoyan/houra-server#321 / #327 release-surface evidence and
+  refs include imoyan/houra-server#321 / #327 release-surface evidence,
+  imoyan/houra-server#405 guest-to-user upgrade evidence, and
   imoyan/houra-client#205 / #206 publish-readiness evidence.
 - Post-bundle Client-Server registration classification sync:
   imoyan/houra-server#303 merged at 2026-05-16T23:29:29+09:00 and records the
