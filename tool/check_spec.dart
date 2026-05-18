@@ -11924,7 +11924,7 @@ void checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(
       refs['release_candidate'] !=
           'houra-matrix-v1.18-current-blocked-2026-05-18' ||
       refs['houra_spec_ref'] != 'aa80fa3038b35cba18943375c22cec57baf292d4' ||
-      refs['houra_server_ref'] != '2b78806d766c31593a14b5dee9dece7a577c7ff8' ||
+      refs['houra_server_ref'] != 'b365f61606a7e3229e20a851bd47c7784fba9927' ||
       refs['houra_client_ref'] != '5154a2c519d113f030dc0e9369d06060005ebd49') {
     failures.add('${relative(file)} current candidate refs invalid.');
   }
@@ -11934,8 +11934,8 @@ void checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(
   final client = evidenceSources is Map ? evidenceSources['client'] : null;
   if (server is! Map ||
       server['repo'] != 'houra-server' ||
-      server['issue'] != 'imoyan/houra-server#379' ||
-      server['pull_request'] != 'imoyan/houra-server#380' ||
+      server['issue'] != 'imoyan/houra-server#387' ||
+      server['pull_request'] != 'imoyan/houra-server#388' ||
       server['merge_commit'] !=
           (refs is Map ? refs['houra_server_ref'] : null) ||
       server['head_under_test'] !=
