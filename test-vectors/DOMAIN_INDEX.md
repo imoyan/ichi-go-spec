@@ -9,7 +9,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix domain | Vector count | Contract count |
 |---|---:|---:|
 | none | 77 | 20 |
-| Client-Server API | 163 | 33 |
+| Client-Server API | 164 | 33 |
 | Server-Server API | 27 | 14 |
 | Room Versions | 21 | 13 |
 | Olm & Megolm | 5 | 5 |
@@ -116,6 +116,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-guest-join-forbidden.json` | `matrix-guest-join-forbidden` |
 | Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-join-room-basic.json` | `matrix-join-room-basic` |
 | Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-join-room-not-found.json` | `matrix-join-room-not-found` |
+| Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-joined-rooms-basic.json` | `matrix-joined-rooms-basic` |
 | Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-leave-room-basic.json` | `matrix-leave-room-basic` |
 | Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-room-state-basic.json` | `matrix-room-state-basic` |
 | Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-room-state-forbidden.json` | `matrix-room-state-forbidden` |

@@ -1,0 +1,40 @@
+{
+  "name": "matrix-joined-rooms-basic",
+  "contract": "SPEC-035",
+  "issue": "imoyan/houra-spec#443",
+  "preconditions": {
+    "user_id": "@alice:example.test",
+    "joined_room_ids": [
+      "!room:example.test"
+    ],
+    "excluded_room_ids": [
+      "!left:example.test",
+      "!invite:example.test"
+    ]
+  },
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/joined_rooms",
+    "access_token": "token-1"
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "joined_rooms": [
+        "!room:example.test"
+      ]
+    },
+    "versions_advertisement_widened": false
+  },
+  "notes": {
+    "representative_current_join_membership_only": true,
+    "out_of_scope": [
+      "GET /_matrix/client/v3/rooms/{roomId}/joined_members",
+      "GET /_matrix/client/v3/rooms/{roomId}/members",
+      "membership listing pagination and ordering",
+      "profile field completeness in member lists",
+      "knock and restricted-join membership listing breadth",
+      "historical membership listing"
+    ]
+  }
+}
