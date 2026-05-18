@@ -32,7 +32,8 @@
     "versions_advertisement_widened": false,
     "excluded_breadth": [
       "room preview event stream",
-      "guest-specific rate-limit policy"
+      "guest-specific rate-limit policy",
+      "guest-specific API allowlist breadth beyond representative createRoom rejection"
     ]
   }
 }

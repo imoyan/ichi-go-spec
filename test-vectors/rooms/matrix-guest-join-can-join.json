@@ -31,7 +31,8 @@
     "out_of_scope": [
       "guest-to-user upgrade with guest_access_token",
       "room preview event stream",
-      "guest-specific rate-limit policy"
+      "guest-specific rate-limit policy",
+      "guest-specific API allowlist breadth beyond representative createRoom rejection"
     ]
   }
 }

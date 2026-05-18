@@ -5,7 +5,7 @@
   "preconditions": {
     "guest_user_id": "@guest1:example.test",
     "guest_access_token": "token-guest",
-    "allowed_representative_paths": [
+    "previously_adopted_representative_guest_paths": [
       "POST /_matrix/client/v3/register?kind=guest",
       "GET /_matrix/client/v3/account/whoami",
       "POST /_matrix/client/v3/join/{roomIdOrAlias} when m.room.guest_access=can_join"
@@ -27,14 +27,18 @@
     "body_contains": {
       "errcode": "M_GUEST_ACCESS_FORBIDDEN"
     },
-    "guest_api_allowlist_enforced": true,
+    "representative_guest_create_room_rejection_enforced": true,
+    "full_guest_api_allowlist_breadth_claimed": false,
     "versions_advertisement_widened": false
   },
   "notes": {
+    "representative_fail_closed_boundary_only": true,
     "representative_non_allowlist_path_rejected": true,
+    "broader_guest_api_allowlist_breadth_out_of_scope": true,
     "out_of_scope": [
       "room preview event stream",
-      "guest-specific rate-limit policy"
+      "guest-specific rate-limit policy",
+      "guest-specific API allowlist breadth beyond representative createRoom rejection"
     ]
   }
 }
