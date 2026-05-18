@@ -12,7 +12,8 @@ surface.
 
 ```text
 core
-  discovery, error model, identifiers, JSON conventions
+  discovery, error model, identifiers, JSON conventions, optional Product MVP
+  vNext WebRTC low-latency connection planning and advertisement gates
 
 auth
   login flow discovery, login, sessions, access tokens, optional Product MVP

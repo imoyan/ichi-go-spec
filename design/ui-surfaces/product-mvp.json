@@ -165,6 +165,30 @@
       ]
     },
     {
+      "id": "realtime",
+      "session": "authenticated",
+      "purpose": "Surface optional Product MVP vNext WebRTC low-latency connection planning only when SPEC-140 capabilities are advertised.",
+      "regions": ["realtime-mode", "realtime-participants", "realtime-plan", "status"],
+      "fields": [
+        {
+          "id": "realtime.mode",
+          "label_key": "field.realtime-mode",
+          "input": "text",
+          "required": true
+        },
+        {
+          "id": "realtime.participants",
+          "label_key": "field.participant-count",
+          "input": "text",
+          "required": true
+        }
+      ],
+      "actions": [
+        "realtime.calculate-connection-plan",
+        "realtime.select-same-lan-fastest"
+      ]
+    },
+    {
       "id": "settings",
       "session": "authenticated",
       "purpose": "Show session-owned server configuration and end the session.",
@@ -382,6 +406,26 @@
       "error_expectation": "Repeated recoverable failures stay bounded and do not clear host-owned ciphertext or retry state without host policy."
     },
     {
+      "id": "realtime.calculate-connection-plan",
+      "label_key": "action.calculate-connection-plan",
+      "requires_auth": true,
+      "api_contracts": ["SPEC-140"],
+      "busy_state": "pending.webrtc",
+      "disabled_when": ["pending.any", "unsupported.webrtc-low-latency"],
+      "success_expectation": "A redacted connection plan shows selected topology, fallback, center selection when applicable, and fairness summary without raw ICE candidates.",
+      "error_expectation": "Planning errors are visible and keep the previous safe fallback plan available."
+    },
+    {
+      "id": "realtime.select-same-lan-fastest",
+      "label_key": "action.select-same-lan-fastest",
+      "requires_auth": true,
+      "api_contracts": ["SPEC-140"],
+      "busy_state": "pending.webrtc",
+      "disabled_when": ["pending.any", "unsupported.webrtc-low-latency", "blocked.same-lan-opt-in"],
+      "success_expectation": "Same-LAN fastest mode is selected only after opt-in and redacted local-network evidence are available.",
+      "error_expectation": "Unavailable or blocked local-network evidence falls back to auto or relay-safe mode without exposing private addresses."
+    },
+    {
       "id": "session.refresh",
       "label_key": "action.refresh",
       "requires_auth": true,
@@ -464,6 +508,11 @@
       "description": "An encrypted attachment metadata, download, decrypt, or retry action is in flight."
     },
     {
+      "id": "pending.webrtc",
+      "kind": "async",
+      "description": "A WebRTC connection planning or mode selection action is in flight."
+    },
+    {
       "id": "pending.refresh",
       "kind": "async",
       "description": "A refresh request is in flight."
@@ -524,6 +573,11 @@
       "description": "The encrypted attachment has been redacted and cannot be downloaded or decrypted."
     },
     {
+      "id": "data.webrtc-plan",
+      "kind": "data",
+      "description": "A redacted WebRTC topology, center-selection, fairness, and fallback plan is available."
+    },
+    {
       "id": "unsupported.media-transfer",
       "kind": "data",
       "description": "The selected media object has not advertised SPEC-071 transfer capabilities."
@@ -537,6 +591,16 @@
       "id": "blocked.encrypted-media-key",
       "kind": "data",
       "description": "Encrypted attachment metadata is present but the host or crypto adapter has no usable media key."
+    },
+    {
+      "id": "unsupported.webrtc-low-latency",
+      "kind": "data",
+      "description": "The selected server or host adapter has not advertised SPEC-140 WebRTC low-latency capabilities."
+    },
+    {
+      "id": "blocked.same-lan-opt-in",
+      "kind": "data",
+      "description": "Same-LAN fastest mode is unavailable because local-network opt-in or redacted evidence is missing."
     },
     {
       "id": "data.recovery-state",
@@ -562,9 +626,15 @@
       "id": "error.encrypted-media-recoverable",
       "kind": "error",
       "description": "An encrypted media download or decrypt handoff failed in a recoverable way."
+    },
+    {
+      "id": "error.webrtc-recoverable",
+      "kind": "error",
+      "description": "A WebRTC planning or candidate measurement step failed in a recoverable way."
     }
   ],
   "text_keys": {
+    "action.calculate-connection-plan": "Calculate plan",
     "action.create-account": "Create account",
     "action.create-room": "Create",
     "action.account-recovery": "Account recovery",
@@ -582,6 +652,7 @@
     "action.resume-download": "Resume download",
     "action.request-email-verification": "Send verification email",
     "action.request-password-reset": "Send password reset",
+    "action.select-same-lan-fastest": "Same LAN fastest",
     "action.send-message": "Send",
     "action.start-idp-login": "Start IdP login",
     "action.submit-email-verification": "Verify email",
@@ -596,7 +667,9 @@
     "field.message": "Message",
     "field.new-password": "New password",
     "field.password": "Password",
+    "field.participant-count": "Participants",
     "field.recovery-token": "Recovery code",
+    "field.realtime-mode": "Connection mode",
     "field.room-name": "Room name",
     "field.server": "Server",
     "field.text-payload": "Text payload",
@@ -604,6 +677,7 @@
     "field.byte-range": "Byte range",
     "field.user": "User",
     "section.media": "Media",
+    "section.realtime": "Realtime",
     "section.rooms": "Rooms",
     "section.settings": "Settings",
     "section.timeline": "Timeline",
@@ -724,6 +798,29 @@
       ]
     },
     {
+      "id": "product-mvp-webrtc-low-latency-vnext",
+      "description": "Optional Product MVP vNext UI flow for SPEC-140 WebRTC low-latency connection planning, same-LAN fastest selection, and redacted fallback evidence; not part of the current Product MVP happy path until evidence includes it.",
+      "steps": [
+        {
+          "id": "webrtc-capability",
+          "screen": "realtime",
+          "expectation": "Connection planning actions are visible only when the selected server or host adapter advertises SPEC-140 capabilities."
+        },
+        {
+          "id": "calculate-plan",
+          "screen": "realtime",
+          "action": "realtime.calculate-connection-plan",
+          "expectation": "The UI shows topology, fallback, center selection when used, worst-case latency, and average latency without raw ICE candidates or private addresses."
+        },
+        {
+          "id": "same-lan-fastest",
+          "screen": "realtime",
+          "action": "realtime.select-same-lan-fastest",
+          "expectation": "Same-LAN fastest mode is selectable only after opt-in and redacted local-network evidence; blocked evidence falls back to auto or relay-safe mode."
+        }
+      ]
+    },
+    {
       "id": "product-mvp-account-recovery-vnext",
       "description": "Optional Product MVP vNext UI flow for SPEC-070 account recovery and IdP login; not part of the current Product MVP happy path until evidence includes it.",
       "steps": [
@@ -787,12 +884,14 @@
       "if SPEC-070 is included, record product-mvp-account-recovery-vnext coverage and advertised capability evidence",
       "if SPEC-071 is included, record product-mvp-media-transfer-vnext coverage and advertised metadata capability evidence",
       "if SPEC-072 is included, record product-mvp-encrypted-media-vnext coverage, advertised encrypted_attachment capability evidence, crypto-adapter handoff evidence, and trust copy boundaries",
+      "if SPEC-140 is included, record product-mvp-webrtc-low-latency-vnext coverage, advertised capability evidence, runtime-specific candidate-pair stats, same-LAN opt-in evidence when used, fallback behavior, and redacted diagnostics",
       "record accessibility pass or explicit blocker for form labels, buttons, status, and focus order"
     ],
     "redaction_policy": [
       "do not record raw bearer tokens or refresh tokens",
       "do not record reset tokens, email verification tokens, authorization codes, callback URL query values, or IdP session identifiers",
       "do not record signed or credentialed URLs, local filesystem paths, plaintext media bytes, media keys, room keys, recovery keys, decrypted thumbnails, or cache filenames exposing user data",
+      "do not record private IP addresses, mDNS hostnames, SDP bodies, raw ICE candidates, ICE credentials, TURN credentials, MAC addresses, local interface names, or provider logs",
       "do not record database URLs or private local paths",
       "do not record machine-specific environment values",
       "record redacted server base URL shape only when needed"
@@ -804,6 +903,7 @@
       "SPEC-070 account recovery and IdP login actions are optional vNext coverage and require advertised capability evidence",
       "SPEC-071 thumbnail, range, and resumable download actions are optional vNext coverage and require advertised metadata capability evidence",
       "SPEC-072 encrypted attachment actions are optional vNext coverage and require advertised metadata capability, crypto-adapter handoff, trust copy, and redaction evidence",
+      "SPEC-140 WebRTC low-latency connection actions are optional vNext coverage and require advertised capability, runtime measurement, same-LAN opt-in when used, fallback, and redaction evidence",
       "Matrix full compliance is not claimed by this surface"
     ]
   },
@@ -813,6 +913,7 @@
     "Federation and Matrix full-spec coverage are outside this Product MVP surface.",
     "SPEC-071 thumbnails, range requests, and resumable download are optional Product MVP vNext actions and are outside the current Product MVP happy path until a release candidate includes matching adoption evidence.",
     "SPEC-070 account recovery and IdP login are optional Product MVP vNext actions and are outside the current Product MVP happy path until a release candidate includes matching adoption evidence.",
-    "SPEC-072 encrypted attachment metadata, ciphertext download, decrypt handoff, recoverable errors, and trust copy are optional Product MVP vNext actions and are outside the current Product MVP happy path until a release candidate includes matching adoption evidence."
+    "SPEC-072 encrypted attachment metadata, ciphertext download, decrypt handoff, recoverable errors, and trust copy are optional Product MVP vNext actions and are outside the current Product MVP happy path until a release candidate includes matching adoption evidence.",
+    "SPEC-140 WebRTC low-latency connection planning, same-LAN fastest selection, topology optimization, and center-node selection are optional Product MVP vNext actions and are outside the current Product MVP happy path until a release candidate includes matching adoption evidence."
   ]
 }

@@ -8,7 +8,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 
 | Matrix domain | Vector count | Contract count |
 |---|---:|---:|
-| none | 76 | 19 |
+| none | 77 | 20 |
 | Client-Server API | 161 | 33 |
 | Server-Server API | 27 | 14 |
 | Room Versions | 21 | 13 |
@@ -55,6 +55,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Houra Product MVP / Platform-native Adapter Policy | SPEC-132 Product MVP Platform-native Adapter Policy | core | `test-vectors/core/product-mvp-platform-native-adapter-policy.json` | `product-mvp-platform-native-adapter-policy` |
 | Houra Product MVP / PII Redaction Handoff Boundary | SPEC-127 Product MVP PII Redaction Handoff Boundary | core | `test-vectors/core/product-mvp-pii-redaction-handoff-boundary.json` | `product-mvp-pii-redaction-handoff-boundary` |
 | Houra Product MVP / Role Projection Boundary | SPEC-126 Product MVP Role Projection Boundary | core | `test-vectors/core/product-mvp-role-projection-boundary.json` | `product-mvp-role-projection-boundary` |
+| Houra Product MVP / WebRTC Low-Latency Connection Boundary | SPEC-140 Product MVP WebRTC Low-Latency Connection Boundary | core | `test-vectors/core/product-mvp-webrtc-low-latency-boundary.json` | `product-mvp-webrtc-low-latency-boundary` |
 | Houra public API / Basic sync | SPEC-011 Basic sync | sync | `test-vectors/sync/basic-sync.json` | `basic-sync` |
 | Houra public API / Basic sync | SPEC-011 Basic sync | sync | `test-vectors/sync/malformed-sync-event.json` | `malformed-sync-event` |
 | Houra public API / Basic sync | SPEC-011 Basic sync | sync | `test-vectors/sync/missing-next-batch.json` | `missing-next-batch` |

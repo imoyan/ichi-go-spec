@@ -166,3 +166,24 @@ compatibility、`/_matrix/client/versions` advertisement を広げません。
 platform を fail-closed にしたかを残します。ただし precise coordinates、raw sensor readings、
 raw prompts、raw model output、provider secrets、provider logs、key material、secure-storage
 handles、private local paths は記録しません。
+
+## WebRTC low-latency connection planning
+
+`SPEC-140` は、Product MVP vNext の WebRTC 低遅延接続最適化を advertise するための
+境界です。参加人数に応じた topology、中心 node 選定、worst-case latency と average
+latency の balance、同一 LAN fastest mode、fallback、redacted diagnostics を扱います。
+
+この spec は WebRTC runtime、TURN / STUN / SFU、Matrix VoIP signaling、Matrix media、
+Matrix E2EE を実装済みと主張するものではありません。実装リポジトリでは、selected server
+または host adapter が `webrtc_low_latency` capability を advertise し、同じ release
+candidate の runtime-specific evidence が揃うまで UI を hidden / disabled にします。
+
+同一 LAN fastest mode は user-visible な明示選択として扱い、opt-in、trusted local network
+policy、relay fallback、private address redaction が揃わない場合は `auto` または
+`relay-safe` に戻します。browser が private IP や host candidate を隠す場合でも、WebRTC
+stats の測定結果は使えますが、private IP topology を推測して evidence に残してはいけません。
+
+採用 evidence には participant count、selected topology、candidate-pair class、RTT summary、
+bitrate summary、center score、worst-case latency、average latency、fallback reason、
+verification を残します。private IP address、mDNS hostname、SDP body、raw ICE candidate、
+ICE credential、TURN credential、MAC address、local interface name、provider log は記録しません。

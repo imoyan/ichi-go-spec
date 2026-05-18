@@ -152,6 +152,26 @@
         ]
       },
       {
+        "id": "product-mvp-vnext-webrtc-low-latency",
+        "contracts": [
+          "SPEC-140"
+        ],
+        "spec_refs": [
+          "imoyan/houra-spec#423"
+        ],
+        "implementation_refs": [
+          "imoyan/houra-client#235"
+        ],
+        "release_candidate_decision": "optional-fail-closed-until-webrtc-capability-runtime-measurement-and-ui-evidence-are-current",
+        "required_evidence_before_advertisement": [
+          "WebRTC low-latency capability advertisement evidence",
+          "runtime-specific selected candidate-pair RTT and bitrate evidence",
+          "topology center-selection fairness and fallback evidence",
+          "same-LAN opt-in and relay fallback evidence when same-LAN fastest is used",
+          "private IP SDP ICE credential TURN credential and provider log redaction evidence"
+        ]
+      },
+      {
         "id": "product-mvp-server-boundary-additions",
         "contracts": [
           "SPEC-126",
@@ -193,6 +213,7 @@
       "imoyan/houra-spec#319",
       "imoyan/houra-spec#320",
       "imoyan/houra-spec#321",
+      "imoyan/houra-spec#423",
       "imoyan/houra-spec#340",
       "imoyan/houra-spec#343",
       "imoyan/houra-spec#345",
@@ -207,6 +228,7 @@
     ],
     "redaction_policy": [
       "Do not record raw bearer tokens, refresh tokens, database URLs, image registry credentials, private local paths, or machine-specific environment values.",
+      "Do not record private IP addresses, mDNS hostnames, SDP bodies, raw ICE candidates, ICE credentials, TURN credentials, MAC addresses, local interface names, or provider logs.",
       "Record only redacted environment shape and reproducible command names."
     ],
     "rc_tag_policy": "Do not cut a Product MVP release-candidate tag until all blocking evidence lanes name refs, commands, results, blockers, and claim boundaries."
