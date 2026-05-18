@@ -146,3 +146,23 @@ bytes、decrypted thumbnail、user data を含む cache filename は記録しま
 SDK core は metadata parser、request/response descriptor、redacted diagnostic shaping までに
 留めます。encrypt/decrypt、media-key handling、secure storage、plaintext lifecycle、
 preview/share/export policy は crypto adapter または host-owned boundary です。
+
+## Platform-native-first adapter policy
+
+`SPEC-132` は、`houra-client` の first-party 実装で OS / platform が提供する capability
+を優先する方針を定義します。対象は location / map、notification、secure storage /
+key material、LLM / AI runtime などです。
+
+UI-free core SDK は React Native、Expo、iOS、Android、OS permission、background task、
+map rendering、notification、model runtime に依存させません。これらは Expo adapter または
+host-owned adapter に閉じます。
+
+platform-native capability がない、未成熟、または permission / privacy 上不適切な場合は、
+capability を fail-closed にするか、host/app 利用者が明示的に provider adapter を差し替える
+境界として扱います。provider override はそれだけで Product MVP readiness、Matrix
+compatibility、`/_matrix/client/versions` advertisement を広げません。
+
+採用 evidence には platform-native path を選んだか、provider override を使ったか、未対応
+platform を fail-closed にしたかを残します。ただし precise coordinates、raw sensor readings、
+raw prompts、raw model output、provider secrets、provider logs、key material、secure-storage
+handles、private local paths は記録しません。

@@ -8,7 +8,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 
 | Matrix domain | Vector count | Contract count |
 |---|---:|---:|
-| none | 75 | 18 |
+| none | 76 | 19 |
 | Client-Server API | 149 | 29 |
 | Server-Server API | 27 | 14 |
 | Room Versions | 20 | 12 |
@@ -52,6 +52,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Houra Product MVP / Media Transfer Boundary | SPEC-071 Product MVP Media Transfer Boundary | media | `test-vectors/media/product-mvp-thumbnail-invalid-size.json` | `product-mvp-thumbnail-invalid-size` |
 | Houra Product MVP / Multilingual Handoff Boundary | SPEC-128 Product MVP Multilingual Handoff Boundary | core | `test-vectors/core/product-mvp-multilingual-handoff-boundary.json` | `product-mvp-multilingual-handoff-boundary` |
 | Houra Product MVP / Offline Queue Replay Boundary | SPEC-129 Product MVP Offline Queue Replay Boundary | core | `test-vectors/core/product-mvp-offline-queue-replay-boundary.json` | `product-mvp-offline-queue-replay-boundary` |
+| Houra Product MVP / Platform-native Adapter Policy | SPEC-132 Product MVP Platform-native Adapter Policy | core | `test-vectors/core/product-mvp-platform-native-adapter-policy.json` | `product-mvp-platform-native-adapter-policy` |
 | Houra Product MVP / PII Redaction Handoff Boundary | SPEC-127 Product MVP PII Redaction Handoff Boundary | core | `test-vectors/core/product-mvp-pii-redaction-handoff-boundary.json` | `product-mvp-pii-redaction-handoff-boundary` |
 | Houra Product MVP / Role Projection Boundary | SPEC-126 Product MVP Role Projection Boundary | core | `test-vectors/core/product-mvp-role-projection-boundary.json` | `product-mvp-role-projection-boundary` |
 | Houra public API / Basic sync | SPEC-011 Basic sync | sync | `test-vectors/sync/basic-sync.json` | `basic-sync` |
