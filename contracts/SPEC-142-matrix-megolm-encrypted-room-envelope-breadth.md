@@ -101,7 +101,8 @@ A timeline send whose content sets `algorithm` to
 `m.olm.v1.curve25519-aes-sha2`, or whose `ciphertext` is an object instead
 of a string, must be rejected with `400` and `M_INVALID_PARAM`. The Olm
 algorithm and Olm ciphertext shape are reserved for to-device delivery in
-`SPEC-052` and `SPEC-140`.
+`SPEC-052` (and may be further narrowed by future sibling gates of the
+`SPEC-079` Olm session lane).
 
 ## Fail-Closed Behavior
 

@@ -193,6 +193,161 @@
         "expected_error": {
           "errcode": "M_INVALID_PARAM"
         }
+      },
+      {
+        "id": "reject-room-encryption-non-string-algorithm",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!encrypted:example.test/state/m.room.encryption/",
+        "access_token": "token-alice-device1",
+        "body": {
+          "algorithm": 42
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM"
+        }
+      },
+      {
+        "id": "reject-room-encryption-non-integer-rotation-period-ms",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!encrypted:example.test/state/m.room.encryption/",
+        "access_token": "token-alice-device1",
+        "body": {
+          "algorithm": "m.megolm.v1.aes-sha2",
+          "rotation_period_ms": "604800000"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM"
+        }
+      },
+      {
+        "id": "reject-room-encryption-non-integer-rotation-period-msgs",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!encrypted:example.test/state/m.room.encryption/",
+        "access_token": "token-alice-device1",
+        "body": {
+          "algorithm": "m.megolm.v1.aes-sha2",
+          "rotation_period_msgs": 100.5
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM"
+        }
+      },
+      {
+        "id": "repeat-room-encryption-with-identical-content-idempotent",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!encrypted:example.test/state/m.room.encryption/",
+        "access_token": "token-alice-device1",
+        "body": {
+          "algorithm": "m.megolm.v1.aes-sha2",
+          "rotation_period_ms": 604800000,
+          "rotation_period_msgs": 100
+        },
+        "expected_status": 200,
+        "server_effect": {
+          "duplicate_state_event_stored": false,
+          "room_encryption_algorithm_unchanged": true
+        }
+      },
+      {
+        "id": "repeat-room-encryption-with-changed-algorithm-not-disabling",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!encrypted:example.test/state/m.room.encryption/",
+        "access_token": "token-alice-device1",
+        "body": {
+          "algorithm": "m.megolm.v2.aes-sha2-experimental"
+        },
+        "expected_status": 200,
+        "server_effect": {
+          "encryption_turned_off": false,
+          "previous_state_event_retained_in_history": true
+        }
+      },
+      {
+        "id": "reject-megolm-non-string-algorithm",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!encrypted:example.test/send/m.room.encrypted/txn-megolm-non-string-algorithm",
+        "access_token": "token-alice-device1",
+        "body": {
+          "algorithm": 0,
+          "ciphertext": "megolm-base64-ciphertext-5",
+          "sender_key": "alice-curve25519-device1",
+          "session_id": "megolm-session-1",
+          "device_id": "DEVICE1"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM"
+        }
+      },
+      {
+        "id": "reject-megolm-non-string-sender-key",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!encrypted:example.test/send/m.room.encrypted/txn-megolm-non-string-sender-key",
+        "access_token": "token-alice-device1",
+        "body": {
+          "algorithm": "m.megolm.v1.aes-sha2",
+          "ciphertext": "megolm-base64-ciphertext-6",
+          "sender_key": 12345,
+          "session_id": "megolm-session-1",
+          "device_id": "DEVICE1"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM"
+        }
+      },
+      {
+        "id": "reject-megolm-non-string-session-id",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!encrypted:example.test/send/m.room.encrypted/txn-megolm-non-string-session-id",
+        "access_token": "token-alice-device1",
+        "body": {
+          "algorithm": "m.megolm.v1.aes-sha2",
+          "ciphertext": "megolm-base64-ciphertext-7",
+          "sender_key": "alice-curve25519-device1",
+          "session_id": [],
+          "device_id": "DEVICE1"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM"
+        }
+      },
+      {
+        "id": "reject-megolm-non-string-device-id",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!encrypted:example.test/send/m.room.encrypted/txn-megolm-non-string-device-id",
+        "access_token": "token-alice-device1",
+        "body": {
+          "algorithm": "m.megolm.v1.aes-sha2",
+          "ciphertext": "megolm-base64-ciphertext-8",
+          "sender_key": "alice-curve25519-device1",
+          "session_id": "megolm-session-1",
+          "device_id": null
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM"
+        }
+      },
+      {
+        "id": "reject-megolm-missing-algorithm",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/rooms/!encrypted:example.test/send/m.room.encrypted/txn-megolm-missing-algorithm",
+        "access_token": "token-alice-device1",
+        "body": {
+          "ciphertext": "megolm-base64-ciphertext-9",
+          "sender_key": "alice-curve25519-device1",
+          "session_id": "megolm-session-1",
+          "device_id": "DEVICE1"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_MISSING_PARAM"
+        }
       }
     ],
     "required_evidence": [
@@ -210,8 +365,14 @@
     "non_empty_state_key_rejected": true,
     "missing_algorithm_rejected": true,
     "empty_algorithm_rejected": true,
+    "non_string_state_algorithm_rejected": true,
+    "non_integer_rotation_period_ms_rejected": true,
+    "non_integer_rotation_period_msgs_rejected": true,
+    "duplicate_state_event_idempotent": true,
+    "algorithm_change_does_not_disable_encryption": true,
     "megolm_timeline_event_accepted": true,
-    "missing_field_rejected_count": 4,
+    "missing_field_rejected_count": 5,
+    "non_string_timeline_field_rejected_count": 4,
     "olm_shape_on_timeline_rejected_count": 2,
     "server_decrypted_ciphertext": false,
     "versions_advertisement_widened": false
