@@ -10,7 +10,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 |---|---:|---:|
 | none | 76 | 19 |
 | Client-Server API | 153 | 33 |
-| Server-Server API | 27 | 14 |
+| Server-Server API | 28 | 15 |
 | Room Versions | 21 | 13 |
 | Olm & Megolm | 5 | 5 |
 | Application Service API | 15 | 12 |
@@ -270,6 +270,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Server-Server API / federation ACL, policy, and signing runtime | SPEC-110 Matrix Federation ACL, Policy, and Signing Runtime | core | `test-vectors/core/matrix-federation-acl-policy-signing-runtime.json` | `matrix-federation-acl-policy-signing-runtime` |
 | Matrix v1.18 / Server-Server API / federation directory, query, and OpenID runtime | SPEC-108 Matrix Federation Directory, Query, and OpenID Runtime | core | `test-vectors/core/matrix-federation-directory-query-openid-runtime.json` | `matrix-federation-directory-query-openid-runtime` |
 | Matrix v1.18 / Server-Server API / federation E2EE device and media runtime | SPEC-109 Matrix Federation E2EE Device and Media Runtime | core | `test-vectors/core/matrix-federation-e2ee-device-media-runtime.json` | `matrix-federation-e2ee-device-media-runtime` |
+| Matrix v1.18 / Server-Server API / federation E2EE EDU parser boundary for device list update, signing key update, and direct-to-device | SPEC-145 Matrix Federation E2EE EDU Parser Boundary | events | `test-vectors/events/matrix-federation-e2ee-edu-parser-boundary.json` | `matrix-federation-e2ee-edu-parser-boundary` |
 | Matrix v1.18 / Server-Server API / federation event retrieval runtime | SPEC-112 Matrix Federation Event Retrieval Runtime | events | `test-vectors/events/matrix-federation-event-retrieval-runtime.json` | `matrix-federation-event-retrieval-runtime` |
 | Matrix v1.18 / Server-Server API / federation interop smoke gate | SPEC-061 Matrix Federation Interop Smoke | events | `test-vectors/events/matrix-federation-compose-ci-lane.json` | `matrix-federation-compose-ci-lane` |
 | Matrix v1.18 / Server-Server API / federation interop smoke gate | SPEC-061 Matrix Federation Interop Smoke | events | `test-vectors/events/matrix-federation-reference-homeserver-smoke.json` | `matrix-federation-reference-homeserver-smoke` |
