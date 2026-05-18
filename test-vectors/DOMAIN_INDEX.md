@@ -9,10 +9,10 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix domain | Vector count | Contract count |
 |---|---:|---:|
 | none | 77 | 20 |
-| Client-Server API | 169 | 37 |
-| Server-Server API | 27 | 14 |
+| Client-Server API | 173 | 41 |
+| Server-Server API | 28 | 15 |
 | Room Versions | 21 | 13 |
-| Olm & Megolm | 8 | 8 |
+| Olm & Megolm | 9 | 9 |
 | Application Service API | 15 | 12 |
 | Identity Service API | 9 | 6 |
 | Push Gateway API | 9 | 5 |
@@ -153,6 +153,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / GET /_matrix/client/versions | SPEC-030 Matrix Client Versions | core | `test-vectors/core/matrix-client-versions-basic.json` | `matrix-client-versions-basic` |
 | Matrix v1.18 / Client-Server API / key upload and key claim endpoints | SPEC-051 Matrix Device, One-Time, and Fallback Keys | auth | `test-vectors/auth/matrix-keys-claim-invalid-algorithm.json` | `matrix-keys-claim-invalid-algorithm` |
 | Matrix v1.18 / Client-Server API / key upload and key claim endpoints | SPEC-051 Matrix Device, One-Time, and Fallback Keys | auth | `test-vectors/auth/matrix-keys-claim-one-time-fallback-basic.json` | `matrix-keys-claim-one-time-fallback-basic` |
+| Matrix v1.18 / Client-Server API / keys claim depletion, fallback rotation, and unknown-user/device omission boundary | SPEC-153 Matrix Keys Claim Depletion Fallback Rotation Omission Boundary | auth | `test-vectors/auth/matrix-keys-claim-depletion-fallback-rotation-breadth.json` | `matrix-keys-claim-depletion-fallback-rotation-breadth` |
 | Matrix v1.18 / Client-Server API / key upload and key claim endpoints | SPEC-051 Matrix Device, One-Time, and Fallback Keys | auth | `test-vectors/auth/matrix-keys-upload-device-one-time-fallback-basic.json` | `matrix-keys-upload-device-one-time-fallback-basic` |
 | Matrix v1.18 / Client-Server API / key upload and key claim endpoints | SPEC-051 Matrix Device, One-Time, and Fallback Keys | auth | `test-vectors/auth/matrix-keys-upload-malformed-device-keys.json` | `matrix-keys-upload-malformed-device-keys` |
 | Matrix v1.18 / Client-Server API / device key self-signature and one-time/fallback key signature verification boundary | SPEC-147 Matrix Device Key Self-Signature Verification Boundary | auth | `test-vectors/auth/matrix-device-key-self-signature-verification-boundary.json` | `matrix-device-key-self-signature-verification-boundary` |
@@ -196,6 +197,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-token-not-string.json` | `matrix-keys-query-token-not-string` |
 | Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-unknown-device-omitted.json` | `matrix-keys-query-unknown-device-omitted` |
 | Matrix v1.18 / Client-Server API / keys query batch, federation failures, and cross-signing key inclusion boundary | SPEC-151 Matrix Keys Query Batch Federation Failures Cross-Signing Boundary | auth | `test-vectors/auth/matrix-keys-query-batch-federation-failures-cross-signing-boundary.json` | `matrix-keys-query-batch-federation-failures-cross-signing-boundary` |
+| Matrix v1.18 / Client-Server API / keys changes on-demand pull endpoint boundary | SPEC-150 Matrix Keys Changes On-Demand Pull Boundary | auth | `test-vectors/auth/matrix-keys-changes-on-demand-pull-boundary.json` | `matrix-keys-changes-on-demand-pull-boundary` |
 | Matrix v1.18 / Client-Server API / profile, account data, and room tag endpoints | SPEC-045 Matrix Profile, Account Data, and Room Tags | sync | `test-vectors/sync/matrix-account-data-global-basic.json` | `matrix-account-data-global-basic` |
 | Matrix v1.18 / Client-Server API / profile, account data, and room tag endpoints | SPEC-045 Matrix Profile, Account Data, and Room Tags | sync | `test-vectors/sync/matrix-account-data-recent-emoji.json` | `matrix-account-data-recent-emoji` |
 | Matrix v1.18 / Client-Server API / profile, account data, and room tag endpoints | SPEC-045 Matrix Profile, Account Data, and Room Tags | sync | `test-vectors/sync/matrix-account-data-room-basic.json` | `matrix-account-data-room-basic` |
@@ -249,6 +251,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / server-side key backup endpoints | SPEC-053 Matrix Key Backup and Restore Gate | messaging | `test-vectors/messaging/matrix-key-backup-session-upload-restore-basic.json` | `matrix-key-backup-session-upload-restore-basic` |
 | Matrix v1.18 / Client-Server API / server-side key backup endpoints | SPEC-053 Matrix Key Backup and Restore Gate | messaging | `test-vectors/messaging/matrix-key-backup-version-lifecycle.json` | `matrix-key-backup-version-lifecycle` |
 | Matrix v1.18 / Client-Server API / server-side key backup endpoints | SPEC-053 Matrix Key Backup and Restore Gate | messaging | `test-vectors/messaging/matrix-key-backup-wrong-version.json` | `matrix-key-backup-wrong-version` |
+| Matrix v1.18 / Client-Server API / room_keys bulk session upload, restore, and better-session replacement boundary | SPEC-143 Matrix Room Keys Bulk Session Better-Replacement Boundary | messaging | `test-vectors/messaging/matrix-room-keys-bulk-better-session-boundary.json` | `matrix-room-keys-bulk-better-session-boundary` |
 | Matrix v1.18 / Client-Server API / sync query and response sections | SPEC-093 Matrix Sync Breadth Extensions | sync | `test-vectors/sync/matrix-sync-breadth-extensions.json` | `matrix-sync-breadth-extensions` |
 | Matrix v1.18 / Client-Server API / Matrix 2.0 Sliding Sync readiness gate | SPEC-136 Matrix 2.0 Sliding Sync Readiness Gate | sync | `test-vectors/sync/matrix-2-sliding-sync-readiness-gate.json` | `matrix-2-sliding-sync-readiness-gate` |
 | Matrix v1.18 / Client-Server API / sync device_lists changed and left tracked-user lifecycle boundary | SPEC-149 Matrix Sync Device Lists Changed Left Lifecycle Boundary | sync | `test-vectors/sync/matrix-sync-device-lists-changed-left-lifecycle-boundary.json` | `matrix-sync-device-lists-changed-left-lifecycle-boundary` |
@@ -268,6 +271,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / verification and cross-signing endpoints | SPEC-054 Matrix Verification and Cross-Signing Gate | messaging | `test-vectors/messaging/matrix-cross-signing-invalid-signature.json` | `matrix-cross-signing-invalid-signature` |
 | Matrix v1.18 / Client-Server API / verification and cross-signing endpoints | SPEC-054 Matrix Verification and Cross-Signing Gate | messaging | `test-vectors/messaging/matrix-cross-signing-key-lifecycle.json` | `matrix-cross-signing-key-lifecycle` |
 | Matrix v1.18 / Client-Server API / verification and cross-signing endpoints | SPEC-054 Matrix Verification and Cross-Signing Gate | messaging | `test-vectors/messaging/matrix-cross-signing-missing-token.json` | `matrix-cross-signing-missing-token` |
+| Matrix v1.18 / Client-Server API / cross-signing signatures upload partial-failure and signing-chain prerequisite boundary | SPEC-144 Matrix Cross-Signing Signatures Upload Partial-Failure Chain Boundary | messaging | `test-vectors/messaging/matrix-cross-signing-signatures-upload-partial-failure-chain-boundary.json` | `matrix-cross-signing-signatures-upload-partial-failure-chain-boundary` |
 | Matrix v1.18 / Client-Server API / verification and cross-signing endpoints | SPEC-054 Matrix Verification and Cross-Signing Gate | messaging | `test-vectors/messaging/matrix-verification-sas-mismatch-cancel.json` | `matrix-verification-sas-mismatch-cancel` |
 | Matrix v1.18 / Client-Server API / verification and cross-signing endpoints | SPEC-054 Matrix Verification and Cross-Signing Gate | messaging | `test-vectors/messaging/matrix-verification-sas-to-device-happy-path.json` | `matrix-verification-sas-to-device-happy-path` |
 | Matrix v1.18 / Client-Server API / verification and cross-signing endpoints | SPEC-054 Matrix Verification and Cross-Signing Gate | messaging | `test-vectors/messaging/matrix-wrong-device-failure-gate.json` | `matrix-wrong-device-failure-gate` |
@@ -287,6 +291,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Server-Server API / federation ACL, policy, and signing runtime | SPEC-110 Matrix Federation ACL, Policy, and Signing Runtime | core | `test-vectors/core/matrix-federation-acl-policy-signing-runtime.json` | `matrix-federation-acl-policy-signing-runtime` |
 | Matrix v1.18 / Server-Server API / federation directory, query, and OpenID runtime | SPEC-108 Matrix Federation Directory, Query, and OpenID Runtime | core | `test-vectors/core/matrix-federation-directory-query-openid-runtime.json` | `matrix-federation-directory-query-openid-runtime` |
 | Matrix v1.18 / Server-Server API / federation E2EE device and media runtime | SPEC-109 Matrix Federation E2EE Device and Media Runtime | core | `test-vectors/core/matrix-federation-e2ee-device-media-runtime.json` | `matrix-federation-e2ee-device-media-runtime` |
+| Matrix v1.18 / Server-Server API / federation E2EE EDU parser boundary for device list update, signing key update, and direct-to-device | SPEC-145 Matrix Federation E2EE EDU Parser Boundary | events | `test-vectors/events/matrix-federation-e2ee-edu-parser-boundary.json` | `matrix-federation-e2ee-edu-parser-boundary` |
 | Matrix v1.18 / Server-Server API / federation event retrieval runtime | SPEC-112 Matrix Federation Event Retrieval Runtime | events | `test-vectors/events/matrix-federation-event-retrieval-runtime.json` | `matrix-federation-event-retrieval-runtime` |
 | Matrix v1.18 / Server-Server API / federation interop smoke gate | SPEC-061 Matrix Federation Interop Smoke | events | `test-vectors/events/matrix-federation-compose-ci-lane.json` | `matrix-federation-compose-ci-lane` |
 | Matrix v1.18 / Server-Server API / federation interop smoke gate | SPEC-061 Matrix Federation Interop Smoke | events | `test-vectors/events/matrix-federation-reference-homeserver-smoke.json` | `matrix-federation-reference-homeserver-smoke` |
@@ -345,6 +350,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Olm & Megolm / Megolm encrypted-room state event and timeline envelope parser boundary | SPEC-142 Matrix Megolm Encrypted-Room Envelope Parser Boundary | messaging | `test-vectors/messaging/matrix-megolm-encrypted-room-envelope-breadth.json` | `matrix-megolm-encrypted-room-envelope-breadth` |
 | Matrix v1.18 / Olm & Megolm / Matrix 2.0 E2EE key backup verification readiness gate | SPEC-137 Matrix 2.0 E2EE Key Backup Verification Readiness Gate | messaging | `test-vectors/messaging/matrix-2-e2ee-key-backup-verification-readiness-gate.json` | `matrix-2-e2ee-key-backup-verification-readiness-gate` |
 | Matrix v1.18 / Olm & Megolm / Olm and Megolm to-device key event relay | SPEC-130 Matrix Olm Withheld-Key To-Device Relay Boundary | messaging | `test-vectors/messaging/matrix-olm-withheld-key-to-device-relay.json` | `matrix-olm-withheld-key-to-device-relay` |
+| Matrix v1.18 / Olm & Megolm / Olm to-device transaction idempotency and out-of-order delivery boundary | SPEC-152 Matrix Olm To-Device Idempotency and Ordering Boundary | messaging | `test-vectors/messaging/matrix-olm-to-device-idempotency-ordering-breadth.json` | `matrix-olm-to-device-idempotency-ordering-breadth` |
 | Matrix v1.18 / Olm & Megolm / secret storage and cross-signing account data shape parser boundary | SPEC-148 Matrix Secret Storage Account Data Parser Boundary | messaging | `test-vectors/messaging/matrix-secret-storage-account-data-shape-parser-boundary.json` | `matrix-secret-storage-account-data-shape-parser-boundary` |
 
 ### Application Service API

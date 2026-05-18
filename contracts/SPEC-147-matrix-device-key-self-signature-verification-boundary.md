@@ -19,7 +19,7 @@ signed by the same device's `ed25519` key.
 This contract is a child gate of `SPEC-079`
 `device-keys-one-time-fallback-device-list-breadth`. It narrows `SPEC-051`
 without re-defining the basic upload happy path or malformed-shape
-rejection in `SPEC-051` / `SPEC-141`, and it does not implement Olm/Megolm
+rejection in `SPEC-051` / `SPEC-153`, and it does not implement Olm/Megolm
 cryptography, derive trust, or widen `GET /_matrix/client/versions`.
 
 The signature primitive at this boundary is ed25519 over canonical JSON.
@@ -145,7 +145,7 @@ Passing this contract does not claim:
 - cross-signing key signature verification beyond `SPEC-054` /
   `SPEC-144`;
 - one-time-key depletion, fallback rotation, or unknown-device
-  omission beyond `SPEC-141`;
+  omission beyond `SPEC-153`;
 - federation device-key signature evaluation beyond `SPEC-109` /
   `SPEC-145`;
 - device-list `changed` / `left` runtime semantics beyond `SPEC-093`;

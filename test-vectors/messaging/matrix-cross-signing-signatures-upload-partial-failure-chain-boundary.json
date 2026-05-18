@@ -1,0 +1,289 @@
+{
+  "name": "matrix-cross-signing-signatures-upload-partial-failure-chain-boundary",
+  "contract": "SPEC-144",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#cross-signing",
+    "device_signing_upload_source": "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3keysdevice_signingupload",
+    "signatures_upload_source": "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3keyssignaturesupload",
+    "checked_at": "2026-05-18T18:30:00+09:00",
+    "required_contracts": [
+      "SPEC-050",
+      "SPEC-051",
+      "SPEC-054",
+      "SPEC-079",
+      "SPEC-144"
+    ],
+    "local_olm_megolm_allowed": false,
+    "steps": [
+      {
+        "id": "reject-self-signing-without-master-prerequisite",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/device_signing/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "self_signing_key": {
+            "user_id": "@alice:example.test",
+            "usage": [
+              "self_signing"
+            ],
+            "keys": {
+              "ed25519:self-signing-public": "self-signing-public"
+            },
+            "signatures": {
+              "@alice:example.test": {
+                "ed25519:master-public": "signature-of-self-signing-by-master"
+              }
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_SIGNATURE"
+        },
+        "server_effect": {
+          "orphan_child_key_stored": false
+        }
+      },
+      {
+        "id": "upload-master-key-baseline",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/device_signing/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "master_key": {
+            "user_id": "@alice:example.test",
+            "usage": [
+              "master"
+            ],
+            "keys": {
+              "ed25519:master-public": "master-public"
+            },
+            "signatures": {
+              "@alice:example.test": {
+                "ed25519:ALICE1": "signature-of-master-by-device"
+              }
+            }
+          }
+        },
+        "expected_status": 200,
+        "server_effect": {
+          "master_key_stored": true
+        }
+      },
+      {
+        "id": "accept-self-signing-with-stored-master",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/device_signing/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "self_signing_key": {
+            "user_id": "@alice:example.test",
+            "usage": [
+              "self_signing"
+            ],
+            "keys": {
+              "ed25519:self-signing-public": "self-signing-public"
+            },
+            "signatures": {
+              "@alice:example.test": {
+                "ed25519:master-public": "signature-of-self-signing-by-master"
+              }
+            }
+          }
+        },
+        "expected_status": 200,
+        "server_effect": {
+          "self_signing_key_stored": true
+        }
+      },
+      {
+        "id": "reject-master-key-replacement-without-uia",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/device_signing/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "master_key": {
+            "user_id": "@alice:example.test",
+            "usage": [
+              "master"
+            ],
+            "keys": {
+              "ed25519:master-public-v2": "master-public-v2"
+            },
+            "signatures": {
+              "@alice:example.test": {
+                "ed25519:ALICE1": "signature-of-new-master-by-device"
+              }
+            }
+          }
+        },
+        "expected_status": 401,
+        "expected_body_contains_keys": [
+          "flows",
+          "session"
+        ],
+        "server_effect": {
+          "master_key_replaced": false
+        }
+      },
+      {
+        "id": "signatures-upload-partial-failure",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/signatures/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "@alice:example.test": {
+            "ALICE2": {
+              "user_id": "@alice:example.test",
+              "device_id": "ALICE2",
+              "algorithms": [
+                "m.olm.v1.curve25519-aes-sha2",
+                "m.megolm.v1.aes-sha2"
+              ],
+              "keys": {
+                "curve25519:ALICE2": "curve25519-device-public-alice2",
+                "ed25519:ALICE2": "ed25519-device-public-alice2"
+              },
+              "signatures": {
+                "@alice:example.test": {
+                  "ed25519:self-signing-public": "valid-signature-alice2"
+                }
+              }
+            },
+            "ALICE3": {
+              "user_id": "@alice:example.test",
+              "device_id": "ALICE3",
+              "algorithms": [
+                "m.olm.v1.curve25519-aes-sha2",
+                "m.megolm.v1.aes-sha2"
+              ],
+              "keys": {
+                "curve25519:ALICE3": "curve25519-device-public-alice3",
+                "ed25519:ALICE3": "ed25519-device-public-alice3"
+              },
+              "signatures": {
+                "@alice:example.test": {
+                  "ed25519:not-the-self-signing-key": "invalid-signature-alice3"
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 200,
+        "expected_body_contains": {
+          "failures": {
+            "@alice:example.test": {
+              "ALICE3": {
+                "errcode": "M_INVALID_SIGNATURE"
+              }
+            }
+          }
+        },
+        "expected_body_failures_omits_device_ids_for_user": {
+          "@alice:example.test": [
+            "ALICE2"
+          ]
+        },
+        "server_effect": {
+          "alice2_signature_stored": true,
+          "alice3_signature_stored": false
+        }
+      },
+      {
+        "id": "signatures-upload-cross-user-mismatch-into-failures",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/signatures/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "@bob:example.test": {
+            "BOB1": {
+              "user_id": "@bob:example.test",
+              "device_id": "BOB1",
+              "algorithms": [
+                "m.olm.v1.curve25519-aes-sha2",
+                "m.megolm.v1.aes-sha2"
+              ],
+              "keys": {
+                "ed25519:BOB1": "ed25519-device-public-bob1"
+              },
+              "signatures": {
+                "@alice:example.test": {
+                  "ed25519:self-signing-public": "alice-signing-bob-device-without-user-signing"
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 200,
+        "expected_body_contains": {
+          "failures": {
+            "@bob:example.test": {
+              "BOB1": {
+                "errcode": "M_FORBIDDEN"
+              }
+            }
+          }
+        },
+        "server_effect": {
+          "bob_device_signature_stored": false
+        }
+      },
+      {
+        "id": "reject-signatures-upload-missing-signatures-field",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/signatures/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "@alice:example.test": {
+            "ALICE4": {
+              "user_id": "@alice:example.test",
+              "device_id": "ALICE4",
+              "keys": {
+                "ed25519:ALICE4": "ed25519-device-public-alice4"
+              }
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_MISSING_PARAM"
+        }
+      },
+      {
+        "id": "reject-signatures-upload-non-object-per-user-map",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/signatures/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "@alice:example.test": "not-an-object"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_BAD_JSON"
+        }
+      }
+    ],
+    "required_evidence": [
+      "houra_spec_ref",
+      "houra_server_ref",
+      "user_ids",
+      "device_ids",
+      "key_ids",
+      "commands",
+      "per_step_pass_fail",
+      "versions_advertisement_widened_false"
+    ]
+  },
+  "expected": {
+    "orphan_child_key_rejected": true,
+    "stored_master_unlocks_child_upload": true,
+    "master_replacement_requires_uia": true,
+    "partial_failure_returns_200": true,
+    "failures_map_omits_successful_entries": true,
+    "cross_user_mismatch_in_failures_map": true,
+    "malformed_request_rejected_count": 2,
+    "private_signing_keys_stored": false,
+    "versions_advertisement_widened": false
+  }
+}

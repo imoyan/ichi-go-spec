@@ -1,0 +1,338 @@
+{
+  "name": "matrix-federation-e2ee-edu-parser-boundary",
+  "contract": "SPEC-145",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/server-server-api/#put_matrixfederationv1sendtxnid",
+    "device_list_update_source": "https://spec.matrix.org/v1.18/server-server-api/#mdevice_list_update",
+    "signing_key_update_source": "https://spec.matrix.org/v1.18/server-server-api/#msigning_key_update",
+    "direct_to_device_source": "https://spec.matrix.org/v1.18/server-server-api/#mdirect_to_device",
+    "checked_at": "2026-05-18T19:00:00+09:00",
+    "required_contracts": [
+      "SPEC-050",
+      "SPEC-074",
+      "SPEC-079",
+      "SPEC-097",
+      "SPEC-107",
+      "SPEC-109",
+      "SPEC-145"
+    ],
+    "local_olm_megolm_allowed": false,
+    "steps": [
+      {
+        "id": "accept-mixed-e2ee-edu-transaction",
+        "method": "PUT",
+        "path": "/_matrix/federation/v1/send/txn-e2ee-edu-1",
+        "request_signing": "x-matrix-federation",
+        "body": {
+          "origin": "remote.example.test",
+          "origin_server_ts": 1779000000000,
+          "pdus": [],
+          "edus": [
+            {
+              "edu_type": "m.device_list_update",
+              "content": {
+                "user_id": "@alice:remote.example.test",
+                "device_id": "REMOTE_ALICE_1",
+                "stream_id": 17,
+                "prev_id": [
+                  16
+                ],
+                "device_display_name": "Alice Phone",
+                "keys": {
+                  "user_id": "@alice:remote.example.test",
+                  "device_id": "REMOTE_ALICE_1",
+                  "algorithms": [
+                    "m.olm.v1.curve25519-aes-sha2",
+                    "m.megolm.v1.aes-sha2"
+                  ],
+                  "keys": {
+                    "curve25519:REMOTE_ALICE_1": "remote-curve25519-public",
+                    "ed25519:REMOTE_ALICE_1": "remote-ed25519-public"
+                  },
+                  "signatures": {
+                    "@alice:remote.example.test": {
+                      "ed25519:REMOTE_ALICE_1": "remote-signature"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "edu_type": "m.signing_key_update",
+              "content": {
+                "user_id": "@alice:remote.example.test",
+                "master_key": {
+                  "user_id": "@alice:remote.example.test",
+                  "usage": [
+                    "master"
+                  ],
+                  "keys": {
+                    "ed25519:remote-master-public": "remote-master-public"
+                  },
+                  "signatures": {
+                    "@alice:remote.example.test": {
+                      "ed25519:REMOTE_ALICE_1": "signature-of-master-by-device"
+                    }
+                  }
+                },
+                "self_signing_key": {
+                  "user_id": "@alice:remote.example.test",
+                  "usage": [
+                    "self_signing"
+                  ],
+                  "keys": {
+                    "ed25519:remote-self-signing-public": "remote-self-signing-public"
+                  },
+                  "signatures": {
+                    "@alice:remote.example.test": {
+                      "ed25519:remote-master-public": "signature-of-self-signing-by-master"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "edu_type": "m.direct_to_device",
+              "content": {
+                "sender": "@alice:remote.example.test",
+                "type": "m.room.encrypted",
+                "message_id": "msg-fed-1",
+                "messages": {
+                  "@bob:example.test": {
+                    "BOB1": {
+                      "algorithm": "m.olm.v1.curve25519-aes-sha2",
+                      "sender_key": "remote-curve25519-public",
+                      "ciphertext": {
+                        "bob-curve25519-bob1": {
+                          "type": 0,
+                          "body": "remote-olm-prekey-ciphertext"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "expected_status": 200,
+        "expected_body_contains": {
+          "pdus": {}
+        },
+        "server_effect": {
+          "device_list_update_accepted": true,
+          "signing_key_update_accepted": true,
+          "direct_to_device_accepted": true,
+          "server_decrypted_to_device_payload": false
+        }
+      },
+      {
+        "id": "reject-device-list-update-non-integer-stream-id",
+        "method": "PUT",
+        "path": "/_matrix/federation/v1/send/txn-e2ee-edu-bad-stream-id",
+        "request_signing": "x-matrix-federation",
+        "body": {
+          "origin": "remote.example.test",
+          "origin_server_ts": 1779000010000,
+          "pdus": [],
+          "edus": [
+            {
+              "edu_type": "m.device_list_update",
+              "content": {
+                "user_id": "@alice:remote.example.test",
+                "device_id": "REMOTE_ALICE_1",
+                "stream_id": "not-an-integer"
+              }
+            }
+          ]
+        },
+        "expected_status": 200,
+        "expected_body_contains_failure_for_edu_type": "m.device_list_update",
+        "expected_failure_errcode": "M_INVALID_PARAM",
+        "server_effect": {
+          "device_list_update_accepted": false
+        }
+      },
+      {
+        "id": "reject-signing-key-update-missing-both-keys",
+        "method": "PUT",
+        "path": "/_matrix/federation/v1/send/txn-e2ee-edu-empty-signing-key-update",
+        "request_signing": "x-matrix-federation",
+        "body": {
+          "origin": "remote.example.test",
+          "origin_server_ts": 1779000020000,
+          "pdus": [],
+          "edus": [
+            {
+              "edu_type": "m.signing_key_update",
+              "content": {
+                "user_id": "@alice:remote.example.test"
+              }
+            }
+          ]
+        },
+        "expected_status": 200,
+        "expected_body_contains_failure_for_edu_type": "m.signing_key_update",
+        "expected_failure_errcode": "M_MISSING_PARAM"
+      },
+      {
+        "id": "reject-signing-key-update-user-id-mismatch",
+        "method": "PUT",
+        "path": "/_matrix/federation/v1/send/txn-e2ee-edu-user-id-mismatch",
+        "request_signing": "x-matrix-federation",
+        "body": {
+          "origin": "remote.example.test",
+          "origin_server_ts": 1779000030000,
+          "pdus": [],
+          "edus": [
+            {
+              "edu_type": "m.signing_key_update",
+              "content": {
+                "user_id": "@alice:remote.example.test",
+                "master_key": {
+                  "user_id": "@eve:other.example.test",
+                  "usage": [
+                    "master"
+                  ],
+                  "keys": {
+                    "ed25519:eve-master-public": "eve-master-public"
+                  },
+                  "signatures": {
+                    "@eve:other.example.test": {
+                      "ed25519:EVE1": "signature-of-master-by-device"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "expected_status": 200,
+        "expected_body_contains_failure_for_edu_type": "m.signing_key_update",
+        "expected_failure_errcode": "M_INVALID_PARAM"
+      },
+      {
+        "id": "reject-direct-to-device-missing-message-id",
+        "method": "PUT",
+        "path": "/_matrix/federation/v1/send/txn-e2ee-edu-missing-message-id",
+        "request_signing": "x-matrix-federation",
+        "body": {
+          "origin": "remote.example.test",
+          "origin_server_ts": 1779000040000,
+          "pdus": [],
+          "edus": [
+            {
+              "edu_type": "m.direct_to_device",
+              "content": {
+                "sender": "@alice:remote.example.test",
+                "type": "m.room.encrypted",
+                "messages": {
+                  "@bob:example.test": {
+                    "BOB1": {
+                      "algorithm": "m.olm.v1.curve25519-aes-sha2",
+                      "ciphertext": {
+                        "bob-curve25519-bob1": {
+                          "type": 0,
+                          "body": "remote-olm-prekey-ciphertext"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "expected_status": 200,
+        "expected_body_contains_failure_for_edu_type": "m.direct_to_device",
+        "expected_failure_errcode": "M_MISSING_PARAM"
+      },
+      {
+        "id": "reject-direct-to-device-non-object-messages",
+        "method": "PUT",
+        "path": "/_matrix/federation/v1/send/txn-e2ee-edu-bad-messages-shape",
+        "request_signing": "x-matrix-federation",
+        "body": {
+          "origin": "remote.example.test",
+          "origin_server_ts": 1779000050000,
+          "pdus": [],
+          "edus": [
+            {
+              "edu_type": "m.direct_to_device",
+              "content": {
+                "sender": "@alice:remote.example.test",
+                "type": "m.room.encrypted",
+                "message_id": "msg-fed-bad-shape",
+                "messages": "not-an-object"
+              }
+            }
+          ]
+        },
+        "expected_status": 200,
+        "expected_body_contains_failure_for_edu_type": "m.direct_to_device",
+        "expected_failure_errcode": "M_INVALID_PARAM"
+      },
+      {
+        "id": "duplicate-direct-to-device-message-id-does-not-duplicate",
+        "method": "PUT",
+        "path": "/_matrix/federation/v1/send/txn-e2ee-edu-duplicate",
+        "request_signing": "x-matrix-federation",
+        "body": {
+          "origin": "remote.example.test",
+          "origin_server_ts": 1779000060000,
+          "pdus": [],
+          "edus": [
+            {
+              "edu_type": "m.direct_to_device",
+              "content": {
+                "sender": "@alice:remote.example.test",
+                "type": "m.room.encrypted",
+                "message_id": "msg-fed-1",
+                "messages": {
+                  "@bob:example.test": {
+                    "BOB1": {
+                      "algorithm": "m.olm.v1.curve25519-aes-sha2",
+                      "sender_key": "remote-curve25519-public",
+                      "ciphertext": {
+                        "bob-curve25519-bob1": {
+                          "type": 0,
+                          "body": "remote-olm-prekey-ciphertext"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "expected_status": 200,
+        "server_effect": {
+          "duplicate_delivered_to_recipient": false,
+          "to_device_queue_count_for_bob1_unchanged": true
+        }
+      }
+    ],
+    "required_evidence": [
+      "houra_spec_ref",
+      "houra_server_ref",
+      "origin_server",
+      "edu_types",
+      "user_ids",
+      "device_ids",
+      "commands",
+      "per_step_pass_fail",
+      "versions_advertisement_widened_false"
+    ]
+  },
+  "expected": {
+    "mixed_e2ee_edu_accepted": true,
+    "device_list_update_failure_count": 1,
+    "signing_key_update_failure_count": 2,
+    "direct_to_device_failure_count": 2,
+    "duplicate_message_id_idempotent": true,
+    "server_decrypted_to_device_payload": false,
+    "versions_advertisement_widened": false
+  }
+}

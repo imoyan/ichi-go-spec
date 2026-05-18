@@ -163,7 +163,7 @@ Passing this contract does not claim:
 - federation fanout correctness across multiple destination servers;
 - device-list `changed` / `left` runtime semantics beyond `SPEC-149`;
 - device key self-signature verification beyond `SPEC-147`;
-- one-time-key claim or depletion beyond `SPEC-141`;
+- one-time-key claim or depletion beyond `SPEC-153`;
 - cross-signing signature upload partial-failure beyond `SPEC-144`;
 - Matrix v1.18 full E2EE support or `/versions` advertisement
   widening.

@@ -149,7 +149,7 @@ Passing this contract does not claim:
   destination servers;
 - remote signature trust for cross-signing key updates;
 - key backup or recovery-key behavior beyond `SPEC-053`;
-- one-time-key depletion semantics beyond `SPEC-141`;
+- one-time-key depletion semantics beyond `SPEC-153`;
 - device key self-signature verification beyond `SPEC-147`;
 - to-device delivery beyond `SPEC-052`;
 - Matrix v1.18 full E2EE support or `/versions` advertisement

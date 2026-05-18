@@ -1,0 +1,236 @@
+{
+  "name": "matrix-keys-claim-depletion-fallback-rotation-breadth",
+  "contract": "SPEC-153",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3keysclaim",
+    "keys_upload_source": "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3keysupload",
+    "one_time_fallback_source": "https://spec.matrix.org/v1.18/client-server-api/#one-time-and-fallback-keys",
+    "checked_at": "2026-05-18T17:05:00+09:00",
+    "required_contracts": [
+      "SPEC-050",
+      "SPEC-051",
+      "SPEC-079",
+      "SPEC-153"
+    ],
+    "local_olm_megolm_allowed": false,
+    "steps": [
+      {
+        "id": "upload-two-one-time-keys",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "one_time_keys": {
+            "signed_curve25519:otk1": {
+              "key": "one-time-public-key-1",
+              "signatures": {
+                "@alice:example.test": {
+                  "ed25519:DEVICE1": "signature-otk1"
+                }
+              }
+            },
+            "signed_curve25519:otk2": {
+              "key": "one-time-public-key-2",
+              "signatures": {
+                "@alice:example.test": {
+                  "ed25519:DEVICE1": "signature-otk2"
+                }
+              }
+            }
+          },
+          "fallback_keys": {
+            "signed_curve25519:fb1": {
+              "key": "fallback-public-key-1",
+              "fallback": true,
+              "signatures": {
+                "@alice:example.test": {
+                  "ed25519:DEVICE1": "signature-fb1"
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 200,
+        "expected_body_contains": {
+          "one_time_key_counts": {
+            "signed_curve25519": 2
+          }
+        }
+      },
+      {
+        "id": "claim-first-one-time-key",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/claim",
+        "access_token": "token-bob-device1",
+        "body": {
+          "one_time_keys": {
+            "@alice:example.test": {
+              "DEVICE1": "signed_curve25519"
+            }
+          }
+        },
+        "expected_status": 200,
+        "expected_response_key_id_in": [
+          "signed_curve25519:otk1",
+          "signed_curve25519:otk2"
+        ],
+        "server_effect": {
+          "one_time_keys_remaining_for_alice_device1": 1
+        }
+      },
+      {
+        "id": "claim-second-one-time-key-distinct-from-first",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/claim",
+        "access_token": "token-carol-device1",
+        "body": {
+          "one_time_keys": {
+            "@alice:example.test": {
+              "DEVICE1": "signed_curve25519"
+            }
+          }
+        },
+        "expected_status": 200,
+        "expected_response_key_id_in": [
+          "signed_curve25519:otk1",
+          "signed_curve25519:otk2"
+        ],
+        "expected_distinct_from_previous_claim": true,
+        "server_effect": {
+          "one_time_keys_remaining_for_alice_device1": 0
+        }
+      },
+      {
+        "id": "claim-fallback-after-one-time-exhaustion",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/claim",
+        "access_token": "token-dan-device1",
+        "body": {
+          "one_time_keys": {
+            "@alice:example.test": {
+              "DEVICE1": "signed_curve25519"
+            }
+          }
+        },
+        "expected_status": 200,
+        "expected_response_key_ids": [
+          "signed_curve25519:fb1"
+        ],
+        "expected_response_fallback_flag": true,
+        "server_effect": {
+          "fallback_key_used_after_one_time_exhaustion": true
+        }
+      },
+      {
+        "id": "upload-rotated-fallback-key",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/upload",
+        "access_token": "token-alice-device1",
+        "body": {
+          "fallback_keys": {
+            "signed_curve25519:fb2": {
+              "key": "fallback-public-key-2",
+              "fallback": true,
+              "signatures": {
+                "@alice:example.test": {
+                  "ed25519:DEVICE1": "signature-fb2"
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "claim-rotated-fallback-key-not-stale",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/claim",
+        "access_token": "token-erin-device1",
+        "body": {
+          "one_time_keys": {
+            "@alice:example.test": {
+              "DEVICE1": "signed_curve25519"
+            }
+          }
+        },
+        "expected_status": 200,
+        "expected_response_key_ids": [
+          "signed_curve25519:fb2"
+        ],
+        "expected_stale_fallback_returned": false,
+        "server_effect": {
+          "rotated_fallback_key_used": true
+        }
+      },
+      {
+        "id": "claim-mixed-batch-known-exhausted-and-unknown",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/claim",
+        "access_token": "token-frank-device1",
+        "body": {
+          "one_time_keys": {
+            "@alice:example.test": {
+              "DEVICE1": "signed_curve25519"
+            },
+            "@unknown:example.test": {
+              "MISSING1": "signed_curve25519"
+            },
+            "@bob:example.test": {
+              "UNKNOWN_DEVICE": "signed_curve25519"
+            }
+          }
+        },
+        "expected_status": 200,
+        "expected_body_omits_user_ids": [
+          "@unknown:example.test"
+        ],
+        "expected_body_omits_device_ids_for_user": {
+          "@bob:example.test": [
+            "UNKNOWN_DEVICE"
+          ]
+        },
+        "expected_response_key_ids": [
+          "signed_curve25519:fb2"
+        ],
+        "server_effect": {
+          "batch_partial_success": true,
+          "unknown_user_omitted": true,
+          "unknown_device_omitted": true
+        }
+      },
+      {
+        "id": "reject-non-object-one-time-keys",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/claim",
+        "access_token": "token-bob-device1",
+        "body": {
+          "one_time_keys": "not-an-object"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_BAD_JSON"
+        }
+      }
+    ],
+    "required_evidence": [
+      "houra_spec_ref",
+      "houra_server_ref",
+      "user_ids",
+      "device_ids",
+      "commands",
+      "per_step_pass_fail",
+      "versions_advertisement_widened_false"
+    ]
+  },
+  "expected": {
+    "one_time_key_depletion_returns_distinct_ids": true,
+    "fallback_used_after_exhaustion": true,
+    "rotated_fallback_replaces_prior": true,
+    "unknown_user_omitted": true,
+    "unknown_device_omitted": true,
+    "mixed_batch_returns_200": true,
+    "malformed_request_rejected": true,
+    "versions_advertisement_widened": false
+  }
+}
