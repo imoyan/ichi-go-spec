@@ -12,7 +12,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Client-Server API | 158 | 33 |
 | Server-Server API | 27 | 14 |
 | Room Versions | 21 | 13 |
-| Olm & Megolm | 5 | 5 |
+| Olm & Megolm | 6 | 6 |
 | Application Service API | 15 | 12 |
 | Identity Service API | 9 | 6 |
 | Push Gateway API | 9 | 5 |
@@ -331,6 +331,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Olm & Megolm / maintained crypto stack and storage ownership | SPEC-081 Matrix Maintained Crypto Stack and Storage Ownership Boundary | messaging | `test-vectors/messaging/matrix-maintained-crypto-storage-ownership-boundary.json` | `matrix-maintained-crypto-storage-ownership-boundary` |
 | Matrix v1.18 / Olm & Megolm / Matrix 2.0 E2EE key backup verification readiness gate | SPEC-137 Matrix 2.0 E2EE Key Backup Verification Readiness Gate | messaging | `test-vectors/messaging/matrix-2-e2ee-key-backup-verification-readiness-gate.json` | `matrix-2-e2ee-key-backup-verification-readiness-gate` |
 | Matrix v1.18 / Olm & Megolm / Olm and Megolm to-device key event relay | SPEC-130 Matrix Olm Withheld-Key To-Device Relay Boundary | messaging | `test-vectors/messaging/matrix-olm-withheld-key-to-device-relay.json` | `matrix-olm-withheld-key-to-device-relay` |
+| Matrix v1.18 / Olm & Megolm / secret storage and cross-signing account data shape parser boundary | SPEC-148 Matrix Secret Storage Account Data Parser Boundary | messaging | `test-vectors/messaging/matrix-secret-storage-account-data-shape-parser-boundary.json` | `matrix-secret-storage-account-data-shape-parser-boundary` |
 
 ### Application Service API
 

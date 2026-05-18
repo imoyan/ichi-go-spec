@@ -128,6 +128,7 @@ Adoption states:
 | Matrix v1.18 / Olm & Megolm / Matrix 2.0 E2EE key backup verification readiness gate | SPEC-137 Matrix 2.0 E2EE Key Backup Verification Readiness Gate | gate | Olm & Megolm | - | - | - | blocked | Matrix |
 | Matrix v1.18 / Room Versions / Matrix 2.0 auth state-resolution readiness gate | SPEC-138 Matrix 2.0 Room Versions Auth State Readiness Gate | gate | Room Versions | - | - | - | blocked | Matrix |
 | Matrix v1.18 / Client-Server API / Matrix 2.0 extensible profiles events readiness gate | SPEC-139 Matrix 2.0 Extensible Profiles Events Readiness Gate | gate | Client-Server API | - | - | - | blocked | Matrix |
+| Matrix v1.18 / Olm & Megolm / secret storage and cross-signing account data shape parser boundary | SPEC-148 Matrix Secret Storage Account Data Parser Boundary | boundary | Olm & Megolm | - | - | - | planned | Matrix |
 
 The board intentionally keeps implementation references lightweight. Detailed release evidence stays in `CHANGELOG.md`, and open roadmap or exclusion reasoning stays in `docs/matrix-compliance.md`.
 
