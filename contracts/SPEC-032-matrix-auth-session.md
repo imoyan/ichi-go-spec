@@ -33,7 +33,7 @@ and redirects are covered by `SPEC-068`.
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3accountwhoami>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3logout>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3logoutall>
-- Checked at: 2026-05-18T14:13:49+09:00
+- Checked at: 2026-05-18T18:55:30+09:00
 - Timezone: Asia/Tokyo
 
 ## Login flow discovery
@@ -136,6 +136,12 @@ Successful responses identify the user that owns the access token:
 
 `user_id` is required. `device_id` is required when the token is associated with
 a device. `is_guest`, when absent, is treated as false.
+
+When the access token belongs to a guest account created through
+`SPEC-033` `kind=guest` registration, representative Houra compatibility
+returns `is_guest: true`. This flag does not by itself grant room access,
+guest-to-user upgrade, room preview, or guest-specific API allowlist behavior;
+those remain scoped to later guest-access contracts.
 
 Invalid or missing bearer tokens must return Matrix `M_UNKNOWN_TOKEN` or
 `M_MISSING_TOKEN` errors as defined by `SPEC-031`.

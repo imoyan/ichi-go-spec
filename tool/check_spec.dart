@@ -659,6 +659,7 @@ void checkMatrixAuthSession(
     'test-vectors/auth/matrix-password-login-basic.json',
     'test-vectors/auth/matrix-password-login-failure.json',
     'test-vectors/auth/matrix-whoami-basic.json',
+    'test-vectors/auth/matrix-whoami-guest-basic.json',
     'test-vectors/auth/matrix-logout-basic.json',
     'test-vectors/auth/matrix-logout-all-basic.json',
     'test-vectors/auth/matrix-logout-all-token-invalid-after-logout.json',

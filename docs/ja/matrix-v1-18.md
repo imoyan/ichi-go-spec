@@ -64,9 +64,10 @@ room state event の順で contract / vector / server gate に昇格してから
 
 `SPEC-033` の registration contract は #408 で代表的な `kind=guest`
 registration vector を含みます。ただしこれは guest account 作成の最小応答だけを
-固定するもので、guest-to-user upgrade、`m.room.guest_access` enforcement、room
-preview、guest-specific API allowlist は引き続き別 gate です。Matrix `/versions`
-advertisement は広げません。
+固定するものです。#411 では、この guest token を `SPEC-032` の `whoami` へ通した時に
+`is_guest=true` を返す代表 vector だけを追加します。guest-to-user upgrade、
+`m.room.guest_access` enforcement、room preview、guest-specific API allowlist は
+引き続き別 gate です。Matrix `/versions` advertisement は広げません。
 
 `SPEC-074` は、`houra-server#136` の Server-Server full-breadth gap を
 discovery / key / auth、transaction / PDU / EDU、event retrieval、join / knock /
