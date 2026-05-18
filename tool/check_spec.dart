@@ -160,6 +160,7 @@ void main() {
   checkMatrix2VersionsAdvertisementEvidenceGate(contracts, failures);
   checkMatrix2OAuthOidcReadinessGate(contracts, failures);
   checkMatrix2SlidingSyncReadinessGate(contracts, failures);
+  checkMatrix2E2eeKeyBackupVerificationReadinessGate(contracts, failures);
   checkProductMvpReleaseCandidatePlan(contracts, failures);
   checkOssPublicationReadinessPlan(contracts, failures);
   checkConformanceToolingResultSchema(contracts, profileMap, failures);
@@ -12751,6 +12752,164 @@ void checkMatrix2SlidingSyncReadinessGate(
     if (serialized.contains(forbidden)) {
       failures.add(
         '${relative(file)} Matrix 2.0 Sliding Sync evidence contains forbidden token: $forbidden',
+      );
+    }
+  }
+}
+
+void checkMatrix2E2eeKeyBackupVerificationReadinessGate(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  const path =
+      'test-vectors/messaging/matrix-2-e2ee-key-backup-verification-readiness-gate.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix 2.0 E2EE readiness gate: $path');
+    return;
+  }
+  if (!contracts.containsKey('SPEC-137')) {
+    failures.add('$path references missing contract: SPEC-137');
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-137') {
+    failures.add('${relative(file)} must use SPEC-137.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['issue'] != 'imoyan/houra-spec#384' ||
+      eventMap['parent_issue'] != 'imoyan/houra-spec#377' ||
+      eventMap['snapshot_issue'] != 'imoyan/houra-spec#380' ||
+      eventMap['advertisement_issue'] != 'imoyan/houra-spec#381' ||
+      eventMap['lane'] != 'e2ee-key-backup-verification' ||
+      eventMap['matrix_domain'] != 'Olm & Megolm' ||
+      eventMap['timezone'] != 'Asia/Tokyo' ||
+      eventMap['matrix_2_release_status'] != 'pending-stable-spec-release') {
+    failures.add('${relative(file)} Matrix 2.0 E2EE metadata invalid.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String ||
+      !RegExp(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$')
+          .hasMatch(checkedAt)) {
+    failures.add('${relative(file)} checked_at must be a dated +09:00 snapshot.');
+  }
+  if (eventMap['current_stable_spec_entrypoint'] !=
+          'https://spec.matrix.org/latest/' ||
+      eventMap['current_stable_spec_version'] != 'v1.18' ||
+      eventMap['source_snapshot_contract'] != 'SPEC-133' ||
+      eventMap['versions_advertisement_gate_contract'] != 'SPEC-134' ||
+      eventMap['v1_18_gap_inventory_contract'] != 'SPEC-079' ||
+      eventMap['maintained_crypto_boundary_contract'] != 'SPEC-081') {
+    failures.add('${relative(file)} E2EE reference contracts invalid.');
+  }
+
+  final relatedContracts = readStringList(eventMap['related_contracts']);
+  if (relatedContracts == null ||
+      relatedContracts.length != 11 ||
+      !relatedContracts.toSet().containsAll({
+        'SPEC-050',
+        'SPEC-051',
+        'SPEC-052',
+        'SPEC-053',
+        'SPEC-054',
+        'SPEC-069',
+        'SPEC-079',
+        'SPEC-081',
+        'SPEC-102',
+        'SPEC-130',
+        'SPEC-134',
+      })) {
+    failures.add('${relative(file)} related E2EE contracts incomplete.');
+  }
+
+  final rules = eventMap['classification_rules'];
+  final classifications = rules is Map
+      ? readStringList(rules['allowed_classifications'])
+      : null;
+  final stableFields = rules is Map
+      ? readStringList(rules['stable_requirement_fields'])
+      : null;
+  if (rules is! Map ||
+      classifications == null ||
+      classifications.length != 5 ||
+      !classifications.contains('stable-requirement') ||
+      !classifications.contains('parser-artifact-only') ||
+      !classifications.contains('maintained-stack-evidence') ||
+      !classifications.contains('implementation-note') ||
+      !classifications.contains('out-of-scope') ||
+      stableFields == null ||
+      stableFields.length != 8 ||
+      rules['parser_artifact_evidence_implies_crypto_support'] != false ||
+      rules['maintained_stack_selection_implies_runtime_adoption'] != false ||
+      rules['server_evidence_may_own_local_secrets'] != false) {
+    failures.add('${relative(file)} E2EE classification rules invalid.');
+  }
+
+  final redaction = eventMap['secret_redaction_rules'];
+  if (redaction is! Map ||
+      redaction['plaintext_retained'] != false ||
+      redaction['roomKeyMaterialRetained'] != false ||
+      redaction['sessionKeyMaterialRetained'] != false ||
+      redaction['privateKeyMaterialRetained'] != false ||
+      redaction['recoveryMaterialRetained'] != false ||
+      redaction['secureStorageHandlesRetained'] != false ||
+      redaction['rawEncryptedMediaRetained'] != false ||
+      redaction['public_key_shape_allowed'] != true ||
+      redaction['opaque_backup_payload_shape_allowed'] != true) {
+    failures.add('${relative(file)} E2EE redaction rules invalid.');
+  }
+
+  final gate = eventMap['gate_result'];
+  final reasons = gate is Map ? gate['blocking_reasons'] : null;
+  if (gate is! Map ||
+      gate['status'] != 'blocked' ||
+      reasons is! List ||
+      reasons.length < 4 ||
+      gate['matrix_2_e2ee_claim_allowed'] != false ||
+      gate['key_backup_claim_allowed'] != false ||
+      gate['verification_claim_allowed'] != false ||
+      gate['cross_signing_claim_allowed'] != false ||
+      gate['encrypted_room_claim_allowed'] != false ||
+      gate['versions_advertisement_widened'] != false ||
+      gate['publishable_matrix_support_claim_widened'] != false) {
+    failures.add('${relative(file)} E2EE gate result invalid.');
+  }
+
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['matrix_2_e2ee_gate_blocked'] != true ||
+      expected['classification_count'] != 5 ||
+      expected['stable_requirement_fields_count'] != 8 ||
+      expected['related_contract_count'] != 11 ||
+      expected['secret_bearing_evidence_allowed'] != false ||
+      expected['spec_079_preserved_as_gap_inventory'] != true ||
+      expected['spec_081_preserved_as_ownership_boundary'] != true ||
+      expected['matrix_2_e2ee_claim_allowed'] != false ||
+      expected['versions_advertisement_widened'] != false ||
+      expected['publishable_matrix_support_claim_widened'] != false) {
+    failures.add('${relative(file)} expected E2EE result invalid.');
+  }
+
+  final serialized = jsonEncode(json);
+  for (final forbidden in const [
+    '/Users',
+    '/tmp',
+    'access_token',
+    'refresh_token',
+    'authorization_code',
+    'callback_query',
+    'idp_session',
+    'private_key',
+    'token-',
+  ]) {
+    if (serialized.contains(forbidden)) {
+      failures.add(
+        '${relative(file)} Matrix 2.0 E2EE evidence contains forbidden token: $forbidden',
       );
     }
   }

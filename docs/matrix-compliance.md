@@ -354,6 +354,12 @@ Matrix 2.0 readiness preparation:
   `SPEC-093` as v1.18 sync boundaries while blocking Sliding Sync, sync
   performance, proxy, and optional-extension claims until stable-source client
   and server evidence pass.
+- `SPEC-137` and
+  `test-vectors/messaging/matrix-2-e2ee-key-backup-verification-readiness-gate.json`
+  define the #384 E2EE readiness gate. It keeps `SPEC-079` and `SPEC-081` as
+  v1.18 gap/ownership boundaries while blocking E2EE, key backup, verification,
+  cross-signing, encrypted-room, and maintained-crypto-stack claims until
+  stable-source and secret-free same-candidate evidence pass.
 - Matrix 2.0 remains unadvertised until the Matrix project publishes a stable
   Matrix 2.0 specification release and Houra records same-candidate evidence
   for the advertised domains.
