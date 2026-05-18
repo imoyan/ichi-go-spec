@@ -32,7 +32,8 @@ Federation contracts before they are advertised as complete.
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3joinroomidoralias>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3roomsroomidleave>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3roomsroomidstate>
-- Checked at: 2026-05-10T11:14:15+09:00
+- Source: <https://spec.matrix.org/v1.18/client-server-api/#mroomguest_access>
+- Checked at: 2026-05-18T20:05:00+09:00
 - Timezone: Asia/Tokyo
 
 ## Matrix room identifiers
@@ -120,6 +121,18 @@ Successful responses return the joined room ID:
 
 Joining by alias, `server_name` query hints, restricted rooms, knocks, invites,
 and remote federation joins are outside this contract.
+
+### Guest join boundary
+
+Guest access is controlled by `m.room.guest_access`. When a request uses a
+guest access token and the room does not have a current `m.room.guest_access`
+state event whose `content.guest_access` is `can_join`, representative Houra
+compatibility must fail closed with `403` and `M_FORBIDDEN`.
+
+This contract only adds the negative representative join boundary for guest
+accounts. The `can_join` allow path, guest-to-user upgrade with
+`guest_access_token`, room preview event streams, and guest-specific API
+allowlists remain outside this contract.
 
 ## Leave room
 

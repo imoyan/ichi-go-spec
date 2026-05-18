@@ -1330,6 +1330,7 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
   for (final path in [
     'test-vectors/rooms/matrix-create-room-basic.json',
     'test-vectors/rooms/matrix-create-room-missing-token.json',
+    'test-vectors/rooms/matrix-guest-join-forbidden.json',
     'test-vectors/rooms/matrix-join-room-basic.json',
     'test-vectors/rooms/matrix-join-room-not-found.json',
     'test-vectors/rooms/matrix-leave-room-basic.json',
@@ -1339,6 +1340,32 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
   ]) {
     if (!File(path).existsSync()) {
       failures.add('Missing Matrix room membership/state vector: $path');
+    }
+  }
+
+  final guestJoinFile = File('test-vectors/rooms/matrix-guest-join-forbidden.json');
+  final guestJoinVector = readJsonObject(guestJoinFile, failures);
+  if (guestJoinVector != null) {
+    validateMatrixSimpleRequestVector(
+      guestJoinFile,
+      guestJoinVector,
+      failures,
+      method: 'POST',
+      pathPrefix: '/_matrix/client/v3/join/!room:example.test',
+      status: 403,
+      errcode: 'M_FORBIDDEN',
+    );
+    final notes = guestJoinVector['notes'];
+    final outOfScope = notes is Map ? notes['out_of_scope'] : null;
+    if (notes is! Map ||
+        notes['guest_access_event_required_for_guest_join'] != true ||
+        notes['absent_guest_access_treated_as_forbidden'] != true ||
+        outOfScope is! List ||
+        !outOfScope.contains('m.room.guest_access can_join allow path') ||
+        !outOfScope.contains('guest-to-user upgrade with guest_access_token') ||
+        !outOfScope.contains('room preview event stream') ||
+        !outOfScope.contains('guest-specific API allowlist')) {
+      failures.add('${relative(guestJoinFile)} guest access boundary notes invalid.');
     }
   }
 }
