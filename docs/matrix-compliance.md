@@ -366,6 +366,13 @@ Matrix 2.0 readiness preparation:
   `SPEC-080` as v1.18 gap/capabilities boundaries while blocking Room Versions,
   event-auth, state-resolution, default/available room-version, and full
   algorithm claims until stable-source same-candidate evidence passes.
+- `SPEC-139` and
+  `test-vectors/sync/matrix-2-extensible-profiles-events-readiness-gate.json`
+  define the #386 Extensible Profiles / Events readiness gate. It keeps
+  `SPEC-045`, `SPEC-036`, and `SPEC-093` as v1.18 profile/account-data,
+  event-send, and sync-extension boundaries while blocking profile extension,
+  event extension, capability-advertisement, and parser-only runtime claims
+  until stable-source same-candidate evidence passes.
 - Matrix 2.0 remains unadvertised until the Matrix project publishes a stable
   Matrix 2.0 specification release and Houra records same-candidate evidence
   for the advertised domains.

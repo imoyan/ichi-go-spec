@@ -162,6 +162,7 @@ void main() {
   checkMatrix2SlidingSyncReadinessGate(contracts, failures);
   checkMatrix2E2eeKeyBackupVerificationReadinessGate(contracts, failures);
   checkMatrix2RoomVersionsAuthStateReadinessGate(contracts, failures);
+  checkMatrix2ExtensibleProfilesEventsReadinessGate(contracts, failures);
   checkProductMvpReleaseCandidatePlan(contracts, failures);
   checkOssPublicationReadinessPlan(contracts, failures);
   checkConformanceToolingResultSchema(contracts, profileMap, failures);
@@ -12107,8 +12108,7 @@ void checkMatrix2SnapshotV118DiffChecklist(
   Map<String, String> contracts,
   List<String> failures,
 ) {
-  const path =
-      'test-vectors/core/matrix-2-snapshot-v1-18-diff-checklist.json';
+  const path = 'test-vectors/core/matrix-2-snapshot-v1-18-diff-checklist.json';
   final file = File(path);
   if (!file.existsSync()) {
     failures.add('Missing Matrix 2.0 snapshot diff checklist: $path');
@@ -12136,9 +12136,12 @@ void checkMatrix2SnapshotV118DiffChecklist(
   }
   final checkedAt = eventMap['checked_at'];
   if (checkedAt is! String ||
-      !RegExp(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$')
-          .hasMatch(checkedAt)) {
-    failures.add('${relative(file)} checked_at must be a dated +09:00 snapshot.');
+      !RegExp(
+        r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$',
+      ).hasMatch(checkedAt)) {
+    failures.add(
+      '${relative(file)} checked_at must be a dated +09:00 snapshot.',
+    );
   }
 
   final baseline = eventMap['current_baseline'];
@@ -12314,13 +12317,18 @@ void checkMatrix2VersionsAdvertisementEvidenceGate(
       eventMap['matrix_domain'] != 'Client-Server API' ||
       eventMap['timezone'] != 'Asia/Tokyo' ||
       eventMap['matrix_2_release_status'] != 'pending-stable-spec-release') {
-    failures.add('${relative(file)} Matrix 2.0 advertisement metadata invalid.');
+    failures.add(
+      '${relative(file)} Matrix 2.0 advertisement metadata invalid.',
+    );
   }
   final checkedAt = eventMap['checked_at'];
   if (checkedAt is! String ||
-      !RegExp(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$')
-          .hasMatch(checkedAt)) {
-    failures.add('${relative(file)} checked_at must be a dated +09:00 snapshot.');
+      !RegExp(
+        r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$',
+      ).hasMatch(checkedAt)) {
+    failures.add(
+      '${relative(file)} checked_at must be a dated +09:00 snapshot.',
+    );
   }
   if (eventMap['current_stable_spec_entrypoint'] !=
           'https://spec.matrix.org/latest/' ||
@@ -12355,10 +12363,7 @@ void checkMatrix2VersionsAdvertisementEvidenceGate(
     const expectedLanes = {
       'oauth-oidc': ('imoyan/houra-spec#382', 'Client-Server API'),
       'sliding-sync': ('imoyan/houra-spec#383', 'Client-Server API'),
-      'e2ee-key-backup-verification': (
-        'imoyan/houra-spec#384',
-        'Olm & Megolm',
-      ),
+      'e2ee-key-backup-verification': ('imoyan/houra-spec#384', 'Olm & Megolm'),
       'room-versions-auth-state-resolution': (
         'imoyan/houra-spec#385',
         'Room Versions',
@@ -12505,9 +12510,12 @@ void checkMatrix2OAuthOidcReadinessGate(
   }
   final checkedAt = eventMap['checked_at'];
   if (checkedAt is! String ||
-      !RegExp(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$')
-          .hasMatch(checkedAt)) {
-    failures.add('${relative(file)} checked_at must be a dated +09:00 snapshot.');
+      !RegExp(
+        r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$',
+      ).hasMatch(checkedAt)) {
+    failures.add(
+      '${relative(file)} checked_at must be a dated +09:00 snapshot.',
+    );
   }
   if (eventMap['current_stable_spec_entrypoint'] !=
           'https://spec.matrix.org/latest/' ||
@@ -12661,9 +12669,12 @@ void checkMatrix2SlidingSyncReadinessGate(
   }
   final checkedAt = eventMap['checked_at'];
   if (checkedAt is! String ||
-      !RegExp(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$')
-          .hasMatch(checkedAt)) {
-    failures.add('${relative(file)} checked_at must be a dated +09:00 snapshot.');
+      !RegExp(
+        r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$',
+      ).hasMatch(checkedAt)) {
+    failures.add(
+      '${relative(file)} checked_at must be a dated +09:00 snapshot.',
+    );
   }
   if (eventMap['current_stable_spec_entrypoint'] !=
           'https://spec.matrix.org/latest/' ||
@@ -12696,7 +12707,9 @@ void checkMatrix2SlidingSyncReadinessGate(
       rules['server_only_evidence_implies_client_support'] != false ||
       rules['proxy_behavior_is_not_protocol_claim'] != true ||
       rules['spec_093_parser_boundary_is_not_sliding_sync_support'] != true) {
-    failures.add('${relative(file)} Sliding Sync classification rules invalid.');
+    failures.add(
+      '${relative(file)} Sliding Sync classification rules invalid.',
+    );
   }
 
   final unsupported = eventMap['unsupported_behavior'];
@@ -12707,7 +12720,9 @@ void checkMatrix2SlidingSyncReadinessGate(
       unsupported['performance_claim_allowed_without_benchmark'] != false ||
       unsupported['optional_extension_claim_allowed_without_evidence'] !=
           false) {
-    failures.add('${relative(file)} Sliding Sync unsupported behavior invalid.');
+    failures.add(
+      '${relative(file)} Sliding Sync unsupported behavior invalid.',
+    );
   }
 
   final gate = eventMap['gate_result'];
@@ -12795,9 +12810,12 @@ void checkMatrix2E2eeKeyBackupVerificationReadinessGate(
   }
   final checkedAt = eventMap['checked_at'];
   if (checkedAt is! String ||
-      !RegExp(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$')
-          .hasMatch(checkedAt)) {
-    failures.add('${relative(file)} checked_at must be a dated +09:00 snapshot.');
+      !RegExp(
+        r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$',
+      ).hasMatch(checkedAt)) {
+    failures.add(
+      '${relative(file)} checked_at must be a dated +09:00 snapshot.',
+    );
   }
   if (eventMap['current_stable_spec_entrypoint'] !=
           'https://spec.matrix.org/latest/' ||
@@ -12949,13 +12967,18 @@ void checkMatrix2RoomVersionsAuthStateReadinessGate(
       eventMap['matrix_domain'] != 'Room Versions' ||
       eventMap['timezone'] != 'Asia/Tokyo' ||
       eventMap['matrix_2_release_status'] != 'pending-stable-spec-release') {
-    failures.add('${relative(file)} Matrix 2.0 Room Versions metadata invalid.');
+    failures.add(
+      '${relative(file)} Matrix 2.0 Room Versions metadata invalid.',
+    );
   }
   final checkedAt = eventMap['checked_at'];
   if (checkedAt is! String ||
-      !RegExp(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$')
-          .hasMatch(checkedAt)) {
-    failures.add('${relative(file)} checked_at must be a dated +09:00 snapshot.');
+      !RegExp(
+        r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$',
+      ).hasMatch(checkedAt)) {
+    failures.add(
+      '${relative(file)} checked_at must be a dated +09:00 snapshot.',
+    );
   }
   if (eventMap['current_stable_spec_entrypoint'] !=
           'https://spec.matrix.org/latest/' ||
@@ -12964,7 +12987,9 @@ void checkMatrix2RoomVersionsAuthStateReadinessGate(
       eventMap['versions_advertisement_gate_contract'] != 'SPEC-134' ||
       eventMap['v1_18_gap_inventory_contract'] != 'SPEC-078' ||
       eventMap['capabilities_boundary_contract'] != 'SPEC-080') {
-    failures.add('${relative(file)} Room Versions reference contracts invalid.');
+    failures.add(
+      '${relative(file)} Room Versions reference contracts invalid.',
+    );
   }
 
   final relatedContracts = readStringList(eventMap['related_contracts']);
@@ -12985,7 +13010,9 @@ void checkMatrix2RoomVersionsAuthStateReadinessGate(
         'SPEC-104',
         'SPEC-134',
       })) {
-    failures.add('${relative(file)} related Room Versions contracts incomplete.');
+    failures.add(
+      '${relative(file)} related Room Versions contracts incomplete.',
+    );
   }
 
   final rules = eventMap['classification_rules'];
@@ -13008,7 +13035,9 @@ void checkMatrix2RoomVersionsAuthStateReadinessGate(
       rules['representative_fixture_implies_full_algorithm_support'] != false ||
       rules['capabilities_advertisement_implies_domain_support'] != false ||
       rules['helper_evidence_implies_runtime_support'] != false) {
-    failures.add('${relative(file)} Room Versions classification rules invalid.');
+    failures.add(
+      '${relative(file)} Room Versions classification rules invalid.',
+    );
   }
 
   final unsupported = eventMap['unsupported_behavior'];
@@ -13018,7 +13047,9 @@ void checkMatrix2RoomVersionsAuthStateReadinessGate(
       unsupported['unsupported_state_resolution_case_fails_closed'] != true ||
       unsupported['default_room_version_requires_evidence'] != true ||
       unsupported['available_room_versions_require_evidence'] != true) {
-    failures.add('${relative(file)} Room Versions unsupported behavior invalid.');
+    failures.add(
+      '${relative(file)} Room Versions unsupported behavior invalid.',
+    );
   }
 
   final gate = eventMap['gate_result'];
@@ -13066,6 +13097,211 @@ void checkMatrix2RoomVersionsAuthStateReadinessGate(
     if (serialized.contains(forbidden)) {
       failures.add(
         '${relative(file)} Matrix 2.0 Room Versions evidence contains forbidden token: $forbidden',
+      );
+    }
+  }
+}
+
+void checkMatrix2ExtensibleProfilesEventsReadinessGate(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  const path =
+      'test-vectors/sync/matrix-2-extensible-profiles-events-readiness-gate.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add(
+      'Missing Matrix 2.0 Extensible Profiles and Events readiness gate: $path',
+    );
+    return;
+  }
+  if (!contracts.containsKey('SPEC-139')) {
+    failures.add('$path references missing contract: SPEC-139');
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-139') {
+    failures.add('${relative(file)} must use SPEC-139.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['issue'] != 'imoyan/houra-spec#386' ||
+      eventMap['parent_issue'] != 'imoyan/houra-spec#377' ||
+      eventMap['snapshot_issue'] != 'imoyan/houra-spec#380' ||
+      eventMap['advertisement_issue'] != 'imoyan/houra-spec#381' ||
+      eventMap['lane'] != 'extensible-profiles-events' ||
+      eventMap['matrix_domain'] != 'Client-Server API' ||
+      eventMap['timezone'] != 'Asia/Tokyo' ||
+      eventMap['matrix_2_release_status'] != 'pending-stable-spec-release') {
+    failures.add(
+      '${relative(file)} Matrix 2.0 Extensible Profiles and Events metadata invalid.',
+    );
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String ||
+      !RegExp(
+        r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$',
+      ).hasMatch(checkedAt)) {
+    failures.add(
+      '${relative(file)} checked_at must be a dated +09:00 snapshot.',
+    );
+  }
+  if (eventMap['current_stable_spec_entrypoint'] !=
+          'https://spec.matrix.org/latest/' ||
+      eventMap['current_stable_spec_version'] != 'v1.18' ||
+      eventMap['source_snapshot_contract'] != 'SPEC-133' ||
+      eventMap['versions_advertisement_gate_contract'] != 'SPEC-134' ||
+      eventMap['v1_18_profile_account_data_contract'] != 'SPEC-045' ||
+      eventMap['v1_18_send_event_contract'] != 'SPEC-036' ||
+      eventMap['v1_18_sync_extensions_contract'] != 'SPEC-093' ||
+      eventMap['common_rules_contract'] != 'SPEC-031' ||
+      eventMap['event_graph_contract'] != 'SPEC-040' ||
+      eventMap['event_format_contract'] != 'SPEC-103') {
+    failures.add(
+      '${relative(file)} Extensible Profiles and Events reference contracts invalid.',
+    );
+  }
+
+  final relatedContracts = readStringList(eventMap['related_contracts']);
+  if (relatedContracts == null ||
+      relatedContracts.length != 13 ||
+      !relatedContracts.toSet().containsAll({
+        'SPEC-031',
+        'SPEC-036',
+        'SPEC-037',
+        'SPEC-040',
+        'SPEC-045',
+        'SPEC-046',
+        'SPEC-047',
+        'SPEC-090',
+        'SPEC-093',
+        'SPEC-103',
+        'SPEC-131',
+        'SPEC-133',
+        'SPEC-134',
+      })) {
+    failures.add(
+      '${relative(file)} related Extensible Profiles and Events contracts incomplete.',
+    );
+  }
+
+  final rules = eventMap['classification_rules'];
+  final classifications = rules is Map
+      ? readStringList(rules['allowed_classifications'])
+      : null;
+  final stableFields = rules is Map
+      ? readStringList(rules['stable_requirement_fields'])
+      : null;
+  if (rules is! Map ||
+      classifications == null ||
+      classifications.length != 6 ||
+      !classifications.contains('stable-requirement') ||
+      !classifications.contains('extensible-profile-field') ||
+      !classifications.contains('extensible-event-content') ||
+      !classifications.contains('parser-validation-only') ||
+      !classifications.contains('implementation-note') ||
+      !classifications.contains('out-of-scope') ||
+      stableFields == null ||
+      stableFields.length != 8 ||
+      !stableFields.contains('profile_or_event_surface') ||
+      !stableFields.contains('content_validation_boundary') ||
+      rules['experimental_msc_implies_stable_support'] != false ||
+      rules['parser_validation_implies_runtime_support'] != false ||
+      rules['client_rendering_note_implies_protocol_support'] != false ||
+      rules['custom_profile_field_implies_advertised_profile_capability'] !=
+          false ||
+      rules['generic_event_content_implies_supported_event_type'] != false) {
+    failures.add(
+      '${relative(file)} Extensible Profiles and Events classification rules invalid.',
+    );
+  }
+
+  final redaction = eventMap['redaction_rules'];
+  if (redaction is! Map ||
+      redaction['profile_payload_retained'] != false ||
+      redaction['display_name_value_retained'] != false ||
+      redaction['avatar_url_value_retained'] != false ||
+      redaction['account_data_payload_retained'] != false ||
+      redaction['raw_event_content_retained'] != false ||
+      redaction['event_body_value_retained'] != false ||
+      redaction['formatted_body_value_retained'] != false ||
+      redaction['external_url_value_retained'] != false ||
+      redaction['content_shape_retained'] != true ||
+      redaction['namespaced_identifier_shape_retained'] != true) {
+    failures.add(
+      '${relative(file)} Extensible Profiles and Events redaction rules invalid.',
+    );
+  }
+
+  final unsupported = eventMap['unsupported_behavior'];
+  if (unsupported is! Map ||
+      unsupported['unsupported_profile_field_fails_closed'] != true ||
+      unsupported['unsupported_event_content_fails_closed'] != true ||
+      unsupported['unstable_msc_excluded_from_support_claim'] != true ||
+      unsupported['parser_only_evidence_requires_explicit_no_runtime_claim'] !=
+          true ||
+      unsupported['capability_advertisement_requires_same_candidate_evidence'] !=
+          true) {
+    failures.add(
+      '${relative(file)} Extensible Profiles and Events unsupported behavior invalid.',
+    );
+  }
+
+  final gate = eventMap['gate_result'];
+  final reasons = gate is Map ? gate['blocking_reasons'] : null;
+  if (gate is! Map ||
+      gate['status'] != 'blocked' ||
+      reasons is! List ||
+      reasons.length < 4 ||
+      gate['matrix_2_extensible_profiles_events_claim_allowed'] != false ||
+      gate['profile_extension_claim_allowed'] != false ||
+      gate['event_extension_claim_allowed'] != false ||
+      gate['capability_advertisement_claim_allowed'] != false ||
+      gate['versions_advertisement_widened'] != false ||
+      gate['publishable_matrix_support_claim_widened'] != false) {
+    failures.add(
+      '${relative(file)} Extensible Profiles and Events gate result invalid.',
+    );
+  }
+
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['matrix_2_extensible_profiles_events_gate_blocked'] != true ||
+      expected['classification_count'] != 6 ||
+      expected['stable_requirement_fields_count'] != 8 ||
+      expected['related_contract_count'] != 13 ||
+      expected['spec_045_preserved_as_profile_account_data_boundary'] != true ||
+      expected['spec_036_preserved_as_send_event_boundary'] != true ||
+      expected['spec_093_preserved_as_sync_extension_boundary'] != true ||
+      expected['redacted_evidence_required'] != true ||
+      expected['unsupported_event_content_fails_closed'] != true ||
+      expected['matrix_2_extensible_profiles_events_claim_allowed'] != false ||
+      expected['versions_advertisement_widened'] != false ||
+      expected['publishable_matrix_support_claim_widened'] != false) {
+    failures.add(
+      '${relative(file)} expected Extensible Profiles and Events result invalid.',
+    );
+  }
+
+  final serialized = jsonEncode(json);
+  for (final forbidden in const [
+    '/Users',
+    '/tmp',
+    'access_token',
+    'refresh_token',
+    'authorization_code',
+    'callback_query',
+    'idp_session',
+    'private_key',
+    'token-',
+  ]) {
+    if (serialized.contains(forbidden)) {
+      failures.add(
+        '${relative(file)} Matrix 2.0 Extensible Profiles and Events evidence contains forbidden token: $forbidden',
       );
     }
   }

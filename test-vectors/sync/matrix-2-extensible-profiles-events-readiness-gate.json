@@ -1,0 +1,113 @@
+{
+  "name": "matrix-2-extensible-profiles-events-readiness-gate",
+  "contract": "SPEC-139",
+  "event": {
+    "issue": "imoyan/houra-spec#386",
+    "parent_issue": "imoyan/houra-spec#377",
+    "snapshot_issue": "imoyan/houra-spec#380",
+    "advertisement_issue": "imoyan/houra-spec#381",
+    "lane": "extensible-profiles-events",
+    "matrix_domain": "Client-Server API",
+    "checked_at": "2026-05-18T16:15:29+09:00",
+    "timezone": "Asia/Tokyo",
+    "matrix_2_release_status": "pending-stable-spec-release",
+    "current_stable_spec_entrypoint": "https://spec.matrix.org/latest/",
+    "current_stable_spec_version": "v1.18",
+    "source_snapshot_contract": "SPEC-133",
+    "versions_advertisement_gate_contract": "SPEC-134",
+    "v1_18_profile_account_data_contract": "SPEC-045",
+    "v1_18_send_event_contract": "SPEC-036",
+    "v1_18_sync_extensions_contract": "SPEC-093",
+    "common_rules_contract": "SPEC-031",
+    "event_graph_contract": "SPEC-040",
+    "event_format_contract": "SPEC-103",
+    "related_contracts": [
+      "SPEC-031",
+      "SPEC-036",
+      "SPEC-037",
+      "SPEC-040",
+      "SPEC-045",
+      "SPEC-046",
+      "SPEC-047",
+      "SPEC-090",
+      "SPEC-093",
+      "SPEC-103",
+      "SPEC-131",
+      "SPEC-133",
+      "SPEC-134"
+    ],
+    "classification_rules": {
+      "allowed_classifications": [
+        "stable-requirement",
+        "extensible-profile-field",
+        "extensible-event-content",
+        "parser-validation-only",
+        "implementation-note",
+        "out-of-scope"
+      ],
+      "stable_requirement_fields": [
+        "stable_spec_source",
+        "release_note_or_changelog",
+        "normative_requirement_summary",
+        "profile_or_event_surface",
+        "content_validation_boundary",
+        "required_vectors",
+        "implementation_evidence",
+        "release_evidence_rule"
+      ],
+      "experimental_msc_implies_stable_support": false,
+      "parser_validation_implies_runtime_support": false,
+      "client_rendering_note_implies_protocol_support": false,
+      "custom_profile_field_implies_advertised_profile_capability": false,
+      "generic_event_content_implies_supported_event_type": false
+    },
+    "redaction_rules": {
+      "profile_payload_retained": false,
+      "display_name_value_retained": false,
+      "avatar_url_value_retained": false,
+      "account_data_payload_retained": false,
+      "raw_event_content_retained": false,
+      "event_body_value_retained": false,
+      "formatted_body_value_retained": false,
+      "external_url_value_retained": false,
+      "content_shape_retained": true,
+      "namespaced_identifier_shape_retained": true
+    },
+    "unsupported_behavior": {
+      "unsupported_profile_field_fails_closed": true,
+      "unsupported_event_content_fails_closed": true,
+      "unstable_msc_excluded_from_support_claim": true,
+      "parser_only_evidence_requires_explicit_no_runtime_claim": true,
+      "capability_advertisement_requires_same_candidate_evidence": true
+    },
+    "gate_result": {
+      "status": "blocked",
+      "blocking_reasons": [
+        "stable Matrix 2.0 Extensible Profiles and Events specification source is pending",
+        "stable Matrix 2.0 release note is pending",
+        "same-candidate profile and event evidence is missing",
+        "release bundle and release notes have no Matrix 2.0 Extensible Profiles and Events pass decision"
+      ],
+      "matrix_2_extensible_profiles_events_claim_allowed": false,
+      "profile_extension_claim_allowed": false,
+      "event_extension_claim_allowed": false,
+      "capability_advertisement_claim_allowed": false,
+      "versions_advertisement_widened": false,
+      "publishable_matrix_support_claim_widened": false
+    }
+  },
+  "expected": {
+    "matrix_2_extensible_profiles_events_gate_blocked": true,
+    "classification_count": 6,
+    "stable_requirement_fields_count": 8,
+    "related_contract_count": 13,
+    "spec_045_preserved_as_profile_account_data_boundary": true,
+    "spec_036_preserved_as_send_event_boundary": true,
+    "spec_093_preserved_as_sync_extension_boundary": true,
+    "redacted_evidence_required": true,
+    "unsupported_event_content_fails_closed": true,
+    "matrix_2_extensible_profiles_events_claim_allowed": false,
+    "versions_advertisement_widened": false,
+    "publishable_matrix_support_claim_widened": false
+  }
+}
