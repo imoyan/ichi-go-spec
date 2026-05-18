@@ -86,6 +86,13 @@ representative createRoom rejection を超える guest-specific API allowlist br
 join by alias / `server_name` hints / restricted room / knock / invite /
 federation join です。Matrix `/versions` advertisement も広げません。
 
+`SPEC-141` は、このうち room preview event stream をすぐ runtime support として
+広告せず、`world_readable` room に対する guest preview 用 `initialSync` /
+preview `/events` descriptor と response envelope だけに切り出す boundary です。
+通常の deprecated `/events` runtime、full guest API allowlist breadth、
+guest-specific rate-limit policy、Matrix `/versions` advertisement は引き続き
+fail-closed です。
+
 `SPEC-074` は、`houra-server#136` の Server-Server full-breadth gap を
 discovery / key / auth、transaction / PDU / EDU、event retrieval、join / knock /
 leave / invite、directory / query、federation E2EE / media、policy / ACL /

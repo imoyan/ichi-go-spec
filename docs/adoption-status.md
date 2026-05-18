@@ -85,6 +85,7 @@ Adoption states:
 | Matrix v1.18 / Client-Server API / sync query and response sections | SPEC-093 Matrix Sync Breadth Extensions | boundary | Client-Server API | - | - | `houra-labs#121` | tracked | Matrix |
 | Matrix v1.18 / Identity Service API / validation provider delivery flows | SPEC-094 Matrix Identity Validation Provider Delivery Boundary | boundary | Identity Service API | `houra-server#244` | - | - | tracked | Matrix |
 | Matrix v1.18 / Client-Server API / media repository endpoint breadth | SPEC-095 Matrix Media Repository Breadth | boundary | Client-Server API | - | - | `houra-labs#122` | tracked | Matrix |
+| Matrix v1.18 / Client-Server API / Guest Access and Room Previews | SPEC-141 Matrix Guest Room Preview Boundary | boundary | Client-Server API | - | - | - | tracked | Matrix |
 | Matrix v1.18 / Identity Service API / identity public key and signature validation | SPEC-096 Matrix Identity Public Key and Signature Boundary | boundary | Identity Service API | `houra-server#242` | - | - | tracked | Matrix |
 | Matrix v1.18 / Server-Server API / federation version, key lifecycle, and request auth | SPEC-097 Matrix Federation Version, Key Lifecycle, and Request Auth | boundary | Server-Server API | - | - | `houra-labs#123` | tracked | Matrix |
 | Matrix v1.18 / Push Gateway API / pusher, push rule, and redaction parser helpers | SPEC-098 Matrix Push Parser Helper Breadth | boundary | Push Gateway API | - | - | `houra-labs#128` | tracked | Matrix |
