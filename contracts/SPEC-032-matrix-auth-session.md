@@ -12,7 +12,8 @@ Canonical: yes
 
 Define the Matrix v1.18 Client-Server auth/session endpoint family that is
 closest to the existing Houra Product MVP login lifecycle: login flow discovery,
-password login, account ownership lookup, and logout.
+password login, account ownership lookup, current-session logout, and
+all-session logout.
 
 ## Scope
 
@@ -20,7 +21,7 @@ This contract is Matrix-defined, not Houra-defined. It adds `/_matrix/**`
 behavior without changing existing `/_houra/client/**` routes.
 
 Registration, refresh tokens, application service login, login fallback HTML,
-device management, and `logout/all` are intentionally left for later
+and standalone device management are intentionally left for later
 Client-Server compatibility contracts. OAuth-aware account-management metadata
 and redirects are covered by `SPEC-068`.
 
@@ -31,7 +32,8 @@ and redirects are covered by `SPEC-068`.
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3login>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3accountwhoami>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3logout>
-- Checked at: 2026-05-10T08:56:54+09:00
+- Source: <https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3logoutall>
+- Checked at: 2026-05-18T14:13:49+09:00
 - Timezone: Asia/Tokyo
 
 ## Login flow discovery
@@ -154,6 +156,31 @@ for the request and returns:
 
 After logout, using the same token for `/_matrix/client/v3/account/whoami` must
 fail with a Matrix auth error.
+
+## Logout all
+
+```text
+POST /_matrix/client/v3/logout/all
+Authorization: Bearer token-1
+```
+
+The request has no body. A successful all-session logout invalidates every
+access token owned by the authenticated user, deletes all devices owned by that
+user, and returns:
+
+```json
+{}
+```
+
+The endpoint does not require User-Interactive Authentication, password
+confirmation, or the `/_matrix/client/v3/delete_devices` request shape. Device
+deletion here is the Matrix `logout/all` session lifecycle side effect, not a
+standalone device-management operation.
+
+After all-session logout, using any former access token for the same user for
+`/_matrix/client/v3/account/whoami` must fail with a Matrix auth error. Access
+tokens and devices owned by other users must remain valid and must not be
+deleted.
 
 ## Compatibility boundaries
 

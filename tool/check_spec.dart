@@ -653,10 +653,108 @@ void checkMatrixAuthSession(
     'test-vectors/auth/matrix-password-login-failure.json',
     'test-vectors/auth/matrix-whoami-basic.json',
     'test-vectors/auth/matrix-logout-basic.json',
+    'test-vectors/auth/matrix-logout-all-basic.json',
+    'test-vectors/auth/matrix-logout-all-token-invalid-after-logout.json',
   ]) {
     if (!File(path).existsSync()) {
       failures.add('Missing Matrix auth session vector: $path');
     }
+  }
+  final logoutAllBasic = File('test-vectors/auth/matrix-logout-all-basic.json');
+  if (logoutAllBasic.existsSync()) {
+    final json = readJsonObject(logoutAllBasic, failures);
+    if (json != null) {
+      validateMatrixLogoutAllBasic(logoutAllBasic, json, failures);
+    }
+  }
+  final logoutAllInvalid = File(
+    'test-vectors/auth/matrix-logout-all-token-invalid-after-logout.json',
+  );
+  if (logoutAllInvalid.existsSync()) {
+    final json = readJsonObject(logoutAllInvalid, failures);
+    if (json != null) {
+      validateMatrixLogoutAllTokenInvalid(logoutAllInvalid, json, failures);
+    }
+  }
+}
+
+void validateMatrixLogoutAllBasic(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final request = vector['request'];
+  final requestMap = request is Map ? request : null;
+  if (requestMap == null ||
+      requestMap['method'] != 'POST' ||
+      requestMap['path'] != '/_matrix/client/v3/logout/all' ||
+      requestMap['access_token'] is! String ||
+      requestMap.containsKey('body')) {
+    failures.add(
+      '${relative(file)} must call Matrix logout/all without a body.',
+    );
+  }
+  final expected = vector['expected'];
+  final expectedMap = expected is Map ? expected : null;
+  final body = expectedMap?['body_contains'];
+  if (expectedMap == null ||
+      expectedMap['status'] != 200 ||
+      body is! Map ||
+      body.isNotEmpty ||
+      expectedMap['all_same_user_tokens_invalidated'] != true ||
+      expectedMap['all_same_user_devices_deleted'] != true ||
+      expectedMap['does_not_require_uia'] != true ||
+      expectedMap['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} must define fail-closed logout/all success semantics.',
+    );
+  }
+}
+
+void validateMatrixLogoutAllTokenInvalid(
+  File file,
+  Map<String, Object?> vector,
+  List<String> failures,
+) {
+  final given = vector['given'];
+  final givenMap = given is Map ? given : null;
+  final previous = givenMap?['previous_request'];
+  final previousMap = previous is Map ? previous : null;
+  if (previousMap == null ||
+      previousMap['method'] != 'POST' ||
+      previousMap['path'] != '/_matrix/client/v3/logout/all' ||
+      previousMap['access_token'] != 'token-alice-device1' ||
+      previousMap.containsKey('body')) {
+    failures.add(
+      '${relative(file)} previous request must call logout/all without UIA.',
+    );
+  }
+  final request = vector['request'];
+  final requestMap = request is Map ? request : null;
+  if (requestMap == null ||
+      requestMap['method'] != 'GET' ||
+      requestMap['path'] != '/_matrix/client/v3/account/whoami' ||
+      requestMap['access_token'] != 'token-alice-device2') {
+    failures.add(
+      '${relative(file)} must retry whoami with another same-user token.',
+    );
+  }
+  final expected = vector['expected'];
+  final expectedMap = expected is Map ? expected : null;
+  final body = expectedMap?['body_contains'];
+  if (expectedMap == null ||
+      expectedMap['status'] != 401 ||
+      body is! Map ||
+      body['errcode'] != 'M_UNKNOWN_TOKEN' ||
+      body.containsKey('code') ||
+      expectedMap['all_same_user_tokens_invalidated'] != true ||
+      expectedMap['all_same_user_devices_deleted'] != true ||
+      expectedMap['other_user_access_token_remains_valid'] != true ||
+      expectedMap['does_not_require_uia'] != true ||
+      expectedMap['versions_advertisement_widened'] != false) {
+    failures.add(
+      '${relative(file)} must expect Matrix token invalidation without widening advertisement.',
+    );
   }
 }
 
