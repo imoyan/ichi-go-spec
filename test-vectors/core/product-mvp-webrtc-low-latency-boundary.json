@@ -1,0 +1,136 @@
+{
+  "name": "product-mvp-webrtc-low-latency-boundary",
+  "contract": "SPEC-140",
+  "event": {
+    "target": "Product MVP WebRTC low-latency connection boundary",
+    "spec_issue": "imoyan/houra-spec#423",
+    "checked_at": "2026-05-18T00:00:00+09:00",
+    "capability": {
+      "supported": true,
+      "modes": ["auto", "same-lan-fastest", "relay-safe"],
+      "topologies": ["direct-pair", "small-mesh", "hub-spoke", "sfu-relay"],
+      "max_participants": 12,
+      "same_lan_fast_path": {
+        "supported": true,
+        "requires_user_opt_in": true,
+        "private_address_redacted": true
+      },
+      "product_mvp_claim_widened": false,
+      "matrix_claim_widened": false
+    },
+    "planning_cases": [
+      {
+        "id": "two-person-direct-low-rtt",
+        "participants": 2,
+        "mode": "auto",
+        "candidate_pair_class": "host",
+        "median_rtt_ms": 6,
+        "p95_rtt_ms": 11,
+        "available_outgoing_kbps": 2400,
+        "selected_topology": "direct-pair",
+        "expected_status": "ok"
+      },
+      {
+        "id": "same-lan-fastest-opt-in",
+        "participants": 3,
+        "mode": "same-lan-fastest",
+        "trusted_local_network": true,
+        "user_opt_in": true,
+        "private_address_redacted": true,
+        "relay_fallback_available": true,
+        "candidate_pair_class": "host",
+        "median_rtt_ms": 4,
+        "relay_median_rtt_ms": 38,
+        "selected_topology": "small-mesh",
+        "expected_status": "ok"
+      },
+      {
+        "id": "same-lan-missing-opt-in-fails-closed",
+        "participants": 3,
+        "mode": "same-lan-fastest",
+        "trusted_local_network": true,
+        "user_opt_in": false,
+        "private_address_redacted": true,
+        "selected_topology": "relay-safe",
+        "expected_status": "blocked",
+        "expected_error": "same_lan_fast_path_requires_opt_in"
+      },
+      {
+        "id": "six-person-prefers-sfu-relay",
+        "participants": 6,
+        "mode": "auto",
+        "mesh_uplink_headroom": "insufficient",
+        "relay_available": true,
+        "selected_topology": "sfu-relay",
+        "expected_status": "ok"
+      },
+      {
+        "id": "hub-center-minimizes-worst-case",
+        "participants": 4,
+        "mode": "auto",
+        "candidate_centers": [
+          {
+            "participant_id": "p1",
+            "median_rtt_ms": 14,
+            "max_rtt_ms": 42,
+            "uplink_headroom": "high",
+            "cpu_headroom": "medium"
+          },
+          {
+            "participant_id": "p2",
+            "median_rtt_ms": 18,
+            "max_rtt_ms": 26,
+            "uplink_headroom": "high",
+            "cpu_headroom": "high"
+          }
+        ],
+        "selected_center": "p2",
+        "selected_topology": "hub-spoke",
+        "fairness_rule": "minimize_worst_case_before_average",
+        "expected_status": "ok"
+      },
+      {
+        "id": "raw-candidate-evidence-rejected",
+        "participants": 2,
+        "mode": "auto",
+        "artifact_contains_forbidden_value": true,
+        "forbidden_value": "raw_ice_candidate",
+        "expected_status": "forbidden",
+        "expected_error": "webrtc_evidence_unredacted"
+      }
+    ],
+    "runtime_configuration_boundary": {
+      "bundle_policy_preference": "max-bundle",
+      "rtcp_mux_policy": "require",
+      "direct_mode_ice_transport_policy": "all",
+      "relay_safe_ice_transport_policy": "relay",
+      "exact_candidate_pair_forced": false,
+      "bounded_ice_restart_allowed": true
+    },
+    "forbidden_evidence": [
+      "private_ip_address",
+      "mdns_hostname",
+      "sdp_body",
+      "raw_ice_candidate",
+      "ice_ufrag_or_password",
+      "turn_credential",
+      "bearer_token",
+      "mac_address",
+      "local_interface_name",
+      "provider_log"
+    ]
+  },
+  "expected": {
+    "mode_count": 3,
+    "topology_count": 4,
+    "planning_case_count": 6,
+    "fail_closed_case_count": 2,
+    "same_lan_requires_user_opt_in": true,
+    "same_lan_requires_private_address_redaction": true,
+    "center_selection_minimizes_worst_case_before_average": true,
+    "exact_candidate_pair_forced": false,
+    "product_mvp_readiness_widened": false,
+    "matrix_compatibility_widened": false,
+    "forbidden_raw_values_in_artifact": false
+  }
+}

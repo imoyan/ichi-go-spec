@@ -14035,13 +14035,14 @@ void checkProductMvpReleaseCandidatePlan(
     'imoyan/houra-spec#319',
     'imoyan/houra-spec#320',
     'imoyan/houra-spec#321',
+    'imoyan/houra-spec#423',
     'imoyan/houra-spec#340',
     'imoyan/houra-spec#343',
     'imoyan/houra-spec#345',
     'imoyan/houra-spec#346',
   }, failures);
   final candidateFeatures = eventMap['candidate_feature_evidence'];
-  if (candidateFeatures is! List || candidateFeatures.length != 4) {
+  if (candidateFeatures is! List || candidateFeatures.length != 5) {
     failures.add('${relative(file)} candidate feature evidence invalid.');
   } else {
     final featureIds = <String>{};
@@ -14093,6 +14094,7 @@ void checkProductMvpReleaseCandidatePlan(
       'product-mvp-vnext-account-recovery-idp',
       'product-mvp-vnext-media-transfer',
       'product-mvp-vnext-encrypted-media',
+      'product-mvp-vnext-webrtc-low-latency',
       'product-mvp-server-boundary-additions',
     })) {
       failures.add('${relative(file)} candidate feature ids incomplete.');
@@ -14101,6 +14103,7 @@ void checkProductMvpReleaseCandidatePlan(
       'SPEC-070',
       'SPEC-071',
       'SPEC-072',
+      'SPEC-140',
       'SPEC-126',
       'SPEC-127',
       'SPEC-128',
@@ -14112,6 +14115,7 @@ void checkProductMvpReleaseCandidatePlan(
       'imoyan/houra-spec#319',
       'imoyan/houra-spec#320',
       'imoyan/houra-spec#321',
+      'imoyan/houra-spec#423',
       'imoyan/houra-spec#340',
       'imoyan/houra-spec#343',
       'imoyan/houra-spec#345',
@@ -14121,6 +14125,7 @@ void checkProductMvpReleaseCandidatePlan(
       'imoyan/houra-client#192',
       'imoyan/houra-client#193',
       'imoyan/houra-client#195',
+      'imoyan/houra-client#235',
       'imoyan/houra-server#254',
       'imoyan/houra-server#337',
       'imoyan/houra-server#338',
