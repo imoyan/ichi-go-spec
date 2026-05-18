@@ -98,9 +98,21 @@ The server must ignore all request body parameters except
 `initial_device_display_name`, must choose the guest user ID and `device_id`,
 and must return `user_id`, `access_token`, and `device_id` for the guest
 account. Representative Houra compatibility uses a generated guest localpart
-and device identifier. Guest access permissions, guest-to-user upgrade,
-`guest_access_token`, room preview behavior, and guest-specific API allowlists
-remain outside this registration contract.
+and device identifier. Guest access permissions, room preview behavior, and
+guest-specific API allowlists remain outside this registration contract.
+
+### Guest-to-user upgrade boundary
+
+A guest account may be upgraded by using the ordinary `kind=user` registration
+path with `guest_access_token` set to the guest access token and `username`
+matching the guest account localpart. Representative Houra compatibility covers
+the successful upgrade of `@guest1:example.test` with `guest_access_token`
+`token-guest` and `username` `guest1`.
+
+This boundary only covers the representative success path. Invalid
+`guest_access_token` cases, mismatched username/token cases, persistence
+breadth for invalidating old guest sessions, room preview behavior, and
+guest-specific API allowlists remain outside this contract.
 
 ## User-interactive authentication response
 

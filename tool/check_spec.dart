@@ -779,6 +779,7 @@ void checkMatrixRegistration(
     'test-vectors/auth/matrix-registration-basic.json',
     'test-vectors/auth/matrix-registration-disabled.json',
     'test-vectors/auth/matrix-registration-guest-basic.json',
+    'test-vectors/auth/matrix-registration-guest-upgrade-basic.json',
     'test-vectors/auth/matrix-registration-invalid-username.json',
     'test-vectors/auth/matrix-registration-terms-accepted.json',
     'test-vectors/auth/matrix-registration-terms-required.json',
@@ -788,6 +789,42 @@ void checkMatrixRegistration(
   ]) {
     if (!File(path).existsSync()) {
       failures.add('Missing Matrix registration vector: $path');
+    }
+  }
+  final guestUpgradeFile = File('test-vectors/auth/matrix-registration-guest-upgrade-basic.json');
+  final guestUpgrade = readJsonObject(guestUpgradeFile, failures);
+  if (guestUpgrade != null) {
+    final preconditions = guestUpgrade['preconditions'];
+    final request = guestUpgrade['request'];
+    final body = request is Map ? request['body'] : null;
+    final expected = guestUpgrade['expected'];
+    final bodyContains = expected is Map ? expected['body_contains'] : null;
+    final excluded = expected is Map ? expected['excluded_breadth'] : null;
+    if (preconditions is! Map ||
+        preconditions['guest_user_id'] != '@guest1:example.test' ||
+        preconditions['guest_access_token'] != 'token-guest' ||
+        request is! Map ||
+        request['method'] != 'POST' ||
+        request['path'] != '/_matrix/client/v3/register' ||
+        body is! Map ||
+        body['username'] != 'guest1' ||
+        body['guest_access_token'] != 'token-guest' ||
+        expected is! Map ||
+        expected['status'] != 200 ||
+        bodyContains is! Map ||
+        bodyContains['user_id'] != '@guest1:example.test' ||
+        bodyContains['access_token'] is! String ||
+        bodyContains['device_id'] != 'UPGRADED' ||
+        expected['guest_account_upgraded'] != true ||
+        expected['uia_required'] != false ||
+        expected['versions_advertisement_widened'] != false ||
+        excluded is! List ||
+        !excluded.contains('invalid guest_access_token rejection matrix') ||
+        !excluded.contains('mismatched username and guest token rejection matrix') ||
+        !excluded.contains('guest session invalidation persistence breadth') ||
+        !excluded.contains('room preview event stream') ||
+        !excluded.contains('guest-specific API allowlist')) {
+      failures.add('${relative(guestUpgradeFile)} guest upgrade boundary invalid.');
     }
   }
 }
