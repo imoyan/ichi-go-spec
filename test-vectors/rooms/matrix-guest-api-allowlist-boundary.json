@@ -1,0 +1,40 @@
+{
+  "name": "matrix-guest-api-allowlist-boundary",
+  "contract": "SPEC-035",
+  "issue": "imoyan/houra-spec#438",
+  "preconditions": {
+    "guest_user_id": "@guest1:example.test",
+    "guest_access_token": "token-guest",
+    "allowed_representative_paths": [
+      "POST /_matrix/client/v3/register?kind=guest",
+      "GET /_matrix/client/v3/account/whoami",
+      "POST /_matrix/client/v3/join/{roomIdOrAlias} when m.room.guest_access=can_join"
+    ]
+  },
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/createRoom",
+    "access_token": "token-guest",
+    "body": {
+      "name": "Guest-created room"
+    }
+  },
+  "expected": {
+    "status": 403,
+    "error": {
+      "errcode": "M_GUEST_ACCESS_FORBIDDEN"
+    },
+    "body_contains": {
+      "errcode": "M_GUEST_ACCESS_FORBIDDEN"
+    },
+    "guest_api_allowlist_enforced": true,
+    "versions_advertisement_widened": false
+  },
+  "notes": {
+    "representative_non_allowlist_path_rejected": true,
+    "out_of_scope": [
+      "room preview event stream",
+      "guest-specific rate-limit policy"
+    ]
+  }
+}

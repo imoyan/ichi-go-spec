@@ -9,7 +9,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix domain | Vector count | Contract count |
 |---|---:|---:|
 | none | 77 | 20 |
-| Client-Server API | 162 | 33 |
+| Client-Server API | 163 | 33 |
 | Server-Server API | 27 | 14 |
 | Room Versions | 21 | 13 |
 | Olm & Megolm | 5 | 5 |
@@ -111,6 +111,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / Client-Server endpoint smoke gate | SPEC-039 Matrix Client-Server MVP Live E2E Gate | core | `test-vectors/core/product-mvp-release-candidate-plan.json` | `product-mvp-release-candidate-plan` |
 | Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-create-room-basic.json` | `matrix-create-room-basic` |
 | Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-create-room-missing-token.json` | `matrix-create-room-missing-token` |
+| Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-guest-api-allowlist-boundary.json` | `matrix-guest-api-allowlist-boundary` |
 | Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-guest-join-can-join.json` | `matrix-guest-join-can-join` |
 | Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-guest-join-forbidden.json` | `matrix-guest-join-forbidden` |
 | Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-join-room-basic.json` | `matrix-join-room-basic` |
