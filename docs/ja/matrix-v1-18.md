@@ -81,6 +81,11 @@ latest spec entrypoint は planning input に留めます。
 `publishable_matrix_support_claim` が同じ candidate ref で揃うまで、`v2.0` を
 `GET /_matrix/client/versions` に出さないことを固定します。
 
+`SPEC-135` は #382 の OAuth/OIDC readiness gate です。`SPEC-068` の
+account-management metadata / redirect は v1.18 boundary として残し、Matrix 2.0
+OAuth/OIDC full support、provider interop、OAuth login advertisement は stable
+source と redacted same-candidate evidence が揃うまで blocked のままです。
+
 #377 が親 issue、#380 が snapshot / diff checklist です。#381 から #386 は
 `/versions` advertisement、OAuth/OIDC、Sliding Sync、E2EE、Room Versions、
 Extensible Profiles / Events の lane です。これらは準備 lane であり、Matrix 2.0
