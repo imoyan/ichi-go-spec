@@ -1,0 +1,194 @@
+{
+  "name": "matrix-keys-changes-on-demand-pull-boundary",
+  "contract": "SPEC-150",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3keyschanges",
+    "tracking_device_list_source": "https://spec.matrix.org/v1.18/client-server-api/#tracking-the-device-list-for-a-user",
+    "sync_source": "https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3sync",
+    "checked_at": "2026-05-18T23:30:00+09:00",
+    "required_contracts": [
+      "SPEC-037",
+      "SPEC-051",
+      "SPEC-052",
+      "SPEC-069",
+      "SPEC-079",
+      "SPEC-093",
+      "SPEC-150"
+    ],
+    "local_olm_megolm_allowed": false,
+    "given": {
+      "authenticated_user_id": "@alice:example.test",
+      "authenticated_device_id": "ALICE1",
+      "issued_sync_tokens_in_order": [
+        "T0",
+        "T1",
+        "T2",
+        "T3"
+      ],
+      "tracked_user_changes_in_window_T0_to_T2": {
+        "key_updates": [
+          "@bob:example.test"
+        ],
+        "newly_tracked_via_encrypted_room_join": [
+          "@dan:example.test"
+        ],
+        "no_longer_tracked": [
+          "@carol:example.test"
+        ]
+      }
+    },
+    "steps": [
+      {
+        "id": "keys-changes-window-reports-changed-and-left",
+        "method": "GET",
+        "path": "/_matrix/client/v3/keys/changes",
+        "access_token": "token-alice-device1",
+        "query": {
+          "from": "T0",
+          "to": "T2"
+        },
+        "expected_status": 200,
+        "expected_body_changed_contains": [
+          "@bob:example.test",
+          "@dan:example.test"
+        ],
+        "expected_body_left_contains": [
+          "@carol:example.test"
+        ],
+        "expected_body_no_user_in_both_changed_and_left": true,
+        "expected_body_no_duplicate_user_ids_within_list": true
+      },
+      {
+        "id": "keys-changes-without-to-treats-as-current",
+        "method": "GET",
+        "path": "/_matrix/client/v3/keys/changes",
+        "access_token": "token-alice-device1",
+        "query": {
+          "from": "T0"
+        },
+        "expected_status": 200,
+        "expected_body_changed_is_array": true,
+        "expected_body_left_is_array": true,
+        "server_effect": {
+          "to_treated_as_current_sync_position": true
+        }
+      },
+      {
+        "id": "keys-changes-idempotent-within-same-window",
+        "method": "GET",
+        "path": "/_matrix/client/v3/keys/changes",
+        "access_token": "token-alice-device1",
+        "query": {
+          "from": "T0",
+          "to": "T2"
+        },
+        "expected_status": 200,
+        "expected_body_matches_step_id": "keys-changes-window-reports-changed-and-left"
+      },
+      {
+        "id": "reject-missing-from-token",
+        "method": "GET",
+        "path": "/_matrix/client/v3/keys/changes",
+        "access_token": "token-alice-device1",
+        "query": {
+          "to": "T2"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_MISSING_PARAM"
+        }
+      },
+      {
+        "id": "reject-malformed-from-token",
+        "method": "GET",
+        "path": "/_matrix/client/v3/keys/changes",
+        "access_token": "token-alice-device1",
+        "query": {
+          "from": "not a sync token"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM"
+        }
+      },
+      {
+        "id": "reject-to-before-from",
+        "method": "GET",
+        "path": "/_matrix/client/v3/keys/changes",
+        "access_token": "token-alice-device1",
+        "query": {
+          "from": "T2",
+          "to": "T0"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM"
+        }
+      },
+      {
+        "id": "reject-foreign-device-from-token",
+        "given_event": "from_token_was_issued_to_a_different_device_of_same_user",
+        "method": "GET",
+        "path": "/_matrix/client/v3/keys/changes",
+        "access_token": "token-alice-device1",
+        "query": {
+          "from": "T-foreign-device"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM"
+        }
+      },
+      {
+        "id": "untracked-user-must-not-appear-in-changed",
+        "given_event": "frank_unrelated_user_uploaded_keys_in_window_T0_to_T2",
+        "method": "GET",
+        "path": "/_matrix/client/v3/keys/changes",
+        "access_token": "token-alice-device1",
+        "query": {
+          "from": "T0",
+          "to": "T2"
+        },
+        "expected_status": 200,
+        "expected_body_changed_does_not_contain": [
+          "@frank:example.test"
+        ]
+      },
+      {
+        "id": "reject-missing-bearer-token",
+        "method": "GET",
+        "path": "/_matrix/client/v3/keys/changes",
+        "query": {
+          "from": "T0"
+        },
+        "expected_status": 401,
+        "expected_error": {
+          "errcode": "M_MISSING_TOKEN"
+        }
+      }
+    ],
+    "required_evidence": [
+      "houra_spec_ref",
+      "houra_server_ref",
+      "authenticated_user_id",
+      "authenticated_device_id",
+      "sync_token_window",
+      "commands",
+      "per_step_pass_fail",
+      "versions_advertisement_widened_false"
+    ]
+  },
+  "expected": {
+    "happy_path_window_correct": true,
+    "missing_to_treated_as_current": true,
+    "idempotent_within_window": true,
+    "missing_from_rejected": true,
+    "malformed_from_rejected": true,
+    "reversed_window_rejected": true,
+    "foreign_device_from_rejected": true,
+    "untracked_user_omitted": true,
+    "unauthenticated_rejected": true,
+    "versions_advertisement_widened": false
+  }
+}
