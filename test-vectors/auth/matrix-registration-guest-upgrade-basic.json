@@ -30,8 +30,6 @@
     "uia_required": false,
     "versions_advertisement_widened": false,
     "excluded_breadth": [
-      "invalid guest_access_token rejection matrix",
-      "mismatched username and guest token rejection matrix",
       "guest session invalidation persistence breadth",
       "room preview event stream",
       "guest-specific API allowlist",

@@ -780,6 +780,7 @@ void checkMatrixRegistration(
     'test-vectors/auth/matrix-registration-disabled.json',
     'test-vectors/auth/matrix-registration-guest-basic.json',
     'test-vectors/auth/matrix-registration-guest-upgrade-basic.json',
+    'test-vectors/auth/matrix-registration-guest-upgrade-negative.json',
     'test-vectors/auth/matrix-registration-invalid-username.json',
     'test-vectors/auth/matrix-registration-terms-accepted.json',
     'test-vectors/auth/matrix-registration-terms-required.json',
@@ -819,12 +820,66 @@ void checkMatrixRegistration(
         expected['uia_required'] != false ||
         expected['versions_advertisement_widened'] != false ||
         excluded is! List ||
-        !excluded.contains('invalid guest_access_token rejection matrix') ||
-        !excluded.contains('mismatched username and guest token rejection matrix') ||
+        excluded.contains('invalid guest_access_token rejection matrix') ||
+        excluded.contains('mismatched username and guest token rejection matrix') ||
         !excluded.contains('guest session invalidation persistence breadth') ||
         !excluded.contains('room preview event stream') ||
         !excluded.contains('guest-specific API allowlist')) {
       failures.add('${relative(guestUpgradeFile)} guest upgrade boundary invalid.');
+    }
+  }
+  final guestUpgradeNegativeFile =
+      File('test-vectors/auth/matrix-registration-guest-upgrade-negative.json');
+  final guestUpgradeNegative = readJsonObject(guestUpgradeNegativeFile, failures);
+  if (guestUpgradeNegative != null) {
+    final preconditions = guestUpgradeNegative['preconditions'];
+    final cases = guestUpgradeNegative['cases'];
+    final expected = guestUpgradeNegative['expected'];
+    final excluded = expected is Map ? expected['excluded_breadth'] : null;
+    final caseByName = <String, Map>{};
+    if (cases is List) {
+      for (final item in cases) {
+        if (item is Map && item['name'] is String) {
+          caseByName[item['name'] as String] = item;
+        }
+      }
+    }
+    final invalidToken = caseByName['invalid_guest_upgrade_token'];
+    final mismatchedUsername = caseByName['mismatched_username'];
+    bool caseInvalid(Map? item, String expectedUsername, String expectedToken) {
+      final request = item?['request'];
+      final body = request is Map ? request['body'] : null;
+      final itemExpected = item?['expected'];
+      final bodyContains =
+          itemExpected is Map ? itemExpected['body_contains'] : null;
+      return request is! Map ||
+          request['method'] != 'POST' ||
+          request['path'] != '/_matrix/client/v3/register' ||
+          body is! Map ||
+          body['username'] != expectedUsername ||
+          body['guest_access_token'] != expectedToken ||
+          itemExpected is! Map ||
+          itemExpected['status'] != 403 ||
+          bodyContains is! Map ||
+          bodyContains['errcode'] != 'M_FORBIDDEN' ||
+          itemExpected['guest_account_upgraded'] != false ||
+          itemExpected['new_session_issued'] != false;
+    }
+    if (preconditions is! Map ||
+        preconditions['guest_user_id'] != '@guest1:example.test' ||
+        preconditions['guest_access_token'] != 'token-guest' ||
+        caseByName.length != 2 ||
+        caseInvalid(invalidToken, 'guest1', 'token-missing') ||
+        caseInvalid(mismatchedUsername, 'alice', 'token-guest') ||
+        expected is! Map ||
+        expected['versions_advertisement_widened'] != false ||
+        excluded is! List ||
+        !excluded.contains('guest session invalidation persistence breadth') ||
+        !excluded.contains('room preview event stream') ||
+        !excluded.contains('guest-specific API allowlist')) {
+      failures.add(
+        '${relative(guestUpgradeNegativeFile)} guest upgrade negative boundary invalid.',
+      );
     }
   }
 }
