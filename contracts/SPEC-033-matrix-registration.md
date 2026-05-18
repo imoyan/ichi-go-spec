@@ -20,10 +20,10 @@ validity checks, and Matrix registration error envelopes.
 This contract is Matrix-defined, not Houra-defined. It adds `/_matrix/**`
 behavior without changing existing `/_houra/client/**` registration routes.
 
-Email and MSISDN validation token submission, guest registration, application
-service user creation, refresh-token issuance, OAuth-aware registration
-redirects, and fallback HTML are intentionally left for later Client-Server
-compatibility contracts.
+Email and MSISDN validation token submission, guest account upgrade to a user
+account, application service user creation, refresh-token issuance,
+OAuth-aware registration redirects, and fallback HTML are intentionally left
+for later Client-Server compatibility contracts.
 
 ## Matrix reference
 
@@ -32,7 +32,8 @@ compatibility contracts.
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3registeravailable>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv1registermloginregistration_tokenvalidity>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#m-login-terms>
-- Checked at: 2026-05-18T17:56:03+09:00
+- Source: <https://spec.matrix.org/v1.18/client-server-api/#guest-access>
+- Checked at: 2026-05-18T18:31:00+09:00
 - Timezone: Asia/Tokyo
 
 ## Username availability
@@ -84,12 +85,22 @@ are optional at the wire level. If `username` is omitted, a server may generate
 the Matrix user ID localpart. If `device_id` is omitted, the server must return
 a generated non-empty `device_id` unless `inhibit_login` is true.
 
-Initial Houra Matrix compatibility covers `kind=user` registration only.
-`kind=guest` is not advertised or required by this contract.
+Initial Houra Matrix compatibility covers representative `kind=user` and
+`kind=guest` registration. If `kind` is omitted, clients and servers must
+treat it as `user`.
 
 The returned `user_id` must be a Matrix user ID conforming to `SPEC-031`.
 Clients must not assume that the returned `user_id` localpart exactly matches
 the submitted `username`.
+
+When `kind=guest` is requested, user-interactive authentication does not apply.
+The server must ignore all request body parameters except
+`initial_device_display_name`, must choose the guest user ID and `device_id`,
+and must return `user_id`, `access_token`, and `device_id` for the guest
+account. Representative Houra compatibility uses a generated guest localpart
+and device identifier. Guest access permissions, guest-to-user upgrade,
+`guest_access_token`, room preview behavior, and guest-specific API allowlists
+remain outside this registration contract.
 
 ## User-interactive authentication response
 

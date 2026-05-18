@@ -1,0 +1,41 @@
+{
+  "name": "matrix-registration-guest-basic",
+  "contract": "SPEC-033",
+  "issue": "imoyan/houra-spec#408",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/register",
+    "query": {
+      "kind": "guest"
+    },
+    "body": {
+      "username": "ignored-guest-name",
+      "password": "ignored password",
+      "device_id": "IGNORED",
+      "initial_device_display_name": "Guest preview"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "user_id": "@guest1:example.test",
+      "access_token": "token-guest",
+      "device_id": "GUEST1",
+      "home_server": "example.test"
+    },
+    "ignored_request_fields": [
+      "username",
+      "password",
+      "device_id"
+    ],
+    "uia_required": false,
+    "versions_advertisement_widened": false,
+    "excluded_breadth": [
+      "guest-to-user upgrade with guest_access_token",
+      "guest room permission allowlist",
+      "m.room.guest_access enforcement",
+      "room preview event stream",
+      "guest-specific rate-limit policy"
+    ]
+  }
+}
