@@ -1,0 +1,96 @@
+{
+  "name": "matrix-message-presentation-deltas-v118",
+  "contract": "SPEC-036",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/client-server-api/#mimage",
+      "https://spec.matrix.org/v1.18/client-server-api/#msticker",
+      "https://spec.matrix.org/v1.18/client-server-api/#mroommessage-msgtypes"
+    ],
+    "checked_at": "2026-05-18T11:06:30+09:00",
+    "presentation_cases": [
+      {
+        "id": "image-is-animated",
+        "type": "m.room.message",
+        "content": {
+          "msgtype": "m.image",
+          "body": "animated image",
+          "url": "mxc://example.test/media1",
+          "info": {
+            "mimetype": "image/gif",
+            "is_animated": true
+          }
+        },
+        "parser_expectations": {
+          "preserve_is_animated": true,
+          "trust_as_security_boundary": false
+        }
+      },
+      {
+        "id": "sticker-is-animated",
+        "type": "m.sticker",
+        "content": {
+          "body": "animated sticker",
+          "url": "mxc://example.test/sticker1",
+          "info": {
+            "mimetype": "image/webp",
+            "is_animated": true
+          }
+        },
+        "parser_expectations": {
+          "preserve_is_animated": true,
+          "trust_as_security_boundary": false
+        }
+      },
+      {
+        "id": "malformed-is-animated",
+        "type": "m.room.message",
+        "content": {
+          "msgtype": "m.image",
+          "body": "bad flag",
+          "url": "mxc://example.test/media2",
+          "info": {
+            "is_animated": "yes"
+          }
+        },
+        "parser_expectations": {
+          "accepted_as_boolean": false,
+          "malformed_value_rejected_or_omitted": true
+        }
+      },
+      {
+        "id": "html-ordered-list-start",
+        "type": "m.room.message",
+        "content": {
+          "msgtype": "m.text",
+          "body": "3. first",
+          "format": "org.matrix.custom.html",
+          "formatted_body": "<ol start=\"3\"><li>first</li></ol>"
+        },
+        "parser_expectations": {
+          "ol_start_preserved_when_html_ol_supported": true,
+          "html_renderer_runtime_claimed": false
+        }
+      }
+    ],
+    "release_evidence_rules": {
+      "parser_only": true,
+      "media_playback_claimed": false,
+      "thumbnail_generation_claimed": false,
+      "encrypted_media_claimed": false,
+      "rich_text_rendering_conformance_claimed": false,
+      "client_server_support_claim_widened": false,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "presentation_case_count": 4,
+    "is_animated_boolean_cases": 2,
+    "malformed_is_animated_case_defined": true,
+    "ol_start_case_defined": true,
+    "parser_only": true,
+    "client_server_support_claim_widened": false,
+    "versions_advertisement_widened": false
+  }
+}

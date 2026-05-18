@@ -1,0 +1,52 @@
+{
+  "name": "matrix-federation-invite-blocked",
+  "contract": "SPEC-056",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/server-server-api/#put_matrixfederationv2inviteroomideventid",
+    "checked_at": "2026-05-18T11:06:30+09:00",
+    "room_id": "!room:example.test",
+    "event_id": "$invite1:remote.example.test",
+    "origin": "remote.example.test",
+    "destination": "example.test",
+    "policy_source": "m.invite_permission_config",
+    "request": {
+      "method": "PUT",
+      "path": "/_matrix/federation/v2/invite/!room:example.test/$invite1:remote.example.test",
+      "authorization": "X-Matrix origin=remote.example.test,key=\"ed25519:1\",sig=\"redacted\"",
+      "body": {
+        "room_version": "12",
+        "event": {
+          "type": "m.room.member",
+          "room_id": "!room:example.test",
+          "sender": "@alice:remote.example.test",
+          "state_key": "@bob:example.test",
+          "content": {
+            "membership": "invite"
+          }
+        }
+      }
+    },
+    "response": {
+      "status": 403,
+      "body": {
+        "errcode": "M_INVITE_BLOCKED",
+        "error": "Invite rejected by local policy."
+      }
+    },
+    "release_evidence_rules": {
+      "federation_error_boundary_defined": true,
+      "blocklist_policy_runtime_claimed": false,
+      "client_server_account_data_ownership_claimed": false,
+      "server_server_support_claim_widened": false,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "blocked_invite_status": 403,
+    "blocked_invite_errcode": "M_INVITE_BLOCKED",
+    "blocklist_policy_runtime_claimed": false,
+    "server_server_support_claim_widened": false,
+    "versions_advertisement_widened": false
+  }
+}

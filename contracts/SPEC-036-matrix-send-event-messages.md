@@ -66,6 +66,13 @@ Matrix message content such as formatted HTML, media messages, relations,
 mentions, replies, edits, and encrypted message payloads are outside this
 contract until later endpoint-family contracts add vectors.
 
+Matrix v1.18 presentation deltas are tracked as parser-only descriptors here:
+`m.image` and `m.sticker` info objects may include boolean `is_animated`, and
+clients that already render Matrix-formatted HTML ordered lists must preserve
+the `ol start` attribute. These descriptors do not claim media playback,
+thumbnail generation, encrypted media behavior, or rich-text rendering
+conformance.
+
 Successful responses return the sent event ID:
 
 ```json

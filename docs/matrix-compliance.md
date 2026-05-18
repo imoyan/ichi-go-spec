@@ -241,6 +241,13 @@ Matrix v1.18 roadmap close-out snapshot:
   `mxc://` URI helpers while keeping binary transfer, thumbnail generation,
   preview crawling, remote fetch, range requests, encrypted attachment behavior,
   and Matrix Client-Server advertisement fail-closed.
+- `SPEC-131` records the detailed Matrix v1.18 changelog-delta audit for
+  `M_USER_LIMIT_EXCEEDED`, `m.recent_emoji`, invite blocking /
+  `M_INVITE_BLOCKED`, media/rich-text presentation metadata, and Identity
+  `submitToken` / `M_TOKEN_INCORRECT`. It is a fail-closed inventory for #369
+  through #373 only; runtime support, release notes, `/versions`, and Matrix
+  support claims remain unchanged until the owning domain has same-candidate
+  evidence.
 - #97 through #101 should not be closed merely because their spec-side
   checklists are complete or because the current release candidate excludes the
   domain from advertisement. Close them only when #95 links current pass/fail

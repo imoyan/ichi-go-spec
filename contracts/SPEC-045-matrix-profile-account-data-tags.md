@@ -91,6 +91,14 @@ Global account data must be visible to later `/sync` responses in
 `/sync` responses in the target room's `account_data.events`. Missing account
 data returns `404` with `M_NOT_FOUND`.
 
+Matrix v1.18 `m.recent_emoji` is global account data. Its content contains
+`recent_emoji`, an array of emoji usage entries. Each entry has an `emoji`
+string and `total` as a non-negative number below `2^53`. Servers that already
+support generic global account-data storage may round-trip this content and
+surface it through `/sync`, but that does not claim emoji-picker UI behavior,
+client ordering recommendations, emoji validation beyond the stored content
+shape, or broader Client-Server compatibility.
+
 ## Room tag endpoints
 
 Room tags are account data exposed through the Matrix room tagging endpoints:

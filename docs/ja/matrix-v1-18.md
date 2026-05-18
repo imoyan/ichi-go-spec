@@ -140,6 +140,14 @@ remote network fetch、visibility decision、profile privacy policy、OpenID tok
 verification、rate limit、cache persistence、Server-Server API advertisement は
 扱いません。
 
+`SPEC-131` は、Matrix v1.18 changelog の詳細確認で未追跡だった
+`M_USER_LIMIT_EXCEEDED`、`m.recent_emoji`、invite blocking /
+`M_INVITE_BLOCKED`、media / rich text presentation metadata、Identity
+`submitToken` / `M_TOKEN_INCORRECT` を #369 から #373 に対応づける
+fail-closed inventory です。これは runtime support や `/versions` の広告を
+広げるものではなく、parser-only / runtime / excluded の follow-up を
+domain ごとに分けるための記録です。
+
 ## 広告してよいこと
 
 Matrix version や domain support は、contract、test vector、implementation evidence、

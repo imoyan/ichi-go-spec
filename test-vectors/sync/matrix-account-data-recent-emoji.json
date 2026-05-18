@@ -1,0 +1,82 @@
+{
+  "name": "matrix-account-data-recent-emoji",
+  "contract": "SPEC-045",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#mrecent_emoji",
+    "checked_at": "2026-05-18T11:06:30+09:00",
+    "user_id": "@alice:example.test",
+    "type": "m.recent_emoji",
+    "steps": [
+      {
+        "id": "put-global-account-data",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/user/@alice:example.test/account_data/m.recent_emoji",
+        "access_token": "token-alice",
+        "body": {
+          "recent_emoji": [
+            {
+              "emoji": "\uD83D\uDC4D",
+              "total": 3
+            }
+          ]
+        },
+        "expected_status": 200
+      },
+      {
+        "id": "get-global-account-data",
+        "method": "GET",
+        "path": "/_matrix/client/v3/user/@alice:example.test/account_data/m.recent_emoji",
+        "access_token": "token-alice",
+        "expected_status": 200,
+        "expected_body": {
+          "recent_emoji": [
+            {
+              "emoji": "\uD83D\uDC4D",
+              "total": 3
+            }
+          ]
+        }
+      },
+      {
+        "id": "sync-global-account-data",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-alice",
+        "expected_account_data_event": {
+          "type": "m.recent_emoji",
+          "content": {
+            "recent_emoji": [
+              {
+                "emoji": "\uD83D\uDC4D",
+                "total": 3
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "shape_rules": {
+      "recent_emoji_required": true,
+      "emoji_must_be_string": true,
+      "total_must_be_non_negative_number": true,
+      "total_must_be_below_2_pow_53": true,
+      "unknown_emoji_entries_preserved": true
+    },
+    "release_evidence_rules": {
+      "emoji_picker_ui_claimed": false,
+      "emoji_ordering_recommendation_claimed": false,
+      "client_server_support_claim_widened": false,
+      "versions_advertisement_widened": false
+    }
+  },
+  "expected": {
+    "step_count": 3,
+    "account_data_type": "m.recent_emoji",
+    "round_trip_supported": true,
+    "sync_visibility_supported": true,
+    "emoji_picker_ui_claimed": false,
+    "client_server_support_claim_widened": false,
+    "versions_advertisement_widened": false
+  }
+}

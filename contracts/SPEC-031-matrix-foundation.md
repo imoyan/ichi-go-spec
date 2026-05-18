@@ -83,6 +83,11 @@ Client expectations:
 - Clients must not require every Matrix error response to contain only these
   two fields.
 - Clients must not treat Houra `code` as a Matrix `errcode`.
+- Matrix v1.18 `M_USER_LIMIT_EXCEEDED` is a distinct common error code.
+  Parsers must preserve `info_uri` and `can_upgrade` when present, and must not
+  collapse the error into `M_LIMIT_EXCEEDED`, `M_RESOURCE_LIMIT_EXCEEDED`,
+  `M_FORBIDDEN`, or an Houra `code` value. Runtime emission requires an
+  endpoint-specific quota or account-limit contract.
 
 ## Namespacing and deprecation gate
 
