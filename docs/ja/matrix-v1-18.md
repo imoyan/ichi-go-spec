@@ -15,7 +15,7 @@ Push Gateway API、Room Versions、Olm & Megolm、Appendices/common rules は別
 
 ## close-out snapshot
 
-2026-05-14 時点では、#95 が Matrix v1.18 roadmap の親 issue です。#189 は
+2026-05-18T09:35:03+09:00 時点では、#95 が Matrix v1.18 roadmap の親 issue です。#189 は
 README の close-out snapshot を通じて、domain issue、implementation adoption refs、
 release evidence の対応関係を読むための整理 lane です。
 
@@ -25,9 +25,9 @@ implementation refs と evidence bundle は #200 で追跡します。
 `test-vectors/core/matrix-v1-18-release-evidence-current-blocked-bundle.json`
 は現在の blocked bundle で、example bundle とは分けて実 implementation refs と
 refs 不一致による fail-closed 判定を記録します。
-この bundle は `houra-spec` ce587f202de77dade3eebb07b63a0a6b4908743b、
-`houra-server` 3fa134955c9e0804adc9e4b54e6d90fb24631f77、
-`houra-client` 0f330a14ad86d69ad4f147c7a5b6d1852c9c78f2 の same-candidate refs を
+この bundle は `houra-spec` 39c3e98d8070dd86ef3440fe4a2f92fc9c2d0a89、
+`houra-server` b3b3eb2d98b1eb924084f6f07a653a1c01b92b03、
+`houra-client` b7c31882dbc17c35a25215990e8b0ab86f38f777 の same-candidate refs を
 記録します。closed 済みの #200 から #202 は evidence / boundary record として扱います。
 
 `houra-server` と `houra-client` の #189 で列挙された adoption refs は閉じています。
@@ -35,9 +35,13 @@ refs 不一致による fail-closed 判定を記録します。
 current release candidate では #135 から #142 を domain ごとの
 release-scope decision として残しました。これにより、full-breadth gaps は未記録の
 blocker ではなく、広告対象外の explicit current-candidate exclusion として読めます。
-一方で `houra-labs` の parser / shared-core 探索 issue は一部 open のままです。
-これらは release candidate が shared-core artifact を evidence に含めない限り、
-Matrix version advertisement の blocker ではありません。
+その後の issue sync では `houra-server` の open issue は #135 と #136 のみです。
+#135 は PR #374 で Client-Server full-breadth rollup evidence を更新済み、#136 は
+Server-Server / Complement full-breadth tracker として open 維持です。
+`houra-client` と `houra-labs` には open issue / PR がありません。`houra-labs` の
+#173 から #180 は shared-core / parser / capability / theme evidence として close 済みで、
+release candidate が shared-core artifact を必須 evidence に含めない限り、Matrix
+version advertisement の blocker ではありません。
 
 #200 は current blocked bundle として、実 implementation refs と fail-closed の判断を
 記録しました。#201 は `SPEC-068` の OAuth account-management adoption boundary を
