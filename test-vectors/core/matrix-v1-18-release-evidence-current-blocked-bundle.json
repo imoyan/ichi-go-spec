@@ -5,7 +5,7 @@
     "matrix_spec_version": "v1.18",
     "matrix_spec_source": "https://spec.matrix.org/v1.18/",
     "matrix_release_source": "https://matrix.org/blog/2026/03/26/matrix-v1.18-release/",
-    "checked_at": "2026-05-18T07:14:22+09:00",
+    "checked_at": "2026-05-18T16:45:00+09:00",
     "bundle_contracts": [
       "SPEC-062",
       "SPEC-063",
@@ -15,21 +15,24 @@
     ],
     "candidate_refs": {
       "release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-18",
-      "houra_spec_ref": "39c3e98d8070dd86ef3440fe4a2f92fc9c2d0a89",
-      "houra_server_ref": "b3b3eb2d98b1eb924084f6f07a653a1c01b92b03",
-      "houra_client_ref": "b7c31882dbc17c35a25215990e8b0ab86f38f777"
+      "houra_spec_ref": "aa80fa3038b35cba18943375c22cec57baf292d4",
+      "houra_server_ref": "2b78806d766c31593a14b5dee9dece7a577c7ff8",
+      "houra_client_ref": "5154a2c519d113f030dc0e9369d06060005ebd49"
     },
     "evidence_sources": {
       "server": {
         "repo": "houra-server",
-        "issue": "imoyan/houra-server#321",
-        "pull_request": "imoyan/houra-server#327",
-        "merge_commit": "b3b3eb2d98b1eb924084f6f07a653a1c01b92b03",
-        "head_under_test": "b3b3eb2d98b1eb924084f6f07a653a1c01b92b03",
-        "spec_ref_under_test": "39c3e98d8070dd86ef3440fe4a2f92fc9c2d0a89",
+        "issue": "imoyan/houra-server#379",
+        "pull_request": "imoyan/houra-server#380",
+        "merge_commit": "2b78806d766c31593a14b5dee9dece7a577c7ff8",
+        "head_under_test": "2b78806d766c31593a14b5dee9dece7a577c7ff8",
+        "spec_ref_under_test": "aa80fa3038b35cba18943375c22cec57baf292d4",
         "checks": [
-          "GitHub Actions CI / test pass",
+          "HOURA_SPEC_ROOT=<spec> npm run typecheck pass",
+          "HOURA_SPEC_ROOT=<spec> npm run build pass",
+          "HOURA_SPEC_ROOT=<spec> npm run test:client-server-full-breadth-rollup pass",
           "HOURA_SPEC_ROOT=<spec> npm run test:release-notes pass",
+          "HOURA_SPEC_ROOT=<spec> npm run test:release-readiness pass",
           "HOURA_SPEC_ROOT=<spec> npm run test:release-bundle pass"
         ],
         "support_claim_decision": "not-advertised",
@@ -39,17 +42,21 @@
       },
       "client": {
         "repo": "houra-client",
-        "issue": "imoyan/houra-client#205",
-        "pull_request": "imoyan/houra-client#206",
-        "merge_commit": "b7c31882dbc17c35a25215990e8b0ab86f38f777",
-        "head_under_test": "b7c31882dbc17c35a25215990e8b0ab86f38f777",
-        "spec_ref_under_test": "39c3e98d8070dd86ef3440fe4a2f92fc9c2d0a89",
+        "issue": "imoyan/houra-client#233",
+        "pull_request": "imoyan/houra-client#234",
+        "merge_commit": "5154a2c519d113f030dc0e9369d06060005ebd49",
+        "head_under_test": "5154a2c519d113f030dc0e9369d06060005ebd49",
+        "spec_ref_under_test": "aa80fa3038b35cba18943375c22cec57baf292d4",
         "checks": [
           "GitHub Actions test pass",
           "GitHub Actions e2e pass",
           "HOURA_SPEC_ROOT=<spec> npm test pass",
+          "HOURA_SPEC_ROOT=<spec> npm run typecheck pass",
+          "HOURA_SPEC_ROOT=<spec> npm run build pass",
+          "matrix-advertisement-claim static pass",
           "matrix-release-notes-evidence static pass",
-          "matrix-v1.18-release-readiness static pass"
+          "matrix-v1.18-release-readiness static pass",
+          "matrix-full-breadth-client-release-evidence blocked as expected"
         ],
         "support_claim_decision": "not-advertised",
         "publishable_matrix_support_claim": false
