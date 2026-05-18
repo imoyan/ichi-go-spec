@@ -86,6 +86,7 @@ Adoption states:
 | Matrix v1.18 / Identity Service API / validation provider delivery flows | SPEC-094 Matrix Identity Validation Provider Delivery Boundary | boundary | Identity Service API | `houra-server#244` | - | - | tracked | Matrix |
 | Matrix v1.18 / Client-Server API / media repository endpoint breadth | SPEC-095 Matrix Media Repository Breadth | boundary | Client-Server API | - | - | `houra-labs#122` | tracked | Matrix |
 | Matrix v1.18 / Client-Server API / Guest Access and Room Previews | SPEC-141 Matrix Guest Room Preview Boundary | boundary | Client-Server API | - | - | - | tracked | Matrix |
+| Matrix v1.18 / Olm & Megolm / Megolm encrypted-room state event and timeline envelope parser boundary | SPEC-142 Matrix Megolm Encrypted-Room Envelope Parser Boundary | boundary | Olm & Megolm | - | - | - | planned | Matrix |
 | Matrix v1.18 / Olm & Megolm / encrypted attachment EncryptedFile metadata parser boundary | SPEC-146 Matrix Encrypted Attachment EncryptedFile Parser Boundary | boundary | Olm & Megolm | - | - | - | planned | Matrix |
 | Matrix v1.18 / Client-Server API / device key self-signature and one-time/fallback key signature verification boundary | SPEC-147 Matrix Device Key Self-Signature Verification Boundary | boundary | Client-Server API | - | - | - | planned | Matrix |
 | Matrix v1.18 / Olm & Megolm / secret storage and cross-signing account data shape parser boundary | SPEC-148 Matrix Secret Storage Account Data Parser Boundary | boundary | Olm & Megolm | - | - | - | planned | Matrix |
