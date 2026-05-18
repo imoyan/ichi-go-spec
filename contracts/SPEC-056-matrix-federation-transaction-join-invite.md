@@ -111,6 +111,13 @@ signature, adds the target server signature when accepted, and returns the
 signed event. This contract covers direct invites only; third-party invite
 exchange remains out of scope.
 
+If the target homeserver rejects the invite due to Matrix v1.18 invite blocking
+policy, the federation invite response must fail with `403` and
+`M_INVITE_BLOCKED`. This records the federation error boundary only. Full
+policy evaluation, blocklist storage, Client-Server account-data ownership, and
+cross-server audit behavior remain split into `SPEC-073` and `SPEC-074`
+follow-up work.
+
 ## Compatibility boundaries
 
 - Existing `/_houra/client/**`, `/_matrix/client/**`, `/.well-known/**`, and

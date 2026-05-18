@@ -119,6 +119,7 @@ Adoption states:
 | Houra Product MVP / Multilingual Handoff Boundary | SPEC-128 Product MVP Multilingual Handoff Boundary | boundary | none | `houra-server#339` | - | - | tracked | Product MVP |
 | Houra Product MVP / Offline Queue Replay Boundary | SPEC-129 Product MVP Offline Queue Replay Boundary | boundary | none | `houra-server#338` | - | - | tracked | Product MVP |
 | Matrix v1.18 / Olm & Megolm / Olm and Megolm to-device key event relay | SPEC-130 Matrix Olm Withheld-Key To-Device Relay Boundary | boundary | Olm & Megolm | `houra-server#252` | - | - | tracked | Matrix |
+| Matrix v1.18 / Appendices/common rules / changelog delta boundary | SPEC-131 Matrix v1.18 Changelog Delta Boundary | gap-inventory | Appendices/common rules | - | - | - | tracked | Matrix |
 
 The board intentionally keeps implementation references lightweight. Detailed release evidence stays in `CHANGELOG.md`, and open roadmap or exclusion reasoning stays in `docs/matrix-compliance.md`.
 

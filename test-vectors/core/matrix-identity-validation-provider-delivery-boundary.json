@@ -15,7 +15,7 @@
     "lane_id": "validation-session-provider-delivery-breadth",
     "resource_bounds": {
       "max_canonical_case_bytes": 20480,
-      "max_case_count": 8,
+      "max_case_count": 10,
       "max_session_count": 4,
       "max_provider_handoff_count": 4,
       "token_ttl_seconds": 900,
@@ -116,16 +116,71 @@
         "result": "accepted"
       },
       {
+        "id": "incorrect-token-fails-closed",
+        "kind": "incorrect_token",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/validate/email/submitToken",
+          "body": {
+            "client_secret": "redacted-client-secret",
+            "sid": "sid-redacted",
+            "token": "incorrect-token-redacted"
+          }
+        },
+        "status": 400,
+        "errcode": "M_TOKEN_INCORRECT",
+        "medium": "email",
+        "session_state": "failed",
+        "provider_handoff": "not_generated",
+        "auth_proof": "none",
+        "redacted_fields": [
+          "client_secret",
+          "validation_token",
+          "full_3pid"
+        ],
+        "result": "accepted"
+      },
+      {
         "id": "expired-token-fails-closed",
         "kind": "expired_token",
         "request": {
           "method": "POST",
-          "path": "/_matrix/identity/v2/validate/email/submitToken"
+          "path": "/_matrix/identity/v2/validate/email/submitToken",
+          "body": {
+            "client_secret": "redacted-client-secret",
+            "sid": "sid-redacted",
+            "token": "expired-token-redacted"
+          }
         },
-        "status": 403,
-        "errcode": "M_FORBIDDEN",
+        "status": 400,
+        "errcode": "M_SESSION_EXPIRED",
         "medium": "email",
         "session_state": "expired",
+        "provider_handoff": "not_generated",
+        "auth_proof": "none",
+        "redacted_fields": [
+          "client_secret",
+          "validation_token",
+          "full_3pid"
+        ],
+        "result": "accepted"
+      },
+      {
+        "id": "malformed-token-fails-closed",
+        "kind": "malformed_token",
+        "request": {
+          "method": "POST",
+          "path": "/_matrix/identity/v2/validate/msisdn/submitToken",
+          "body": {
+            "client_secret": "redacted-client-secret",
+            "sid": "sid-redacted",
+            "token": 123
+          }
+        },
+        "status": 400,
+        "errcode": "M_INVALID_PARAM",
+        "medium": "msisdn",
+        "session_state": "failed",
         "provider_handoff": "not_generated",
         "auth_proof": "none",
         "redacted_fields": [
@@ -211,14 +266,16 @@
     }
   },
   "expected": {
-    "case_count": 8,
-    "accepted_case_count": 8,
-    "max_case_count": 8,
+    "case_count": 10,
+    "accepted_case_count": 10,
+    "max_case_count": 10,
     "email_request_token_supported": true,
     "email_submit_token_supported": true,
     "msisdn_request_token_supported": true,
     "msisdn_submit_token_supported": true,
+    "incorrect_token_fails_closed": true,
     "expired_token_fails_closed": true,
+    "malformed_token_fails_closed": true,
     "repeated_submit_idempotent": true,
     "provider_bounce_fails_closed": true,
     "provider_timeout_fails_closed": true,

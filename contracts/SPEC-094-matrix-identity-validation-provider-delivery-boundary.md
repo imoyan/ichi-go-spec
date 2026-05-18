@@ -30,6 +30,7 @@ This contract covers representative Matrix v1.18 Identity Service behavior:
 - `client_secret` and `send_attempt` validation;
 - provider delivery handoff artifact creation;
 - token expiry rejection;
+- incorrect-token rejection with `M_TOKEN_INCORRECT`;
 - repeated submit idempotency boundary;
 - provider bounce and timeout fail-closed evidence;
 - bounded, redacted lifecycle artifacts.
@@ -60,9 +61,11 @@ it MUST NOT include raw provider payloads, raw destination addresses, raw
 tokens, local template paths, provider credentials, or delivery log bodies.
 
 `submitToken` validates a session only when the tuple of `sid`,
-`client_secret`, and token is accepted for the same medium. Expired tokens,
-wrong client secrets, wrong tokens, and provider bounce or timeout states MUST
-fail closed and MUST NOT mark the session as validated.
+`client_secret`, and token is accepted for the same medium. Incorrect tokens
+MUST fail with `400` and `M_TOKEN_INCORRECT`. Expired sessions MUST fail with
+`400` and `M_SESSION_EXPIRED`. Malformed submit-token payloads MUST fail with
+`400` and `M_INVALID_PARAM`. Wrong client secrets, provider bounce, or provider
+timeout states MUST fail closed and MUST NOT mark the session as validated.
 
 Repeated submit for an already validated session MAY be treated as idempotent
 success if the artifact records that no additional provider request was
@@ -105,7 +108,8 @@ Each representative case records:
 - `id`;
 - `kind`: `email_request_token`, `email_submit_token`,
   `msisdn_request_token`, `msisdn_submit_token`, `expired_token`,
-  `repeated_submit`, `provider_bounce`, or `provider_timeout`;
+  `incorrect_token`, `malformed_token`, `repeated_submit`, `provider_bounce`,
+  or `provider_timeout`;
 - `request`: method and path;
 - `status`;
 - `errcode` when the result is a Matrix error;

@@ -133,6 +133,15 @@ The homeserver must append a `m.room.member` state event with
 for the invitee must expose the room under `rooms.invite` with stripped invite
 state sufficient for the client to render and decide whether to join.
 
+Matrix v1.18 invite blocking is controlled by the invitee's
+`m.invite_permission_config` account data. When local policy blocks an invite,
+the Matrix-facing invite request must fail with `403` and `M_INVITE_BLOCKED`,
+and the blocked invite must not appear in the invitee's `/sync` invite section.
+This contract records the Client-Server error and sync-visibility boundary only;
+policy evaluation, admin controls, federation invite propagation, audit
+artifacts, and Server-Server full-breadth behavior remain split into `SPEC-073`
+and `SPEC-074` follow-up work.
+
 ## Authentication and errors
 
 Missing bearer tokens on endpoints that require authentication must return

@@ -9,14 +9,14 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix domain | Vector count | Contract count |
 |---|---:|---:|
 | none | 75 | 18 |
-| Client-Server API | 144 | 29 |
-| Server-Server API | 26 | 14 |
+| Client-Server API | 147 | 29 |
+| Server-Server API | 27 | 14 |
 | Room Versions | 20 | 12 |
 | Olm & Megolm | 4 | 4 |
 | Application Service API | 15 | 12 |
 | Identity Service API | 9 | 6 |
 | Push Gateway API | 9 | 5 |
-| Appendices/common rules | 19 | 7 |
+| Appendices/common rules | 20 | 8 |
 
 ## Inventory
 
@@ -183,6 +183,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-token-not-string.json` | `matrix-keys-query-token-not-string` |
 | Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-unknown-device-omitted.json` | `matrix-keys-query-unknown-device-omitted` |
 | Matrix v1.18 / Client-Server API / profile, account data, and room tag endpoints | SPEC-045 Matrix Profile, Account Data, and Room Tags | sync | `test-vectors/sync/matrix-account-data-global-basic.json` | `matrix-account-data-global-basic` |
+| Matrix v1.18 / Client-Server API / profile, account data, and room tag endpoints | SPEC-045 Matrix Profile, Account Data, and Room Tags | sync | `test-vectors/sync/matrix-account-data-recent-emoji.json` | `matrix-account-data-recent-emoji` |
 | Matrix v1.18 / Client-Server API / profile, account data, and room tag endpoints | SPEC-045 Matrix Profile, Account Data, and Room Tags | sync | `test-vectors/sync/matrix-account-data-room-basic.json` | `matrix-account-data-room-basic` |
 | Matrix v1.18 / Client-Server API / profile, account data, and room tag endpoints | SPEC-045 Matrix Profile, Account Data, and Room Tags | sync | `test-vectors/sync/matrix-account-data-user-mismatch.json` | `matrix-account-data-user-mismatch` |
 | Matrix v1.18 / Client-Server API / profile, account data, and room tag endpoints | SPEC-045 Matrix Profile, Account Data, and Room Tags | sync | `test-vectors/sync/matrix-profile-delete-basic.json` | `matrix-profile-delete-basic` |
@@ -195,6 +196,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / public rooms, directory aliases, and invites | SPEC-048 Matrix Room Directory, Aliases, and Invites | rooms | `test-vectors/rooms/matrix-room-aliases-basic.json` | `matrix-room-aliases-basic` |
 | Matrix v1.18 / Client-Server API / public rooms, directory aliases, and invites | SPEC-048 Matrix Room Directory, Aliases, and Invites | rooms | `test-vectors/rooms/matrix-room-directory-visibility-basic.json` | `matrix-room-directory-visibility-basic` |
 | Matrix v1.18 / Client-Server API / public rooms, directory aliases, and invites | SPEC-048 Matrix Room Directory, Aliases, and Invites | rooms | `test-vectors/rooms/matrix-room-invite-basic.json` | `matrix-room-invite-basic` |
+| Matrix v1.18 / Client-Server API / public rooms, directory aliases, and invites | SPEC-048 Matrix Room Directory, Aliases, and Invites | rooms | `test-vectors/rooms/matrix-room-invite-blocked.json` | `matrix-room-invite-blocked` |
 | Matrix v1.18 / Client-Server API / public rooms, directory aliases, and invites | SPEC-048 Matrix Room Directory, Aliases, and Invites | rooms | `test-vectors/rooms/matrix-room-invite-forbidden.json` | `matrix-room-invite-forbidden` |
 | Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-available-basic.json` | `matrix-registration-available-basic` |
 | Matrix v1.18 / Client-Server API / registration and username availability endpoints | SPEC-033 Matrix Client-Server Registration | auth | `test-vectors/auth/matrix-registration-available-in-use.json` | `matrix-registration-available-in-use` |
@@ -216,6 +218,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / send event and messages pagination endpoints | SPEC-036 Matrix Client-Server Send Event and Messages MVP | messaging | `test-vectors/messaging/matrix-messages-forbidden.json` | `matrix-messages-forbidden` |
 | Matrix v1.18 / Client-Server API / send event and messages pagination endpoints | SPEC-036 Matrix Client-Server Send Event and Messages MVP | messaging | `test-vectors/messaging/matrix-messages-invalid-dir.json` | `matrix-messages-invalid-dir` |
 | Matrix v1.18 / Client-Server API / send event and messages pagination endpoints | SPEC-036 Matrix Client-Server Send Event and Messages MVP | messaging | `test-vectors/messaging/matrix-messages-next-page.json` | `matrix-messages-next-page` |
+| Matrix v1.18 / Client-Server API / send event and messages pagination endpoints | SPEC-036 Matrix Client-Server Send Event and Messages MVP | messaging | `test-vectors/messaging/matrix-message-presentation-deltas-v118.json` | `matrix-message-presentation-deltas-v118` |
 | Matrix v1.18 / Client-Server API / send event and messages pagination endpoints | SPEC-036 Matrix Client-Server Send Event and Messages MVP | messaging | `test-vectors/messaging/matrix-send-event-malformed-payload.json` | `matrix-send-event-malformed-payload` |
 | Matrix v1.18 / Client-Server API / send event and messages pagination endpoints | SPEC-036 Matrix Client-Server Send Event and Messages MVP | messaging | `test-vectors/messaging/matrix-send-event-missing-token.json` | `matrix-send-event-missing-token` |
 | Matrix v1.18 / Client-Server API / send event and messages pagination endpoints | SPEC-036 Matrix Client-Server Send Event and Messages MVP | messaging | `test-vectors/messaging/matrix-send-event-text-basic.json` | `matrix-send-event-text-basic` |
@@ -265,6 +268,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Server-Server API / federation interop smoke gate | SPEC-061 Matrix Federation Interop Smoke | events | `test-vectors/events/matrix-federation-reference-homeserver-smoke.json` | `matrix-federation-reference-homeserver-smoke` |
 | Matrix v1.18 / Server-Server API / federation interop smoke gate | SPEC-061 Matrix Federation Interop Smoke | events | `test-vectors/events/matrix-federation-two-homeserver-smoke.json` | `matrix-federation-two-homeserver-smoke` |
 | Matrix v1.18 / Server-Server API / federation leave and knock runtime | SPEC-111 Matrix Federation Leave and Knock Runtime | events | `test-vectors/events/matrix-federation-leave-knock-runtime.json` | `matrix-federation-leave-knock-runtime` |
+| Matrix v1.18 / Server-Server API / federation send, join, and invite endpoints | SPEC-056 Matrix Federation Transaction, Join, and Invite | events | `test-vectors/events/matrix-federation-invite-blocked.json` | `matrix-federation-invite-blocked` |
 | Matrix v1.18 / Server-Server API / federation send, join, and invite endpoints | SPEC-056 Matrix Federation Transaction, Join, and Invite | events | `test-vectors/events/matrix-federation-invite-v2-basic.json` | `matrix-federation-invite-v2-basic` |
 | Matrix v1.18 / Server-Server API / federation send, join, and invite endpoints | SPEC-056 Matrix Federation Transaction, Join, and Invite | events | `test-vectors/events/matrix-federation-make-send-join-basic.json` | `matrix-federation-make-send-join-basic` |
 | Matrix v1.18 / Server-Server API / federation send, join, and invite endpoints | SPEC-056 Matrix Federation Transaction, Join, and Invite | events | `test-vectors/events/matrix-federation-send-transaction-basic.json` | `matrix-federation-send-transaction-basic` |
@@ -369,6 +373,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Appendices/common rules / Complement-compatible homeserver CI lane | SPEC-063 Matrix Complement-Compatible CI Lane | core | `test-vectors/core/matrix-complement-ci-lane-setup.json` | `matrix-complement-ci-lane-setup` |
 | Matrix v1.18 / Appendices/common rules / Complement-compatible homeserver CI lane | SPEC-063 Matrix Complement-Compatible CI Lane | core | `test-vectors/core/matrix-complement-ci-pass-fail-report.json` | `matrix-complement-ci-pass-fail-report` |
 | Matrix v1.18 / Appendices/common rules / Complement-compatible homeserver CI lane | SPEC-063 Matrix Complement-Compatible CI Lane | core | `test-vectors/core/matrix-complement-ci-release-gate.json` | `matrix-complement-ci-release-gate` |
+| Matrix v1.18 / Appendices/common rules / changelog delta boundary | SPEC-131 Matrix v1.18 Changelog Delta Boundary | core | `test-vectors/core/matrix-v1-18-changelog-delta-boundary.json` | `matrix-v1-18-changelog-delta-boundary` |
 | Matrix v1.18 / Appendices/common rules / conformance tooling result schema | SPEC-113 Conformance Tooling Result Schema | core | `test-vectors/core/conformance-tooling-result-negative-cases-v1.json` | `conformance-tooling-result-negative-cases-v1` |
 | Matrix v1.18 / Appendices/common rules / conformance tooling result schema | SPEC-113 Conformance Tooling Result Schema | core | `test-vectors/core/conformance-tooling-result-schema-v1.json` | `conformance-tooling-result-schema-v1` |
 | Matrix v1.18 / Appendices/common rules / domain coverage evidence report | SPEC-062 Matrix Domain Coverage Evidence Report | core | `test-vectors/core/matrix-domain-coverage-report-basic.json` | `matrix-domain-coverage-report-basic` |

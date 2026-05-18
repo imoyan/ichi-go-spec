@@ -1,0 +1,200 @@
+{
+  "name": "matrix-v1-18-changelog-delta-boundary",
+  "contract": "SPEC-131",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_release_source": "https://matrix.org/blog/2026/03/26/matrix-v1.18-release/",
+    "matrix_spec_sources": [
+      "https://spec.matrix.org/v1.18/client-server-api/",
+      "https://spec.matrix.org/v1.18/server-server-api/",
+      "https://spec.matrix.org/v1.18/identity-service-api/"
+    ],
+    "checked_at": "2026-05-18T11:06:30+09:00",
+    "parent_contracts": [
+      "SPEC-031",
+      "SPEC-036",
+      "SPEC-045",
+      "SPEC-048",
+      "SPEC-049",
+      "SPEC-056",
+      "SPEC-073",
+      "SPEC-074",
+      "SPEC-076",
+      "SPEC-094",
+      "SPEC-095",
+      "SPEC-106"
+    ],
+    "delta_cases": [
+      {
+        "id": "m-user-limit-exceeded",
+        "issue": "imoyan/houra-spec#369",
+        "matrix_terms": [
+          "M_USER_LIMIT_EXCEEDED"
+        ],
+        "owning_domains": [
+          "Client-Server API",
+          "Appendices/common rules"
+        ],
+        "classification": "parser-only-error-vocabulary",
+        "adopted_now": [
+          "Matrix error envelope parser may preserve errcode M_USER_LIMIT_EXCEEDED",
+          "release evidence may name the gap without widening advertisement"
+        ],
+        "excluded_now": [
+          "quota runtime",
+          "account-limit storage",
+          "generic rate-limit remapping",
+          "Matrix version advertisement"
+        ],
+        "fail_closed_checks": [
+          "M_USER_LIMIT_EXCEEDED is not collapsed into M_LIMIT_EXCEEDED",
+          "M_USER_LIMIT_EXCEEDED is not collapsed into M_FORBIDDEN",
+          "server emission requires a future runtime contract"
+        ]
+      },
+      {
+        "id": "recent-emoji-account-data",
+        "issue": "imoyan/houra-spec#370",
+        "matrix_terms": [
+          "m.recent_emoji"
+        ],
+        "owning_domains": [
+          "Client-Server API"
+        ],
+        "classification": "bounded-account-data-runtime-slice",
+        "adopted_now": [
+          "account-data descriptors may recognize the m.recent_emoji event type",
+          "generic account-data storage may round-trip the event where SPEC-045 global account-data storage and shape validation apply"
+        ],
+        "excluded_now": [
+          "emoji recency ordering",
+          "emoji validation",
+          "composer UI",
+          "sync rendering correctness",
+          "Matrix Client-Server advertisement"
+        ],
+        "fail_closed_checks": [
+          "generic account-data support is not treated as m.recent_emoji UI support",
+          "malformed m.recent_emoji content remains a future focused vector",
+          "server and client runtime adoption must be split"
+        ]
+      },
+      {
+        "id": "invite-blocking",
+        "issue": "imoyan/houra-spec#371",
+        "matrix_terms": [
+          "M_INVITE_BLOCKED",
+          "invite blocking"
+        ],
+        "owning_domains": [
+          "Client-Server API",
+          "Server-Server API"
+        ],
+        "classification": "client-server-runtime-boundary-federation-fail-closed",
+        "adopted_now": [
+          "Matrix error envelope parser may preserve errcode M_INVITE_BLOCKED",
+          "Client-Server invite responses may return 403 M_INVITE_BLOCKED when m.invite_permission_config blocks the invite",
+          "blocked invites are omitted from the invitee sync invite section"
+        ],
+        "excluded_now": [
+          "blocklist policy runtime",
+          "federation invite rejection policy",
+          "admin policy UI",
+          "audit artifact persistence",
+          "Matrix Client-Server or Server-Server advertisement"
+        ],
+        "fail_closed_checks": [
+          "M_INVITE_BLOCKED is not collapsed into M_FORBIDDEN in public evidence",
+          "Client-Server and federation surfaces stay separate",
+          "Product MVP invite behavior is unchanged"
+        ]
+      },
+      {
+        "id": "media-rich-text-presentation",
+        "issue": "imoyan/houra-spec#372",
+        "matrix_terms": [
+          "is_animated",
+          "m.image",
+          "m.sticker",
+          "ol start"
+        ],
+        "owning_domains": [
+          "Client-Server API"
+        ],
+        "classification": "parser-and-client-rendering-descriptor",
+        "adopted_now": [
+          "media message parsers may preserve boolean is_animated on image and sticker info objects",
+          "client rendering evidence may test HTML ordered-list start only when Matrix HTML ol support is otherwise claimed"
+        ],
+        "excluded_now": [
+          "animation playback",
+          "thumbnail generation",
+          "remote media fetch",
+          "encrypted media behavior",
+          "full rich-text rendering conformance",
+          "Matrix Client-Server advertisement"
+        ],
+        "fail_closed_checks": [
+          "is_animated parsing does not claim media repository breadth",
+          "ol start support is not inferred from generic formatted_body parsing",
+          "runtime rendering adoption must be client-scoped"
+        ]
+      },
+      {
+        "id": "identity-submit-token-incorrect",
+        "issue": "imoyan/houra-spec#373",
+        "matrix_terms": [
+          "M_TOKEN_INCORRECT",
+          "submitToken",
+          "submit_url"
+        ],
+        "owning_domains": [
+          "Identity Service API"
+        ],
+        "classification": "identity-validation-runtime-boundary",
+        "adopted_now": [
+          "Identity Service submitToken may return 400 M_TOKEN_INCORRECT for incorrect tokens",
+          "Identity Service submitToken may return 400 M_SESSION_EXPIRED for expired sessions",
+          "submitToken response parser may preserve optional submit_url"
+        ],
+        "excluded_now": [
+          "email provider delivery",
+          "MSISDN provider delivery",
+          "token issuance",
+          "token storage",
+          "consent UI",
+          "retry policy",
+          "Identity Service advertisement"
+        ],
+        "fail_closed_checks": [
+          "M_TOKEN_INCORRECT is distinct from malformed-token and expired-token cases",
+          "expired submitToken sessions use M_SESSION_EXPIRED",
+          "malformed submitToken payloads use M_INVALID_PARAM",
+          "submit_url parsing is not completion proof",
+          "provider runtime adoption must be split"
+        ]
+      }
+    ],
+    "release_evidence_rules": {
+      "versions_advertisement_widened": false,
+      "matrix_support_claim_widened": false,
+      "runtime_support_inferred_from_parser_evidence": false,
+      "requires_release_notes_before_claim": true,
+      "requires_same_candidate_bundle_before_claim": true
+    }
+  },
+  "expected": {
+    "delta_case_count": 5,
+    "issue_refs": [
+      "imoyan/houra-spec#369",
+      "imoyan/houra-spec#370",
+      "imoyan/houra-spec#371",
+      "imoyan/houra-spec#372",
+      "imoyan/houra-spec#373"
+    ],
+    "parser_only_or_fail_closed_count": 5,
+    "versions_advertisement_widened": false,
+    "matrix_support_claim_widened": false,
+    "current_blocked_release_bundle_changed": false
+  }
+}

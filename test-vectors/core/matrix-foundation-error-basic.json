@@ -10,6 +10,28 @@
   },
   "expected": {
     "errcode": "M_BAD_JSON",
-    "error": "Malformed JSON payload."
+    "error": "Malformed JSON payload.",
+    "additional_error_cases": [
+      {
+        "id": "user-limit-exceeded",
+        "status": 403,
+        "body": {
+          "errcode": "M_USER_LIMIT_EXCEEDED",
+          "error": "User limit exceeded.",
+          "info_uri": "https://example.test/upgrade",
+          "can_upgrade": true
+        },
+        "parser_expectations": {
+          "preserve_errcode": true,
+          "preserve_info_uri": true,
+          "preserve_can_upgrade": true,
+          "collapse_to_m_limit_exceeded": false,
+          "collapse_to_m_resource_limit_exceeded": false,
+          "collapse_to_m_forbidden": false,
+          "collapse_to_houra_code": false,
+          "runtime_emission_requires_endpoint_contract": true
+        }
+      }
+    ]
   }
 }
