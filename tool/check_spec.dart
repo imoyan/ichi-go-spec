@@ -161,6 +161,7 @@ void main() {
   checkMatrix2OAuthOidcReadinessGate(contracts, failures);
   checkMatrix2SlidingSyncReadinessGate(contracts, failures);
   checkMatrix2E2eeKeyBackupVerificationReadinessGate(contracts, failures);
+  checkMatrix2RoomVersionsAuthStateReadinessGate(contracts, failures);
   checkProductMvpReleaseCandidatePlan(contracts, failures);
   checkOssPublicationReadinessPlan(contracts, failures);
   checkConformanceToolingResultSchema(contracts, profileMap, failures);
@@ -12910,6 +12911,161 @@ void checkMatrix2E2eeKeyBackupVerificationReadinessGate(
     if (serialized.contains(forbidden)) {
       failures.add(
         '${relative(file)} Matrix 2.0 E2EE evidence contains forbidden token: $forbidden',
+      );
+    }
+  }
+}
+
+void checkMatrix2RoomVersionsAuthStateReadinessGate(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  const path =
+      'test-vectors/rooms/matrix-2-room-versions-auth-state-readiness-gate.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix 2.0 Room Versions readiness gate: $path');
+    return;
+  }
+  if (!contracts.containsKey('SPEC-138')) {
+    failures.add('$path references missing contract: SPEC-138');
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-138') {
+    failures.add('${relative(file)} must use SPEC-138.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['issue'] != 'imoyan/houra-spec#385' ||
+      eventMap['parent_issue'] != 'imoyan/houra-spec#377' ||
+      eventMap['snapshot_issue'] != 'imoyan/houra-spec#380' ||
+      eventMap['advertisement_issue'] != 'imoyan/houra-spec#381' ||
+      eventMap['lane'] != 'room-versions-auth-state-resolution' ||
+      eventMap['matrix_domain'] != 'Room Versions' ||
+      eventMap['timezone'] != 'Asia/Tokyo' ||
+      eventMap['matrix_2_release_status'] != 'pending-stable-spec-release') {
+    failures.add('${relative(file)} Matrix 2.0 Room Versions metadata invalid.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String ||
+      !RegExp(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$')
+          .hasMatch(checkedAt)) {
+    failures.add('${relative(file)} checked_at must be a dated +09:00 snapshot.');
+  }
+  if (eventMap['current_stable_spec_entrypoint'] !=
+          'https://spec.matrix.org/latest/' ||
+      eventMap['current_stable_spec_version'] != 'v1.18' ||
+      eventMap['source_snapshot_contract'] != 'SPEC-133' ||
+      eventMap['versions_advertisement_gate_contract'] != 'SPEC-134' ||
+      eventMap['v1_18_gap_inventory_contract'] != 'SPEC-078' ||
+      eventMap['capabilities_boundary_contract'] != 'SPEC-080') {
+    failures.add('${relative(file)} Room Versions reference contracts invalid.');
+  }
+
+  final relatedContracts = readStringList(eventMap['related_contracts']);
+  if (relatedContracts == null ||
+      relatedContracts.length != 13 ||
+      !relatedContracts.toSet().containsAll({
+        'SPEC-040',
+        'SPEC-041',
+        'SPEC-042',
+        'SPEC-043',
+        'SPEC-044',
+        'SPEC-078',
+        'SPEC-080',
+        'SPEC-083',
+        'SPEC-084',
+        'SPEC-101',
+        'SPEC-103',
+        'SPEC-104',
+        'SPEC-134',
+      })) {
+    failures.add('${relative(file)} related Room Versions contracts incomplete.');
+  }
+
+  final rules = eventMap['classification_rules'];
+  final classifications = rules is Map
+      ? readStringList(rules['allowed_classifications'])
+      : null;
+  final stableFields = rules is Map
+      ? readStringList(rules['stable_requirement_fields'])
+      : null;
+  if (rules is! Map ||
+      classifications == null ||
+      classifications.length != 5 ||
+      !classifications.contains('stable-requirement') ||
+      !classifications.contains('representative-fixture-only') ||
+      !classifications.contains('capabilities-advertisement') ||
+      !classifications.contains('implementation-note') ||
+      !classifications.contains('out-of-scope') ||
+      stableFields == null ||
+      stableFields.length != 8 ||
+      rules['representative_fixture_implies_full_algorithm_support'] != false ||
+      rules['capabilities_advertisement_implies_domain_support'] != false ||
+      rules['helper_evidence_implies_runtime_support'] != false) {
+    failures.add('${relative(file)} Room Versions classification rules invalid.');
+  }
+
+  final unsupported = eventMap['unsupported_behavior'];
+  if (unsupported is! Map ||
+      unsupported['unsupported_room_version_fails_closed'] != true ||
+      unsupported['unsupported_auth_rule_fails_closed'] != true ||
+      unsupported['unsupported_state_resolution_case_fails_closed'] != true ||
+      unsupported['default_room_version_requires_evidence'] != true ||
+      unsupported['available_room_versions_require_evidence'] != true) {
+    failures.add('${relative(file)} Room Versions unsupported behavior invalid.');
+  }
+
+  final gate = eventMap['gate_result'];
+  final reasons = gate is Map ? gate['blocking_reasons'] : null;
+  if (gate is! Map ||
+      gate['status'] != 'blocked' ||
+      reasons is! List ||
+      reasons.length < 4 ||
+      gate['matrix_2_room_versions_claim_allowed'] != false ||
+      gate['default_room_version_claim_allowed'] != false ||
+      gate['available_room_versions_claim_allowed'] != false ||
+      gate['full_auth_state_resolution_claim_allowed'] != false ||
+      gate['versions_advertisement_widened'] != false ||
+      gate['publishable_matrix_support_claim_widened'] != false) {
+    failures.add('${relative(file)} Room Versions gate result invalid.');
+  }
+
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['matrix_2_room_versions_gate_blocked'] != true ||
+      expected['classification_count'] != 5 ||
+      expected['stable_requirement_fields_count'] != 8 ||
+      expected['related_contract_count'] != 13 ||
+      expected['spec_078_preserved_as_gap_inventory'] != true ||
+      expected['spec_080_preserved_as_capabilities_boundary'] != true ||
+      expected['unsupported_room_version_fails_closed'] != true ||
+      expected['matrix_2_room_versions_claim_allowed'] != false ||
+      expected['versions_advertisement_widened'] != false ||
+      expected['publishable_matrix_support_claim_widened'] != false) {
+    failures.add('${relative(file)} expected Room Versions result invalid.');
+  }
+
+  final serialized = jsonEncode(json);
+  for (final forbidden in const [
+    '/Users',
+    '/tmp',
+    'access_token',
+    'refresh_token',
+    'authorization_code',
+    'callback_query',
+    'idp_session',
+    'private_key',
+    'token-',
+  ]) {
+    if (serialized.contains(forbidden)) {
+      failures.add(
+        '${relative(file)} Matrix 2.0 Room Versions evidence contains forbidden token: $forbidden',
       );
     }
   }

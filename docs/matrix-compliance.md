@@ -360,6 +360,12 @@ Matrix 2.0 readiness preparation:
   v1.18 gap/ownership boundaries while blocking E2EE, key backup, verification,
   cross-signing, encrypted-room, and maintained-crypto-stack claims until
   stable-source and secret-free same-candidate evidence pass.
+- `SPEC-138` and
+  `test-vectors/rooms/matrix-2-room-versions-auth-state-readiness-gate.json`
+  define the #385 Room Versions readiness gate. It keeps `SPEC-078` and
+  `SPEC-080` as v1.18 gap/capabilities boundaries while blocking Room Versions,
+  event-auth, state-resolution, default/available room-version, and full
+  algorithm claims until stable-source same-candidate evidence passes.
 - Matrix 2.0 remains unadvertised until the Matrix project publishes a stable
   Matrix 2.0 specification release and Houra records same-candidate evidence
   for the advertised domains.

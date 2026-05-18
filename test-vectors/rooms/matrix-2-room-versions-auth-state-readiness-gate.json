@@ -1,0 +1,92 @@
+{
+  "name": "matrix-2-room-versions-auth-state-readiness-gate",
+  "contract": "SPEC-138",
+  "event": {
+    "issue": "imoyan/houra-spec#385",
+    "parent_issue": "imoyan/houra-spec#377",
+    "snapshot_issue": "imoyan/houra-spec#380",
+    "advertisement_issue": "imoyan/houra-spec#381",
+    "lane": "room-versions-auth-state-resolution",
+    "matrix_domain": "Room Versions",
+    "checked_at": "2026-05-18T16:05:50+09:00",
+    "timezone": "Asia/Tokyo",
+    "matrix_2_release_status": "pending-stable-spec-release",
+    "current_stable_spec_entrypoint": "https://spec.matrix.org/latest/",
+    "current_stable_spec_version": "v1.18",
+    "source_snapshot_contract": "SPEC-133",
+    "versions_advertisement_gate_contract": "SPEC-134",
+    "v1_18_gap_inventory_contract": "SPEC-078",
+    "capabilities_boundary_contract": "SPEC-080",
+    "related_contracts": [
+      "SPEC-040",
+      "SPEC-041",
+      "SPEC-042",
+      "SPEC-043",
+      "SPEC-044",
+      "SPEC-078",
+      "SPEC-080",
+      "SPEC-083",
+      "SPEC-084",
+      "SPEC-101",
+      "SPEC-103",
+      "SPEC-104",
+      "SPEC-134"
+    ],
+    "classification_rules": {
+      "allowed_classifications": [
+        "stable-requirement",
+        "representative-fixture-only",
+        "capabilities-advertisement",
+        "implementation-note",
+        "out-of-scope"
+      ],
+      "stable_requirement_fields": [
+        "stable_spec_source",
+        "release_note_or_changelog",
+        "normative_requirement_summary",
+        "room_version_registry_impact",
+        "auth_state_resolution_impact",
+        "required_vectors",
+        "implementation_evidence",
+        "release_evidence_rule"
+      ],
+      "representative_fixture_implies_full_algorithm_support": false,
+      "capabilities_advertisement_implies_domain_support": false,
+      "helper_evidence_implies_runtime_support": false
+    },
+    "unsupported_behavior": {
+      "unsupported_room_version_fails_closed": true,
+      "unsupported_auth_rule_fails_closed": true,
+      "unsupported_state_resolution_case_fails_closed": true,
+      "default_room_version_requires_evidence": true,
+      "available_room_versions_require_evidence": true
+    },
+    "gate_result": {
+      "status": "blocked",
+      "blocking_reasons": [
+        "stable Matrix 2.0 Room Versions specification source is pending",
+        "stable Matrix 2.0 release note is pending",
+        "same-candidate room-version auth/state evidence is missing",
+        "release bundle and release notes have no Matrix 2.0 Room Versions pass decision"
+      ],
+      "matrix_2_room_versions_claim_allowed": false,
+      "default_room_version_claim_allowed": false,
+      "available_room_versions_claim_allowed": false,
+      "full_auth_state_resolution_claim_allowed": false,
+      "versions_advertisement_widened": false,
+      "publishable_matrix_support_claim_widened": false
+    }
+  },
+  "expected": {
+    "matrix_2_room_versions_gate_blocked": true,
+    "classification_count": 5,
+    "stable_requirement_fields_count": 8,
+    "related_contract_count": 13,
+    "spec_078_preserved_as_gap_inventory": true,
+    "spec_080_preserved_as_capabilities_boundary": true,
+    "unsupported_room_version_fails_closed": true,
+    "matrix_2_room_versions_claim_allowed": false,
+    "versions_advertisement_widened": false,
+    "publishable_matrix_support_claim_widened": false
+  }
+}
