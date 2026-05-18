@@ -24,7 +24,7 @@
       "m.room.guest_access can_join allow path",
       "guest-to-user upgrade with guest_access_token",
       "room preview event stream",
-      "guest-specific API allowlist"
+      "guest-specific rate-limit policy"
     ]
   }
 }

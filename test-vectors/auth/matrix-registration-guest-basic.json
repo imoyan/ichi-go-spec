@@ -31,8 +31,6 @@
     "uia_required": false,
     "versions_advertisement_widened": false,
     "excluded_breadth": [
-      "guest room permission allowlist",
-      "m.room.guest_access enforcement",
       "room preview event stream",
       "guest-specific rate-limit policy"
     ]

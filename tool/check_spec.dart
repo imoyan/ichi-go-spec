@@ -825,7 +825,8 @@ void checkMatrixRegistration(
         excluded.contains('mismatched username and guest token rejection matrix') ||
         excluded.contains('guest session invalidation persistence breadth') ||
         !excluded.contains('room preview event stream') ||
-        !excluded.contains('guest-specific API allowlist')) {
+        !excluded.contains('guest-specific rate-limit policy') ||
+        excluded.contains('guest-specific API allowlist')) {
       failures.add('${relative(guestUpgradeFile)} guest upgrade boundary invalid.');
     }
   }
@@ -877,7 +878,8 @@ void checkMatrixRegistration(
         excluded is! List ||
         excluded.contains('guest session invalidation persistence breadth') ||
         !excluded.contains('room preview event stream') ||
-        !excluded.contains('guest-specific API allowlist')) {
+        !excluded.contains('guest-specific rate-limit policy') ||
+        excluded.contains('guest-specific API allowlist')) {
       failures.add(
         '${relative(guestUpgradeNegativeFile)} guest upgrade negative boundary invalid.',
       );
@@ -953,7 +955,8 @@ void checkMatrixRegistration(
         excluded is! List ||
         excluded.contains('guest session invalidation persistence breadth') ||
         !excluded.contains('room preview event stream') ||
-        !excluded.contains('guest-specific API allowlist')) {
+        !excluded.contains('guest-specific rate-limit policy') ||
+        excluded.contains('guest-specific API allowlist')) {
       failures.add(
         '${relative(guestUpgradeInvalidationFile)} guest upgrade invalidation boundary invalid.',
       );
@@ -1499,6 +1502,7 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
   for (final path in [
     'test-vectors/rooms/matrix-create-room-basic.json',
     'test-vectors/rooms/matrix-create-room-missing-token.json',
+    'test-vectors/rooms/matrix-guest-api-allowlist-boundary.json',
     'test-vectors/rooms/matrix-guest-join-can-join.json',
     'test-vectors/rooms/matrix-guest-join-forbidden.json',
     'test-vectors/rooms/matrix-join-room-basic.json',
@@ -1533,7 +1537,8 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
         outOfScope is! List ||
         !outOfScope.contains('guest-to-user upgrade with guest_access_token') ||
         !outOfScope.contains('room preview event stream') ||
-        !outOfScope.contains('guest-specific API allowlist')) {
+        !outOfScope.contains('guest-specific rate-limit policy') ||
+        outOfScope.contains('guest-specific API allowlist')) {
       failures.add('${relative(guestJoinForbiddenFile)} guest access boundary notes invalid.');
     }
   }
@@ -1571,8 +1576,46 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
         outOfScope is! List ||
         !outOfScope.contains('guest-to-user upgrade with guest_access_token') ||
         !outOfScope.contains('room preview event stream') ||
-        !outOfScope.contains('guest-specific API allowlist')) {
+        !outOfScope.contains('guest-specific rate-limit policy') ||
+        outOfScope.contains('guest-specific API allowlist')) {
       failures.add('${relative(guestJoinCanJoinFile)} guest can_join boundary invalid.');
+    }
+  }
+
+  final guestApiAllowlistFile =
+      File('test-vectors/rooms/matrix-guest-api-allowlist-boundary.json');
+  final guestApiAllowlistVector = readJsonObject(guestApiAllowlistFile, failures);
+  if (guestApiAllowlistVector != null) {
+    validateMatrixSimpleRequestVector(
+      guestApiAllowlistFile,
+      guestApiAllowlistVector,
+      failures,
+      method: 'POST',
+      pathPrefix: '/_matrix/client/v3/createRoom',
+      status: 403,
+      errcode: 'M_GUEST_ACCESS_FORBIDDEN',
+    );
+    final preconditions = guestApiAllowlistVector['preconditions'];
+    final allowedPaths =
+        preconditions is Map ? preconditions['allowed_representative_paths'] : null;
+    final expected = guestApiAllowlistVector['expected'];
+    final notes = guestApiAllowlistVector['notes'];
+    final outOfScope = notes is Map ? notes['out_of_scope'] : null;
+    if (preconditions is! Map ||
+        preconditions['guest_user_id'] != '@guest1:example.test' ||
+        preconditions['guest_access_token'] != 'token-guest' ||
+        allowedPaths is! List ||
+        !allowedPaths.contains('GET /_matrix/client/v3/account/whoami') ||
+        expected is! Map ||
+        expected['guest_api_allowlist_enforced'] != true ||
+        expected['versions_advertisement_widened'] != false ||
+        notes is! Map ||
+        notes['representative_non_allowlist_path_rejected'] != true ||
+        outOfScope is! List ||
+        !outOfScope.contains('room preview event stream') ||
+        !outOfScope.contains('guest-specific rate-limit policy') ||
+        outOfScope.contains('guest-specific API allowlist')) {
+      failures.add('${relative(guestApiAllowlistFile)} guest API allowlist boundary invalid.');
     }
   }
 }
