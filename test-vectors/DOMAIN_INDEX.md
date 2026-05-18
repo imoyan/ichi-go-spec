@@ -16,7 +16,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Application Service API | 15 | 12 |
 | Identity Service API | 9 | 6 |
 | Push Gateway API | 9 | 5 |
-| Appendices/common rules | 20 | 8 |
+| Appendices/common rules | 21 | 9 |
 
 ## Inventory
 
@@ -382,6 +382,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Appendices/common rules / domain coverage evidence report | SPEC-062 Matrix Domain Coverage Evidence Report | core | `test-vectors/core/matrix-domain-coverage-report-basic.json` | `matrix-domain-coverage-report-basic` |
 | Matrix v1.18 / Appendices/common rules / identifiers, timestamps, namespacing, errors, and content URIs | SPEC-031 Matrix Foundation Common Rules | core | `test-vectors/core/matrix-foundation-error-basic.json` | `matrix-foundation-error-basic` |
 | Matrix v1.18 / Appendices/common rules / identifiers, timestamps, namespacing, errors, and content URIs | SPEC-031 Matrix Foundation Common Rules | core | `test-vectors/core/matrix-foundation-identifiers-basic.json` | `matrix-foundation-identifiers-basic` |
+| Matrix v1.18 / Appendices/common rules / Matrix 2.0 snapshot / v1.18 diff checklist | SPEC-133 Matrix 2.0 Snapshot and v1.18 Diff Checklist | core | `test-vectors/core/matrix-2-snapshot-v1-18-diff-checklist.json` | `matrix-2-snapshot-v1-18-diff-checklist` |
 | Matrix v1.18 / Appendices/common rules / release notes evidence template | SPEC-065 Matrix Release Notes Evidence Template | core | `test-vectors/core/matrix-release-notes-evidence-template.json` | `matrix-release-notes-evidence-template` |
 | Matrix v1.18 / Appendices/common rules / release notes evidence template | SPEC-065 Matrix Release Notes Evidence Template | core | `test-vectors/core/pre-1-0-compatibility-change-policy.json` | `pre-1-0-compatibility-change-policy` |
 | Matrix v1.18 / Appendices/common rules / shared-core adoption evidence schema | SPEC-114 Shared-Core Adoption Evidence Schema | core | `test-vectors/core/shared-core-adoption-evidence-negative-cases-v1.json` | `shared-core-adoption-evidence-negative-cases-v1` |

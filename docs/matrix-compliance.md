@@ -332,6 +332,12 @@ Matrix readiness map:
 Matrix 2.0 readiness preparation:
 
 - Tracking parent issue: imoyan/houra-spec#377.
+- `SPEC-133` and
+  `test-vectors/core/matrix-2-snapshot-v1-18-diff-checklist.json` define the
+  snapshot / v1.18 diff checklist for #380. They are planning evidence only:
+  stable Matrix 2.0 sources are recorded as pending until the Matrix project
+  publishes the stable specification source and release note to use for a
+  release-candidate snapshot.
 - Matrix 2.0 remains unadvertised until the Matrix project publishes a stable
   Matrix 2.0 specification release and Houra records same-candidate evidence
   for the advertised domains.

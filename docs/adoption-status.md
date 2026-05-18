@@ -121,6 +121,7 @@ Adoption states:
 | Matrix v1.18 / Olm & Megolm / Olm and Megolm to-device key event relay | SPEC-130 Matrix Olm Withheld-Key To-Device Relay Boundary | boundary | Olm & Megolm | `houra-server#252` | - | - | tracked | Matrix |
 | Matrix v1.18 / Appendices/common rules / changelog delta boundary | SPEC-131 Matrix v1.18 Changelog Delta Boundary | gap-inventory | Appendices/common rules | - | - | - | tracked | Matrix |
 | Houra Product MVP / Platform-native Adapter Policy | SPEC-132 Product MVP Platform-native Adapter Policy | boundary | none | - | - | - | planned | Product MVP |
+| Matrix v1.18 / Appendices/common rules / Matrix 2.0 snapshot / v1.18 diff checklist | SPEC-133 Matrix 2.0 Snapshot and v1.18 Diff Checklist | gap-inventory | Appendices/common rules | - | - | - | tracked | Matrix |
 
 The board intentionally keeps implementation references lightweight. Detailed release evidence stays in `CHANGELOG.md`, and open roadmap or exclusion reasoning stays in `docs/matrix-compliance.md`.
 
