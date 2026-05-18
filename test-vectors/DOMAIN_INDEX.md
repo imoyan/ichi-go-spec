@@ -12,7 +12,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Client-Server API | 153 | 33 |
 | Server-Server API | 27 | 14 |
 | Room Versions | 21 | 13 |
-| Olm & Megolm | 5 | 5 |
+| Olm & Megolm | 6 | 6 |
 | Application Service API | 15 | 12 |
 | Identity Service API | 9 | 6 |
 | Push Gateway API | 9 | 5 |
@@ -321,6 +321,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 
 | Primary reference | Repository anchor | Feature profile | Vector path | Vector name |
 |---|---|---|---|---|
+| Matrix v1.18 / Olm & Megolm / encrypted attachment EncryptedFile metadata parser boundary | SPEC-146 Matrix Encrypted Attachment EncryptedFile Parser Boundary | messaging | `test-vectors/messaging/matrix-encrypted-attachment-encryptedfile-parser-boundary.json` | `matrix-encrypted-attachment-encryptedfile-parser-boundary` |
 | Matrix v1.18 / Olm & Megolm / encrypted event, key, backup, verification, and cross-signing artifacts | SPEC-102 Matrix E2EE Parser Artifact Breadth | messaging | `test-vectors/messaging/matrix-e2ee-parser-artifact-breadth.json` | `matrix-e2ee-parser-artifact-breadth` |
 | Matrix v1.18 / Olm & Megolm / full E2EE gap inventory | SPEC-079 Matrix Olm and Megolm Full E2EE Gap Inventory | messaging | `test-vectors/messaging/matrix-olm-megolm-full-e2ee-gap-inventory.json` | `matrix-olm-megolm-full-e2ee-gap-inventory` |
 | Matrix v1.18 / Olm & Megolm / maintained crypto stack and storage ownership | SPEC-081 Matrix Maintained Crypto Stack and Storage Ownership Boundary | messaging | `test-vectors/messaging/matrix-maintained-crypto-storage-ownership-boundary.json` | `matrix-maintained-crypto-storage-ownership-boundary` |
