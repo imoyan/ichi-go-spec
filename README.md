@@ -300,8 +300,8 @@ Product MVP vNext WebRTC low-latency connection actions must remain hidden or
 disabled unless the selected server or host adapter advertises matching
 `SPEC-140` capability metadata and release evidence includes the
 `product-mvp-webrtc-low-latency-vnext` flow, runtime-specific candidate-pair
-measurement evidence, same-LAN opt-in evidence when used, and redacted
-connection diagnostics.
+measurement evidence, fastest-tier baseline comparison when claimed, same-LAN
+opt-in evidence when used, and redacted connection diagnostics.
 For the next Product MVP release candidate, UI readiness evidence must also
 record the consumed `houra-spec` ref, consumer repo/app ref, screen/action
 mapping, duplicate-submit prevention, recoverable error display, accessibility
@@ -364,13 +364,13 @@ Blocking evidence lanes for the candidate:
 Feature-addition candidate review for the candidate is tracked by
 `imoyan/houra-spec#366`. The current candidate set includes Product MVP vNext
 account recovery / IdP login, media transfer, encrypted media attachment,
-WebRTC low-latency connection planning, and the server-owned role projection,
-PII redaction handoff, multilingual handoff, and offline queue replay
-boundaries. These refs are bundled for RC review, but they do not become
+WebRTC low-latency / fastest-tier connection planning, and the server-owned
+role projection, PII redaction handoff, multilingual handoff, and offline queue
+replay boundaries. These refs are bundled for RC review, but they do not become
 advertised release behavior until the plan names current implementation refs,
 command results, redaction checks, and explicit Product MVP claim boundaries.
-Missing capability advertisement or stale client/server evidence keeps the
-candidate fail-closed.
+Missing capability advertisement, missing fastest-tier baseline comparison, or
+stale client/server evidence keeps the candidate fail-closed.
 
 The implementation metrics and adoption report schema follow-up
 `imoyan/houra-spec#204` is complete for the current schema. The Matrix release

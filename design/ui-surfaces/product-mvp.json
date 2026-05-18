@@ -185,6 +185,7 @@
       ],
       "actions": [
         "realtime.calculate-connection-plan",
+        "realtime.select-fastest-tier",
         "realtime.select-same-lan-fastest"
       ]
     },
@@ -426,6 +427,16 @@
       "error_expectation": "Unavailable or blocked local-network evidence falls back to auto or relay-safe mode without exposing private addresses."
     },
     {
+      "id": "realtime.select-fastest-tier",
+      "label_key": "action.select-fastest-tier",
+      "requires_auth": true,
+      "api_contracts": ["SPEC-140"],
+      "busy_state": "pending.webrtc",
+      "disabled_when": ["pending.any", "unsupported.webrtc-low-latency", "blocked.fastest-tier-evidence"],
+      "success_expectation": "Fastest tier is selected only when same-candidate baseline evidence proves p95 improvement without worst-case regression.",
+      "error_expectation": "Missing or stale fastest-tier evidence falls back to low-latency or relay-safe mode without advertising fastest status."
+    },
+    {
       "id": "session.refresh",
       "label_key": "action.refresh",
       "requires_auth": true,
@@ -603,6 +614,11 @@
       "description": "Same-LAN fastest mode is unavailable because local-network opt-in or redacted evidence is missing."
     },
     {
+      "id": "blocked.fastest-tier-evidence",
+      "kind": "data",
+      "description": "Fastest-tier selection is unavailable because same-candidate baseline evidence is missing, stale, or shows p95 or worst-case regression."
+    },
+    {
       "id": "data.recovery-state",
       "kind": "data",
       "description": "Redacted account recovery state is available without token values."
@@ -653,6 +669,7 @@
     "action.request-email-verification": "Send verification email",
     "action.request-password-reset": "Send password reset",
     "action.select-same-lan-fastest": "Same LAN fastest",
+    "action.select-fastest-tier": "Fastest tier",
     "action.send-message": "Send",
     "action.start-idp-login": "Start IdP login",
     "action.submit-email-verification": "Verify email",
@@ -813,6 +830,12 @@
           "expectation": "The UI shows topology, fallback, center selection when used, worst-case latency, and average latency without raw ICE candidates or private addresses."
         },
         {
+          "id": "fastest-tier",
+          "screen": "realtime",
+          "action": "realtime.select-fastest-tier",
+          "expectation": "Fastest tier is selectable only when current baseline comparison shows p95 improvement without worst-case participant regression."
+        },
+        {
           "id": "same-lan-fastest",
           "screen": "realtime",
           "action": "realtime.select-same-lan-fastest",
@@ -884,7 +907,7 @@
       "if SPEC-070 is included, record product-mvp-account-recovery-vnext coverage and advertised capability evidence",
       "if SPEC-071 is included, record product-mvp-media-transfer-vnext coverage and advertised metadata capability evidence",
       "if SPEC-072 is included, record product-mvp-encrypted-media-vnext coverage, advertised encrypted_attachment capability evidence, crypto-adapter handoff evidence, and trust copy boundaries",
-      "if SPEC-140 is included, record product-mvp-webrtc-low-latency-vnext coverage, advertised capability evidence, runtime-specific candidate-pair stats, same-LAN opt-in evidence when used, fallback behavior, and redacted diagnostics",
+      "if SPEC-140 is included, record product-mvp-webrtc-low-latency-vnext coverage, advertised capability evidence, runtime-specific candidate-pair stats, fastest-tier baseline comparison when claimed, same-LAN opt-in evidence when used, fallback behavior, and redacted diagnostics",
       "record accessibility pass or explicit blocker for form labels, buttons, status, and focus order"
     ],
     "redaction_policy": [
@@ -903,7 +926,7 @@
       "SPEC-070 account recovery and IdP login actions are optional vNext coverage and require advertised capability evidence",
       "SPEC-071 thumbnail, range, and resumable download actions are optional vNext coverage and require advertised metadata capability evidence",
       "SPEC-072 encrypted attachment actions are optional vNext coverage and require advertised metadata capability, crypto-adapter handoff, trust copy, and redaction evidence",
-      "SPEC-140 WebRTC low-latency connection actions are optional vNext coverage and require advertised capability, runtime measurement, same-LAN opt-in when used, fallback, and redaction evidence",
+      "SPEC-140 WebRTC low-latency connection actions are optional vNext coverage and require advertised capability, runtime measurement, fastest-tier baseline comparison when claimed, same-LAN opt-in when used, fallback, and redaction evidence",
       "Matrix full compliance is not claimed by this surface"
     ]
   },

@@ -162,10 +162,11 @@
         "implementation_refs": [
           "imoyan/houra-client#235"
         ],
-        "release_candidate_decision": "optional-fail-closed-until-webrtc-capability-runtime-measurement-and-ui-evidence-are-current",
+        "release_candidate_decision": "optional-fail-closed-until-webrtc-capability-fastest-tier-baseline-runtime-measurement-and-ui-evidence-are-current",
         "required_evidence_before_advertisement": [
           "WebRTC low-latency capability advertisement evidence",
           "runtime-specific selected candidate-pair RTT and bitrate evidence",
+          "fastest-tier same-candidate baseline comparison evidence when fastest is claimed",
           "topology center-selection fairness and fallback evidence",
           "same-LAN opt-in and relay fallback evidence when same-LAN fastest is used",
           "private IP SDP ICE credential TURN credential and provider log redaction evidence"
@@ -214,6 +215,7 @@
       "imoyan/houra-spec#320",
       "imoyan/houra-spec#321",
       "imoyan/houra-spec#423",
+      "imoyan/houra-spec#435",
       "imoyan/houra-spec#340",
       "imoyan/houra-spec#343",
       "imoyan/houra-spec#345",

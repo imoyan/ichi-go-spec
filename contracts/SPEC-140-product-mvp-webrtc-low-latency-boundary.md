@@ -13,7 +13,9 @@ Canonical: yes
 Define the optional Product MVP vNext boundary for advertising WebRTC
 low-latency connection optimization, including participant-count topology
 planning, center-node selection, fair averaging, and same-LAN fast-path
-selection.
+selection. The strongest claim this contract allows is `fastest-tier`, which
+requires current same-candidate measurement evidence rather than configuration
+intent alone.
 
 This contract does not implement WebRTC media, data channels, TURN, STUN, SFU,
 or peer relay runtime. It defines when Houra clients and servers may claim that
@@ -58,8 +60,16 @@ Servers or host adapters may advertise:
   "webrtc_low_latency": {
     "supported": true,
     "modes": ["auto", "same-lan-fastest", "relay-safe"],
+    "tiers": ["low-latency", "fastest-tier"],
     "topologies": ["direct-pair", "small-mesh", "hub-spoke", "sfu-relay"],
     "max_participants": 12,
+    "fastest_tier": {
+      "supported": true,
+      "requires_same_candidate_baseline": true,
+      "requires_p95_win_ms": 10,
+      "requires_worst_case_not_regressed": true,
+      "max_reoptimization_interval_ms": 15000
+    },
     "same_lan_fast_path": {
       "supported": true,
       "requires_user_opt_in": true,
@@ -73,6 +83,10 @@ Servers or host adapters may advertise:
 If this object is missing, has `supported: false`, lacks a usable mode, or
 lacks current evidence for the selected runtime, clients must fail closed and
 must not render Product MVP low-latency optimization as supported.
+
+If `fastest_tier` is missing or has `supported: false`, clients may still use
+`auto`, `same-lan-fastest`, or `relay-safe`, but must not render or market a
+"fastest" claim.
 
 Capability metadata must not contain private IP addresses, mDNS hostnames,
 ICE ufrag/password values, TURN credentials, SDP bodies, raw candidate lines,
@@ -95,6 +109,33 @@ exposure is blocked, or any participant is outside the trusted local network.
 failure, or unstable direct connectivity makes direct or mesh paths unsuitable.
 It may have higher latency, so it must not be marketed as the fastest path
 unless measured evidence for the session candidate proves that claim.
+
+## Fastest Tier
+
+`fastest-tier` is a claim tier, not a separate WebRTC API setting. It may be
+advertised only when the implementation has current evidence for the same
+runtime, release candidate, participant count band, and candidate session.
+
+Fastest-tier selection must compare the chosen plan against at least one safe
+baseline:
+
+- `relay-safe` baseline for privacy-preserving fallback;
+- `auto` baseline from the same planner without fastest-tier preference; or
+- the previous stable session plan before re-optimization.
+
+The selected fastest-tier plan must satisfy all of the following:
+
+- median RTT is no worse than the baseline;
+- p95 RTT improves by at least the advertised `requires_p95_win_ms`, unless
+  both baseline and selected p95 are already below a documented floor;
+- worst-case participant RTT does not regress;
+- packet loss, reconnect count, or failed ICE restart rate does not exceed the
+  implementation's safe threshold;
+- CPU, battery, and uplink headroom remain within the target runtime budget;
+- a fallback plan can be applied without user-visible session loss.
+
+If these conditions fail, implementations must label the result as
+`low-latency` or `safe`, not `fastest-tier`.
 
 ## Topology Planning
 
@@ -122,6 +163,11 @@ Suggested default planning:
 
 These thresholds are defaults, not universal limits. An implementation may use
 stricter thresholds, but it must record why the selected plan is safe.
+
+Fastest-tier planning may choose any advertised topology, including direct,
+mesh, hub-spoke, or SFU relay, but the chosen topology must be the measured
+winner for p95 and worst-case participant latency under the same privacy and
+stability constraints. Same-LAN direct or mesh is not automatically fastest.
 
 ## Center-Node Selection and Fair Averaging
 
@@ -185,6 +231,15 @@ Default low-latency browser configuration should prefer:
 - `iceTransportPolicy: "relay"` for relay-safe privacy mode;
 - bounded ICE restart when measured stats show stalled connectivity.
 
+Fastest-tier re-optimization must be bounded:
+
+- do not restart ICE or renegotiate more often than the advertised
+  `max_reoptimization_interval_ms`;
+- do not switch topology for a small p50 improvement when p95 or worst-case
+  latency would regress;
+- do not repeatedly oscillate between two topologies in the same session;
+- do not downgrade privacy policy to gain latency without explicit opt-in.
+
 An implementation must not claim it can force the browser to choose an exact
 candidate pair. It may request policy, provide ICE servers, observe selected
 candidate-pair stats, and renegotiate or restart ICE within bounded retry
@@ -198,12 +253,15 @@ Low-latency optimization evidence must record:
 - implementation repo/app ref;
 - target runtime and browser or native WebRTC engine;
 - advertised mode and selected topology;
+- advertised claim tier: `low-latency`, `fastest-tier`, or `safe`;
 - participant count;
 - redacted selected candidate-pair class;
 - RTT summary: min, median, p95, and max;
+- baseline plan and baseline RTT summary used for fastest-tier comparison;
 - available bitrate summary when reported;
 - center score inputs and selected center, if any;
 - fairness result: worst-case participant latency and average latency;
+- packet loss, reconnect, and ICE restart summary when reported;
 - fallback plan and reason;
 - verification command or manual acceptance reference;
 - redaction confirmation for forbidden raw values.
@@ -226,8 +284,9 @@ Passing this contract does not widen:
 - browser-specific local network permission behavior.
 
 Any marketing copy that says "low latency", "same-LAN fastest", "automatic
-topology optimization", or "best center selection" must cite current
-implementation evidence for the same runtime and candidate release.
+topology optimization", "fastest-tier", or "best center selection" must cite
+current implementation evidence for the same runtime and candidate release.
+"Fastest" wording is forbidden when only configuration preference is known.
 
 ## Adoption Checklist
 

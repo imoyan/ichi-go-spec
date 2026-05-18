@@ -171,7 +171,8 @@ handles、private local paths は記録しません。
 
 `SPEC-140` は、Product MVP vNext の WebRTC 低遅延接続最適化を advertise するための
 境界です。参加人数に応じた topology、中心 node 選定、worst-case latency と average
-latency の balance、同一 LAN fastest mode、fallback、redacted diagnostics を扱います。
+latency の balance、同一 LAN fastest mode、fastest-tier claim、fallback、redacted
+diagnostics を扱います。
 
 この spec は WebRTC runtime、TURN / STUN / SFU、Matrix VoIP signaling、Matrix media、
 Matrix E2EE を実装済みと主張するものではありません。実装リポジトリでは、selected server
@@ -183,7 +184,15 @@ policy、relay fallback、private address redaction が揃わない場合は `au
 `relay-safe` に戻します。browser が private IP や host candidate を隠す場合でも、WebRTC
 stats の測定結果は使えますが、private IP topology を推測して evidence に残してはいけません。
 
+`fastest-tier` は WebRTC API の設定名ではなく claim tier です。同じ runtime、同じ release
+candidate、同じ participant count band、同じ candidate session で `relay-safe`、`auto`、
+または previous stable plan と比較し、p95 latency が改善し、worst-case participant latency
+が悪化せず、packet loss / reconnect / ICE restart rate が安全閾値内にある場合だけ advertise
+できます。測定がない場合、または p50 だけ改善して p95 / worst-case が悪化する場合は
+`low-latency` または `safe` として扱い、`fastest` とは書きません。
+
 採用 evidence には participant count、selected topology、candidate-pair class、RTT summary、
-bitrate summary、center score、worst-case latency、average latency、fallback reason、
-verification を残します。private IP address、mDNS hostname、SDP body、raw ICE candidate、
-ICE credential、TURN credential、MAC address、local interface name、provider log は記録しません。
+baseline RTT summary、bitrate summary、center score、worst-case latency、average latency、
+packet loss / reconnect / ICE restart summary、fallback reason、verification を残します。
+private IP address、mDNS hostname、SDP body、raw ICE candidate、ICE credential、TURN
+credential、MAC address、local interface name、provider log は記録しません。
