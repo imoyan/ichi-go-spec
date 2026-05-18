@@ -129,6 +129,7 @@ Adoption states:
 | Matrix v1.18 / Room Versions / Matrix 2.0 auth state-resolution readiness gate | SPEC-138 Matrix 2.0 Room Versions Auth State Readiness Gate | gate | Room Versions | - | - | - | blocked | Matrix |
 | Matrix v1.18 / Client-Server API / Matrix 2.0 extensible profiles events readiness gate | SPEC-139 Matrix 2.0 Extensible Profiles Events Readiness Gate | gate | Client-Server API | - | - | - | blocked | Matrix |
 | Matrix v1.18 / Olm & Megolm / Olm to-device transaction idempotency and out-of-order delivery boundary | SPEC-140 Matrix Olm To-Device Idempotency and Ordering Boundary | boundary | Olm & Megolm | `houra-server#252` | - | - | tracked | Matrix |
+| Matrix v1.18 / Client-Server API / keys claim depletion, fallback rotation, and unknown-device omission boundary | SPEC-141 Matrix Keys Claim Depletion Fallback Rotation Boundary | boundary | Client-Server API | - | - | - | planned | Matrix |
 
 The board intentionally keeps implementation references lightweight. Detailed release evidence stays in `CHANGELOG.md`, and open roadmap or exclusion reasoning stays in `docs/matrix-compliance.md`.
 

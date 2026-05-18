@@ -9,7 +9,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix domain | Vector count | Contract count |
 |---|---:|---:|
 | none | 76 | 19 |
-| Client-Server API | 153 | 33 |
+| Client-Server API | 154 | 34 |
 | Server-Server API | 27 | 14 |
 | Room Versions | 21 | 13 |
 | Olm & Megolm | 6 | 6 |
@@ -149,6 +149,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / key upload and key claim endpoints | SPEC-051 Matrix Device, One-Time, and Fallback Keys | auth | `test-vectors/auth/matrix-keys-claim-one-time-fallback-basic.json` | `matrix-keys-claim-one-time-fallback-basic` |
 | Matrix v1.18 / Client-Server API / key upload and key claim endpoints | SPEC-051 Matrix Device, One-Time, and Fallback Keys | auth | `test-vectors/auth/matrix-keys-upload-device-one-time-fallback-basic.json` | `matrix-keys-upload-device-one-time-fallback-basic` |
 | Matrix v1.18 / Client-Server API / key upload and key claim endpoints | SPEC-051 Matrix Device, One-Time, and Fallback Keys | auth | `test-vectors/auth/matrix-keys-upload-malformed-device-keys.json` | `matrix-keys-upload-malformed-device-keys` |
+| Matrix v1.18 / Client-Server API / keys claim depletion, fallback rotation, and unknown-device omission boundary | SPEC-141 Matrix Keys Claim Depletion Fallback Rotation Boundary | auth | `test-vectors/auth/matrix-keys-claim-depletion-fallback-rotation-breadth.json` | `matrix-keys-claim-depletion-fallback-rotation-breadth` |
 | Matrix v1.18 / Client-Server API / login token, refresh, and account deactivation endpoints | SPEC-122 Matrix Client-Server Auth Refresh Fallback Account Lifecycle | auth | `test-vectors/auth/matrix-client-server-auth-refresh-fallback-account-lifecycle.json` | `matrix-client-server-auth-refresh-fallback-account-lifecycle` |
 | Matrix v1.18 / Client-Server API / login, logout, and whoami endpoints | SPEC-032 Matrix Client-Server Auth Session | auth | `test-vectors/auth/matrix-login-flows-basic.json` | `matrix-login-flows-basic` |
 | Matrix v1.18 / Client-Server API / login, logout, and whoami endpoints | SPEC-032 Matrix Client-Server Auth Session | auth | `test-vectors/auth/matrix-logout-all-basic.json` | `matrix-logout-all-basic` |
