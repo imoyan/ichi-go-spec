@@ -91,6 +91,11 @@ source と redacted same-candidate evidence が揃うまで blocked のままで
 proxy behavior、sync performance claim は stable source と client/server
 same-candidate evidence が揃うまで blocked のままです。
 
+`SPEC-137` は #384 の E2EE / key backup / verification readiness gate です。
+`SPEC-079` と `SPEC-081` は v1.18 の gap inventory / ownership boundary として残し、
+maintained crypto stack、key backup、verification、cross-signing、encrypted-room
+claim は secret-free same-candidate evidence が揃うまで blocked のままです。
+
 #377 が親 issue、#380 が snapshot / diff checklist です。#381 から #386 は
 `/versions` advertisement、OAuth/OIDC、Sliding Sync、E2EE、Room Versions、
 Extensible Profiles / Events の lane です。これらは準備 lane であり、Matrix 2.0

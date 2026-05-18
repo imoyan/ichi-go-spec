@@ -1,0 +1,95 @@
+{
+  "name": "matrix-2-e2ee-key-backup-verification-readiness-gate",
+  "contract": "SPEC-137",
+  "event": {
+    "issue": "imoyan/houra-spec#384",
+    "parent_issue": "imoyan/houra-spec#377",
+    "snapshot_issue": "imoyan/houra-spec#380",
+    "advertisement_issue": "imoyan/houra-spec#381",
+    "lane": "e2ee-key-backup-verification",
+    "matrix_domain": "Olm & Megolm",
+    "checked_at": "2026-05-18T15:59:11+09:00",
+    "timezone": "Asia/Tokyo",
+    "matrix_2_release_status": "pending-stable-spec-release",
+    "current_stable_spec_entrypoint": "https://spec.matrix.org/latest/",
+    "current_stable_spec_version": "v1.18",
+    "source_snapshot_contract": "SPEC-133",
+    "versions_advertisement_gate_contract": "SPEC-134",
+    "v1_18_gap_inventory_contract": "SPEC-079",
+    "maintained_crypto_boundary_contract": "SPEC-081",
+    "related_contracts": [
+      "SPEC-050",
+      "SPEC-051",
+      "SPEC-052",
+      "SPEC-053",
+      "SPEC-054",
+      "SPEC-069",
+      "SPEC-079",
+      "SPEC-081",
+      "SPEC-102",
+      "SPEC-130",
+      "SPEC-134"
+    ],
+    "classification_rules": {
+      "allowed_classifications": [
+        "stable-requirement",
+        "parser-artifact-only",
+        "maintained-stack-evidence",
+        "implementation-note",
+        "out-of-scope"
+      ],
+      "stable_requirement_fields": [
+        "stable_spec_source",
+        "release_note_or_changelog",
+        "normative_requirement_summary",
+        "crypto_stack_boundary",
+        "storage_ownership_boundary",
+        "required_vectors",
+        "implementation_evidence",
+        "release_evidence_rule"
+      ],
+      "parser_artifact_evidence_implies_crypto_support": false,
+      "maintained_stack_selection_implies_runtime_adoption": false,
+      "server_evidence_may_own_local_secrets": false
+    },
+    "secret_redaction_rules": {
+      "plaintext_retained": false,
+      "roomKeyMaterialRetained": false,
+      "sessionKeyMaterialRetained": false,
+      "privateKeyMaterialRetained": false,
+      "recoveryMaterialRetained": false,
+      "secureStorageHandlesRetained": false,
+      "rawEncryptedMediaRetained": false,
+      "public_key_shape_allowed": true,
+      "opaque_backup_payload_shape_allowed": true
+    },
+    "gate_result": {
+      "status": "blocked",
+      "blocking_reasons": [
+        "stable Matrix 2.0 E2EE specification source is pending",
+        "stable Matrix 2.0 release note is pending",
+        "same-candidate maintained crypto stack evidence is missing",
+        "same-candidate client, server, and release-bundle E2EE evidence is missing"
+      ],
+      "matrix_2_e2ee_claim_allowed": false,
+      "key_backup_claim_allowed": false,
+      "verification_claim_allowed": false,
+      "cross_signing_claim_allowed": false,
+      "encrypted_room_claim_allowed": false,
+      "versions_advertisement_widened": false,
+      "publishable_matrix_support_claim_widened": false
+    }
+  },
+  "expected": {
+    "matrix_2_e2ee_gate_blocked": true,
+    "classification_count": 5,
+    "stable_requirement_fields_count": 8,
+    "related_contract_count": 11,
+    "secret_bearing_evidence_allowed": false,
+    "spec_079_preserved_as_gap_inventory": true,
+    "spec_081_preserved_as_ownership_boundary": true,
+    "matrix_2_e2ee_claim_allowed": false,
+    "versions_advertisement_widened": false,
+    "publishable_matrix_support_claim_widened": false
+  }
+}

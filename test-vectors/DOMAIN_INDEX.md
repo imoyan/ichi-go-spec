@@ -12,7 +12,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Client-Server API | 152 | 32 |
 | Server-Server API | 27 | 14 |
 | Room Versions | 20 | 12 |
-| Olm & Megolm | 4 | 4 |
+| Olm & Megolm | 5 | 5 |
 | Application Service API | 15 | 12 |
 | Identity Service API | 9 | 6 |
 | Push Gateway API | 9 | 5 |
@@ -322,6 +322,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Olm & Megolm / encrypted event, key, backup, verification, and cross-signing artifacts | SPEC-102 Matrix E2EE Parser Artifact Breadth | messaging | `test-vectors/messaging/matrix-e2ee-parser-artifact-breadth.json` | `matrix-e2ee-parser-artifact-breadth` |
 | Matrix v1.18 / Olm & Megolm / full E2EE gap inventory | SPEC-079 Matrix Olm and Megolm Full E2EE Gap Inventory | messaging | `test-vectors/messaging/matrix-olm-megolm-full-e2ee-gap-inventory.json` | `matrix-olm-megolm-full-e2ee-gap-inventory` |
 | Matrix v1.18 / Olm & Megolm / maintained crypto stack and storage ownership | SPEC-081 Matrix Maintained Crypto Stack and Storage Ownership Boundary | messaging | `test-vectors/messaging/matrix-maintained-crypto-storage-ownership-boundary.json` | `matrix-maintained-crypto-storage-ownership-boundary` |
+| Matrix v1.18 / Olm & Megolm / Matrix 2.0 E2EE key backup verification readiness gate | SPEC-137 Matrix 2.0 E2EE Key Backup Verification Readiness Gate | messaging | `test-vectors/messaging/matrix-2-e2ee-key-backup-verification-readiness-gate.json` | `matrix-2-e2ee-key-backup-verification-readiness-gate` |
 | Matrix v1.18 / Olm & Megolm / Olm and Megolm to-device key event relay | SPEC-130 Matrix Olm Withheld-Key To-Device Relay Boundary | messaging | `test-vectors/messaging/matrix-olm-withheld-key-to-device-relay.json` | `matrix-olm-withheld-key-to-device-relay` |
 
 ### Application Service API
