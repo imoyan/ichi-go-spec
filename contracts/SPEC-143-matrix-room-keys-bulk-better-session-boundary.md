@@ -29,7 +29,9 @@ backup secrets, decrypt `session_data`, or widen
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#put_matrixclientv3room_keyskeys>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3room_keyskeys>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#put_matrixclientv3room_keyskeysroomid>
+- Source: <https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3room_keyskeysroomid>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#put_matrixclientv3room_keyskeysroomidsessionid>
+- Source: <https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3room_keyskeysroomidsessionid>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#server-side-key-backups>
 - Checked at: 2026-05-18T18:00:00+09:00
 - Timezone: Asia/Tokyo
@@ -43,6 +45,7 @@ multiple rooms and sessions through:
 PUT /_matrix/client/v3/room_keys/keys?version={version}
 GET /_matrix/client/v3/room_keys/keys?version={version}
 PUT /_matrix/client/v3/room_keys/keys/{roomId}?version={version}
+GET /_matrix/client/v3/room_keys/keys/{roomId}?version={version}
 PUT /_matrix/client/v3/room_keys/keys/{roomId}/{sessionId}?version={version}
 GET /_matrix/client/v3/room_keys/keys/{roomId}/{sessionId}?version={version}
 ```

@@ -21,7 +21,10 @@
       {
         "id": "bulk-upload-rooms-and-sessions",
         "method": "PUT",
-        "path": "/_matrix/client/v3/room_keys/keys?version=1",
+        "path": "/_matrix/client/v3/room_keys/keys",
+        "query": {
+          "version": "1"
+        },
         "access_token": "token-alice-device1",
         "body": {
           "rooms": {
@@ -78,7 +81,10 @@
       {
         "id": "bulk-restore-all-rooms",
         "method": "GET",
-        "path": "/_matrix/client/v3/room_keys/keys?version=1",
+        "path": "/_matrix/client/v3/room_keys/keys",
+        "query": {
+          "version": "1"
+        },
         "access_token": "token-alice-device1",
         "expected_status": 200,
         "expected_body_contains_room_ids": [
@@ -90,7 +96,10 @@
       {
         "id": "worse-session-upload-must-not-replace",
         "method": "PUT",
-        "path": "/_matrix/client/v3/room_keys/keys/!room-a:example.test/session-a1?version=1",
+        "path": "/_matrix/client/v3/room_keys/keys/!room-a:example.test/session-a1",
+        "query": {
+          "version": "1"
+        },
         "access_token": "token-alice-device1",
         "body": {
           "first_message_index": 50,
@@ -111,7 +120,10 @@
       {
         "id": "verified-session-must-replace-unverified",
         "method": "PUT",
-        "path": "/_matrix/client/v3/room_keys/keys/!room-a:example.test/session-a1?version=1",
+        "path": "/_matrix/client/v3/room_keys/keys/!room-a:example.test/session-a1",
+        "query": {
+          "version": "1"
+        },
         "access_token": "token-alice-device1",
         "body": {
           "first_message_index": 20,
@@ -133,7 +145,10 @@
       {
         "id": "verified-but-higher-index-must-not-replace-verified",
         "method": "PUT",
-        "path": "/_matrix/client/v3/room_keys/keys/!room-a:example.test/session-a1?version=1",
+        "path": "/_matrix/client/v3/room_keys/keys/!room-a:example.test/session-a1",
+        "query": {
+          "version": "1"
+        },
         "access_token": "token-alice-device1",
         "body": {
           "first_message_index": 30,
@@ -154,7 +169,10 @@
       {
         "id": "restore-confirms-better-session-kept",
         "method": "GET",
-        "path": "/_matrix/client/v3/room_keys/keys/!room-a:example.test/session-a1?version=1",
+        "path": "/_matrix/client/v3/room_keys/keys/!room-a:example.test/session-a1",
+        "query": {
+          "version": "1"
+        },
         "access_token": "token-alice-device1",
         "expected_status": 200,
         "expected_body_contains": {
@@ -165,7 +183,10 @@
       {
         "id": "bulk-upload-unknown-version-rejected",
         "method": "PUT",
-        "path": "/_matrix/client/v3/room_keys/keys?version=does-not-exist",
+        "path": "/_matrix/client/v3/room_keys/keys",
+        "query": {
+          "version": "does-not-exist"
+        },
         "access_token": "token-alice-device1",
         "body": {
           "rooms": {
@@ -194,7 +215,10 @@
       {
         "id": "cross-user-bulk-read-isolated",
         "method": "GET",
-        "path": "/_matrix/client/v3/room_keys/keys?version=1",
+        "path": "/_matrix/client/v3/room_keys/keys",
+        "query": {
+          "version": "1"
+        },
         "access_token": "token-bob-device1",
         "expected_status": 404,
         "expected_error": {
@@ -207,7 +231,10 @@
       {
         "id": "reject-bulk-upload-missing-required-field",
         "method": "PUT",
-        "path": "/_matrix/client/v3/room_keys/keys?version=1",
+        "path": "/_matrix/client/v3/room_keys/keys",
+        "query": {
+          "version": "1"
+        },
         "access_token": "token-alice-device1",
         "body": {
           "rooms": {
@@ -232,7 +259,10 @@
       {
         "id": "reject-non-object-rooms-map",
         "method": "PUT",
-        "path": "/_matrix/client/v3/room_keys/keys?version=1",
+        "path": "/_matrix/client/v3/room_keys/keys",
+        "query": {
+          "version": "1"
+        },
         "access_token": "token-alice-device1",
         "body": {
           "rooms": "not-an-object"
