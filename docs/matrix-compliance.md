@@ -344,6 +344,11 @@ Matrix 2.0 readiness preparation:
   `GET /_matrix/client/versions`, release notes, release bundles, and
   `publishable_matrix_support_claim` until stable-source and same-candidate
   domain evidence pass.
+- `SPEC-135` and `test-vectors/auth/matrix-2-oauth-oidc-readiness-gate.json`
+  define the #382 OAuth/OIDC readiness gate. It keeps `SPEC-068`
+  account-management behavior as a v1.18 boundary while blocking Matrix 2.0
+  OAuth/OIDC support claims until stable requirements, provider-behavior
+  separation, redacted evidence, and same-candidate release evidence pass.
 - Matrix 2.0 remains unadvertised until the Matrix project publishes a stable
   Matrix 2.0 specification release and Houra records same-candidate evidence
   for the advertised domains.

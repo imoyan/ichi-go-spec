@@ -9,7 +9,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix domain | Vector count | Contract count |
 |---|---:|---:|
 | none | 76 | 19 |
-| Client-Server API | 150 | 30 |
+| Client-Server API | 151 | 31 |
 | Server-Server API | 27 | 14 |
 | Room Versions | 20 | 12 |
 | Olm & Megolm | 4 | 4 |
@@ -173,6 +173,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / OAuth account management and device deletion flows | SPEC-068 Matrix OAuth Account Management and Device Deletion Flow | auth | `test-vectors/auth/matrix-oauth-device-delete-account-management-link.json` | `matrix-oauth-device-delete-account-management-link` |
 | Matrix v1.18 / Client-Server API / OAuth account management and device deletion flows | SPEC-068 Matrix OAuth Account Management and Device Deletion Flow | auth | `test-vectors/auth/matrix-oauth-device-delete-return-refresh-complete.json` | `matrix-oauth-device-delete-return-refresh-complete` |
 | Matrix v1.18 / Client-Server API / OAuth account management and device deletion flows | SPEC-068 Matrix OAuth Account Management and Device Deletion Flow | auth | `test-vectors/auth/matrix-oauth-generic-account-management-fallback.json` | `matrix-oauth-generic-account-management-fallback` |
+| Matrix v1.18 / Client-Server API / Matrix 2.0 OAuth/OIDC readiness gate | SPEC-135 Matrix 2.0 OAuth/OIDC Readiness Gate | auth | `test-vectors/auth/matrix-2-oauth-oidc-readiness-gate.json` | `matrix-2-oauth-oidc-readiness-gate` |
 | Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-adoption-boundary.json` | `matrix-keys-query-adoption-boundary` |
 | Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-all-devices.json` | `matrix-keys-query-all-devices` |
 | Matrix v1.18 / Client-Server API / POST /_matrix/client/v3/keys/query | SPEC-069 Matrix Device Key Query | auth | `test-vectors/auth/matrix-keys-query-basic.json` | `matrix-keys-query-basic` |

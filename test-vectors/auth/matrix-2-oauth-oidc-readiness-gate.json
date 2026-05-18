@@ -1,0 +1,96 @@
+{
+  "name": "matrix-2-oauth-oidc-readiness-gate",
+  "contract": "SPEC-135",
+  "event": {
+    "issue": "imoyan/houra-spec#382",
+    "parent_issue": "imoyan/houra-spec#377",
+    "snapshot_issue": "imoyan/houra-spec#380",
+    "advertisement_issue": "imoyan/houra-spec#381",
+    "lane": "oauth-oidc",
+    "matrix_domain": "Client-Server API",
+    "checked_at": "2026-05-18T15:44:52+09:00",
+    "timezone": "Asia/Tokyo",
+    "matrix_2_release_status": "pending-stable-spec-release",
+    "current_stable_spec_entrypoint": "https://spec.matrix.org/latest/",
+    "current_stable_spec_version": "v1.18",
+    "source_snapshot_contract": "SPEC-133",
+    "versions_advertisement_gate_contract": "SPEC-134",
+    "v1_18_oauth_boundary_contract": "SPEC-068",
+    "related_contracts": [
+      "SPEC-032",
+      "SPEC-033",
+      "SPEC-034",
+      "SPEC-068",
+      "SPEC-122",
+      "SPEC-134"
+    ],
+    "classification_rules": {
+      "allowed_classifications": [
+        "stable-requirement",
+        "msc-only",
+        "provider-specific",
+        "implementation-note",
+        "out-of-scope"
+      ],
+      "stable_requirement_fields": [
+        "stable_spec_source",
+        "release_note_or_changelog",
+        "normative_requirement_summary",
+        "endpoint_or_metadata_surface",
+        "token_boundary",
+        "required_vectors",
+        "implementation_evidence",
+        "release_evidence_rule"
+      ],
+      "non_stable_fields": [
+        "source_candidate_or_msc",
+        "expected_matrix_domain",
+        "not_a_support_claim_reason",
+        "revisit_issue",
+        "advertisement_allowed"
+      ],
+      "provider_specific_behavior_is_not_protocol_claim": true,
+      "spec_068_account_management_is_not_full_matrix_2_oauth": true
+    },
+    "redaction_rules": {
+      "bearer_credentials_retained": false,
+      "refresh_credentials_retained": false,
+      "grant_codes_retained": false,
+      "callback_parameters_retained": false,
+      "identity_provider_session_ids_retained": false,
+      "privateKeyMaterialRetained": false,
+      "browser_session_state_retained": false,
+      "metadata_shape_allowed": true,
+      "redirect_origin_and_path_allowed_after_query_redaction": true
+    },
+    "gate_result": {
+      "status": "blocked",
+      "blocking_reasons": [
+        "stable Matrix 2.0 OAuth/OIDC specification source is pending",
+        "stable Matrix 2.0 release note is pending",
+        "same-candidate server and client OAuth/OIDC evidence is missing",
+        "release bundle and release notes have no Matrix 2.0 OAuth/OIDC pass decision"
+      ],
+      "matrix_2_oauth_claim_allowed": false,
+      "oauth_login_flow_advertised": false,
+      "versions_advertisement_widened": false,
+      "release_notes_claim_allowed": false,
+      "publishable_matrix_support_claim_widened": false,
+      "provider_interop_claim_allowed": false,
+      "dynamic_client_registration_claim_allowed": false,
+      "device_authorization_grant_claim_allowed": false
+    }
+  },
+  "expected": {
+    "matrix_2_oauth_gate_blocked": true,
+    "classification_count": 5,
+    "stable_requirement_fields_count": 8,
+    "non_stable_fields_count": 5,
+    "secret_bearing_evidence_allowed": false,
+    "spec_068_preserved_as_v1_18_boundary": true,
+    "matrix_2_oauth_claim_allowed": false,
+    "versions_advertisement_widened": false,
+    "publishable_matrix_support_claim_widened": false,
+    "provider_interop_claim_allowed": false
+  }
+}
