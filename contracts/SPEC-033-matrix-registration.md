@@ -111,9 +111,10 @@ the successful upgrade of `@guest1:example.test` with `guest_access_token`
 
 This boundary covers the representative success path plus fail-closed
 rejection when the guest token is unknown or the requested username does not
-match the guest account localpart. Persistence breadth for invalidating old
-guest sessions, room preview behavior, and guest-specific API allowlists remain
-outside this contract.
+match the guest account localpart. After a successful upgrade, the old guest
+access token must be rejected and the upgraded session must report `is_guest:
+false` on `/_matrix/client/v3/account/whoami`. Room preview behavior and
+guest-specific API allowlists remain outside this contract.
 
 ## User-interactive authentication response
 

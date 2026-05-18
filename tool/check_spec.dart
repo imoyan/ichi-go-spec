@@ -780,6 +780,7 @@ void checkMatrixRegistration(
     'test-vectors/auth/matrix-registration-disabled.json',
     'test-vectors/auth/matrix-registration-guest-basic.json',
     'test-vectors/auth/matrix-registration-guest-upgrade-basic.json',
+    'test-vectors/auth/matrix-registration-guest-upgrade-invalidation.json',
     'test-vectors/auth/matrix-registration-guest-upgrade-negative.json',
     'test-vectors/auth/matrix-registration-invalid-username.json',
     'test-vectors/auth/matrix-registration-terms-accepted.json',
@@ -822,7 +823,7 @@ void checkMatrixRegistration(
         excluded is! List ||
         excluded.contains('invalid guest_access_token rejection matrix') ||
         excluded.contains('mismatched username and guest token rejection matrix') ||
-        !excluded.contains('guest session invalidation persistence breadth') ||
+        excluded.contains('guest session invalidation persistence breadth') ||
         !excluded.contains('room preview event stream') ||
         !excluded.contains('guest-specific API allowlist')) {
       failures.add('${relative(guestUpgradeFile)} guest upgrade boundary invalid.');
@@ -874,11 +875,87 @@ void checkMatrixRegistration(
         expected is! Map ||
         expected['versions_advertisement_widened'] != false ||
         excluded is! List ||
-        !excluded.contains('guest session invalidation persistence breadth') ||
+        excluded.contains('guest session invalidation persistence breadth') ||
         !excluded.contains('room preview event stream') ||
         !excluded.contains('guest-specific API allowlist')) {
       failures.add(
         '${relative(guestUpgradeNegativeFile)} guest upgrade negative boundary invalid.',
+      );
+    }
+  }
+  final guestUpgradeInvalidationFile =
+      File('test-vectors/auth/matrix-registration-guest-upgrade-invalidation.json');
+  final guestUpgradeInvalidation =
+      readJsonObject(guestUpgradeInvalidationFile, failures);
+  if (guestUpgradeInvalidation != null) {
+    final preconditions = guestUpgradeInvalidation['preconditions'];
+    final request = guestUpgradeInvalidation['request'];
+    final sequence = guestUpgradeInvalidation['sequence'];
+    final expected = guestUpgradeInvalidation['expected'];
+    final excluded = expected is Map ? expected['excluded_breadth'] : null;
+    final stepByName = <String, Map>{};
+    if (sequence is List) {
+      for (final item in sequence) {
+        if (item is Map && item['name'] is String) {
+          stepByName[item['name'] as String] = item;
+        }
+      }
+    }
+    final guestRegistration = stepByName['guest_registration'];
+    final guestUpgrade = stepByName['guest_upgrade'];
+    final oldGuestRejected = stepByName['old_guest_token_rejected'];
+    final upgradedWhoami = stepByName['upgraded_token_is_non_guest'];
+    bool stepStatusInvalid(Map? item, int status) {
+      final itemExpected = item?['expected'];
+      return itemExpected is! Map || itemExpected['status'] != status;
+    }
+    bool requestInvalid(Map? item, String method, String path, String? token) {
+      final itemRequest = item?['request'];
+      return itemRequest is! Map ||
+          itemRequest['method'] != method ||
+          itemRequest['path'] != path ||
+          (token != null && itemRequest['access_token'] != token);
+    }
+    final rootRequestInvalid = request is! Map ||
+        request['method'] != 'GET' ||
+        request['path'] != '/_matrix/client/v3/account/whoami' ||
+        request['access_token'] != 'token-guest';
+    final oldExpected =
+        oldGuestRejected is Map ? oldGuestRejected['expected'] : null;
+    final oldBody = oldExpected is Map ? oldExpected['body_contains'] : null;
+    final upgradedExpected =
+        upgradedWhoami is Map ? upgradedWhoami['expected'] : null;
+    final upgradedBody =
+        upgradedExpected is Map ? upgradedExpected['body_contains'] : null;
+    if (preconditions is! Map ||
+        preconditions['guest_user_id'] != '@guest1:example.test' ||
+        preconditions['guest_access_token'] != 'token-guest' ||
+        preconditions['upgraded_access_token'] != 'token-register' ||
+        rootRequestInvalid ||
+        stepByName.length != 4 ||
+        stepStatusInvalid(guestRegistration, 200) ||
+        stepStatusInvalid(guestUpgrade, 200) ||
+        requestInvalid(oldGuestRejected, 'GET',
+            '/_matrix/client/v3/account/whoami', 'token-guest') ||
+        stepStatusInvalid(oldGuestRejected, 401) ||
+        oldBody is! Map ||
+        oldBody['errcode'] != 'M_UNKNOWN_TOKEN' ||
+        oldExpected['old_guest_session_invalidated'] != true ||
+        requestInvalid(upgradedWhoami, 'GET',
+            '/_matrix/client/v3/account/whoami', 'token-register') ||
+        stepStatusInvalid(upgradedWhoami, 200) ||
+        upgradedBody is! Map ||
+        upgradedBody['user_id'] != '@guest1:example.test' ||
+        upgradedBody['device_id'] != 'UPGRADED' ||
+        upgradedBody['is_guest'] != false ||
+        expected is! Map ||
+        expected['versions_advertisement_widened'] != false ||
+        excluded is! List ||
+        excluded.contains('guest session invalidation persistence breadth') ||
+        !excluded.contains('room preview event stream') ||
+        !excluded.contains('guest-specific API allowlist')) {
+      failures.add(
+        '${relative(guestUpgradeInvalidationFile)} guest upgrade invalidation boundary invalid.',
       );
     }
   }
