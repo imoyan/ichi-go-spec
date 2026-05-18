@@ -1,0 +1,39 @@
+{
+  "name": "matrix-registration-terms-required",
+  "contract": "SPEC-033",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/register",
+    "body": {
+      "username": "termsuser",
+      "password": "correct horse battery staple"
+    }
+  },
+  "expected": {
+    "status": 401,
+    "body_contains": {
+      "completed": [],
+      "flows": [
+        {
+          "stages": [
+            "m.login.terms"
+          ]
+        }
+      ],
+      "params": {
+        "m.login.terms": {
+          "policies": {
+            "terms_of_service": {
+              "version": "1.0",
+              "en": {
+                "name": "Terms of Service",
+                "url": "https://example.test/policies/terms-v1.html"
+              }
+            }
+          }
+        }
+      },
+      "session": "reg-session-terms-1"
+    }
+  }
+}

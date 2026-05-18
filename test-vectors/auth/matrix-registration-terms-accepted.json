@@ -1,0 +1,26 @@
+{
+  "name": "matrix-registration-terms-accepted",
+  "contract": "SPEC-033",
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/register",
+    "body": {
+      "username": "termsuser",
+      "password": "correct horse battery staple",
+      "device_id": "TERMS1",
+      "auth": {
+        "type": "m.login.terms",
+        "session": "reg-session-terms-1"
+      }
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "user_id": "@termsuser:example.test",
+      "access_token": "token-register",
+      "device_id": "TERMS1",
+      "home_server": "example.test"
+    }
+  }
+}
