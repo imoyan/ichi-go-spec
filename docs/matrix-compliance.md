@@ -150,9 +150,9 @@ Matrix v1.18 roadmap close-out snapshot:
   #97 through #101 link current pass/fail evidence and #95 records a
   publishable Matrix support claim or explicit blocked / out-of-scope decisions
   for the release candidate.
-- The current blocked bundle was refreshed at 2026-05-19T06:23:30+09:00 and
+- The current blocked bundle was refreshed at 2026-05-18T23:38:17+09:00 and
   records the same candidate set from `houra-spec`
-  3661146aec87dd6fae278cd5d45ce638dbcff4ab, `houra-server`
+  adbaff7caccf57efe60fd6ce42f32fc98d8e93fd, `houra-server`
   3a9e345152d79c64589835b9517244b2d560bafa, and `houra-client`
   5154a2c519d113f030dc0e9369d06060005ebd49. It links every excluded stable
   domain to an explicit current-candidate release-scope decision:
@@ -165,11 +165,7 @@ Matrix v1.18 roadmap close-out snapshot:
   versions and no publishable Matrix support claim is allowed. The refreshed
   refs include imoyan/houra-server#321 / #327 release-surface evidence,
   imoyan/houra-server#405 / #407 / #409 guest-to-user upgrade evidence, and
-  imoyan/houra-client#205 / #206 publish-readiness evidence. The refreshed
-  `houra-spec` ref also includes the same-day `SPEC-035` guest join boundary,
-  guest API allowlist boundary, and representative `joined_rooms` vector
-  updates; these remain adopted-subset evidence and do not widen the
-  fail-closed Matrix advertisement decision.
+  imoyan/houra-client#205 / #206 publish-readiness evidence.
 - Post-bundle Client-Server registration classification sync:
   imoyan/houra-server#303 merged at 2026-05-16T23:29:29+09:00 and records the
   Complement `TestLogin` one-shot registration helper failure as a known
