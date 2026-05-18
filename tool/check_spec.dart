@@ -157,6 +157,7 @@ void main() {
   checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(contracts, failures);
   checkMatrixV118ReleaseEvidenceBundleNegativeFixtures(failures);
   checkMatrix2SnapshotV118DiffChecklist(contracts, failures);
+  checkMatrix2VersionsAdvertisementEvidenceGate(contracts, failures);
   checkProductMvpReleaseCandidatePlan(contracts, failures);
   checkOssPublicationReadinessPlan(contracts, failures);
   checkConformanceToolingResultSchema(contracts, profileMap, failures);
@@ -12272,6 +12273,193 @@ void checkMatrix2SnapshotV118DiffChecklist(
     if (serialized.contains(forbidden)) {
       failures.add(
         '${relative(file)} Matrix 2.0 snapshot contains forbidden evidence token: $forbidden',
+      );
+    }
+  }
+}
+
+void checkMatrix2VersionsAdvertisementEvidenceGate(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  const path =
+      'test-vectors/core/matrix-2-versions-advertisement-evidence-gate.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix 2.0 versions advertisement gate: $path');
+    return;
+  }
+  if (!contracts.containsKey('SPEC-134')) {
+    failures.add('$path references missing contract: SPEC-134');
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-134') {
+    failures.add('${relative(file)} must use SPEC-134.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['issue'] != 'imoyan/houra-spec#381' ||
+      eventMap['parent_issue'] != 'imoyan/houra-spec#377' ||
+      eventMap['snapshot_issue'] != 'imoyan/houra-spec#380' ||
+      eventMap['lane'] != 'versions-advertisement' ||
+      eventMap['matrix_domain'] != 'Client-Server API' ||
+      eventMap['timezone'] != 'Asia/Tokyo' ||
+      eventMap['matrix_2_release_status'] != 'pending-stable-spec-release') {
+    failures.add('${relative(file)} Matrix 2.0 advertisement metadata invalid.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String ||
+      !RegExp(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$')
+          .hasMatch(checkedAt)) {
+    failures.add('${relative(file)} checked_at must be a dated +09:00 snapshot.');
+  }
+  if (eventMap['current_stable_spec_entrypoint'] !=
+          'https://spec.matrix.org/latest/' ||
+      eventMap['current_stable_spec_version'] != 'v1.18' ||
+      eventMap['source_snapshot_contract'] != 'SPEC-133' ||
+      eventMap['existing_advertisement_gate_contract'] != 'SPEC-064' ||
+      eventMap['release_readiness_contract'] != 'SPEC-066') {
+    failures.add('${relative(file)} Matrix 2.0 reference contracts invalid.');
+  }
+
+  final candidate = eventMap['candidate'];
+  final refs = candidate is Map
+      ? readStringList(candidate['same_candidate_refs_required'])
+      : null;
+  final domainEvidence = candidate is Map ? candidate['domain_evidence'] : null;
+  final requirements = candidate is Map
+      ? readStringList(candidate['evidence_requirements'])
+      : null;
+  if (candidate is! Map ||
+      candidate['requested_matrix_version'] != 'v2.0' ||
+      candidate['versions_response_path'] != '/_matrix/client/versions' ||
+      candidate['stable_source_snapshot_status'] != 'pending' ||
+      refs == null ||
+      refs.length != 6 ||
+      !refs.contains('publishable-support-claim') ||
+      requirements == null ||
+      requirements.length != 8 ||
+      domainEvidence is! List ||
+      domainEvidence.length != 5) {
+    failures.add('${relative(file)} advertisement candidate invalid.');
+  } else {
+    const expectedLanes = {
+      'oauth-oidc': ('imoyan/houra-spec#382', 'Client-Server API'),
+      'sliding-sync': ('imoyan/houra-spec#383', 'Client-Server API'),
+      'e2ee-key-backup-verification': (
+        'imoyan/houra-spec#384',
+        'Olm & Megolm',
+      ),
+      'room-versions-auth-state-resolution': (
+        'imoyan/houra-spec#385',
+        'Room Versions',
+      ),
+      'extensible-profiles-events': (
+        'imoyan/houra-spec#386',
+        'Client-Server API',
+      ),
+    };
+    final seenLaneIds = <String>{};
+    for (final lane in domainEvidence) {
+      if (lane is! Map ||
+          lane['lane_id'] is! String ||
+          lane['lane_issue'] is! String ||
+          lane['matrix_domain'] is! String ||
+          lane['status'] != 'pending-stable-source' ||
+          lane['required_before_advertisement'] != true) {
+        failures.add('${relative(file)} domain lane evidence invalid.');
+        continue;
+      }
+      final id = lane['lane_id'] as String;
+      seenLaneIds.add(id);
+      final expected = expectedLanes[id];
+      if (expected == null ||
+          lane['lane_issue'] != expected.$1 ||
+          lane['matrix_domain'] != expected.$2 ||
+          !matrixDomains.contains(lane['matrix_domain'])) {
+        failures.add('${relative(file)} domain lane mismatch for $id.');
+      }
+    }
+    if (!seenLaneIds.containsAll(expectedLanes.keys)) {
+      failures.add('${relative(file)} domain lane ids incomplete.');
+    }
+  }
+
+  final gate = eventMap['gate_result'];
+  final reasons = gate is Map ? gate['blocking_reasons'] : null;
+  if (gate is! Map ||
+      gate['status'] != 'blocked' ||
+      reasons is! List ||
+      reasons.length < 4 ||
+      gate['versions_advertisement_allowed'] != false ||
+      gate['versions_response_must_include_v2_0'] != false ||
+      gate['release_notes_claim_allowed'] != false ||
+      gate['release_tag_allowed'] != false ||
+      gate['publishable_matrix_support_claim_allowed'] != false) {
+    failures.add('${relative(file)} advertisement gate result invalid.');
+  }
+
+  final rules = eventMap['separation_rules'];
+  if (rules is! Map ||
+      rules['stable_source_required'] != true ||
+      rules['same_candidate_evidence_required'] != true ||
+      rules['secret_redaction_required'] != true ||
+      rules['msc_only_allowed_to_widen_claim'] != false ||
+      rules['unstable_feature_flags_are_not_stable_versions'] != true ||
+      rules['matrix_v1_18_evidence_does_not_imply_matrix_2'] != true) {
+    failures.add('${relative(file)} separation rules invalid.');
+  }
+  final forbiddenClasses = eventMap['forbidden_evidence_classes'];
+  if (forbiddenClasses is! List || forbiddenClasses.length != 8) {
+    failures.add('${relative(file)} forbidden evidence classes invalid.');
+  }
+
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['matrix_2_advertisement_blocked'] != true ||
+      expected['versions_advertisement_allowed'] != false ||
+      expected['versions_response_must_include_v2_0'] != false ||
+      expected['release_notes_claim_allowed'] != false ||
+      expected['release_tag_allowed'] != false ||
+      expected['publishable_matrix_support_claim_allowed'] != false ||
+      expected['domain_lane_count'] != 5 ||
+      expected['same_candidate_ref_count'] != 6 ||
+      expected['stable_source_pending'] != true) {
+    failures.add('${relative(file)} expected advertisement result invalid.');
+  } else {
+    final issueRefs = expected['issue_refs'];
+    if (issueRefs is! List ||
+        !issueRefs.toSet().containsAll({
+          'imoyan/houra-spec#382',
+          'imoyan/houra-spec#383',
+          'imoyan/houra-spec#384',
+          'imoyan/houra-spec#385',
+          'imoyan/houra-spec#386',
+        })) {
+      failures.add('${relative(file)} expected issue refs incomplete.');
+    }
+  }
+
+  final serialized = jsonEncode(json);
+  for (final forbidden in const [
+    '/Users',
+    '/tmp',
+    'access_token',
+    'refresh_token',
+    'authorization_code',
+    'callback_query',
+    'idp_session',
+    'private_key',
+    'token-',
+  ]) {
+    if (serialized.contains(forbidden)) {
+      failures.add(
+        '${relative(file)} Matrix 2.0 advertisement evidence contains forbidden token: $forbidden',
       );
     }
   }

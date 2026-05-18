@@ -122,6 +122,7 @@ Adoption states:
 | Matrix v1.18 / Appendices/common rules / changelog delta boundary | SPEC-131 Matrix v1.18 Changelog Delta Boundary | gap-inventory | Appendices/common rules | - | - | - | tracked | Matrix |
 | Houra Product MVP / Platform-native Adapter Policy | SPEC-132 Product MVP Platform-native Adapter Policy | boundary | none | - | - | - | planned | Product MVP |
 | Matrix v1.18 / Appendices/common rules / Matrix 2.0 snapshot / v1.18 diff checklist | SPEC-133 Matrix 2.0 Snapshot and v1.18 Diff Checklist | gap-inventory | Appendices/common rules | - | - | - | tracked | Matrix |
+| Matrix v1.18 / Client-Server API / Matrix 2.0 versions advertisement evidence gate | SPEC-134 Matrix 2.0 Versions Advertisement Evidence Gate | gate | Client-Server API | - | - | - | blocked | Matrix |
 
 The board intentionally keeps implementation references lightweight. Detailed release evidence stays in `CHANGELOG.md`, and open roadmap or exclusion reasoning stays in `docs/matrix-compliance.md`.
 
