@@ -1,0 +1,37 @@
+{
+  "name": "matrix-guest-join-can-join",
+  "contract": "SPEC-035",
+  "preconditions": {
+    "room_id": "!room:example.test",
+    "room_state": [
+      {
+        "type": "m.room.guest_access",
+        "state_key": "",
+        "content": {
+          "guest_access": "can_join"
+        }
+      }
+    ]
+  },
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/join/!room:example.test",
+    "access_token": "token-guest",
+    "body": {}
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "room_id": "!room:example.test"
+    }
+  },
+  "notes": {
+    "guest_access_event_required_for_guest_join": true,
+    "guest_access_can_join_allows_guest_join": true,
+    "out_of_scope": [
+      "guest-to-user upgrade with guest_access_token",
+      "room preview event stream",
+      "guest-specific API allowlist"
+    ]
+  }
+}

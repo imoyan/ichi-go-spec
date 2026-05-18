@@ -129,10 +129,13 @@ guest access token and the room does not have a current `m.room.guest_access`
 state event whose `content.guest_access` is `can_join`, representative Houra
 compatibility must fail closed with `403` and `M_FORBIDDEN`.
 
-This contract only adds the negative representative join boundary for guest
-accounts. The `can_join` allow path, guest-to-user upgrade with
-`guest_access_token`, room preview event streams, and guest-specific API
-allowlists remain outside this contract.
+This contract adds the representative guest join boundary for `forbidden` and
+`can_join` states. The `can_join` path only covers the direct join response for
+a room that already has current `m.room.guest_access` state with
+`content.guest_access = can_join`.
+
+Guest-to-user upgrade with `guest_access_token`, room preview event streams,
+and guest-specific API allowlists remain outside this contract.
 
 ## Leave room
 

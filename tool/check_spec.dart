@@ -1330,6 +1330,7 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
   for (final path in [
     'test-vectors/rooms/matrix-create-room-basic.json',
     'test-vectors/rooms/matrix-create-room-missing-token.json',
+    'test-vectors/rooms/matrix-guest-join-can-join.json',
     'test-vectors/rooms/matrix-guest-join-forbidden.json',
     'test-vectors/rooms/matrix-join-room-basic.json',
     'test-vectors/rooms/matrix-join-room-not-found.json',
@@ -1343,29 +1344,66 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
     }
   }
 
-  final guestJoinFile = File('test-vectors/rooms/matrix-guest-join-forbidden.json');
-  final guestJoinVector = readJsonObject(guestJoinFile, failures);
-  if (guestJoinVector != null) {
+  final guestJoinForbiddenFile = File('test-vectors/rooms/matrix-guest-join-forbidden.json');
+  final guestJoinForbiddenVector = readJsonObject(guestJoinForbiddenFile, failures);
+  if (guestJoinForbiddenVector != null) {
     validateMatrixSimpleRequestVector(
-      guestJoinFile,
-      guestJoinVector,
+      guestJoinForbiddenFile,
+      guestJoinForbiddenVector,
       failures,
       method: 'POST',
       pathPrefix: '/_matrix/client/v3/join/!room:example.test',
       status: 403,
       errcode: 'M_FORBIDDEN',
     );
-    final notes = guestJoinVector['notes'];
+    final notes = guestJoinForbiddenVector['notes'];
     final outOfScope = notes is Map ? notes['out_of_scope'] : null;
     if (notes is! Map ||
         notes['guest_access_event_required_for_guest_join'] != true ||
         notes['absent_guest_access_treated_as_forbidden'] != true ||
         outOfScope is! List ||
-        !outOfScope.contains('m.room.guest_access can_join allow path') ||
         !outOfScope.contains('guest-to-user upgrade with guest_access_token') ||
         !outOfScope.contains('room preview event stream') ||
         !outOfScope.contains('guest-specific API allowlist')) {
-      failures.add('${relative(guestJoinFile)} guest access boundary notes invalid.');
+      failures.add('${relative(guestJoinForbiddenFile)} guest access boundary notes invalid.');
+    }
+  }
+
+  final guestJoinCanJoinFile = File('test-vectors/rooms/matrix-guest-join-can-join.json');
+  final guestJoinCanJoinVector = readJsonObject(guestJoinCanJoinFile, failures);
+  if (guestJoinCanJoinVector != null) {
+    final request = guestJoinCanJoinVector['request'];
+    final expected = guestJoinCanJoinVector['expected'];
+    final notes = guestJoinCanJoinVector['notes'];
+    final preconditions = guestJoinCanJoinVector['preconditions'];
+    final roomState = preconditions is Map ? preconditions['room_state'] : null;
+    final guestAccessState = roomState is List && roomState.isNotEmpty ? roomState.first : null;
+    final guestAccessContent = guestAccessState is Map ? guestAccessState['content'] : null;
+    final bodyContains = expected is Map ? expected['body_contains'] : null;
+    final outOfScope = notes is Map ? notes['out_of_scope'] : null;
+    if (request is! Map ||
+        request['method'] != 'POST' ||
+        request['path'] != '/_matrix/client/v3/join/!room:example.test' ||
+        request['access_token'] != 'token-guest' ||
+        expected is! Map ||
+        expected['status'] != 200 ||
+        bodyContains is! Map ||
+        bodyContains['room_id'] != '!room:example.test' ||
+        preconditions is! Map ||
+        preconditions['room_id'] != '!room:example.test' ||
+        guestAccessState is! Map ||
+        guestAccessState['type'] != 'm.room.guest_access' ||
+        guestAccessState['state_key'] != '' ||
+        guestAccessContent is! Map ||
+        guestAccessContent['guest_access'] != 'can_join' ||
+        notes is! Map ||
+        notes['guest_access_event_required_for_guest_join'] != true ||
+        notes['guest_access_can_join_allows_guest_join'] != true ||
+        outOfScope is! List ||
+        !outOfScope.contains('guest-to-user upgrade with guest_access_token') ||
+        !outOfScope.contains('room preview event stream') ||
+        !outOfScope.contains('guest-specific API allowlist')) {
+      failures.add('${relative(guestJoinCanJoinFile)} guest can_join boundary invalid.');
     }
   }
 }
