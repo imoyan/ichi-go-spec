@@ -5,7 +5,7 @@
     "matrix_spec_version": "v1.18",
     "matrix_spec_source": "https://spec.matrix.org/v1.18/",
     "matrix_release_source": "https://matrix.org/blog/2026/03/26/matrix-v1.18-release/",
-    "checked_at": "2026-05-18T17:56:03+09:00",
+    "checked_at": "2026-05-18T18:24:00+09:00",
     "bundle_contracts": [
       "SPEC-062",
       "SPEC-063",
@@ -15,18 +15,18 @@
     ],
     "candidate_refs": {
       "release_candidate": "houra-matrix-v1.18-current-blocked-2026-05-18",
-      "houra_spec_ref": "aa80fa3038b35cba18943375c22cec57baf292d4",
-      "houra_server_ref": "b365f61606a7e3229e20a851bd47c7784fba9927",
+      "houra_spec_ref": "345d8759670b67d2104eec49002ef2dd91bc8569",
+      "houra_server_ref": "f218fac9085c6f1a417c162433ca16fffe06e027",
       "houra_client_ref": "5154a2c519d113f030dc0e9369d06060005ebd49"
     },
     "evidence_sources": {
       "server": {
         "repo": "houra-server",
-        "issue": "imoyan/houra-server#387",
-        "pull_request": "imoyan/houra-server#388",
-        "merge_commit": "b365f61606a7e3229e20a851bd47c7784fba9927",
-        "head_under_test": "b365f61606a7e3229e20a851bd47c7784fba9927",
-        "spec_ref_under_test": "aa80fa3038b35cba18943375c22cec57baf292d4",
+        "issue": "imoyan/houra-server#389",
+        "pull_request": "imoyan/houra-server#390",
+        "merge_commit": "f218fac9085c6f1a417c162433ca16fffe06e027",
+        "head_under_test": "f218fac9085c6f1a417c162433ca16fffe06e027",
+        "spec_ref_under_test": "345d8759670b67d2104eec49002ef2dd91bc8569",
         "checks": [
           "HOURA_SPEC_ROOT=<spec> npm run typecheck pass",
           "HOURA_SPEC_ROOT=<spec> npm run build pass",
@@ -46,7 +46,7 @@
         "pull_request": "imoyan/houra-client#234",
         "merge_commit": "5154a2c519d113f030dc0e9369d06060005ebd49",
         "head_under_test": "5154a2c519d113f030dc0e9369d06060005ebd49",
-        "spec_ref_under_test": "aa80fa3038b35cba18943375c22cec57baf292d4",
+        "spec_ref_under_test": "345d8759670b67d2104eec49002ef2dd91bc8569",
         "checks": [
           "GitHub Actions test pass",
           "GitHub Actions e2e pass",
