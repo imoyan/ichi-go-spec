@@ -96,6 +96,11 @@ same-candidate evidence が揃うまで blocked のままです。
 maintained crypto stack、key backup、verification、cross-signing、encrypted-room
 claim は secret-free same-candidate evidence が揃うまで blocked のままです。
 
+`SPEC-138` は #385 の Room Versions / auth / state-resolution readiness gate です。
+`SPEC-078` と `SPEC-080` は v1.18 の gap inventory / capabilities boundary として残し、
+default / available room versions、event auth、state resolution、full algorithm
+claim は stable source と same-candidate evidence が揃うまで blocked のままです。
+
 #377 が親 issue、#380 が snapshot / diff checklist です。#381 から #386 は
 `/versions` advertisement、OAuth/OIDC、Sliding Sync、E2EE、Room Versions、
 Extensible Profiles / Events の lane です。これらは準備 lane であり、Matrix 2.0

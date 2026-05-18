@@ -11,7 +11,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | none | 76 | 19 |
 | Client-Server API | 152 | 32 |
 | Server-Server API | 27 | 14 |
-| Room Versions | 20 | 12 |
+| Room Versions | 21 | 13 |
 | Olm & Megolm | 5 | 5 |
 | Application Service API | 15 | 12 |
 | Identity Service API | 9 | 6 |
@@ -307,6 +307,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Room Versions / Matrix Room Versions 1-12 and Default Version Gate | SPEC-042 Matrix Room Versions 1-12 and Default Version Gate | rooms | `test-vectors/rooms/matrix-room-version-default-create-room.json` | `matrix-room-version-default-create-room` |
 | Matrix v1.18 / Room Versions / Matrix Room Versions 1-12 and Default Version Gate | SPEC-042 Matrix Room Versions 1-12 and Default Version Gate | rooms | `test-vectors/rooms/matrix-room-version-unsupported-create-room.json` | `matrix-room-version-unsupported-create-room` |
 | Matrix v1.18 / Room Versions / Matrix Room Versions 1-12 and Default Version Gate | SPEC-042 Matrix Room Versions 1-12 and Default Version Gate | rooms | `test-vectors/rooms/matrix-room-versions-supported.json` | `matrix-room-versions-supported` |
+| Matrix v1.18 / Room Versions / Matrix 2.0 auth state-resolution readiness gate | SPEC-138 Matrix 2.0 Room Versions Auth State Readiness Gate | rooms | `test-vectors/rooms/matrix-2-room-versions-auth-state-readiness-gate.json` | `matrix-2-room-versions-auth-state-readiness-gate` |
 | Matrix v1.18 / Room Versions / Matrix State Snapshot and State Resolution Vectors | SPEC-041 Matrix State Snapshot and State Resolution Vectors | events | `test-vectors/events/matrix-state-resolution-representative.json` | `matrix-state-resolution-representative` |
 | Matrix v1.18 / Room Versions / Matrix State Snapshot and State Resolution Vectors | SPEC-041 Matrix State Snapshot and State Resolution Vectors | events | `test-vectors/events/matrix-state-snapshot-basic.json` | `matrix-state-snapshot-basic` |
 | Matrix v1.18 / Room Versions / room version auth rule fixture runner | SPEC-101 Matrix Room Version Auth Rule Fixture Runner | events | `test-vectors/events/matrix-room-version-auth-rule-fixture-runner.json` | `matrix-room-version-auth-rule-fixture-runner` |
