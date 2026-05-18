@@ -338,6 +338,12 @@ Matrix 2.0 readiness preparation:
   stable Matrix 2.0 sources are recorded as pending until the Matrix project
   publishes the stable specification source and release note to use for a
   release-candidate snapshot.
+- `SPEC-134` and
+  `test-vectors/core/matrix-2-versions-advertisement-evidence-gate.json`
+  define the #381 advertisement gate. It blocks Matrix 2.0 in
+  `GET /_matrix/client/versions`, release notes, release bundles, and
+  `publishable_matrix_support_claim` until stable-source and same-candidate
+  domain evidence pass.
 - Matrix 2.0 remains unadvertised until the Matrix project publishes a stable
   Matrix 2.0 specification release and Houra records same-candidate evidence
   for the advertised domains.

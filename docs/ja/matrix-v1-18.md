@@ -76,6 +76,11 @@ dated snapshot として読むための checklist です。2026-05-18T15:27:07+0
 Matrix 2.0 の stable spec source / release note は pending として扱い、公式 blog や
 latest spec entrypoint は planning input に留めます。
 
+`SPEC-134` は #381 の `/versions` advertisement gate です。Matrix 2.0 stable source、
+#382 から #386 の domain lane evidence、release bundle、release notes、
+`publishable_matrix_support_claim` が同じ candidate ref で揃うまで、`v2.0` を
+`GET /_matrix/client/versions` に出さないことを固定します。
+
 #377 が親 issue、#380 が snapshot / diff checklist です。#381 から #386 は
 `/versions` advertisement、OAuth/OIDC、Sliding Sync、E2EE、Room Versions、
 Extensible Profiles / Events の lane です。これらは準備 lane であり、Matrix 2.0

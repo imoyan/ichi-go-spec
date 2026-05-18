@@ -9,7 +9,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix domain | Vector count | Contract count |
 |---|---:|---:|
 | none | 76 | 19 |
-| Client-Server API | 149 | 29 |
+| Client-Server API | 150 | 30 |
 | Server-Server API | 27 | 14 |
 | Room Versions | 20 | 12 |
 | Olm & Megolm | 4 | 4 |
@@ -254,6 +254,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / version advertisement release gate | SPEC-064 Matrix Version Advertisement Release Gate | core | `test-vectors/core/matrix-version-advertisement-allowed-with-evidence.json` | `matrix-version-advertisement-allowed-with-evidence` |
 | Matrix v1.18 / Client-Server API / version advertisement release gate | SPEC-064 Matrix Version Advertisement Release Gate | core | `test-vectors/core/matrix-version-advertisement-blocked-missing-evidence.json` | `matrix-version-advertisement-blocked-missing-evidence` |
 | Matrix v1.18 / Client-Server API / version advertisement release gate | SPEC-064 Matrix Version Advertisement Release Gate | core | `test-vectors/core/matrix-version-advertisement-ci-adoption.json` | `matrix-version-advertisement-ci-adoption` |
+| Matrix v1.18 / Client-Server API / Matrix 2.0 versions advertisement evidence gate | SPEC-134 Matrix 2.0 Versions Advertisement Evidence Gate | core | `test-vectors/core/matrix-2-versions-advertisement-evidence-gate.json` | `matrix-2-versions-advertisement-evidence-gate` |
 
 ### Server-Server API
 

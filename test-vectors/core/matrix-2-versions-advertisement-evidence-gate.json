@@ -1,0 +1,129 @@
+{
+  "name": "matrix-2-versions-advertisement-evidence-gate",
+  "contract": "SPEC-134",
+  "event": {
+    "issue": "imoyan/houra-spec#381",
+    "parent_issue": "imoyan/houra-spec#377",
+    "snapshot_issue": "imoyan/houra-spec#380",
+    "lane": "versions-advertisement",
+    "matrix_domain": "Client-Server API",
+    "checked_at": "2026-05-18T15:36:24+09:00",
+    "timezone": "Asia/Tokyo",
+    "matrix_2_release_status": "pending-stable-spec-release",
+    "current_stable_spec_entrypoint": "https://spec.matrix.org/latest/",
+    "current_stable_spec_version": "v1.18",
+    "source_snapshot_contract": "SPEC-133",
+    "existing_advertisement_gate_contract": "SPEC-064",
+    "release_readiness_contract": "SPEC-066",
+    "candidate": {
+      "requested_matrix_version": "v2.0",
+      "versions_response_path": "/_matrix/client/versions",
+      "same_candidate_refs_required": [
+        "houra-spec",
+        "houra-server",
+        "houra-client",
+        "release-bundle",
+        "release-notes",
+        "publishable-support-claim"
+      ],
+      "stable_source_snapshot_status": "pending",
+      "domain_evidence": [
+        {
+          "lane_id": "oauth-oidc",
+          "lane_issue": "imoyan/houra-spec#382",
+          "matrix_domain": "Client-Server API",
+          "status": "pending-stable-source",
+          "required_before_advertisement": true
+        },
+        {
+          "lane_id": "sliding-sync",
+          "lane_issue": "imoyan/houra-spec#383",
+          "matrix_domain": "Client-Server API",
+          "status": "pending-stable-source",
+          "required_before_advertisement": true
+        },
+        {
+          "lane_id": "e2ee-key-backup-verification",
+          "lane_issue": "imoyan/houra-spec#384",
+          "matrix_domain": "Olm & Megolm",
+          "status": "pending-stable-source",
+          "required_before_advertisement": true
+        },
+        {
+          "lane_id": "room-versions-auth-state-resolution",
+          "lane_issue": "imoyan/houra-spec#385",
+          "matrix_domain": "Room Versions",
+          "status": "pending-stable-source",
+          "required_before_advertisement": true
+        },
+        {
+          "lane_id": "extensible-profiles-events",
+          "lane_issue": "imoyan/houra-spec#386",
+          "matrix_domain": "Client-Server API",
+          "status": "pending-stable-source",
+          "required_before_advertisement": true
+        }
+      ],
+      "evidence_requirements": [
+        "stable Matrix 2.0 specification source",
+        "stable Matrix 2.0 release note",
+        "same-candidate implementation refs",
+        "same-candidate release bundle",
+        "same-candidate release notes",
+        "domain lane pass decisions",
+        "explicit exclusions for unsupported lanes",
+        "secret-redacted evidence"
+      ]
+    },
+    "gate_result": {
+      "status": "blocked",
+      "blocking_reasons": [
+        "stable Matrix 2.0 specification source is pending",
+        "stable Matrix 2.0 release note is pending",
+        "domain lanes imoyan/houra-spec#382 through imoyan/houra-spec#386 have no stable-source pass evidence",
+        "release bundle and release notes do not have same-candidate Matrix 2.0 evidence"
+      ],
+      "versions_advertisement_allowed": false,
+      "versions_response_must_include_v2_0": false,
+      "release_notes_claim_allowed": false,
+      "release_tag_allowed": false,
+      "publishable_matrix_support_claim_allowed": false
+    },
+    "separation_rules": {
+      "stable_source_required": true,
+      "same_candidate_evidence_required": true,
+      "secret_redaction_required": true,
+      "msc_only_allowed_to_widen_claim": false,
+      "unstable_feature_flags_are_not_stable_versions": true,
+      "matrix_v1_18_evidence_does_not_imply_matrix_2": true
+    },
+    "forbidden_evidence_classes": [
+      "bearer credentials",
+      "refresh credentials",
+      "authorization grant material",
+      "callback query parameters",
+      "identity-provider session identifiers",
+      "recovery material",
+      "raw encrypted media",
+      "private keys"
+    ]
+  },
+  "expected": {
+    "matrix_2_advertisement_blocked": true,
+    "versions_advertisement_allowed": false,
+    "versions_response_must_include_v2_0": false,
+    "release_notes_claim_allowed": false,
+    "release_tag_allowed": false,
+    "publishable_matrix_support_claim_allowed": false,
+    "domain_lane_count": 5,
+    "same_candidate_ref_count": 6,
+    "stable_source_pending": true,
+    "issue_refs": [
+      "imoyan/houra-spec#382",
+      "imoyan/houra-spec#383",
+      "imoyan/houra-spec#384",
+      "imoyan/houra-spec#385",
+      "imoyan/houra-spec#386"
+    ]
+  }
+}
