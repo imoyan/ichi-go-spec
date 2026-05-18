@@ -9,7 +9,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix domain | Vector count | Contract count |
 |---|---:|---:|
 | none | 77 | 20 |
-| Client-Server API | 165 | 34 |
+| Client-Server API | 166 | 34 |
 | Server-Server API | 27 | 14 |
 | Room Versions | 21 | 13 |
 | Olm & Megolm | 5 | 5 |
@@ -121,6 +121,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-room-state-basic.json` | `matrix-room-state-basic` |
 | Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-room-state-forbidden.json` | `matrix-room-state-forbidden` |
 | Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-room-state-invalid-token.json` | `matrix-room-state-invalid-token` |
+| Matrix v1.18 / Client-Server API / create, join, leave, and room state endpoints | SPEC-035 Matrix Client-Server Room Membership and State MVP | rooms | `test-vectors/rooms/matrix-room-state-single-name-basic.json` | `matrix-room-state-single-name-basic` |
 | Matrix v1.18 / Client-Server API / device management and session lifecycle endpoints | SPEC-034 Matrix Client-Server Devices and Sessions | auth | `test-vectors/auth/matrix-device-delete-basic.json` | `matrix-device-delete-basic` |
 | Matrix v1.18 / Client-Server API / device management and session lifecycle endpoints | SPEC-034 Matrix Client-Server Devices and Sessions | auth | `test-vectors/auth/matrix-device-delete-owner-scope.json` | `matrix-device-delete-owner-scope` |
 | Matrix v1.18 / Client-Server API / device management and session lifecycle endpoints | SPEC-034 Matrix Client-Server Devices and Sessions | auth | `test-vectors/auth/matrix-device-delete-uia-required.json` | `matrix-device-delete-uia-required` |

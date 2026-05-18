@@ -1551,6 +1551,7 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
     'test-vectors/rooms/matrix-room-state-basic.json',
     'test-vectors/rooms/matrix-room-state-forbidden.json',
     'test-vectors/rooms/matrix-room-state-invalid-token.json',
+    'test-vectors/rooms/matrix-room-state-single-name-basic.json',
   ]) {
     if (!File(path).existsSync()) {
       failures.add('Missing Matrix room membership/state vector: $path');
@@ -1747,6 +1748,57 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
         !outOfScope.contains('historical membership listing')) {
       failures.add(
         '${relative(joinedRoomsFile)} joined_rooms boundary invalid.',
+      );
+    }
+  }
+
+  final singleStateNameFile = File(
+    'test-vectors/rooms/matrix-room-state-single-name-basic.json',
+  );
+  final singleStateNameVector = readJsonObject(singleStateNameFile, failures);
+  if (singleStateNameVector != null) {
+    final request = singleStateNameVector['request'];
+    final preconditions = singleStateNameVector['preconditions'];
+    final stateEvent = preconditions is Map
+        ? preconditions['state_event']
+        : null;
+    final content = stateEvent is Map ? stateEvent['content'] : null;
+    final expected = singleStateNameVector['expected'];
+    final bodyContains = expected is Map ? expected['body_contains'] : null;
+    final notes = singleStateNameVector['notes'];
+    final outOfScope = notes is Map ? notes['out_of_scope'] : null;
+    if (request is! Map ||
+        request['method'] != 'GET' ||
+        request['path'] !=
+            '/_matrix/client/v3/rooms/!room:example.test/state/m.room.name/' ||
+        request['access_token'] != 'token-1' ||
+        preconditions is! Map ||
+        preconditions['room_id'] != '!room:example.test' ||
+        stateEvent is! Map ||
+        stateEvent['type'] != 'm.room.name' ||
+        stateEvent['state_key'] != '' ||
+        content is! Map ||
+        content['name'] != 'General' ||
+        expected is! Map ||
+        expected['status'] != 200 ||
+        expected['versions_advertisement_widened'] != false ||
+        bodyContains is! Map ||
+        bodyContains['name'] != 'General' ||
+        notes is! Map ||
+        notes['representative_single_state_event_get_only'] != true ||
+        notes['response_body_is_event_content'] != true ||
+        outOfScope is! List ||
+        !outOfScope.contains('complete state event type catalog') ||
+        !outOfScope.contains(
+          'custom state event type validation breadth',
+        ) ||
+        !outOfScope.contains('state_key edge-case breadth') ||
+        !outOfScope.contains(
+          'event content validation for all state event types',
+        ) ||
+        !outOfScope.contains('full authorization failure matrix')) {
+      failures.add(
+        '${relative(singleStateNameFile)} single state event boundary invalid.',
       );
     }
   }
