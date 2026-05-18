@@ -34,8 +34,9 @@ advertised as complete.
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3roomsroomidleave>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3joined_rooms>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3roomsroomidstate>
+- Source: <https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3roomsroomidstateeventtypestatekey>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#mroomguest_access>
-- Checked at: 2026-05-18T20:05:00+09:00
+- Checked at: 2026-05-19T07:08:13+09:00
 - Timezone: Asia/Tokyo
 
 ## Matrix room identifiers
@@ -215,8 +216,28 @@ Successful responses return an array of current state events:
 ]
 ```
 
-The response body is the array itself, not an object wrapper. Reading a single
-state event by `{eventType}/{stateKey}` is outside this MVP contract.
+The response body is the array itself, not an object wrapper.
+
+This contract also defines the representative single state event read for an
+already adopted state event tuple:
+
+```text
+GET /_matrix/client/v3/rooms/!room:example.test/state/m.room.name/
+Authorization: Bearer token-1
+```
+
+Successful responses return the event `content` object itself:
+
+```json
+{
+  "name": "General"
+}
+```
+
+This representative path covers `m.room.name` with an empty `state_key` only.
+Complete state event type catalog coverage, custom state event validation,
+state key edge cases, all-event content validation, and the full authorization
+failure matrix remain outside this contract.
 
 ## Authentication and room errors
 
