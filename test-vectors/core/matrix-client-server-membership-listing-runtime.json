@@ -1,0 +1,93 @@
+{
+  "name": "matrix-client-server-membership-listing-runtime",
+  "contract": "SPEC-085",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/",
+    "checked_at": "2026-05-19T08:05:00+09:00",
+    "parent_contract": "SPEC-073",
+    "spec_issue": "imoyan/houra-spec#452",
+    "server_issue": "imoyan/houra-server#420",
+    "parent_issue": "imoyan/houra-server#135",
+    "boundary": "membership-listing-runtime-representative",
+    "runtime_requests": [
+      {
+        "id": "joined-members-current",
+        "method": "GET",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/joined_members",
+        "access_token": "token-1"
+      },
+      {
+        "id": "members-current",
+        "method": "GET",
+        "path": "/_matrix/client/v3/rooms/!room:example.test/members",
+        "access_token": "token-1"
+      }
+    ],
+    "preconditions": {
+      "room_id": "!room:example.test",
+      "requesting_user_id": "@alice:example.test",
+      "current_membership_state": [
+        {
+          "content": {
+            "membership": "join",
+            "displayname": "Alice"
+          },
+          "event_id": "$member-alice:example.test",
+          "origin_server_ts": 1715754500000,
+          "room_id": "!room:example.test",
+          "sender": "@alice:example.test",
+          "state_key": "@alice:example.test",
+          "type": "m.room.member"
+        }
+      ]
+    },
+    "expected_responses": {
+      "joined_members": {
+        "joined": {
+          "@alice:example.test": {
+            "display_name": "Alice"
+          }
+        }
+      },
+      "members": {
+        "chunk": [
+          {
+            "content": {
+              "membership": "join",
+              "displayname": "Alice"
+            },
+            "event_id": "$member-alice:example.test",
+            "origin_server_ts": 1715754500000,
+            "room_id": "!room:example.test",
+            "sender": "@alice:example.test",
+            "state_key": "@alice:example.test",
+            "type": "m.room.member"
+          }
+        ]
+      }
+    },
+    "out_of_scope": [
+      "historical membership listing",
+      "membership listing pagination and ordering",
+      "profile field completeness in member lists",
+      "knock and restricted-join membership listing breadth",
+      "lazy-loading membership semantics",
+      "full history visibility semantics"
+    ],
+    "release_evidence_rules": {
+      "representative_runtime_route_behavior_claimed": true,
+      "parser_only": false,
+      "full_membership_history_claimed": false,
+      "versions_advertisement_widened": false,
+      "client_server_support_claim_widened": false
+    }
+  },
+  "expected": {
+    "runtime_request_count": 2,
+    "joined_members_map_returned": true,
+    "members_chunk_events_returned": 1,
+    "full_membership_history_claimed": false,
+    "versions_advertisement_widened": false
+  }
+}

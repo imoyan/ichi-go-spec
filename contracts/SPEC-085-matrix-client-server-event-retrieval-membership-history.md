@@ -108,6 +108,18 @@ top-level `chunk` array of membership `ClientEvent` envelopes. Query descriptor
 support is limited to typed `at`, `membership`, and `not_membership`
 parameters. Membership values outside the adopted set must fail closed.
 
+This contract also defines representative runtime behavior for current
+membership listing:
+
+- `joined_members` may return a `joined` map for users whose current
+  `m.room.member` state has `membership = join`.
+- `members` may return a `chunk` containing current `m.room.member` events.
+
+This representative runtime behavior does not define historical membership
+listing, pagination or ordering completeness, profile field completeness,
+knock or restricted-join membership breadth, lazy-loading behavior, or full
+history-visibility semantics.
+
 `GET /_matrix/client/v1/rooms/{roomId}/timestamp_to_event` parses `event_id`
 and `origin_server_ts`. Direction, visibility, and room-version event ordering
 semantics are intentionally outside this parser boundary.
