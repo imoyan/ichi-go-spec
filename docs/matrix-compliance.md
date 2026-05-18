@@ -329,6 +329,24 @@ Matrix readiness map:
   fail-closed のまま扱う。速度改善は、claim 境界と evidence が揃った後に、まず
   検証時間と安定性から着手する。
 
+Matrix 2.0 readiness preparation:
+
+- Tracking parent issue: imoyan/houra-spec#377.
+- Matrix 2.0 remains unadvertised until the Matrix project publishes a stable
+  Matrix 2.0 specification release and Houra records same-candidate evidence
+  for the advertised domains.
+- Preparation issues are intentionally split by gate: snapshot / v1.18 diff
+  checklist (#380), versions advertisement evidence (#381), OAuth/OIDC (#382),
+  Sliding Sync / sync extension (#383), E2EE / key backup / verification (#384),
+  Room Versions / auth / state resolution (#385), and Extensible Profiles /
+  Events (#386).
+- These issues are readiness lanes only. They do not widen the current Matrix
+  v1.18 blocked candidate, `/versions`, release notes, Product MVP readiness,
+  or any runtime support claim.
+- When Matrix 2.0 is released, refresh the dated official reference snapshot
+  first, then promote only the stable requirements with matching contract,
+  vector, implementation, release evidence, and advertisement-gate results.
+
 Matrix compliance phases:
 
 1. **Audit and contract map**: add Matrix-domain coverage metadata to this

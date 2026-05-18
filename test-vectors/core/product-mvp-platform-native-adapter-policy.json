@@ -1,0 +1,150 @@
+{
+  "name": "product-mvp-platform-native-adapter-policy",
+  "contract": "SPEC-132",
+  "event": {
+    "target": "Product MVP platform-native adapter policy",
+    "spec_issue": "imoyan/houra-spec#379",
+    "checked_at": "2026-05-18T14:16:40+09:00",
+    "first_party_policy": {
+      "default_selection": "platform_native_when_available",
+      "core_sdk_framework_dependency_allowed": false,
+      "host_provider_override_allowed": true,
+      "provider_override_widens_claims": false,
+      "unsupported_capability_fails_closed": true
+    },
+    "capabilities": [
+      {
+        "id": "location-map",
+        "owner": "houra-client",
+        "native_first": [
+          "OS foreground location permission",
+          "OS background location permission and background mode",
+          "platform-native map surface when suitable"
+        ],
+        "provider_override_allowed": true,
+        "claim_requires_evidence": true,
+        "forbidden_evidence": [
+          "precise-coordinate-sample",
+          "raw-sensor-reading-sample",
+          "map-provider-secret",
+          "map-provider-log",
+          "private-local-map-cache-path"
+        ]
+      },
+      {
+        "id": "notification",
+        "owner": "houra-client-or-host",
+        "native_first": [
+          "OS notification permission prompt",
+          "OS notification rendering and localization",
+          "OS background scheduling",
+          "OS badge reconciliation"
+        ],
+        "provider_override_allowed": true,
+        "gateway_provider_boundary": "server-or-gateway-owned",
+        "claim_requires_evidence": true,
+        "forbidden_evidence": [
+          "push-provider-secret",
+          "provider-delivery-log",
+          "credentialed-notification-url"
+        ]
+      },
+      {
+        "id": "secure-storage-key-material",
+        "owner": "houra-client-or-host",
+        "native_first": [
+          "platform secure storage",
+          "keychain or keystore equivalent"
+        ],
+        "provider_override_allowed": true,
+        "claim_requires_evidence": true,
+        "forbidden_evidence": [
+          "private-key-material",
+          "recovery-secret",
+          "secure-storage-handle",
+          "local-secret-path"
+        ]
+      },
+      {
+        "id": "llm-ai",
+        "owner": "houra-client-or-host-adapter",
+        "native_first": [
+          "OS or platform-native model runtime when available",
+          "platform permission and privacy controls"
+        ],
+        "provider_override_allowed": true,
+        "claim_requires_evidence": true,
+        "forbidden_evidence": [
+          "raw-prompt-sample",
+          "raw-model-output-sample",
+          "llm-provider-secret",
+          "provider-debug-log",
+          "model-local-filesystem-path"
+        ]
+      }
+    ],
+    "cases": [
+      {
+        "id": "native-available-selected",
+        "capability": "location-map",
+        "platform_native_available": true,
+        "selected_path": "platform-native",
+        "expected_status": "ok"
+      },
+      {
+        "id": "native-unavailable-fails-closed",
+        "capability": "llm-ai",
+        "platform_native_available": false,
+        "provider_override_configured": false,
+        "selected_path": "unsupported",
+        "expected_status": "blocked",
+        "expected_error": "platform_native_unavailable"
+      },
+      {
+        "id": "provider-override-separated",
+        "capability": "llm-ai",
+        "platform_native_available": false,
+        "provider_override_configured": true,
+        "selected_path": "host-provider-adapter",
+        "expected_status": "ok",
+        "claim_widened": false
+      },
+      {
+        "id": "raw-evidence-rejected",
+        "capability": "location-map",
+        "artifact_contains_forbidden_value": true,
+        "expected_status": "forbidden",
+        "expected_error": "adapter_evidence_unredacted"
+      },
+      {
+        "id": "core-sdk-dependency-rejected",
+        "capability": "notification",
+        "core_sdk_imports_platform_api": true,
+        "expected_status": "forbidden",
+        "expected_error": "core_sdk_platform_dependency"
+      }
+    ],
+    "claim_boundary": {
+      "product_mvp_readiness_widened": false,
+      "matrix_compatibility_widened": false,
+      "versions_advertisement_widened": false,
+      "location_map_support_claimed": false,
+      "notification_support_claimed": false,
+      "secure_storage_support_claimed": false,
+      "llm_ai_provider_integration_claimed": false
+    }
+  },
+  "expected": {
+    "capability_count": 4,
+    "case_count": 5,
+    "native_first_capability_count": 4,
+    "provider_override_capability_count": 4,
+    "fail_closed_case_count": 3,
+    "core_sdk_framework_dependency_allowed": false,
+    "host_provider_override_allowed": true,
+    "provider_override_widens_claims": false,
+    "forbidden_raw_values_in_artifact": false,
+    "product_mvp_readiness_widened": false,
+    "matrix_compatibility_widened": false
+  }
+}
