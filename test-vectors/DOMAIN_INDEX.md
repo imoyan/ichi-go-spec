@@ -9,7 +9,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix domain | Vector count | Contract count |
 |---|---:|---:|
 | none | 76 | 19 |
-| Client-Server API | 153 | 33 |
+| Client-Server API | 154 | 34 |
 | Server-Server API | 27 | 14 |
 | Room Versions | 21 | 13 |
 | Olm & Megolm | 5 | 5 |
@@ -248,6 +248,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / typing, receipt, and read marker endpoints | SPEC-046 Matrix Receipts, Typing, and Read Markers | sync | `test-vectors/sync/matrix-receipt-invalid-thread.json` | `matrix-receipt-invalid-thread` |
 | Matrix v1.18 / Client-Server API / typing, receipt, and read marker endpoints | SPEC-046 Matrix Receipts, Typing, and Read Markers | sync | `test-vectors/sync/matrix-typing-basic.json` | `matrix-typing-basic` |
 | Matrix v1.18 / Client-Server API / typing, receipt, and read marker endpoints | SPEC-046 Matrix Receipts, Typing, and Read Markers | sync | `test-vectors/sync/matrix-typing-missing-token.json` | `matrix-typing-missing-token` |
+| Matrix v1.18 / Client-Server API / cross-signing signatures upload partial-failure and signing-chain prerequisite boundary | SPEC-144 Matrix Cross-Signing Signatures Upload Partial-Failure Chain Boundary | messaging | `test-vectors/messaging/matrix-cross-signing-signatures-upload-partial-failure-chain-boundary.json` | `matrix-cross-signing-signatures-upload-partial-failure-chain-boundary` |
 | Matrix v1.18 / Client-Server API / verification and cross-signing endpoints | SPEC-054 Matrix Verification and Cross-Signing Gate | messaging | `test-vectors/messaging/matrix-cross-signing-invalid-signature.json` | `matrix-cross-signing-invalid-signature` |
 | Matrix v1.18 / Client-Server API / verification and cross-signing endpoints | SPEC-054 Matrix Verification and Cross-Signing Gate | messaging | `test-vectors/messaging/matrix-cross-signing-key-lifecycle.json` | `matrix-cross-signing-key-lifecycle` |
 | Matrix v1.18 / Client-Server API / verification and cross-signing endpoints | SPEC-054 Matrix Verification and Cross-Signing Gate | messaging | `test-vectors/messaging/matrix-cross-signing-missing-token.json` | `matrix-cross-signing-missing-token` |
