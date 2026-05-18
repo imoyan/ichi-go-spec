@@ -1,0 +1,224 @@
+{
+  "name": "matrix-sync-device-lists-changed-left-lifecycle-boundary",
+  "contract": "SPEC-149",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3sync",
+    "tracking_device_list_source": "https://spec.matrix.org/v1.18/client-server-api/#tracking-the-device-list-for-a-user",
+    "extensions_to_sync_source": "https://spec.matrix.org/v1.18/client-server-api/#extensions-to-sync",
+    "keys_upload_source": "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3keysupload",
+    "checked_at": "2026-05-18T22:30:00+09:00",
+    "required_contracts": [
+      "SPEC-037",
+      "SPEC-051",
+      "SPEC-052",
+      "SPEC-079",
+      "SPEC-093",
+      "SPEC-149"
+    ],
+    "local_olm_megolm_allowed": false,
+    "given": {
+      "authenticated_user_id": "@alice:example.test",
+      "authenticated_device_id": "ALICE1",
+      "shared_encrypted_room_id": "!encrypted:example.test",
+      "tracked_users_initial": [
+        "@bob:example.test",
+        "@carol:example.test"
+      ]
+    },
+    "steps": [
+      {
+        "id": "initial-sync-no-spurious-tracked-user-entries",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-alice-device1",
+        "expected_status": 200,
+        "expected_body_contains_keys": [
+          "next_batch"
+        ],
+        "expected_body_device_lists_changed": [],
+        "expected_body_device_lists_left": [],
+        "server_effect": {
+          "since_baseline_recorded_as": "T0"
+        }
+      },
+      {
+        "id": "incremental-sync-reports-changed-on-tracked-user-key-update",
+        "given_event": "bob_uploaded_new_device_keys_after_T0",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-alice-device1",
+        "query": {
+          "since": "T0"
+        },
+        "expected_status": 200,
+        "expected_body_device_lists_changed_contains": [
+          "@bob:example.test"
+        ],
+        "expected_body_device_lists_left": [],
+        "server_effect": {
+          "next_batch": "T1"
+        }
+      },
+      {
+        "id": "incremental-sync-after-ack-does-not-replay",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-alice-device1",
+        "query": {
+          "since": "T1"
+        },
+        "expected_status": 200,
+        "expected_body_device_lists_changed": [],
+        "expected_body_device_lists_left": [],
+        "server_effect": {
+          "no_replay_of_bob_changed_entry": true,
+          "next_batch": "T2"
+        }
+      },
+      {
+        "id": "incremental-sync-reports-newly-tracked-user-joining-encrypted-room",
+        "given_event": "dan_joined_shared_encrypted_room_after_T2",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-alice-device1",
+        "query": {
+          "since": "T2"
+        },
+        "expected_status": 200,
+        "expected_body_device_lists_changed_contains": [
+          "@dan:example.test"
+        ],
+        "expected_body_device_lists_left": [],
+        "server_effect": {
+          "next_batch": "T3"
+        }
+      },
+      {
+        "id": "incremental-sync-reports-left-when-user-no-longer-shares-encrypted-room",
+        "given_event": "bob_left_shared_encrypted_room_after_T3",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-alice-device1",
+        "query": {
+          "since": "T3"
+        },
+        "expected_status": 200,
+        "expected_body_device_lists_left_contains": [
+          "@bob:example.test"
+        ],
+        "expected_body_device_lists_changed_does_not_contain": [
+          "@bob:example.test"
+        ],
+        "server_effect": {
+          "next_batch": "T4"
+        }
+      },
+      {
+        "id": "incremental-sync-coalesces-multiple-changes-into-single-entry",
+        "given_event": "carol_uploaded_device_keys_three_times_after_T4",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-alice-device1",
+        "query": {
+          "since": "T4"
+        },
+        "expected_status": 200,
+        "expected_body_device_lists_changed_contains": [
+          "@carol:example.test"
+        ],
+        "expected_body_device_lists_changed_count_for_user": {
+          "@carol:example.test": 1
+        },
+        "server_effect": {
+          "next_batch": "T5"
+        }
+      },
+      {
+        "id": "incremental-sync-without-tracked-user-changes-empties-device-lists",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-alice-device1",
+        "query": {
+          "since": "T5"
+        },
+        "expected_status": 200,
+        "expected_body_device_lists_changed": [],
+        "expected_body_device_lists_left": [],
+        "server_effect": {
+          "device_lists_section_present_with_empty_arrays_or_omitted": true,
+          "next_batch": "T6"
+        }
+      },
+      {
+        "id": "incremental-sync-reports-federation-edu-driven-change",
+        "given_event": "remote_m_device_list_update_for_eve_received_after_T6",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-alice-device1",
+        "query": {
+          "since": "T6"
+        },
+        "expected_status": 200,
+        "expected_body_device_lists_changed_contains": [
+          "@eve:remote.example.test"
+        ],
+        "server_effect": {
+          "federation_propagated_via_spec_145_relay": true,
+          "next_batch": "T7"
+        }
+      },
+      {
+        "id": "incremental-sync-must-not-list-untracked-user-in-changed",
+        "given_event": "frank_unrelated_user_uploaded_keys_after_T7",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-alice-device1",
+        "query": {
+          "since": "T7"
+        },
+        "expected_status": 200,
+        "expected_body_device_lists_changed_does_not_contain": [
+          "@frank:example.test"
+        ],
+        "expected_body_device_lists_left": []
+      },
+      {
+        "id": "reject-malformed-since-token",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-alice-device1",
+        "query": {
+          "since": "not a valid sync token"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM"
+        }
+      }
+    ],
+    "required_evidence": [
+      "houra_spec_ref",
+      "houra_server_ref",
+      "authenticated_user_id",
+      "tracked_user_ids",
+      "since_token_sequence",
+      "commands",
+      "per_step_pass_fail",
+      "versions_advertisement_widened_false"
+    ]
+  },
+  "expected": {
+    "initial_sync_no_spurious_entries": true,
+    "key_update_reported_in_changed": true,
+    "ack_prevents_replay": true,
+    "new_shared_encrypted_room_user_in_changed": true,
+    "left_room_user_in_left": true,
+    "multiple_updates_coalesced": true,
+    "no_change_sync_empty_or_omitted": true,
+    "federation_edu_change_propagated": true,
+    "untracked_user_omitted_from_changed": true,
+    "malformed_since_rejected": true,
+    "versions_advertisement_widened": false
+  }
+}
