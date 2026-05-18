@@ -210,9 +210,11 @@ lanes from `SPEC-073` (Client-Server) and `SPEC-075` (Application Service):
   behavior adopted.
 
 None of these contracts widen `GET /_matrix/client/versions` or change the
-`advertisement_allowed=false` decision for any domain. `houra-server#135` and
-`houra-server#137` remain open. Implementation follow-up issues are enumerated
-per contract in the adoption decision checklists above.
+`advertisement_allowed=false` decision for any domain. `houra-server#135`
+remains the open Client-Server release-scope tracker; Application Service
+release-scope records such as `houra-server#137` stay closed unless a later
+candidate widens that domain with fresh evidence. Implementation follow-up
+issues are enumerated per contract in the adoption decision checklists above.
 
 ## Earlier Implementation Adoption Reports
 
