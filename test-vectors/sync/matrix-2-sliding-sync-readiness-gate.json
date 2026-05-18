@@ -1,0 +1,76 @@
+{
+  "name": "matrix-2-sliding-sync-readiness-gate",
+  "contract": "SPEC-136",
+  "event": {
+    "issue": "imoyan/houra-spec#383",
+    "parent_issue": "imoyan/houra-spec#377",
+    "snapshot_issue": "imoyan/houra-spec#380",
+    "advertisement_issue": "imoyan/houra-spec#381",
+    "lane": "sliding-sync",
+    "matrix_domain": "Client-Server API",
+    "checked_at": "2026-05-18T15:51:47+09:00",
+    "timezone": "Asia/Tokyo",
+    "matrix_2_release_status": "pending-stable-spec-release",
+    "current_stable_spec_entrypoint": "https://spec.matrix.org/latest/",
+    "current_stable_spec_version": "v1.18",
+    "source_snapshot_contract": "SPEC-133",
+    "versions_advertisement_gate_contract": "SPEC-134",
+    "v1_18_sync_contract": "SPEC-037",
+    "v1_18_sync_extension_boundary": "SPEC-093",
+    "classification_rules": {
+      "allowed_classifications": [
+        "stable-requirement",
+        "optional-extension",
+        "proxy-behavior",
+        "implementation-note",
+        "out-of-scope"
+      ],
+      "stable_requirement_fields": [
+        "stable_spec_source",
+        "release_note_or_changelog",
+        "normative_requirement_summary",
+        "endpoint_or_extension_surface",
+        "request_response_vectors",
+        "client_implementation_evidence",
+        "server_implementation_evidence",
+        "release_evidence_rule"
+      ],
+      "client_only_evidence_implies_server_support": false,
+      "server_only_evidence_implies_client_support": false,
+      "proxy_behavior_is_not_protocol_claim": true,
+      "spec_093_parser_boundary_is_not_sliding_sync_support": true
+    },
+    "unsupported_behavior": {
+      "unsupported_endpoint_fails_closed": true,
+      "unsupported_platform_fails_closed": true,
+      "unadvertised_proxy_fallback_allowed": false,
+      "performance_claim_allowed_without_benchmark": false,
+      "optional_extension_claim_allowed_without_evidence": false
+    },
+    "gate_result": {
+      "status": "blocked",
+      "blocking_reasons": [
+        "stable Matrix 2.0 Sliding Sync specification source is pending",
+        "stable Matrix 2.0 release note is pending",
+        "same-candidate client and server Sliding Sync evidence is missing",
+        "release bundle and release notes have no Matrix 2.0 Sliding Sync pass decision"
+      ],
+      "matrix_2_sliding_sync_claim_allowed": false,
+      "sync_performance_claim_allowed": false,
+      "versions_advertisement_widened": false,
+      "release_notes_claim_allowed": false,
+      "publishable_matrix_support_claim_widened": false
+    }
+  },
+  "expected": {
+    "matrix_2_sliding_sync_gate_blocked": true,
+    "classification_count": 5,
+    "stable_requirement_fields_count": 8,
+    "unsupported_endpoint_fails_closed": true,
+    "proxy_behavior_not_claimed": true,
+    "spec_093_preserved_as_parser_boundary": true,
+    "matrix_2_sliding_sync_claim_allowed": false,
+    "versions_advertisement_widened": false,
+    "publishable_matrix_support_claim_widened": false
+  }
+}

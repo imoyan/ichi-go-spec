@@ -159,6 +159,7 @@ void main() {
   checkMatrix2SnapshotV118DiffChecklist(contracts, failures);
   checkMatrix2VersionsAdvertisementEvidenceGate(contracts, failures);
   checkMatrix2OAuthOidcReadinessGate(contracts, failures);
+  checkMatrix2SlidingSyncReadinessGate(contracts, failures);
   checkProductMvpReleaseCandidatePlan(contracts, failures);
   checkOssPublicationReadinessPlan(contracts, failures);
   checkConformanceToolingResultSchema(contracts, profileMap, failures);
@@ -12617,6 +12618,139 @@ void checkMatrix2OAuthOidcReadinessGate(
     if (serialized.contains(forbidden)) {
       failures.add(
         '${relative(file)} Matrix 2.0 OAuth/OIDC evidence contains forbidden token: $forbidden',
+      );
+    }
+  }
+}
+
+void checkMatrix2SlidingSyncReadinessGate(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  const path = 'test-vectors/sync/matrix-2-sliding-sync-readiness-gate.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix 2.0 Sliding Sync readiness gate: $path');
+    return;
+  }
+  if (!contracts.containsKey('SPEC-136')) {
+    failures.add('$path references missing contract: SPEC-136');
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-136') {
+    failures.add('${relative(file)} must use SPEC-136.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['issue'] != 'imoyan/houra-spec#383' ||
+      eventMap['parent_issue'] != 'imoyan/houra-spec#377' ||
+      eventMap['snapshot_issue'] != 'imoyan/houra-spec#380' ||
+      eventMap['advertisement_issue'] != 'imoyan/houra-spec#381' ||
+      eventMap['lane'] != 'sliding-sync' ||
+      eventMap['matrix_domain'] != 'Client-Server API' ||
+      eventMap['timezone'] != 'Asia/Tokyo' ||
+      eventMap['matrix_2_release_status'] != 'pending-stable-spec-release') {
+    failures.add('${relative(file)} Matrix 2.0 Sliding Sync metadata invalid.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String ||
+      !RegExp(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$')
+          .hasMatch(checkedAt)) {
+    failures.add('${relative(file)} checked_at must be a dated +09:00 snapshot.');
+  }
+  if (eventMap['current_stable_spec_entrypoint'] !=
+          'https://spec.matrix.org/latest/' ||
+      eventMap['current_stable_spec_version'] != 'v1.18' ||
+      eventMap['source_snapshot_contract'] != 'SPEC-133' ||
+      eventMap['versions_advertisement_gate_contract'] != 'SPEC-134' ||
+      eventMap['v1_18_sync_contract'] != 'SPEC-037' ||
+      eventMap['v1_18_sync_extension_boundary'] != 'SPEC-093') {
+    failures.add('${relative(file)} Sliding Sync reference contracts invalid.');
+  }
+
+  final rules = eventMap['classification_rules'];
+  final classifications = rules is Map
+      ? readStringList(rules['allowed_classifications'])
+      : null;
+  final stableFields = rules is Map
+      ? readStringList(rules['stable_requirement_fields'])
+      : null;
+  if (rules is! Map ||
+      classifications == null ||
+      classifications.length != 5 ||
+      !classifications.contains('stable-requirement') ||
+      !classifications.contains('optional-extension') ||
+      !classifications.contains('proxy-behavior') ||
+      !classifications.contains('implementation-note') ||
+      !classifications.contains('out-of-scope') ||
+      stableFields == null ||
+      stableFields.length != 8 ||
+      rules['client_only_evidence_implies_server_support'] != false ||
+      rules['server_only_evidence_implies_client_support'] != false ||
+      rules['proxy_behavior_is_not_protocol_claim'] != true ||
+      rules['spec_093_parser_boundary_is_not_sliding_sync_support'] != true) {
+    failures.add('${relative(file)} Sliding Sync classification rules invalid.');
+  }
+
+  final unsupported = eventMap['unsupported_behavior'];
+  if (unsupported is! Map ||
+      unsupported['unsupported_endpoint_fails_closed'] != true ||
+      unsupported['unsupported_platform_fails_closed'] != true ||
+      unsupported['unadvertised_proxy_fallback_allowed'] != false ||
+      unsupported['performance_claim_allowed_without_benchmark'] != false ||
+      unsupported['optional_extension_claim_allowed_without_evidence'] !=
+          false) {
+    failures.add('${relative(file)} Sliding Sync unsupported behavior invalid.');
+  }
+
+  final gate = eventMap['gate_result'];
+  final reasons = gate is Map ? gate['blocking_reasons'] : null;
+  if (gate is! Map ||
+      gate['status'] != 'blocked' ||
+      reasons is! List ||
+      reasons.length < 4 ||
+      gate['matrix_2_sliding_sync_claim_allowed'] != false ||
+      gate['sync_performance_claim_allowed'] != false ||
+      gate['versions_advertisement_widened'] != false ||
+      gate['release_notes_claim_allowed'] != false ||
+      gate['publishable_matrix_support_claim_widened'] != false) {
+    failures.add('${relative(file)} Sliding Sync gate result invalid.');
+  }
+
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['matrix_2_sliding_sync_gate_blocked'] != true ||
+      expected['classification_count'] != 5 ||
+      expected['stable_requirement_fields_count'] != 8 ||
+      expected['unsupported_endpoint_fails_closed'] != true ||
+      expected['proxy_behavior_not_claimed'] != true ||
+      expected['spec_093_preserved_as_parser_boundary'] != true ||
+      expected['matrix_2_sliding_sync_claim_allowed'] != false ||
+      expected['versions_advertisement_widened'] != false ||
+      expected['publishable_matrix_support_claim_widened'] != false) {
+    failures.add('${relative(file)} expected Sliding Sync result invalid.');
+  }
+
+  final serialized = jsonEncode(json);
+  for (final forbidden in const [
+    '/Users',
+    '/tmp',
+    'access_token',
+    'refresh_token',
+    'authorization_code',
+    'callback_query',
+    'idp_session',
+    'private_key',
+    'token-',
+  ]) {
+    if (serialized.contains(forbidden)) {
+      failures.add(
+        '${relative(file)} Matrix 2.0 Sliding Sync evidence contains forbidden token: $forbidden',
       );
     }
   }
