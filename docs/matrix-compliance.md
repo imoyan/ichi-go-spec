@@ -349,6 +349,11 @@ Matrix 2.0 readiness preparation:
   account-management behavior as a v1.18 boundary while blocking Matrix 2.0
   OAuth/OIDC support claims until stable requirements, provider-behavior
   separation, redacted evidence, and same-candidate release evidence pass.
+- `SPEC-136` and `test-vectors/sync/matrix-2-sliding-sync-readiness-gate.json`
+  define the #383 Sliding Sync readiness gate. It keeps `SPEC-037` and
+  `SPEC-093` as v1.18 sync boundaries while blocking Sliding Sync, sync
+  performance, proxy, and optional-extension claims until stable-source client
+  and server evidence pass.
 - Matrix 2.0 remains unadvertised until the Matrix project publishes a stable
   Matrix 2.0 specification release and Houra records same-candidate evidence
   for the advertised domains.

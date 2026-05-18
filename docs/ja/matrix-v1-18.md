@@ -86,6 +86,11 @@ account-management metadata / redirect は v1.18 boundary として残し、Matr
 OAuth/OIDC full support、provider interop、OAuth login advertisement は stable
 source と redacted same-candidate evidence が揃うまで blocked のままです。
 
+`SPEC-136` は #383 の Sliding Sync readiness gate です。`SPEC-037` の `/sync` と
+`SPEC-093` の sync extension parser boundary は v1.18 のまま残し、Sliding Sync、
+proxy behavior、sync performance claim は stable source と client/server
+same-candidate evidence が揃うまで blocked のままです。
+
 #377 が親 issue、#380 が snapshot / diff checklist です。#381 から #386 は
 `/versions` advertisement、OAuth/OIDC、Sliding Sync、E2EE、Room Versions、
 Extensible Profiles / Events の lane です。これらは準備 lane であり、Matrix 2.0

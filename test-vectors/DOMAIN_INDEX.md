@@ -9,7 +9,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix domain | Vector count | Contract count |
 |---|---:|---:|
 | none | 76 | 19 |
-| Client-Server API | 151 | 31 |
+| Client-Server API | 152 | 32 |
 | Server-Server API | 27 | 14 |
 | Room Versions | 20 | 12 |
 | Olm & Megolm | 4 | 4 |
@@ -234,6 +234,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / server-side key backup endpoints | SPEC-053 Matrix Key Backup and Restore Gate | messaging | `test-vectors/messaging/matrix-key-backup-version-lifecycle.json` | `matrix-key-backup-version-lifecycle` |
 | Matrix v1.18 / Client-Server API / server-side key backup endpoints | SPEC-053 Matrix Key Backup and Restore Gate | messaging | `test-vectors/messaging/matrix-key-backup-wrong-version.json` | `matrix-key-backup-wrong-version` |
 | Matrix v1.18 / Client-Server API / sync query and response sections | SPEC-093 Matrix Sync Breadth Extensions | sync | `test-vectors/sync/matrix-sync-breadth-extensions.json` | `matrix-sync-breadth-extensions` |
+| Matrix v1.18 / Client-Server API / Matrix 2.0 Sliding Sync readiness gate | SPEC-136 Matrix 2.0 Sliding Sync Readiness Gate | sync | `test-vectors/sync/matrix-2-sliding-sync-readiness-gate.json` | `matrix-2-sliding-sync-readiness-gate` |
 | Matrix v1.18 / Client-Server API / to-device messages and encrypted room event envelopes | SPEC-052 Matrix To-Device and Encrypted Room Gate | messaging | `test-vectors/messaging/matrix-e2ee-multi-device-send-receive-gate.json` | `matrix-e2ee-multi-device-send-receive-gate` |
 | Matrix v1.18 / Client-Server API / to-device messages and encrypted room event envelopes | SPEC-052 Matrix To-Device and Encrypted Room Gate | messaging | `test-vectors/messaging/matrix-encrypted-room-malformed-payload.json` | `matrix-encrypted-room-malformed-payload` |
 | Matrix v1.18 / Client-Server API / to-device messages and encrypted room event envelopes | SPEC-052 Matrix To-Device and Encrypted Room Gate | messaging | `test-vectors/messaging/matrix-encrypted-room-send-receive-basic.json` | `matrix-encrypted-room-send-receive-basic` |
