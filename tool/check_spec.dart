@@ -156,6 +156,7 @@ void main() {
   checkMatrixV118ReleaseEvidenceExampleBundle(contracts, failures);
   checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(contracts, failures);
   checkMatrixV118ReleaseEvidenceBundleNegativeFixtures(failures);
+  checkMatrix2SnapshotV118DiffChecklist(contracts, failures);
   checkProductMvpReleaseCandidatePlan(contracts, failures);
   checkOssPublicationReadinessPlan(contracts, failures);
   checkConformanceToolingResultSchema(contracts, profileMap, failures);
@@ -12094,6 +12095,185 @@ void checkMatrixV118ReleaseEvidenceCurrentBlockedBundle(
       expectedResult['versions_advertisement_allowed'] != false ||
       expectedResult['ready_to_publish'] != false) {
     failures.add('${relative(file)} current bundle expectation invalid.');
+  }
+}
+
+void checkMatrix2SnapshotV118DiffChecklist(
+  Map<String, String> contracts,
+  List<String> failures,
+) {
+  const path =
+      'test-vectors/core/matrix-2-snapshot-v1-18-diff-checklist.json';
+  final file = File(path);
+  if (!file.existsSync()) {
+    failures.add('Missing Matrix 2.0 snapshot diff checklist: $path');
+    return;
+  }
+  if (!contracts.containsKey('SPEC-133')) {
+    failures.add('$path references missing contract: SPEC-133');
+  }
+  final json = readJsonObject(file, failures);
+  if (json == null) {
+    return;
+  }
+  if (json['contract'] != 'SPEC-133') {
+    failures.add('${relative(file)} must use SPEC-133.');
+  }
+  final eventMap = requireMatrixEventMap(file, json, failures);
+  if (eventMap == null) {
+    return;
+  }
+  if (eventMap['issue'] != 'imoyan/houra-spec#380' ||
+      eventMap['parent_issue'] != 'imoyan/houra-spec#377' ||
+      eventMap['matrix_2_release_status'] != 'pending-stable-spec-release' ||
+      eventMap['timezone'] != 'Asia/Tokyo') {
+    failures.add('${relative(file)} Matrix 2.0 issue/status metadata invalid.');
+  }
+  final checkedAt = eventMap['checked_at'];
+  if (checkedAt is! String ||
+      !RegExp(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$')
+          .hasMatch(checkedAt)) {
+    failures.add('${relative(file)} checked_at must be a dated +09:00 snapshot.');
+  }
+
+  final baseline = eventMap['current_baseline'];
+  if (baseline is! Map ||
+      baseline['matrix_spec_version'] != 'v1.18' ||
+      baseline['spec_source'] != 'https://spec.matrix.org/v1.18/' ||
+      baseline['release_note'] !=
+          'https://matrix.org/blog/2026/03/26/matrix-v1.18-release/') {
+    failures.add('${relative(file)} v1.18 baseline snapshot invalid.');
+  }
+
+  final matrix2Source = eventMap['matrix_2_source_snapshot'];
+  final sourceCandidates = matrix2Source is Map
+      ? matrix2Source['source_candidates']
+      : null;
+  if (matrix2Source is! Map ||
+      matrix2Source['stable_spec_source'] !=
+          'pending-official-stable-matrix-2-spec' ||
+      matrix2Source['stable_release_note'] !=
+          'pending-official-stable-matrix-2-release-note' ||
+      matrix2Source['current_stable_spec_entrypoint'] !=
+          'https://spec.matrix.org/latest/' ||
+      matrix2Source['source_status'] !=
+          'planning-only-until-stable-spec-release' ||
+      sourceCandidates is! List ||
+      sourceCandidates.length != 2 ||
+      !sourceCandidates.contains(
+        'https://matrix.org/blog/2024/10/29/matrix-2.0-is-here/',
+      ) ||
+      !sourceCandidates.contains(
+        'https://matrix.org/blog/2023/12/25/the-matrix-holiday-update-2023/',
+      )) {
+    failures.add('${relative(file)} Matrix 2.0 source snapshot invalid.');
+  }
+
+  final lanes = eventMap['diff_lanes'];
+  const expectedLaneIssues = {
+    'versions-advertisement': 'imoyan/houra-spec#381',
+    'oauth-oidc': 'imoyan/houra-spec#382',
+    'sliding-sync': 'imoyan/houra-spec#383',
+    'e2ee-key-backup-verification': 'imoyan/houra-spec#384',
+    'room-versions-auth-state-resolution': 'imoyan/houra-spec#385',
+    'extensible-profiles-events': 'imoyan/houra-spec#386',
+  };
+  if (lanes is! List || lanes.length != expectedLaneIssues.length) {
+    failures.add('${relative(file)} diff lanes invalid.');
+  } else {
+    final seenLaneIds = <String>{};
+    for (final lane in lanes) {
+      if (lane is! Map ||
+          lane['id'] is! String ||
+          lane['issue'] is! String ||
+          lane['matrix_domain'] is! String ||
+          lane['classification_required'] != true ||
+          lane['stable_requirement_required_before_claim'] != true ||
+          lane['msc_only_allowed_to_widen_claim'] != false ||
+          lane['advertisement_allowed'] != false) {
+        failures.add('${relative(file)} diff lane entry invalid.');
+        continue;
+      }
+      final id = lane['id'] as String;
+      seenLaneIds.add(id);
+      if (expectedLaneIssues[id] != lane['issue']) {
+        failures.add('${relative(file)} diff lane issue ref invalid for $id.');
+      }
+      if (!matrixDomains.contains(lane['matrix_domain'])) {
+        failures.add('${relative(file)} diff lane domain invalid for $id.');
+      }
+    }
+    if (!seenLaneIds.containsAll(expectedLaneIssues.keys)) {
+      failures.add('${relative(file)} diff lane ids incomplete.');
+    }
+  }
+
+  final classificationRules = eventMap['classification_rules'];
+  final stableFields = classificationRules is Map
+      ? classificationRules['stable_requirement_fields']
+      : null;
+  final mscOnlyFields = classificationRules is Map
+      ? classificationRules['msc_only_fields']
+      : null;
+  final allowedClassifications = classificationRules is Map
+      ? classificationRules['allowed_classifications']
+      : null;
+  if (classificationRules is! Map ||
+      stableFields is! List ||
+      stableFields.length != 8 ||
+      mscOnlyFields is! List ||
+      mscOnlyFields.length != 6 ||
+      allowedClassifications is! List ||
+      !allowedClassifications.contains('stable-requirement') ||
+      !allowedClassifications.contains('msc-only') ||
+      !allowedClassifications.contains('implementation-note') ||
+      !allowedClassifications.contains('out-of-scope') ||
+      classificationRules['separate_v1_18_and_matrix_2_evidence'] != true) {
+    failures.add('${relative(file)} classification rules invalid.');
+  }
+
+  final claimBoundary = eventMap['claim_boundary'];
+  if (claimBoundary is! Map ||
+      claimBoundary['matrix_2_support_claimed'] != false ||
+      claimBoundary['versions_advertisement_widened'] != false ||
+      claimBoundary['matrix_v1_18_claim_widened'] != false ||
+      claimBoundary['product_mvp_readiness_widened'] != false ||
+      claimBoundary['release_notes_widened'] != false ||
+      claimBoundary['publishable_matrix_support_claim_widened'] != false) {
+    failures.add('${relative(file)} claim boundary invalid.');
+  }
+
+  final expected = json['expected'];
+  if (expected is! Map ||
+      expected['diff_lane_count'] != expectedLaneIssues.length ||
+      expected['stable_source_pending'] != true ||
+      expected['stable_requirement_fields_count'] != 8 ||
+      expected['msc_only_fields_count'] != 6 ||
+      expected['versions_advertisement_widened'] != false ||
+      expected['matrix_2_support_claimed'] != false ||
+      expected['publishable_matrix_support_claim_widened'] != false) {
+    failures.add('${relative(file)} expected summary invalid.');
+  } else {
+    final issueRefs = expected['issue_refs'];
+    if (issueRefs is! List ||
+        !issueRefs.toSet().containsAll(expectedLaneIssues.values)) {
+      failures.add('${relative(file)} expected issue refs incomplete.');
+    }
+  }
+
+  final serialized = jsonEncode(json);
+  for (final forbidden in const [
+    '/Users',
+    '/tmp',
+    'access_token',
+    'refresh_token',
+    'token-',
+  ]) {
+    if (serialized.contains(forbidden)) {
+      failures.add(
+        '${relative(file)} Matrix 2.0 snapshot contains forbidden evidence token: $forbidden',
+      );
+    }
   }
 }
 

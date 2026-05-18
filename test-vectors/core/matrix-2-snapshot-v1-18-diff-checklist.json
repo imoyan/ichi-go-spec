@@ -1,0 +1,134 @@
+{
+  "name": "matrix-2-snapshot-v1-18-diff-checklist",
+  "contract": "SPEC-133",
+  "event": {
+    "issue": "imoyan/houra-spec#380",
+    "parent_issue": "imoyan/houra-spec#377",
+    "matrix_2_release_status": "pending-stable-spec-release",
+    "checked_at": "2026-05-18T15:27:07+09:00",
+    "timezone": "Asia/Tokyo",
+    "current_baseline": {
+      "matrix_spec_version": "v1.18",
+      "spec_source": "https://spec.matrix.org/v1.18/",
+      "release_note": "https://matrix.org/blog/2026/03/26/matrix-v1.18-release/"
+    },
+    "matrix_2_source_snapshot": {
+      "stable_spec_source": "pending-official-stable-matrix-2-spec",
+      "stable_release_note": "pending-official-stable-matrix-2-release-note",
+      "current_stable_spec_entrypoint": "https://spec.matrix.org/latest/",
+      "source_candidates": [
+        "https://matrix.org/blog/2024/10/29/matrix-2.0-is-here/",
+        "https://matrix.org/blog/2023/12/25/the-matrix-holiday-update-2023/"
+      ],
+      "source_status": "planning-only-until-stable-spec-release"
+    },
+    "diff_lanes": [
+      {
+        "id": "versions-advertisement",
+        "issue": "imoyan/houra-spec#381",
+        "matrix_domain": "Client-Server API",
+        "classification_required": true,
+        "stable_requirement_required_before_claim": true,
+        "msc_only_allowed_to_widen_claim": false,
+        "advertisement_allowed": false
+      },
+      {
+        "id": "oauth-oidc",
+        "issue": "imoyan/houra-spec#382",
+        "matrix_domain": "Client-Server API",
+        "classification_required": true,
+        "stable_requirement_required_before_claim": true,
+        "msc_only_allowed_to_widen_claim": false,
+        "advertisement_allowed": false
+      },
+      {
+        "id": "sliding-sync",
+        "issue": "imoyan/houra-spec#383",
+        "matrix_domain": "Client-Server API",
+        "classification_required": true,
+        "stable_requirement_required_before_claim": true,
+        "msc_only_allowed_to_widen_claim": false,
+        "advertisement_allowed": false
+      },
+      {
+        "id": "e2ee-key-backup-verification",
+        "issue": "imoyan/houra-spec#384",
+        "matrix_domain": "Olm & Megolm",
+        "classification_required": true,
+        "stable_requirement_required_before_claim": true,
+        "msc_only_allowed_to_widen_claim": false,
+        "advertisement_allowed": false
+      },
+      {
+        "id": "room-versions-auth-state-resolution",
+        "issue": "imoyan/houra-spec#385",
+        "matrix_domain": "Room Versions",
+        "classification_required": true,
+        "stable_requirement_required_before_claim": true,
+        "msc_only_allowed_to_widen_claim": false,
+        "advertisement_allowed": false
+      },
+      {
+        "id": "extensible-profiles-events",
+        "issue": "imoyan/houra-spec#386",
+        "matrix_domain": "Client-Server API",
+        "classification_required": true,
+        "stable_requirement_required_before_claim": true,
+        "msc_only_allowed_to_widen_claim": false,
+        "advertisement_allowed": false
+      }
+    ],
+    "classification_rules": {
+      "stable_requirement_fields": [
+        "stable_spec_source",
+        "release_note_or_changelog",
+        "normative_requirement_summary",
+        "matrix_domain",
+        "houra_contract_boundary",
+        "required_vectors",
+        "implementation_evidence",
+        "release_evidence_rule"
+      ],
+      "msc_only_fields": [
+        "msc_id",
+        "msc_status",
+        "expected_matrix_domain",
+        "not_a_support_claim_reason",
+        "revisit_issue",
+        "advertisement_allowed"
+      ],
+      "allowed_classifications": [
+        "stable-requirement",
+        "msc-only",
+        "implementation-note",
+        "out-of-scope"
+      ],
+      "separate_v1_18_and_matrix_2_evidence": true
+    },
+    "claim_boundary": {
+      "matrix_2_support_claimed": false,
+      "versions_advertisement_widened": false,
+      "matrix_v1_18_claim_widened": false,
+      "product_mvp_readiness_widened": false,
+      "release_notes_widened": false,
+      "publishable_matrix_support_claim_widened": false
+    }
+  },
+  "expected": {
+    "diff_lane_count": 6,
+    "issue_refs": [
+      "imoyan/houra-spec#381",
+      "imoyan/houra-spec#382",
+      "imoyan/houra-spec#383",
+      "imoyan/houra-spec#384",
+      "imoyan/houra-spec#385",
+      "imoyan/houra-spec#386"
+    ],
+    "stable_source_pending": true,
+    "stable_requirement_fields_count": 8,
+    "msc_only_fields_count": 6,
+    "versions_advertisement_widened": false,
+    "matrix_2_support_claimed": false,
+    "publishable_matrix_support_claim_widened": false
+  }
+}

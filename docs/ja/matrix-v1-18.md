@@ -69,6 +69,19 @@ signing、Complement breadth の lane に分ける inventory です。これは 
 対応や Complement 全 pass の完了ではなく、代表的な federation smoke evidence と
 full Matrix federation claim を分けるための記録です。
 
+## Matrix 2.0 readiness の読み方
+
+`SPEC-133` は Matrix 2.0 stable release が出た時に、Matrix v1.18 との差分を
+dated snapshot として読むための checklist です。2026-05-18T15:27:07+09:00 時点では
+Matrix 2.0 の stable spec source / release note は pending として扱い、公式 blog や
+latest spec entrypoint は planning input に留めます。
+
+#377 が親 issue、#380 が snapshot / diff checklist です。#381 から #386 は
+`/versions` advertisement、OAuth/OIDC、Sliding Sync、E2EE、Room Versions、
+Extensible Profiles / Events の lane です。これらは準備 lane であり、Matrix 2.0
+support、Matrix v1.18 support、Product MVP readiness、`/_matrix/client/versions` の
+advertisement を広げるものではありません。
+
 `SPEC-097` は、このうち discovery / key / auth lane の parser-only 子 contract です。
 Federation version、key query lifecycle metadata、request-auth header shape は
 `houra-labs#123` の shared-core 入力にできますが、DNS / TLS 実行、key cache persistence、
