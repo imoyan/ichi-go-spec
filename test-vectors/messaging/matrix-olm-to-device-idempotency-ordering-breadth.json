@@ -1,0 +1,237 @@
+{
+  "name": "matrix-olm-to-device-idempotency-ordering-breadth",
+  "contract": "SPEC-140",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#send-to-device-messaging",
+    "send_to_device_source": "https://spec.matrix.org/v1.18/client-server-api/#put_matrixclientv3sendtodeviceeventtypetxnid",
+    "sync_source": "https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3sync",
+    "olm_algorithm_source": "https://spec.matrix.org/v1.18/client-server-api/#molmv1curve25519-aes-sha2",
+    "checked_at": "2026-05-18T16:40:00+09:00",
+    "required_contracts": [
+      "SPEC-050",
+      "SPEC-052",
+      "SPEC-079",
+      "SPEC-130",
+      "SPEC-140"
+    ],
+    "local_olm_megolm_allowed": false,
+    "steps": [
+      {
+        "id": "send-olm-prekey-first",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/sendToDevice/m.room.encrypted/txn-olm-prekey-1",
+        "access_token": "token-alice-device1",
+        "event_type": "m.room.encrypted",
+        "body": {
+          "messages": {
+            "@bob:example.test": {
+              "BOB1": {
+                "algorithm": "m.olm.v1.curve25519-aes-sha2",
+                "sender_key": "alice-curve25519-device1",
+                "ciphertext": {
+                  "bob-curve25519-bob1": {
+                    "type": 0,
+                    "body": "olm-prekey-ciphertext-a"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 200,
+        "server_effect": {
+          "queued_to_device_count": 1
+        }
+      },
+      {
+        "id": "send-olm-prekey-idempotent-replay",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/sendToDevice/m.room.encrypted/txn-olm-prekey-1",
+        "access_token": "token-alice-device1",
+        "event_type": "m.room.encrypted",
+        "body": {
+          "messages": {
+            "@bob:example.test": {
+              "BOB1": {
+                "algorithm": "m.olm.v1.curve25519-aes-sha2",
+                "sender_key": "alice-curve25519-device1",
+                "ciphertext": {
+                  "bob-curve25519-bob1": {
+                    "type": 0,
+                    "body": "olm-prekey-ciphertext-a"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 200,
+        "server_effect": {
+          "queued_to_device_count": 1,
+          "idempotent_replay": true
+        }
+      },
+      {
+        "id": "reject-duplicate-txn-id-with-drift",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/sendToDevice/m.room.encrypted/txn-olm-prekey-1",
+        "access_token": "token-alice-device1",
+        "event_type": "m.room.encrypted",
+        "body": {
+          "messages": {
+            "@bob:example.test": {
+              "BOB1": {
+                "algorithm": "m.olm.v1.curve25519-aes-sha2",
+                "sender_key": "alice-curve25519-device1",
+                "ciphertext": {
+                  "bob-curve25519-bob1": {
+                    "type": 0,
+                    "body": "olm-prekey-ciphertext-drifted"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM"
+        },
+        "server_effect": {
+          "queued_to_device_count": 1,
+          "drift_delivered": false
+        }
+      },
+      {
+        "id": "send-olm-normal-from-second-sender",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/sendToDevice/m.room.encrypted/txn-olm-normal-1",
+        "access_token": "token-carol-device1",
+        "event_type": "m.room.encrypted",
+        "body": {
+          "messages": {
+            "@bob:example.test": {
+              "BOB1": {
+                "algorithm": "m.olm.v1.curve25519-aes-sha2",
+                "sender_key": "carol-curve25519-device1",
+                "ciphertext": {
+                  "bob-curve25519-bob1": {
+                    "type": 1,
+                    "body": "olm-normal-ciphertext-c"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 200,
+        "server_effect": {
+          "queued_to_device_count": 2
+        }
+      },
+      {
+        "id": "sync-receive-multi-sender-out-of-order",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-bob-device1",
+        "expected_status": 200,
+        "expected_to_device_event_types": [
+          "m.room.encrypted",
+          "m.room.encrypted"
+        ],
+        "expected_to_device_senders": [
+          "@alice:example.test",
+          "@carol:example.test"
+        ],
+        "server_effect": {
+          "delivered_to_device_count": 2,
+          "next_batch_advanced": true
+        }
+      },
+      {
+        "id": "sync-after-next-batch-no-replay",
+        "method": "GET",
+        "path": "/_matrix/client/v3/sync",
+        "access_token": "token-bob-device1",
+        "since": "next_batch_from_previous_sync",
+        "expected_status": 200,
+        "expected_to_device_event_types": [],
+        "server_effect": {
+          "delivered_to_device_count": 0,
+          "acknowledged_by_next_since_token": true
+        }
+      },
+      {
+        "id": "reject-malformed-olm-envelope-missing-type",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/sendToDevice/m.room.encrypted/txn-olm-malformed-missing-type",
+        "access_token": "token-alice-device1",
+        "event_type": "m.room.encrypted",
+        "body": {
+          "messages": {
+            "@bob:example.test": {
+              "BOB1": {
+                "algorithm": "m.olm.v1.curve25519-aes-sha2",
+                "sender_key": "alice-curve25519-device1",
+                "ciphertext": {
+                  "bob-curve25519-bob1": {
+                    "body": "olm-ciphertext-missing-type"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM"
+        }
+      },
+      {
+        "id": "reject-malformed-olm-envelope-out-of-range-type",
+        "method": "PUT",
+        "path": "/_matrix/client/v3/sendToDevice/m.room.encrypted/txn-olm-malformed-bad-type",
+        "access_token": "token-alice-device1",
+        "event_type": "m.room.encrypted",
+        "body": {
+          "messages": {
+            "@bob:example.test": {
+              "BOB1": {
+                "algorithm": "m.olm.v1.curve25519-aes-sha2",
+                "sender_key": "alice-curve25519-device1",
+                "ciphertext": {
+                  "bob-curve25519-bob1": {
+                    "type": 2,
+                    "body": "olm-ciphertext-bad-type"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM"
+        }
+      }
+    ],
+    "required_evidence": [
+      "houra_spec_ref",
+      "houra_server_ref",
+      "event_types",
+      "device_ids",
+      "commands",
+      "per_step_pass_fail",
+      "versions_advertisement_widened_false"
+    ]
+  },
+  "expected": {
+    "idempotent_replay_accepted": true,
+    "drift_replay_rejected": true,
+    "multi_sender_delivery_count": 2,
+    "post_ack_replay_count": 0,
+    "malformed_payload_rejected_count": 2,
+    "versions_advertisement_widened": false
+  }
+}
