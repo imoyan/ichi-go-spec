@@ -793,7 +793,9 @@ void checkMatrixRegistration(
       failures.add('Missing Matrix registration vector: $path');
     }
   }
-  final guestUpgradeFile = File('test-vectors/auth/matrix-registration-guest-upgrade-basic.json');
+  final guestUpgradeFile = File(
+    'test-vectors/auth/matrix-registration-guest-upgrade-basic.json',
+  );
   final guestUpgrade = readJsonObject(guestUpgradeFile, failures);
   if (guestUpgrade != null) {
     final preconditions = guestUpgrade['preconditions'];
@@ -822,7 +824,9 @@ void checkMatrixRegistration(
         expected['versions_advertisement_widened'] != false ||
         excluded is! List ||
         excluded.contains('invalid guest_access_token rejection matrix') ||
-        excluded.contains('mismatched username and guest token rejection matrix') ||
+        excluded.contains(
+          'mismatched username and guest token rejection matrix',
+        ) ||
         excluded.contains('guest session invalidation persistence breadth') ||
         !excluded.contains('room preview event stream') ||
         !excluded.contains('guest-specific rate-limit policy') ||
@@ -830,12 +834,18 @@ void checkMatrixRegistration(
           'guest-specific API allowlist breadth beyond representative createRoom rejection',
         ) ||
         excluded.contains('guest-specific API allowlist')) {
-      failures.add('${relative(guestUpgradeFile)} guest upgrade boundary invalid.');
+      failures.add(
+        '${relative(guestUpgradeFile)} guest upgrade boundary invalid.',
+      );
     }
   }
-  final guestUpgradeNegativeFile =
-      File('test-vectors/auth/matrix-registration-guest-upgrade-negative.json');
-  final guestUpgradeNegative = readJsonObject(guestUpgradeNegativeFile, failures);
+  final guestUpgradeNegativeFile = File(
+    'test-vectors/auth/matrix-registration-guest-upgrade-negative.json',
+  );
+  final guestUpgradeNegative = readJsonObject(
+    guestUpgradeNegativeFile,
+    failures,
+  );
   if (guestUpgradeNegative != null) {
     final preconditions = guestUpgradeNegative['preconditions'];
     final cases = guestUpgradeNegative['cases'];
@@ -855,8 +865,9 @@ void checkMatrixRegistration(
       final request = item?['request'];
       final body = request is Map ? request['body'] : null;
       final itemExpected = item?['expected'];
-      final bodyContains =
-          itemExpected is Map ? itemExpected['body_contains'] : null;
+      final bodyContains = itemExpected is Map
+          ? itemExpected['body_contains']
+          : null;
       return request is! Map ||
           request['method'] != 'POST' ||
           request['path'] != '/_matrix/client/v3/register' ||
@@ -870,6 +881,7 @@ void checkMatrixRegistration(
           itemExpected['guest_account_upgraded'] != false ||
           itemExpected['new_session_issued'] != false;
     }
+
     if (preconditions is! Map ||
         preconditions['guest_user_id'] != '@guest1:example.test' ||
         preconditions['guest_access_token'] != 'token-guest' ||
@@ -891,10 +903,13 @@ void checkMatrixRegistration(
       );
     }
   }
-  final guestUpgradeInvalidationFile =
-      File('test-vectors/auth/matrix-registration-guest-upgrade-invalidation.json');
-  final guestUpgradeInvalidation =
-      readJsonObject(guestUpgradeInvalidationFile, failures);
+  final guestUpgradeInvalidationFile = File(
+    'test-vectors/auth/matrix-registration-guest-upgrade-invalidation.json',
+  );
+  final guestUpgradeInvalidation = readJsonObject(
+    guestUpgradeInvalidationFile,
+    failures,
+  );
   if (guestUpgradeInvalidation != null) {
     final preconditions = guestUpgradeInvalidation['preconditions'];
     final request = guestUpgradeInvalidation['request'];
@@ -917,6 +932,7 @@ void checkMatrixRegistration(
       final itemExpected = item?['expected'];
       return itemExpected is! Map || itemExpected['status'] != status;
     }
+
     bool requestInvalid(Map? item, String method, String path, String? token) {
       final itemRequest = item?['request'];
       return itemRequest is! Map ||
@@ -924,17 +940,22 @@ void checkMatrixRegistration(
           itemRequest['path'] != path ||
           (token != null && itemRequest['access_token'] != token);
     }
-    final rootRequestInvalid = request is! Map ||
+
+    final rootRequestInvalid =
+        request is! Map ||
         request['method'] != 'GET' ||
         request['path'] != '/_matrix/client/v3/account/whoami' ||
         request['access_token'] != 'token-guest';
-    final oldExpected =
-        oldGuestRejected is Map ? oldGuestRejected['expected'] : null;
+    final oldExpected = oldGuestRejected is Map
+        ? oldGuestRejected['expected']
+        : null;
     final oldBody = oldExpected is Map ? oldExpected['body_contains'] : null;
-    final upgradedExpected =
-        upgradedWhoami is Map ? upgradedWhoami['expected'] : null;
-    final upgradedBody =
-        upgradedExpected is Map ? upgradedExpected['body_contains'] : null;
+    final upgradedExpected = upgradedWhoami is Map
+        ? upgradedWhoami['expected']
+        : null;
+    final upgradedBody = upgradedExpected is Map
+        ? upgradedExpected['body_contains']
+        : null;
     if (preconditions is! Map ||
         preconditions['guest_user_id'] != '@guest1:example.test' ||
         preconditions['guest_access_token'] != 'token-guest' ||
@@ -943,14 +964,22 @@ void checkMatrixRegistration(
         stepByName.length != 4 ||
         stepStatusInvalid(guestRegistration, 200) ||
         stepStatusInvalid(guestUpgrade, 200) ||
-        requestInvalid(oldGuestRejected, 'GET',
-            '/_matrix/client/v3/account/whoami', 'token-guest') ||
+        requestInvalid(
+          oldGuestRejected,
+          'GET',
+          '/_matrix/client/v3/account/whoami',
+          'token-guest',
+        ) ||
         stepStatusInvalid(oldGuestRejected, 401) ||
         oldBody is! Map ||
         oldBody['errcode'] != 'M_UNKNOWN_TOKEN' ||
         oldExpected['old_guest_session_invalidated'] != true ||
-        requestInvalid(upgradedWhoami, 'GET',
-            '/_matrix/client/v3/account/whoami', 'token-register') ||
+        requestInvalid(
+          upgradedWhoami,
+          'GET',
+          '/_matrix/client/v3/account/whoami',
+          'token-register',
+        ) ||
         stepStatusInvalid(upgradedWhoami, 200) ||
         upgradedBody is! Map ||
         upgradedBody['user_id'] != '@guest1:example.test' ||
@@ -1516,6 +1545,7 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
     'test-vectors/rooms/matrix-guest-join-forbidden.json',
     'test-vectors/rooms/matrix-join-room-basic.json',
     'test-vectors/rooms/matrix-join-room-not-found.json',
+    'test-vectors/rooms/matrix-joined-rooms-basic.json',
     'test-vectors/rooms/matrix-leave-room-basic.json',
     'test-vectors/rooms/matrix-room-state-basic.json',
     'test-vectors/rooms/matrix-room-state-forbidden.json',
@@ -1526,8 +1556,13 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
     }
   }
 
-  final guestJoinForbiddenFile = File('test-vectors/rooms/matrix-guest-join-forbidden.json');
-  final guestJoinForbiddenVector = readJsonObject(guestJoinForbiddenFile, failures);
+  final guestJoinForbiddenFile = File(
+    'test-vectors/rooms/matrix-guest-join-forbidden.json',
+  );
+  final guestJoinForbiddenVector = readJsonObject(
+    guestJoinForbiddenFile,
+    failures,
+  );
   if (guestJoinForbiddenVector != null) {
     validateMatrixSimpleRequestVector(
       guestJoinForbiddenFile,
@@ -1551,11 +1586,15 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
           'guest-specific API allowlist breadth beyond representative createRoom rejection',
         ) ||
         outOfScope.contains('guest-specific API allowlist')) {
-      failures.add('${relative(guestJoinForbiddenFile)} guest access boundary notes invalid.');
+      failures.add(
+        '${relative(guestJoinForbiddenFile)} guest access boundary notes invalid.',
+      );
     }
   }
 
-  final guestJoinCanJoinFile = File('test-vectors/rooms/matrix-guest-join-can-join.json');
+  final guestJoinCanJoinFile = File(
+    'test-vectors/rooms/matrix-guest-join-can-join.json',
+  );
   final guestJoinCanJoinVector = readJsonObject(guestJoinCanJoinFile, failures);
   if (guestJoinCanJoinVector != null) {
     final request = guestJoinCanJoinVector['request'];
@@ -1563,8 +1602,12 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
     final notes = guestJoinCanJoinVector['notes'];
     final preconditions = guestJoinCanJoinVector['preconditions'];
     final roomState = preconditions is Map ? preconditions['room_state'] : null;
-    final guestAccessState = roomState is List && roomState.isNotEmpty ? roomState.first : null;
-    final guestAccessContent = guestAccessState is Map ? guestAccessState['content'] : null;
+    final guestAccessState = roomState is List && roomState.isNotEmpty
+        ? roomState.first
+        : null;
+    final guestAccessContent = guestAccessState is Map
+        ? guestAccessState['content']
+        : null;
     final bodyContains = expected is Map ? expected['body_contains'] : null;
     final outOfScope = notes is Map ? notes['out_of_scope'] : null;
     if (request is! Map ||
@@ -1593,13 +1636,19 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
           'guest-specific API allowlist breadth beyond representative createRoom rejection',
         ) ||
         outOfScope.contains('guest-specific API allowlist')) {
-      failures.add('${relative(guestJoinCanJoinFile)} guest can_join boundary invalid.');
+      failures.add(
+        '${relative(guestJoinCanJoinFile)} guest can_join boundary invalid.',
+      );
     }
   }
 
-  final guestApiAllowlistFile =
-      File('test-vectors/rooms/matrix-guest-api-allowlist-boundary.json');
-  final guestApiAllowlistVector = readJsonObject(guestApiAllowlistFile, failures);
+  final guestApiAllowlistFile = File(
+    'test-vectors/rooms/matrix-guest-api-allowlist-boundary.json',
+  );
+  final guestApiAllowlistVector = readJsonObject(
+    guestApiAllowlistFile,
+    failures,
+  );
   if (guestApiAllowlistVector != null) {
     validateMatrixSimpleRequestVector(
       guestApiAllowlistFile,
@@ -1621,9 +1670,12 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
         preconditions['guest_user_id'] != '@guest1:example.test' ||
         preconditions['guest_access_token'] != 'token-guest' ||
         representativePaths is! List ||
-        !representativePaths.contains('GET /_matrix/client/v3/account/whoami') ||
+        !representativePaths.contains(
+          'GET /_matrix/client/v3/account/whoami',
+        ) ||
         expected is! Map ||
-        expected['representative_guest_create_room_rejection_enforced'] != true ||
+        expected['representative_guest_create_room_rejection_enforced'] !=
+            true ||
         expected['full_guest_api_allowlist_breadth_claimed'] != false ||
         expected['versions_advertisement_widened'] != false ||
         notes is! Map ||
@@ -1637,7 +1689,64 @@ void checkMatrixRoomsMvp(Map<String, String> contracts, List<String> failures) {
           'guest-specific API allowlist breadth beyond representative createRoom rejection',
         ) ||
         outOfScope.contains('guest-specific API allowlist')) {
-      failures.add('${relative(guestApiAllowlistFile)} guest API allowlist boundary invalid.');
+      failures.add(
+        '${relative(guestApiAllowlistFile)} guest API allowlist boundary invalid.',
+      );
+    }
+  }
+
+  final joinedRoomsFile = File(
+    'test-vectors/rooms/matrix-joined-rooms-basic.json',
+  );
+  final joinedRoomsVector = readJsonObject(joinedRoomsFile, failures);
+  if (joinedRoomsVector != null) {
+    final request = joinedRoomsVector['request'];
+    final preconditions = joinedRoomsVector['preconditions'];
+    final joinedRoomIds = preconditions is Map
+        ? preconditions['joined_room_ids']
+        : null;
+    final excludedRoomIds = preconditions is Map
+        ? preconditions['excluded_room_ids']
+        : null;
+    final expected = joinedRoomsVector['expected'];
+    final bodyContains = expected is Map ? expected['body_contains'] : null;
+    final joinedRooms = bodyContains is Map
+        ? bodyContains['joined_rooms']
+        : null;
+    final notes = joinedRoomsVector['notes'];
+    final outOfScope = notes is Map ? notes['out_of_scope'] : null;
+    if (request is! Map ||
+        request['method'] != 'GET' ||
+        request['path'] != '/_matrix/client/v3/joined_rooms' ||
+        request['access_token'] != 'token-1' ||
+        preconditions is! Map ||
+        preconditions['user_id'] != '@alice:example.test' ||
+        joinedRoomIds is! List ||
+        !joinedRoomIds.contains('!room:example.test') ||
+        excludedRoomIds is! List ||
+        !excludedRoomIds.contains('!left:example.test') ||
+        expected is! Map ||
+        expected['versions_advertisement_widened'] != false ||
+        bodyContains is! Map ||
+        joinedRooms is! List ||
+        !joinedRooms.contains('!room:example.test') ||
+        joinedRooms.contains('!left:example.test') ||
+        notes is! Map ||
+        notes['representative_current_join_membership_only'] != true ||
+        outOfScope is! List ||
+        !outOfScope.contains(
+          'GET /_matrix/client/v3/rooms/{roomId}/joined_members',
+        ) ||
+        !outOfScope.contains('GET /_matrix/client/v3/rooms/{roomId}/members') ||
+        !outOfScope.contains('membership listing pagination and ordering') ||
+        !outOfScope.contains('profile field completeness in member lists') ||
+        !outOfScope.contains(
+          'knock and restricted-join membership listing breadth',
+        ) ||
+        !outOfScope.contains('historical membership listing')) {
+      failures.add(
+        '${relative(joinedRoomsFile)} joined_rooms boundary invalid.',
+      );
     }
   }
 }

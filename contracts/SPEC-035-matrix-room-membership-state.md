@@ -21,9 +21,10 @@ behavior without changing existing `/_houra/client/**` room routes.
 
 This is an MVP-equivalent room contract. It does not define Matrix room version
 auth rules, event DAG persistence, state resolution, room aliases, public room
-directory behavior, invites, knocks, kicks, bans, room upgrades, `/joined_rooms`,
-or federation joins. Those require later Client-Server, Room Versions, and
-Federation contracts before they are advertised as complete.
+directory behavior, invites, knocks, kicks, bans, room upgrades,
+`/joined_members`, `/members`, or federation joins. Those require later
+Client-Server, Room Versions, and Federation contracts before they are
+advertised as complete.
 
 ## Matrix reference
 
@@ -31,6 +32,7 @@ Federation contracts before they are advertised as complete.
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3createroom>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3joinroomidoralias>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3roomsroomidleave>
+- Source: <https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3joined_rooms>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#get_matrixclientv3roomsroomidstate>
 - Source: <https://spec.matrix.org/v1.18/client-server-api/#mroomguest_access>
 - Checked at: 2026-05-18T20:05:00+09:00
@@ -121,6 +123,28 @@ Successful responses return the joined room ID:
 
 Joining by alias, `server_name` query hints, restricted rooms, knocks, invites,
 and remote federation joins are outside this contract.
+
+## Joined rooms
+
+```text
+GET /_matrix/client/v3/joined_rooms
+Authorization: Bearer token-1
+```
+
+```json
+{
+  "joined_rooms": ["!room:example.test"]
+}
+```
+
+This contract defines only the representative joined-room list for the
+authenticated user. The list contains room IDs for rooms where the user has a
+current `m.room.member` state with `membership = join`.
+
+`joined_members`, `/members`, pagination or ordering guarantees, profile field
+completeness in membership lists, knocked-room visibility, restricted-join
+membership breadth, and historical membership listing are outside this
+contract.
 
 ### Guest join boundary
 
