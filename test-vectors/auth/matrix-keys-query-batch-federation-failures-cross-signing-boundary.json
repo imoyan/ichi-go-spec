@@ -1,0 +1,276 @@
+{
+  "name": "matrix-keys-query-batch-federation-failures-cross-signing-boundary",
+  "contract": "SPEC-151",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#post_matrixclientv3keysquery",
+    "device_keys_source": "https://spec.matrix.org/v1.18/client-server-api/#device-keys",
+    "cross_signing_source": "https://spec.matrix.org/v1.18/client-server-api/#cross-signing",
+    "federation_query_source": "https://spec.matrix.org/v1.18/server-server-api/#post_matrixfederationv1userkeysquery",
+    "checked_at": "2026-05-18T23:00:00+09:00",
+    "required_contracts": [
+      "SPEC-050",
+      "SPEC-051",
+      "SPEC-054",
+      "SPEC-069",
+      "SPEC-079",
+      "SPEC-151"
+    ],
+    "local_olm_megolm_allowed": false,
+    "given": {
+      "authenticated_user_id": "@alice:example.test",
+      "authenticated_device_id": "ALICE1",
+      "stored_local_users": {
+        "@alice:example.test": {
+          "devices": [
+            "ALICE1",
+            "ALICE2"
+          ],
+          "has_master_key": true,
+          "has_self_signing_key": true,
+          "has_user_signing_key": true
+        },
+        "@bob:example.test": {
+          "devices": [
+            "BOB1"
+          ],
+          "has_master_key": true,
+          "has_self_signing_key": true,
+          "has_user_signing_key": true
+        }
+      }
+    },
+    "steps": [
+      {
+        "id": "batch-query-mixed-known-and-unknown-local-users",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/query",
+        "access_token": "token-alice-device1",
+        "body": {
+          "device_keys": {
+            "@alice:example.test": [],
+            "@bob:example.test": [
+              "BOB1",
+              "UNKNOWN_DEVICE"
+            ],
+            "@nobody:example.test": []
+          }
+        },
+        "expected_status": 200,
+        "expected_body_contains_keys": [
+          "device_keys",
+          "failures"
+        ],
+        "expected_body_device_keys_present_users": [
+          "@alice:example.test",
+          "@bob:example.test"
+        ],
+        "expected_body_device_keys_omits_users": [
+          "@nobody:example.test"
+        ],
+        "expected_body_device_keys_present_devices_for_user": {
+          "@bob:example.test": [
+            "BOB1"
+          ]
+        },
+        "expected_body_device_keys_omits_devices_for_user": {
+          "@bob:example.test": [
+            "UNKNOWN_DEVICE"
+          ]
+        },
+        "expected_body_failures_empty": true
+      },
+      {
+        "id": "self-query-includes-user-signing-key",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/query",
+        "access_token": "token-alice-device1",
+        "body": {
+          "device_keys": {
+            "@alice:example.test": []
+          }
+        },
+        "expected_status": 200,
+        "expected_body_contains_keys": [
+          "master_keys",
+          "self_signing_keys",
+          "user_signing_keys"
+        ],
+        "expected_body_user_signing_keys_present_users": [
+          "@alice:example.test"
+        ]
+      },
+      {
+        "id": "other-user-query-omits-user-signing-key",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/query",
+        "access_token": "token-alice-device1",
+        "body": {
+          "device_keys": {
+            "@bob:example.test": []
+          }
+        },
+        "expected_status": 200,
+        "expected_body_contains_keys": [
+          "master_keys",
+          "self_signing_keys"
+        ],
+        "expected_body_user_signing_keys_omits_users": [
+          "@bob:example.test"
+        ]
+      },
+      {
+        "id": "remote-server-query-failure-surfaced-in-failures",
+        "given_event": "federation_keys_query_to_remote_example_test_returns_503",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/query",
+        "access_token": "token-alice-device1",
+        "body": {
+          "device_keys": {
+            "@eve:remote.example.test": []
+          },
+          "timeout": 1000
+        },
+        "expected_status": 200,
+        "expected_body_failures_keyed_by_server_name": [
+          "remote.example.test"
+        ],
+        "expected_body_failures_errcode_for_server": {
+          "remote.example.test": "M_UNKNOWN"
+        },
+        "expected_body_device_keys_omits_users": [
+          "@eve:remote.example.test"
+        ],
+        "server_effect": {
+          "synthesised_remote_device_key": false
+        }
+      },
+      {
+        "id": "remote-server-timeout-surfaced-in-failures",
+        "given_event": "federation_keys_query_to_slow_example_test_hits_timeout",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/query",
+        "access_token": "token-alice-device1",
+        "body": {
+          "device_keys": {
+            "@frank:slow.example.test": []
+          },
+          "timeout": 500
+        },
+        "expected_status": 200,
+        "expected_body_failures_keyed_by_server_name": [
+          "slow.example.test"
+        ],
+        "expected_body_failures_errcode_for_server": {
+          "slow.example.test": "M_UNKNOWN"
+        },
+        "server_effect": {
+          "response_within_bounded_timeout": true
+        }
+      },
+      {
+        "id": "remote-server-malformed-response-surfaced-as-bad-json",
+        "given_event": "federation_keys_query_to_garbage_example_test_returns_non_json",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/query",
+        "access_token": "token-alice-device1",
+        "body": {
+          "device_keys": {
+            "@grace:garbage.example.test": []
+          }
+        },
+        "expected_status": 200,
+        "expected_body_failures_keyed_by_server_name": [
+          "garbage.example.test"
+        ],
+        "expected_body_failures_errcode_for_server": {
+          "garbage.example.test": "M_BAD_JSON"
+        }
+      },
+      {
+        "id": "timeout-clamped-to-server-upper-bound",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/query",
+        "access_token": "token-alice-device1",
+        "body": {
+          "device_keys": {
+            "@alice:example.test": []
+          },
+          "timeout": 600000000
+        },
+        "expected_status": 200,
+        "server_effect": {
+          "effective_timeout_clamped_to_server_upper_bound": true,
+          "response_did_not_exceed_clamped_timeout": true
+        }
+      },
+      {
+        "id": "reject-negative-timeout",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/query",
+        "access_token": "token-alice-device1",
+        "body": {
+          "device_keys": {
+            "@alice:example.test": []
+          },
+          "timeout": -1
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_INVALID_PARAM"
+        }
+      },
+      {
+        "id": "reject-non-array-device-list",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/query",
+        "access_token": "token-alice-device1",
+        "body": {
+          "device_keys": {
+            "@alice:example.test": "should-be-array"
+          }
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_BAD_JSON"
+        }
+      },
+      {
+        "id": "reject-non-object-device-keys-map",
+        "method": "POST",
+        "path": "/_matrix/client/v3/keys/query",
+        "access_token": "token-alice-device1",
+        "body": {
+          "device_keys": "not-an-object"
+        },
+        "expected_status": 400,
+        "expected_error": {
+          "errcode": "M_BAD_JSON"
+        }
+      }
+    ],
+    "required_evidence": [
+      "houra_spec_ref",
+      "houra_server_ref",
+      "user_ids",
+      "device_ids",
+      "commands",
+      "per_step_pass_fail",
+      "versions_advertisement_widened_false"
+    ]
+  },
+  "expected": {
+    "batch_processes_users_independently": true,
+    "unknown_local_user_omitted_without_failure": true,
+    "unknown_device_omitted_without_failure": true,
+    "self_query_includes_user_signing_key": true,
+    "other_user_query_omits_user_signing_key": true,
+    "remote_failure_in_failures_by_server_name": true,
+    "remote_timeout_in_failures_by_server_name": true,
+    "remote_malformed_response_as_bad_json": true,
+    "timeout_clamped_to_server_upper_bound": true,
+    "malformed_request_rejected_count": 3,
+    "private_key_returned": false,
+    "versions_advertisement_widened": false
+  }
+}

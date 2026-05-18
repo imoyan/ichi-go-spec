@@ -1,0 +1,372 @@
+{
+  "name": "matrix-encrypted-attachment-encryptedfile-parser-boundary",
+  "contract": "SPEC-146",
+  "event": {
+    "matrix_spec_version": "v1.18",
+    "matrix_spec_source": "https://spec.matrix.org/v1.18/client-server-api/#sending-encrypted-attachments",
+    "extensions_msgtypes_source": "https://spec.matrix.org/v1.18/client-server-api/#extensions-to-mroommessage-msgtypes",
+    "mfile_source": "https://spec.matrix.org/v1.18/client-server-api/#mfile",
+    "mimage_source": "https://spec.matrix.org/v1.18/client-server-api/#mimage",
+    "mvideo_source": "https://spec.matrix.org/v1.18/client-server-api/#mvideo",
+    "maudio_source": "https://spec.matrix.org/v1.18/client-server-api/#maudio",
+    "checked_at": "2026-05-18T20:30:00+09:00",
+    "required_contracts": [
+      "SPEC-050",
+      "SPEC-052",
+      "SPEC-072",
+      "SPEC-079",
+      "SPEC-102",
+      "SPEC-146"
+    ],
+    "local_aes_ctr_allowed": false,
+    "parser_only": true,
+    "artifacts": [
+      {
+        "id": "accept-encrypted-file-attachment-mfile",
+        "location": "content.file",
+        "msgtype": "m.file",
+        "input": {
+          "url": "mxc://example.test/encrypted-file-1",
+          "key": {
+            "kty": "oct",
+            "alg": "A256CTR",
+            "k": "redacted-base64url-256-bit-key",
+            "ext": true,
+            "key_ops": [
+              "encrypt",
+              "decrypt"
+            ]
+          },
+          "iv": "redacted-base64-iv-16-bytes",
+          "hashes": {
+            "sha256": "redacted-base64-sha256-digest"
+          },
+          "v": "v2"
+        },
+        "expected_parse": {
+          "ok": true,
+          "version": "v2",
+          "url": "mxc://example.test/encrypted-file-1"
+        },
+        "redacted_in_parser_output": [
+          "key.k",
+          "iv",
+          "hashes.sha256"
+        ]
+      },
+      {
+        "id": "accept-encrypted-image-with-encrypted-thumbnail",
+        "location": "content.info.thumbnail_file",
+        "msgtype": "m.image",
+        "input": {
+          "url": "mxc://example.test/encrypted-thumbnail-1",
+          "key": {
+            "kty": "oct",
+            "alg": "A256CTR",
+            "k": "redacted-base64url-256-bit-thumbnail-key",
+            "ext": true,
+            "key_ops": [
+              "encrypt",
+              "decrypt"
+            ]
+          },
+          "iv": "redacted-base64-iv-thumbnail",
+          "hashes": {
+            "sha256": "redacted-base64-sha256-thumbnail"
+          },
+          "v": "v2"
+        },
+        "expected_parse": {
+          "ok": true,
+          "version": "v2",
+          "url": "mxc://example.test/encrypted-thumbnail-1"
+        }
+      },
+      {
+        "id": "reject-encrypted-file-missing-url",
+        "location": "content.file",
+        "input": {
+          "key": {
+            "kty": "oct",
+            "alg": "A256CTR",
+            "k": "redacted-base64url-256-bit-key",
+            "ext": true,
+            "key_ops": [
+              "encrypt",
+              "decrypt"
+            ]
+          },
+          "iv": "redacted-base64-iv-16-bytes",
+          "hashes": {
+            "sha256": "redacted-base64-sha256-digest"
+          },
+          "v": "v2"
+        },
+        "expected_parse": {
+          "ok": false,
+          "reason": "missing_url"
+        }
+      },
+      {
+        "id": "reject-encrypted-file-missing-iv",
+        "location": "content.file",
+        "input": {
+          "url": "mxc://example.test/encrypted-file-2",
+          "key": {
+            "kty": "oct",
+            "alg": "A256CTR",
+            "k": "redacted-base64url-256-bit-key",
+            "ext": true,
+            "key_ops": [
+              "encrypt",
+              "decrypt"
+            ]
+          },
+          "hashes": {
+            "sha256": "redacted-base64-sha256-digest"
+          },
+          "v": "v2"
+        },
+        "expected_parse": {
+          "ok": false,
+          "reason": "missing_iv"
+        }
+      },
+      {
+        "id": "reject-encrypted-file-missing-sha256-hash",
+        "location": "content.file",
+        "input": {
+          "url": "mxc://example.test/encrypted-file-3",
+          "key": {
+            "kty": "oct",
+            "alg": "A256CTR",
+            "k": "redacted-base64url-256-bit-key",
+            "ext": true,
+            "key_ops": [
+              "encrypt",
+              "decrypt"
+            ]
+          },
+          "iv": "redacted-base64-iv-16-bytes",
+          "hashes": {
+            "sha512": "redacted-base64-sha512-digest"
+          },
+          "v": "v2"
+        },
+        "expected_parse": {
+          "ok": false,
+          "reason": "missing_sha256_hash"
+        }
+      },
+      {
+        "id": "reject-encrypted-file-bad-jwk-kty",
+        "location": "content.file",
+        "input": {
+          "url": "mxc://example.test/encrypted-file-4",
+          "key": {
+            "kty": "RSA",
+            "alg": "A256CTR",
+            "k": "redacted-base64url-256-bit-key",
+            "ext": true,
+            "key_ops": [
+              "encrypt",
+              "decrypt"
+            ]
+          },
+          "iv": "redacted-base64-iv-16-bytes",
+          "hashes": {
+            "sha256": "redacted-base64-sha256-digest"
+          },
+          "v": "v2"
+        },
+        "expected_parse": {
+          "ok": false,
+          "reason": "jwk_kty_not_oct"
+        }
+      },
+      {
+        "id": "reject-encrypted-file-bad-jwk-alg",
+        "location": "content.file",
+        "input": {
+          "url": "mxc://example.test/encrypted-file-5",
+          "key": {
+            "kty": "oct",
+            "alg": "A128CTR",
+            "k": "redacted-base64url-key",
+            "ext": true,
+            "key_ops": [
+              "encrypt",
+              "decrypt"
+            ]
+          },
+          "iv": "redacted-base64-iv-16-bytes",
+          "hashes": {
+            "sha256": "redacted-base64-sha256-digest"
+          },
+          "v": "v2"
+        },
+        "expected_parse": {
+          "ok": false,
+          "reason": "jwk_alg_not_a256ctr"
+        }
+      },
+      {
+        "id": "reject-encrypted-file-jwk-ext-false",
+        "location": "content.file",
+        "input": {
+          "url": "mxc://example.test/encrypted-file-6",
+          "key": {
+            "kty": "oct",
+            "alg": "A256CTR",
+            "k": "redacted-base64url-256-bit-key",
+            "ext": false,
+            "key_ops": [
+              "encrypt",
+              "decrypt"
+            ]
+          },
+          "iv": "redacted-base64-iv-16-bytes",
+          "hashes": {
+            "sha256": "redacted-base64-sha256-digest"
+          },
+          "v": "v2"
+        },
+        "expected_parse": {
+          "ok": false,
+          "reason": "jwk_ext_not_true"
+        }
+      },
+      {
+        "id": "reject-encrypted-file-key-ops-missing-decrypt",
+        "location": "content.file",
+        "input": {
+          "url": "mxc://example.test/encrypted-file-7",
+          "key": {
+            "kty": "oct",
+            "alg": "A256CTR",
+            "k": "redacted-base64url-256-bit-key",
+            "ext": true,
+            "key_ops": [
+              "encrypt"
+            ]
+          },
+          "iv": "redacted-base64-iv-16-bytes",
+          "hashes": {
+            "sha256": "redacted-base64-sha256-digest"
+          },
+          "v": "v2"
+        },
+        "expected_parse": {
+          "ok": false,
+          "reason": "key_ops_missing_decrypt"
+        }
+      },
+      {
+        "id": "reject-encrypted-file-version-not-v2",
+        "location": "content.file",
+        "input": {
+          "url": "mxc://example.test/encrypted-file-8",
+          "key": {
+            "kty": "oct",
+            "alg": "A256CTR",
+            "k": "redacted-base64url-256-bit-key",
+            "ext": true,
+            "key_ops": [
+              "encrypt",
+              "decrypt"
+            ]
+          },
+          "iv": "redacted-base64-iv-16-bytes",
+          "hashes": {
+            "sha256": "redacted-base64-sha256-digest"
+          },
+          "v": "v1"
+        },
+        "expected_parse": {
+          "ok": false,
+          "reason": "version_not_v2"
+        }
+      },
+      {
+        "id": "reject-encrypted-file-non-mxc-url",
+        "location": "content.file",
+        "input": {
+          "url": "https://example.test/leaked-attachment.bin",
+          "key": {
+            "kty": "oct",
+            "alg": "A256CTR",
+            "k": "redacted-base64url-256-bit-key",
+            "ext": true,
+            "key_ops": [
+              "encrypt",
+              "decrypt"
+            ]
+          },
+          "iv": "redacted-base64-iv-16-bytes",
+          "hashes": {
+            "sha256": "redacted-base64-sha256-digest"
+          },
+          "v": "v2"
+        },
+        "expected_parse": {
+          "ok": false,
+          "reason": "url_not_mxc"
+        }
+      },
+      {
+        "id": "reject-mutually-exclusive-plaintext-url-with-encrypted-file",
+        "location": "content",
+        "input": {
+          "msgtype": "m.image",
+          "body": "photo.png",
+          "url": "mxc://example.test/plaintext-attachment",
+          "file": {
+            "url": "mxc://example.test/encrypted-attachment",
+            "key": {
+              "kty": "oct",
+              "alg": "A256CTR",
+              "k": "redacted-base64url-256-bit-key",
+              "ext": true,
+              "key_ops": [
+                "encrypt",
+                "decrypt"
+              ]
+            },
+            "iv": "redacted-base64-iv-16-bytes",
+            "hashes": {
+              "sha256": "redacted-base64-sha256-digest"
+            },
+            "v": "v2"
+          }
+        },
+        "expected_parse": {
+          "ok": false,
+          "reason": "plaintext_url_and_encrypted_file_mutually_exclusive"
+        }
+      }
+    ],
+    "redaction_rules": {
+      "k_retained_in_shared_artifact_output": false,
+      "iv_retained_in_shared_artifact_output": false,
+      "sha256_digest_retained_in_shared_artifact_output": false,
+      "url_retained_in_shared_artifact_output": true,
+      "version_retained_in_shared_artifact_output": true
+    },
+    "required_evidence": [
+      "houra_spec_ref",
+      "houra_labs_ref",
+      "msgtypes",
+      "artifact_locations",
+      "per_artifact_pass_fail",
+      "versions_advertisement_widened_false"
+    ]
+  },
+  "expected": {
+    "parser_only": true,
+    "accepted_artifact_count": 2,
+    "rejected_artifact_count": 10,
+    "secret_bearing_fields_in_shared_output": false,
+    "local_aes_ctr_decryption_implemented": false,
+    "versions_advertisement_widened": false
+  }
+}
