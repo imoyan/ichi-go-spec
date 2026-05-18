@@ -109,10 +109,11 @@ matching the guest account localpart. Representative Houra compatibility covers
 the successful upgrade of `@guest1:example.test` with `guest_access_token`
 `token-guest` and `username` `guest1`.
 
-This boundary only covers the representative success path. Invalid
-`guest_access_token` cases, mismatched username/token cases, persistence
-breadth for invalidating old guest sessions, room preview behavior, and
-guest-specific API allowlists remain outside this contract.
+This boundary covers the representative success path plus fail-closed
+rejection when the guest token is unknown or the requested username does not
+match the guest account localpart. Persistence breadth for invalidating old
+guest sessions, room preview behavior, and guest-specific API allowlists remain
+outside this contract.
 
 ## User-interactive authentication response
 
