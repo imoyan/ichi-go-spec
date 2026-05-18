@@ -1,0 +1,28 @@
+{
+  "name": "matrix-logout-all-token-invalid-after-logout",
+  "contract": "SPEC-032",
+  "given": {
+    "previous_request": {
+      "method": "POST",
+      "path": "/_matrix/client/v3/logout/all",
+      "access_token": "token-alice-device1"
+    }
+  },
+  "request": {
+    "method": "GET",
+    "path": "/_matrix/client/v3/account/whoami",
+    "access_token": "token-alice-device2"
+  },
+  "expected": {
+    "status": 401,
+    "body_contains": {
+      "errcode": "M_UNKNOWN_TOKEN",
+      "error": "Access token is no longer valid."
+    },
+    "all_same_user_tokens_invalidated": true,
+    "all_same_user_devices_deleted": true,
+    "other_user_access_token_remains_valid": true,
+    "does_not_require_uia": true,
+    "versions_advertisement_widened": false
+  }
+}

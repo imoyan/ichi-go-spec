@@ -9,7 +9,7 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix domain | Vector count | Contract count |
 |---|---:|---:|
 | none | 75 | 18 |
-| Client-Server API | 147 | 29 |
+| Client-Server API | 149 | 29 |
 | Server-Server API | 27 | 14 |
 | Room Versions | 20 | 12 |
 | Olm & Megolm | 4 | 4 |
@@ -150,6 +150,8 @@ Physical vector relocation is deferred until a separate migration can preserve i
 | Matrix v1.18 / Client-Server API / key upload and key claim endpoints | SPEC-051 Matrix Device, One-Time, and Fallback Keys | auth | `test-vectors/auth/matrix-keys-upload-malformed-device-keys.json` | `matrix-keys-upload-malformed-device-keys` |
 | Matrix v1.18 / Client-Server API / login token, refresh, and account deactivation endpoints | SPEC-122 Matrix Client-Server Auth Refresh Fallback Account Lifecycle | auth | `test-vectors/auth/matrix-client-server-auth-refresh-fallback-account-lifecycle.json` | `matrix-client-server-auth-refresh-fallback-account-lifecycle` |
 | Matrix v1.18 / Client-Server API / login, logout, and whoami endpoints | SPEC-032 Matrix Client-Server Auth Session | auth | `test-vectors/auth/matrix-login-flows-basic.json` | `matrix-login-flows-basic` |
+| Matrix v1.18 / Client-Server API / login, logout, and whoami endpoints | SPEC-032 Matrix Client-Server Auth Session | auth | `test-vectors/auth/matrix-logout-all-basic.json` | `matrix-logout-all-basic` |
+| Matrix v1.18 / Client-Server API / login, logout, and whoami endpoints | SPEC-032 Matrix Client-Server Auth Session | auth | `test-vectors/auth/matrix-logout-all-token-invalid-after-logout.json` | `matrix-logout-all-token-invalid-after-logout` |
 | Matrix v1.18 / Client-Server API / login, logout, and whoami endpoints | SPEC-032 Matrix Client-Server Auth Session | auth | `test-vectors/auth/matrix-logout-basic.json` | `matrix-logout-basic` |
 | Matrix v1.18 / Client-Server API / login, logout, and whoami endpoints | SPEC-032 Matrix Client-Server Auth Session | auth | `test-vectors/auth/matrix-password-login-basic.json` | `matrix-password-login-basic` |
 | Matrix v1.18 / Client-Server API / login, logout, and whoami endpoints | SPEC-032 Matrix Client-Server Auth Session | auth | `test-vectors/auth/matrix-password-login-failure.json` | `matrix-password-login-failure` |
