@@ -4,12 +4,21 @@
   "event": {
     "target": "Product MVP WebRTC low-latency connection boundary",
     "spec_issue": "imoyan/houra-spec#423",
+    "refinement_issue": "imoyan/houra-spec#435",
     "checked_at": "2026-05-18T00:00:00+09:00",
     "capability": {
       "supported": true,
       "modes": ["auto", "same-lan-fastest", "relay-safe"],
+      "tiers": ["low-latency", "fastest-tier"],
       "topologies": ["direct-pair", "small-mesh", "hub-spoke", "sfu-relay"],
       "max_participants": 12,
+      "fastest_tier": {
+        "supported": true,
+        "requires_same_candidate_baseline": true,
+        "requires_p95_win_ms": 10,
+        "requires_worst_case_not_regressed": true,
+        "max_reoptimization_interval_ms": 15000
+      },
       "same_lan_fast_path": {
         "supported": true,
         "requires_user_opt_in": true,
@@ -31,6 +40,22 @@
         "expected_status": "ok"
       },
       {
+        "id": "fastest-tier-measured-winner",
+        "participants": 4,
+        "mode": "auto",
+        "tier": "fastest-tier",
+        "baseline_topology": "relay-safe",
+        "baseline_p95_rtt_ms": 64,
+        "baseline_worst_case_rtt_ms": 82,
+        "candidate_pair_class": "host",
+        "median_rtt_ms": 12,
+        "p95_rtt_ms": 28,
+        "worst_case_rtt_ms": 77,
+        "packet_loss_regressed": false,
+        "selected_topology": "hub-spoke",
+        "expected_status": "ok"
+      },
+      {
         "id": "same-lan-fastest-opt-in",
         "participants": 3,
         "mode": "same-lan-fastest",
@@ -43,6 +68,20 @@
         "relay_median_rtt_ms": 38,
         "selected_topology": "small-mesh",
         "expected_status": "ok"
+      },
+      {
+        "id": "fastest-tier-blocked-worst-case-regression",
+        "participants": 4,
+        "mode": "auto",
+        "tier": "fastest-tier",
+        "baseline_topology": "relay-safe",
+        "baseline_p95_rtt_ms": 58,
+        "baseline_worst_case_rtt_ms": 70,
+        "candidate_p95_rtt_ms": 42,
+        "candidate_worst_case_rtt_ms": 91,
+        "selected_topology": "relay-safe",
+        "expected_status": "blocked",
+        "expected_error": "fastest_tier_worst_case_regressed"
       },
       {
         "id": "same-lan-missing-opt-in-fails-closed",
@@ -104,6 +143,8 @@
       "rtcp_mux_policy": "require",
       "direct_mode_ice_transport_policy": "all",
       "relay_safe_ice_transport_policy": "relay",
+      "fastest_tier_max_reoptimization_interval_ms": 15000,
+      "topology_oscillation_allowed": false,
       "exact_candidate_pair_forced": false,
       "bounded_ice_restart_allowed": true
     },
@@ -122,9 +163,14 @@
   },
   "expected": {
     "mode_count": 3,
+    "tier_count": 2,
     "topology_count": 4,
-    "planning_case_count": 6,
-    "fail_closed_case_count": 2,
+    "planning_case_count": 8,
+    "fail_closed_case_count": 3,
+    "fastest_tier_requires_same_candidate_baseline": true,
+    "fastest_tier_requires_p95_win_ms": 10,
+    "fastest_tier_blocks_worst_case_regression": true,
+    "fastest_tier_prevents_topology_oscillation": true,
     "same_lan_requires_user_opt_in": true,
     "same_lan_requires_private_address_redaction": true,
     "center_selection_minimizes_worst_case_before_average": true,
