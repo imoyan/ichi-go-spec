@@ -1,0 +1,41 @@
+{
+  "name": "matrix-registration-guest-upgrade-basic",
+  "contract": "SPEC-033",
+  "issue": "imoyan/houra-spec#426",
+  "preconditions": {
+    "guest_user_id": "@guest1:example.test",
+    "guest_access_token": "token-guest",
+    "guest_device_id": "GUEST1"
+  },
+  "request": {
+    "method": "POST",
+    "path": "/_matrix/client/v3/register",
+    "body": {
+      "username": "guest1",
+      "password": "correct horse battery staple",
+      "guest_access_token": "token-guest",
+      "device_id": "UPGRADED",
+      "initial_device_display_name": "Guest upgraded phone"
+    }
+  },
+  "expected": {
+    "status": 200,
+    "body_contains": {
+      "user_id": "@guest1:example.test",
+      "access_token": "token-register",
+      "device_id": "UPGRADED",
+      "home_server": "example.test"
+    },
+    "guest_account_upgraded": true,
+    "uia_required": false,
+    "versions_advertisement_widened": false,
+    "excluded_breadth": [
+      "invalid guest_access_token rejection matrix",
+      "mismatched username and guest token rejection matrix",
+      "guest session invalidation persistence breadth",
+      "room preview event stream",
+      "guest-specific API allowlist",
+      "guest-specific rate-limit policy"
+    ]
+  }
+}
