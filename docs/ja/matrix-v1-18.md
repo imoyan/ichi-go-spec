@@ -30,9 +30,9 @@ refs 不一致による fail-closed 判定を記録します。
 この bundle は次の candidate ref（`event.candidate_refs`）を正本として記録します。
 
 - `release_candidate`: `houra-matrix-v1.18-current-blocked-2026-05-19`
-- `houra-spec`: `3661146aec87dd6fae278cd5d45ce638dbcff4ab`
-- `houra-server`: `7adb178c2709b7af2dd058487af1d2287786c72c`
-- `houra-client`: `5154a2c519d113f030dc0e9369d06060005ebd49`
+- `houra_spec_ref`: `3661146aec87dd6fae278cd5d45ce638dbcff4ab`
+- `houra_server_ref`: `7adb178c2709b7af2dd058487af1d2287786c72c`
+- `houra_client_ref`: `5154a2c519d113f030dc0e9369d06060005ebd49`
 
 この candidate ref に対して、実装側の evidence source（`event.evidence_sources`）として
 `imoyan/houra-server#413` / `imoyan/houra-server#414`、`imoyan/houra-client#233` / `imoyan/houra-client#234`
