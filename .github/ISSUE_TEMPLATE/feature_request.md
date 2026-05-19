@@ -8,6 +8,12 @@ assignees: ""
 
 ## Goal
 
+## Lane
+
+- target_lane: labs|spec|client|server|shared-core
+- promotion_path: labs -> spec -> production
+- claim_boundary: experiment-only|fail-closed|advertised
+
 ## Feature Profile
 
 ## Contract Changes
