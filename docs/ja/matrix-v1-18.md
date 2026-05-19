@@ -15,7 +15,7 @@ Push Gateway API、Room Versions、Olm & Megolm、Appendices/common rules は別
 
 ## close-out snapshot
 
-2026-05-18T09:35:03+09:00 時点では、#95 が Matrix v1.18 roadmap の親 issue です。#189 は
+2026-05-19T06:29:28+09:00（`test-vectors/core/matrix-v1-18-release-evidence-current-blocked-bundle.json` の `checked_at`）時点では、#95 が Matrix v1.18 roadmap の親 issue です。#189 は
 README の close-out snapshot を通じて、domain issue、implementation adoption refs、
 release evidence の対応関係を読むための整理 lane です。
 
@@ -25,10 +25,16 @@ implementation refs と evidence bundle は #200 で追跡します。
 `test-vectors/core/matrix-v1-18-release-evidence-current-blocked-bundle.json`
 は現在の blocked bundle で、example bundle とは分けて実 implementation refs と
 refs 不一致による fail-closed 判定を記録します。
-この bundle は `houra-spec` aa80fa3038b35cba18943375c22cec57baf292d4、
-`houra-server` 2b78806d766c31593a14b5dee9dece7a577c7ff8、
-`houra-client` 5154a2c519d113f030dc0e9369d06060005ebd49 の same-candidate refs を
-記録します。closed 済みの #200 から #202 は evidence / boundary record として扱います。
+この bundle は次の candidate ref（`event.candidate_refs`）を正本として記録します。
+
+- `release_candidate`: `houra-matrix-v1.18-current-blocked-2026-05-19`
+- `houra-spec`: `3661146aec87dd6fae278cd5d45ce638dbcff4ab`
+- `houra-server`: `7adb178c2709b7af2dd058487af1d2287786c72c`
+- `houra-client`: `5154a2c519d113f030dc0e9369d06060005ebd49`
+
+この candidate ref に対して、実装側の evidence source（`event.evidence_sources`）として
+`imoyan/houra-server#413` / `imoyan/houra-server#414`、`imoyan/houra-client#233` / `imoyan/houra-client#234`
+を記録します。closed 済みの #200 から #202 は evidence / boundary record として扱います。
 
 `houra-server` と `houra-client` の #189 で列挙された adoption refs は閉じています。
 `houra-server#145` は、#133 を active blocker ではなく parent tracker として閉じ、
