@@ -20,8 +20,10 @@ README の close-out snapshot を通じて、domain issue、implementation adopt
 release evidence の対応関係を読むための整理 lane です。
 
 #97 から #101 の spec 側 contract / vector / gate 子 issue は完了済みとして扱えます。
-ただし、それだけでは release support claim にはなりません。実 release candidate の
-implementation refs と evidence bundle は #200 で追跡します。
+#100 は E2EE boundary record として close 済みで、#97 / #98 / #99 / #101 は
+release outcome tracker として open 維持です。ただし、それだけでは release support
+claim にはなりません。実 release candidate の implementation refs と evidence bundle
+は #200 で追跡します。
 `test-vectors/core/matrix-v1-18-release-evidence-current-blocked-bundle.json`
 は現在の blocked bundle で、example bundle とは分けて実 implementation refs と
 refs 不一致による fail-closed 判定を記録します。
@@ -48,12 +50,14 @@ Server-Server / Complement full-breadth tracker として open 維持です。
 #173 から #180 は shared-core / parser / capability / theme evidence として close 済みで、
 release candidate が shared-core artifact を必須 evidence に含めない限り、Matrix
 version advertisement の blocker ではありません。
+Product MVP 側の `SPEC-140` WebRTC planner evidence は `houra-client#241` と PR
+#243 で close 済みですが、Matrix v1.18 の `/versions` advertisement とは分けて扱います。
 
 #200 は current blocked bundle として、実 implementation refs と fail-closed の判断を
 記録しました。#201 は `SPEC-068` の OAuth account-management adoption boundary を
 記録し、full Matrix OAuth 2.0 support claim とは分けます。#202 は `SPEC-069` の
 device-key query-only adoption boundary を記録し、full E2EE / Olm-Megolm support
-claim とは分けます。#235 後の current blocked bundle は、#135 から #142 の
+claim とは分けます。#200 の current blocked bundle は、#135 から #142 の
 release-scope decisions をリンク済みです。ただし `GET /_matrix/client/versions` は
 引き続き空の Matrix versions を返す fail-closed 状態です。#95 は、publishable な
 Matrix support claim と domain evidence が揃うまで release-ready として読ませないで

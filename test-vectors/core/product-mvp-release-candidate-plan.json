@@ -160,7 +160,8 @@
           "imoyan/houra-spec#423"
         ],
         "implementation_refs": [
-          "imoyan/houra-client#235"
+          "imoyan/houra-client#241",
+          "imoyan/houra-client#243"
         ],
         "release_candidate_decision": "optional-fail-closed-until-webrtc-capability-fastest-tier-baseline-runtime-measurement-and-ui-evidence-are-current",
         "required_evidence_before_advertisement": [
