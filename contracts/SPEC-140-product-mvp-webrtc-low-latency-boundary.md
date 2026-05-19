@@ -292,7 +292,8 @@ current implementation evidence for the same runtime and candidate release.
 
 After this contract merges:
 
-- use `houra-client#235` for optional UI controls and runtime evidence;
+- use `houra-client#241` / `houra-client#243` for optional UI controls,
+  runtime evidence, and planner evidence-gate adoption;
 - create `houra-server` or host adapter work only if signaling, TURN, SFU, or
   capability metadata is needed;
 - keep current Product MVP and Matrix claims fail-closed until implementation
